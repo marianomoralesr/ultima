@@ -195,7 +195,7 @@ app.post("/intelimotor-api/", async (req, res) => {
 // });
 
 // ----- Serve React Build -----
-const buildPath = path.resolve(__dirname, "../dist");
+const buildPath = path.resolve(__dirname, "dist");
 
 // Serve static assets with long cache for hashed files, short cache for index.html
 app.use(express.static(buildPath, {

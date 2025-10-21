@@ -138,7 +138,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             };
             assignAgent();
         }
-    }, [profile]);
+    }, [profile, reloadProfile]);
 
     const signOut = async () => {
         await supabase.auth.signOut();

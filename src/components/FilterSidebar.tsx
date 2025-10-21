@@ -253,7 +253,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
                     <h2 className="text-lg font-bold text-gray-800">Filtros</h2>
                     <button onClick={onCloseSheet} className="p-2 rounded-full text-gray-600 hover:bg-gray-100"><XIcon className="w-6 h-6" /></button>
                 </div>
-                <div className="overflow-y-auto px-6 py-4 flex-grow pb-24">{FilterBody}</div>
+                <div className="overflow-y-auto px-6 py-4 flex-grow pb-24">
+                    {FilterBody}
+                </div>
                 <div className="p-4 border-t border-gray-200 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <button onClick={onCloseSheet} className="w-full bg-primary-600 text-white font-bold py-3.5 rounded-lg hover:bg-primary-700 transition-colors">
                         Mostrar {resultsCount} resultados

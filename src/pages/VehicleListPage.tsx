@@ -278,7 +278,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start">
           <div className="hidden lg:block">
-            {filterOptions && Object.keys(filterOptions).length > 0 && (
+            {Object.keys(filterOptions).length > 0 ? (
               <FilterSidebar
                 allVehicles={vehicles}
                 onFiltersChange={handleFiltersChange}
@@ -288,6 +288,15 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
                 onRemoveFilter={onRemoveFilter}
                 activeFiltersList={activeFiltersList}
               />
+            ) : (
+              <div className="w-full lg:w-96 p-6 bg-white rounded-2xl shadow-sm h-fit sticky top-28 animate-pulse">
+                <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
+                <div className="space-y-4">
+                    <div className="h-6 bg-gray-200 rounded w-full"></div>
+                    <div className="h-6 bg-gray-200 rounded w-5/6"></div>
+                    <div className="h-6 bg-gray-200 rounded w-full"></div>
+                </div>
+              </div>
             )}
           </div>
           <div>

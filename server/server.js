@@ -142,6 +142,39 @@ app.use((req, res, next) => {
 app.get("/healthz", (_, res) => res.send("ok"));
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
+// ----- Intelimotor API Proxy -----
+// This endpoint proxies requests to Intelimotor API, hiding credentials from frontend
+app.post("/intelimotor-api/", async (req, res) => {
+  try {
+    const { url, method, headers, body } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ error: "Missing 'url' in request body" });
+    }
+
+    // Make request to Intelimotor API
+    const response = await fetch(url, {
+      method: method || 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json(data);
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Intelimotor proxy error:', error);
+    res.status(500).json({ error: 'Proxy request failed', details: error.message });
+  }
+});
+
 // // ----- API Routes -----
 // app.post("/api/sync-images", (req, res) => {
 //   const secret = req.get("x-sync-secret");

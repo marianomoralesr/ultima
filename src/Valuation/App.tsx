@@ -153,7 +153,7 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
         vehicle: selectedVehicle, mileage: numericMileage,
         businessUnitId: config.intelimotor.businessUnitId, apiKey: config.intelimotor.apiKey,
         apiSecret: config.intelimotor.apiSecret,
-        proxyUrl: 'https://proxy.cors.sh'
+        proxyUrl: 'https://jjepfehmuybpctdzipnu.supabase.co/functions/v1/intelimotor-proxy'
     });
     setValuationPromise(promise);
     setStep('contact');

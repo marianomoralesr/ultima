@@ -5,10 +5,12 @@
  * as a robust fallback when Supabase cache tables are empty or smooth-handler fails.
  */
 
+import { config } from '../config';
+
 const AIRTABLE_API_BASE = 'https://api.airtable.com/v0';
-const AIRTABLE_BASE_ID = 'appbOPKYqQRW2HgyB'; // TREFA Inventario
+const AIRTABLE_BASE_ID = config.airtable.valuation.baseId;
 const AIRTABLE_TABLE_ID = 'shrqIjFEK3uqApbv4'; // Inventario table
-const AIRTABLE_API_KEY = (import.meta as any).env?.VITE_AIRTABLE_API_KEY || '';
+const AIRTABLE_API_KEY = config.airtable.valuation.apiKey;
 
 export interface AirtableVehicleRecord {
     id: string;

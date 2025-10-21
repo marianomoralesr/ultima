@@ -1,5 +1,7 @@
 import type { Vehicle, IntelimotorValuation } from '../../types/types';
 
+const INTELIMOTOR_BASE_URL = 'https://api.intelimotor.com';
+
 export class ValuationFailedError extends Error {
   public response: any;
   constructor(message: string, response?: any) {
@@ -232,12 +234,26 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
             throw new Error("El auto seleccionado no tiene todos los IDs necesarios (brand, model, year, trim).");
         }
 
-        const callProxy = async (endpoint: string, method: 'POST' | 'GET', body: any) => {
+        const callProxy = async (endpoint: string, method: 'POST' | 'GET', requestBody: any = null) => {
+            const fullUrl = `${INTELIMOTOR_BASE_URL}/${endpoint}`;
+
+            const proxyPayload = {
+                url: fullUrl,
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Api-Key': apiKey.trim(),
+                    'X-Api-Secret': apiSecret.trim()
+                },
+                body: requestBody
+            };
+
             const response = await fetch('/intelimotor-api/', {
-                method: 'POST', // The proxy itself is always called with POST
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ endpoint, method, body }),
+                body: JSON.stringify(proxyPayload),
             });
+
             if (!response.ok) {
                 const errorBody = await response.text();
                 let errorMsg = `Error from proxy (${response.status}): ${errorBody}`;

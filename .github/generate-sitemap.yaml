@@ -1,0 +1,36 @@
+name: Generate Sitemap
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # every day at 03:00 UTC
+  workflow_dispatch: # allows manual trigger
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run sitemap generation
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node ./generateSiteMap.js
+
+      - name: Commit and push updated sitemap
+        run: |
+          git config user.name "trefa-bot"
+          git config user.email "bot@trefa.mx"
+          git add public/sitemap.xml
+          git commit -m "🤖 Auto-update sitemap [skip ci]" || echo "No changes"
+          git push

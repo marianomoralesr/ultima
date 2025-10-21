@@ -40,7 +40,7 @@ Deno.serve(async (req)=>{
     const subpath = pathname.startsWith(base) ? pathname.slice(base.length) : pathname;
     // Routing
     // GET /inventario-cache
-    if (req.method === "GET" && subpath === "/inventario") {
+    if (req.method === "GET" && subpath === "/inventario-cache") {
       const params = Object.fromEntries(url.searchParams.entries());
       return handleList(params);
     }
@@ -62,7 +62,7 @@ async function handleList(q) {
   const pageSize = toInt(String(q.page_size ?? ""), 50);
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
-  let query = admin.from("inventario").select("*", {
+  let query = admin.from("inventario_cache").select("*", {
     count: "exact"
   }).order("cached_at", {
     ascending: false,
@@ -111,7 +111,7 @@ async function handleList(q) {
   });
 }
 async function handleGet(recordId) {
-  const { data, error } = await admin.from("inventario").select("*").eq("record_id", recordId).limit(1).maybeSingle();
+  const { data, error } = await admin.from("inventario_cache").select("*").eq("record_id", recordId).limit(1).maybeSingle();
   if (error) {
     console.error("Fetch error:", error);
     return serverError(error.message);

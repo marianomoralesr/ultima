@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             sessionStorage.removeItem('userProfile');
             return null;
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         setLoading(true);

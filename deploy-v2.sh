@@ -100,7 +100,13 @@ function deploy_staging() {
 
     # --- Step 4: Deploy to Cloud Run (Staging) ---
     echo -e "${YELLOW}[4/5] Deploying to Cloud Run (Staging)...${NC}"
-    local env_vars=$(paste -d, -s cloud-build-vars.yaml | sed 's/:\s*/=/g' | sed 's/"//g')
+    
+    if [ ! -f "cloud-build-vars.yaml" ]; then
+        echo -e "${RED}✗ Error: cloud-build-vars.yaml not found.${NC}"
+        exit 1
+    fi
+
+    local env_vars=$(grep -v '^#' cloud-build-vars.yaml | sed -e 's/: /=/' -e 's/"//g' | paste -sd "," -)
     
     gcloud run deploy "$STAGING_SERVICE_NAME" \
       --image="$image_url" \

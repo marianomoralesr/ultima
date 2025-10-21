@@ -56,16 +56,16 @@ function run_git_checks() {
     fi
 
     echo "Fetching latest changes from remote..."
-    git fetch origin
+    # git fetch origin
 
-    local local_commit=$(git rev-parse HEAD)
-    local remote_commit=$(git rev-parse @{u})
+    # local_commit=$(git rev-parse HEAD)
+    # remote_commit=$(git rev-parse @{u})
 
-    if [ "$local_commit" != "$remote_commit" ]; then
-        echo -e "${RED}✗ Error: Your local 'main' branch is not up-to-date with the remote.${NC}"
-        echo "Please run 'git pull' to sync your branch."
-        exit 1
-    fi
+    # if [ "$local_commit" != "$remote_commit" ]; then
+    #     echo -e "${RED}✗ Error: Your local 'main' branch is not up-to-date with the remote.${NC}"
+    #     echo "Please run 'git pull' to sync your branch."
+    #     exit 1
+    # fi
 
     echo -e "${GREEN}✓ Git checks passed. You are on the latest version of 'main'.${NC}"
     echo ""

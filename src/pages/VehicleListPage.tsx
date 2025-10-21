@@ -441,12 +441,12 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
           <div {...bindSheetDrag()} className="w-full p-4 flex justify-center cursor-grab touch-none">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
           </div>
-          {filterOptions && Object.keys(filterOptions).length > 0 && (
+          {Object.keys(filterOptions).length > 0 && (
             <FilterSidebar
               allVehicles={vehicles}
               isMobileSheet={true}
               onCloseSheet={closeSheet}
-              resultsCount={vehicles.length}
+              resultsCount={totalCount}
               onFiltersChange={handleFiltersChange}
               onClearFilters={handleClearFilters}
               filterOptions={filterOptions}

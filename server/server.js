@@ -152,6 +152,8 @@ app.post("/intelimotor-api/", async (req, res) => {
       return res.status(400).json({ error: "Missing 'url' in request body" });
     }
 
+    console.log('Intelimotor proxy request:', { url, method, headers: Object.keys(headers || {}) });
+
     // Make request to Intelimotor API
     const response = await fetch(url, {
       method: method || 'POST',
@@ -165,9 +167,11 @@ app.post("/intelimotor-api/", async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('Intelimotor API error:', { status: response.status, url, data });
       return res.status(response.status).json(data);
     }
 
+    console.log('Intelimotor API success:', { status: response.status, url });
     res.json(data);
   } catch (error) {
     console.error('Intelimotor proxy error:', error);

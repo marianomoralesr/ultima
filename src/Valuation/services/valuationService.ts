@@ -1,6 +1,6 @@
 import type { Vehicle, IntelimotorValuation } from '../../types/types';
 
-const INTELIMOTOR_BASE_URL = 'https://api.intelimotor.com';
+const INTELIMOTOR_BASE_URL = 'https://api.intelimotor.com/api';
 
 export class ValuationFailedError extends Error {
   public response: any;

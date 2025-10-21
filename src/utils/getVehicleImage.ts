@@ -9,6 +9,12 @@ const placeholders: Record<string, string> = {
   "hatchback": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/hbArtboard-12-trefa.png"};
 
 export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): string {
+  const parseStringOrArray = (value: string | string[] | undefined): string[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',').map(s => s.trim());
+    return [];
+  };
+
   const potentialImages = [
     // 1. Prioritize explicit feature images and their variants
     vehicle.feature_image,
@@ -17,9 +23,10 @@ export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): s
     vehicle.thumbnail,
     vehicle.feature_image_webp,
     // 2. Fallback to the first image from any gallery
-    ...(vehicle.galeria_exterior || []),
-    ...(vehicle.fotos_exterior_url || []),
-    ...(vehicle.galeria_interior || []),
+    ...parseStringOrArray(vehicle.galeria_exterior),
+    ...parseStringOrArray(vehicle.fotos_exterior_url),
+    ...parseStringOrArray(vehicle.galeria_interior),
+    ...parseStringOrArray(vehicle.fotos_interior_url),
   ];
 
   // Find the first valid, non-empty URL from the prioritized list

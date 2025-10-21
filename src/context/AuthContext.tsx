@@ -113,41 +113,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [user, fetchProfile]);
 
-    useEffect(() => {
-        if (profile && profile.role === 'user' && !profile.asesor_asignado_id) {
-            const assignAgent = async () => {
-                try {
-                    const { data: agentId, error: rpcError } = await supabase.rpc('get_next_sales_agent');
-                    if (rpcError) {
-                        console.error('Error assigning sales agent:', rpcError);
-                    } else if (agentId) {
-                        const { error: updateError } = await supabase
-                            .from('profiles')
-                            .update({ asesor_asignado_id: agentId })
-                            .eq('id', profile.id);
-                        if (updateError) {
-                            console.error('Error updating profile with agent ID:', updateError);
-                        } else {
-                            // Reload profile to get the latest data and update cache
-                            await reloadProfile();
-                        }
-                    }
-                } catch (e) {
-                    console.error("Unexpected error in agent assignment effect:", e);
-                }
-            };
-            assignAgent();
-        }
-    }, [profile, reloadProfile]);
-
-    const signOut = async () => {
-        await supabase.auth.signOut();
-        setSession(null);
-        setUser(null);
-        setProfile(null);
-        sessionStorage.removeItem('userProfile');
-    };
-    
     const reloadProfile = useCallback(async (): Promise<Profile | null> => {
         if (!user) {
             setProfile(null);
@@ -187,6 +152,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return null;
         }
     }, [user]); // Dependency on user is correct
+
+    useEffect(() => {
+        if (profile && profile.role === 'user' && !profile.asesor_asignado_id) {
+            const assignAgent = async () => {
+                try {
+                    const { data: agentId, error: rpcError } = await supabase.rpc('get_next_sales_agent');
+                    if (rpcError) {
+                        console.error('Error assigning sales agent:', rpcError);
+                    } else if (agentId) {
+                        const { error: updateError } = await supabase
+                            .from('profiles')
+                            .update({ asesor_asignado_id: agentId })
+                            .eq('id', profile.id);
+                        if (updateError) {
+                            console.error('Error updating profile with agent ID:', updateError);
+                        } else {
+                            // Reload profile to get the latest data and update cache
+                            await reloadProfile();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Unexpected error in agent assignment effect:", e);
+                }
+            };
+            assignAgent();
+        }
+    }, [profile, reloadProfile]);
+
+    const signOut = async () => {
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        sessionStorage.removeItem('userProfile');
+    };
 
     const isAdmin = profile?.role === 'admin';
     const isSales = profile?.role === 'sales';

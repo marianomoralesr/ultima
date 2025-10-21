@@ -150,6 +150,9 @@ class VehicleService {
             const normalizedData = this.normalizeVehicleData(data);
             const totalCount = count || 0;
             
+            console.log('Normalized Data:', normalizedData);
+            console.log('Total Count:', totalCount);
+
             this.cache.set(cacheKey, { data: normalizedData, totalCount, timestamp: Date.now() });
             try {
                 localStorage.setItem(cacheKey, JSON.stringify({ data: normalizedData, totalCount, timestamp: Date.now() }));

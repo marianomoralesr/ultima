@@ -41,12 +41,15 @@ const VehicleListPage: React.FC = () => {
   console.log('Vehicles:', vehicles);
   console.log('Vehicles Error:', vehiclesError);
 
-  const filterOptions = useMemo(() => {
-    try {
-      return getFilterOptions(vehicles, vehicles);
-    } catch (error) {
-      console.error('Error in getFilterOptions:', error);
-      return {};
+  const [filterOptions, setFilterOptions] = useState<any>({});
+
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      try {
+        setFilterOptions(getFilterOptions(vehicles, vehicles));
+      } catch (error) {
+        console.error('Error in getFilterOptions:', error);
+      }
     }
   }, [vehicles]);
 

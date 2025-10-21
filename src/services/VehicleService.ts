@@ -219,7 +219,15 @@ class VehicleService {
         }
     }
 
-    public static async getVehicleBySlug(slug: string): Promise<Vehicle | null> {
+    public static async getAndRecordVehicleView(slug: string): Promise<Vehicle | null> {
+        const vehicle = await this.getVehicleBySlug(slug);
+        if (vehicle) {
+            return this.recordVehicleView(vehicle);
+        }
+        return null;
+    }
+
+    private static async getVehicleBySlug(slug: string): Promise<Vehicle | null> {
         if (!slug) return null;
         try {
             const { data, error } = await supabase
@@ -229,12 +237,12 @@ class VehicleService {
                 .single();
 
             if (error) {
-                if (error.code === 'PGRST116') return null;
+                if (error.code === 'PGRST116') return null; // No single row found
                 throw error;
             }
             if (data) {
                 const normalized = this.normalizeVehicleData([data]);
-                return this.recordVehicleView(normalized[0]);
+                return normalized[0];
             }
             return null;
         } catch (error) {

@@ -671,46 +671,37 @@ const VehicleDetailPage: React.FC = () => {
                 return;
             }
 
-            let vehicleData: WordPressVehicle | null | undefined = allVehicles.find(v => v.slug === slug);
+            try {
+                const vehicleData = await VehicleService.getAndRecordVehicleView(slug);
+                if (vehicleData) {
+                    setVehicle(vehicleData);
+                    setInspectionLoading(true);
+                    try {
+                        const [inspectionResult, favoriteCountResult] = await Promise.allSettled([
+                            InspectionService.getInspectionByVehicleId(vehicleData.id),
+                            FavoritesService.getFavoriteCountByVehicleId(vehicleData.id)
+                        ]);
 
-            if (vehicleData) {
-                console.log("✅ [VehicleDetail] Found vehicle in context.");
-            } else {
-                console.log("... Vehicle not in context, fetching from service.");
-                try {
-                    vehicleData = await VehicleService.getVehicleBySlug(slug);
-                } catch (err: any) {
-                    setError('Error al cargar los detalles del auto: ' + err.message);
-                    return;
+                        if (inspectionResult.status === 'fulfilled') setInspectionData(inspectionResult.value);
+                        if (favoriteCountResult.status === 'fulfilled') setFavoriteCount(favoriteCountResult.value);
+
+                    } catch (error) {
+                        console.error("Error fetching secondary data:", error);
+                    } finally {
+                        setInspectionLoading(false);
+                    }
+                } else {
+                    setError('Auto no encontrado.');
                 }
-            }
-
-            if (vehicleData) {
-                setVehicle(vehicleData);
-                setInspectionLoading(true);
-                try {
-                    const [inspectionResult, favoriteCountResult] = await Promise.allSettled([
-                        InspectionService.getInspectionByVehicleId(vehicleData.id),
-                        FavoritesService.getFavoriteCountByVehicleId(vehicleData.id)
-                    ]);
-
-                    if (inspectionResult.status === 'fulfilled') setInspectionData(inspectionResult.value);
-                    if (favoriteCountResult.status === 'fulfilled') setFavoriteCount(favoriteCountResult.value);
-
-                } catch (error) {
-                    console.error("Error fetching secondary data:", error);
-                } finally {
-                    setInspectionLoading(false);
-                }
-            } else {
-                setError('Auto no encontrado.');
+            } catch (err: any) {
+                setError('Error al cargar los detalles del auto: ' + err.message);
             }
         };
 
-        if (!authLoading && !vehiclesLoading) {
+        if (!authLoading) {
             fetchVehicleData();
         }
-    }, [slug, allVehicles, authLoading, vehiclesLoading]);
+    }, [slug, authLoading]);
 
     const closeLightbox = () => setIsLightboxOpen(false);
 

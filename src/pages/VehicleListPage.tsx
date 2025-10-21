@@ -430,7 +430,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
         <RecentlyViewed layout="carousel" />
       </main>
 
-      <div className={`fixed inset-0 z-50 lg:hidden ${isFilterSheetOpen ? '' : 'pointer-events-none'}`}>
+      <div className={`fixed inset-0 z-[60] lg:hidden ${isFilterSheetOpen ? '' : 'pointer-events-none'}`}>
         {isFilterSheetOpen && (
           <div className="absolute inset-0 bg-black/50 animate-fadeIn" onClick={closeSheet}></div>
         )}

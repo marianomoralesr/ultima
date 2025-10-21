@@ -106,7 +106,7 @@ function deploy_staging() {
         exit 1
     fi
 
-    local env_vars=$(grep -v '^#' cloud-build-vars.yaml | sed -e 's/: /=/' -e 's/"//g' | paste -sd "," -)
+    local env_vars=$(awk -F': ' '!/^#/ && NF {printf "%s=%s,", $1, $2}' cloud-build-vars.yaml | sed 's/,$//')
     
     gcloud run deploy "$STAGING_SERVICE_NAME" \
       --image="$image_url" \

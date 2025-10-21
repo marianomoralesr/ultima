@@ -234,7 +234,7 @@ const LeadSourceInfo: React.FC<{ metadata: any }> = ({ metadata }) => {
 };
 
 const AdminClientProfilePage: React.FC = () => {
-    const { userId } = useParams<{ userId: string }>();
+    const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
     const [clientData, setClientData] = useState<{ profile: Profile; applications: any[]; tags: any[]; reminders: any[]; documents: any[] } | null>(null);
     const [loading, setLoading] = useState(true);
@@ -243,7 +243,7 @@ const AdminClientProfilePage: React.FC = () => {
     const [syncMessage, setSyncMessage] = useState('');
     
     useEffect(() => {
-        if (!userId) {
+        if (!id) {
             setError("User ID is missing.");
             setLoading(false);
             return;
@@ -251,7 +251,7 @@ const AdminClientProfilePage: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const data = await AdminService.getClientProfile(userId);
+                const data = await AdminService.getClientProfile(id);
                 if (!data) throw new Error("Client not found.");
                 setClientData(data);
             } catch (err: any) {
@@ -261,7 +261,7 @@ const AdminClientProfilePage: React.FC = () => {
             }
         };
         fetchData();
-    }, [userId]);
+    }, [id]);
 
     const handleSyncToKommo = async () => {
         if (!clientData) return;

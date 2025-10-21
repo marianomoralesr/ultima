@@ -299,110 +299,112 @@ class VehicleService {
     }
     
 private static normalizeVehicleData(rawData: any[]): Vehicle[] {
-        const safeParseFloat = (val: any, fallback = 0) => { const n = parseFloat(String(val).replace(/,/g, '')); return isNaN(n) ? fallback : n; };
-        const safeParseInt = (val: any, fallback = 0) => { const n = parseInt(String(val).replace(/,/g, ''), 10); return isNaN(n) ? fallback : n; };
+    const safeParseFloat = (val: any, fallback = 0) => { const n = parseFloat(String(val).replace(/,/g, '')); return isNaN(n) ? fallback : n; };
+    const safeParseInt = (val: any, fallback = 0) => { const n = parseInt(String(val).replace(/,/g, ''), 10); return isNaN(n) ? fallback : n; };
 
+    const parseGalleryField = (field: any): string[] => {
+        if (Array.isArray(field)) {
+            return field.filter(isValidImageUrl);
+        }
+        if (typeof field === 'string') {
+            return field.split(',').map(url => url.trim()).filter(isValidImageUrl);
+        }
+        return [];
+    };
 
-        const parseGalleryField = (field: any): string[] => {
-            if (Array.isArray(field)) {
-                return field;
-            }
-            if (typeof field === 'string') {
-                return field.split(',').map(url => url.trim()).filter(Boolean);
-            }
-            return [];
-        };
+    const normalizedVehicles = rawData.filter(Boolean).map((item) => {
+        const title = item.title || `${item.marca || ''} ${item.modelo || ''} ${item.autoano || ''}`.trim() || 'Auto sin título';
+        const slug = item.slug || generateSlug(title);
+        
+        let clasificacionid: string[] = [];
+        if (Array.isArray(item.clasificacionid)) {
+            clasificacionid = item.clasificacionid.map(String);
+        } else if (typeof item.clasificacionid === 'string') {
+            clasificacionid = item.clasificacionid.split(',').map((c: string) => c.trim()).filter(Boolean);
+        }
 
-        const normalizedVehicles = rawData.filter(Boolean).map((item) => {
-            const title = item.title || `${item.marca || ''} ${item.modelo || ''} ${item.autoano || ''}`.trim() || 'Auto sin título';
-            const slug = item.slug || generateSlug(title);
+        const sucursalMapping: Record<string, string> = { 'MTY': 'Monterrey', 'GPE': 'Guadalupe', 'TMPS': 'Reynosa', 'COAH': 'Saltillo' };
+        let normalizedSucursales: string[] = [];
+        if (Array.isArray(item.ubicacion)) {
+            normalizedSucursales = item.ubicacion.map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
+        } else if (typeof item.ubicacion === 'string') {
+            normalizedSucursales = item.ubicacion.split(',').map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
+        }
+
+        const featureImage = getVehicleImage(item);
+
+        const exteriorGallery = [
+            ...parseGalleryField(item.fotos_exterior_url),
+            ...parseGalleryField(item.galeria_exterior)
+        ];
+        
+        const interiorGallery = [
+            ...parseGalleryField(item.fotos_interior_url),
+            ...parseGalleryField(item.galeria_interior)
+        ];
+
+        const viewCount = safeParseInt(item.view_count || item.viewcount);
+
+        const normalizedVehicle = {
+            id: item.id || 0,
+            slug: slug,
+            ordencompra: item.ordencompra || '',
+            record_id: item.record_id || null,
             
-            let clasificacionid: string[] = [];
-            if (Array.isArray(item.clasificacionid)) {
-                clasificacionid = item.clasificacionid.map(String);
-            } else if (typeof item.clasificacionid === 'string') {
-                clasificacionid = item.clasificacionid.split(',').map((c: string) => c.trim()).filter(Boolean);
-            }
+            titulo: title,
+            descripcion: item.descripcion || '',
+            metadescripcion: item.metadescripcion || '',
 
-            const sucursalMapping: Record<string, string> = { 'MTY': 'Monterrey', 'GPE': 'Guadalupe', 'TMPS': 'Reynosa', 'COAH': 'Saltillo' };
-            let normalizedSucursales: string[] = [];
-            if (Array.isArray(item.ubicacion)) {
-                normalizedSucursales = item.ubicacion.map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
-            } else if (typeof item.ubicacion === 'string') {
-                normalizedSucursales = item.ubicacion.split(',').map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
-            }
-
-            const featureImage = getVehicleImage(item);
-
-            const exteriorGallery = [
-                ...parseGalleryField(item.fotos_exterior_url),
-                ...parseGalleryField(item.galeria_exterior)
-            ];
+            marca: item.marca || '',
+            modelo: item.modelo || '',
             
-            const interiorGallery = [
-                ...parseGalleryField(item.fotos_interior_url),
-                ...parseGalleryField(item.galeria_interior)
-            ];
-
-            const normalizedVehicle = {
-                id: item.id || 0,
-                slug: slug,
-                ordencompra: item.ordencompra || '',
-                record_id: item.record_id || null,
-                
-                titulo: title,
-                descripcion: item.descripcion || '',
-                metadescripcion: item.metadescripcion || '',
-
-                marca: item.marca || '',
-                modelo: item.modelo || '',
-                
-                autoano: safeParseInt(item.autoano),
-                precio: safeParseFloat(item.precio),
-                kilometraje: safeParseInt(item.kilometraje),
-                transmision: item.transmision || '',
-                combustible: item.combustible || '',
-                carroceria: item.carroceria || '',
-                cilindros: safeParseInt(item.cilindros),
-                
-                enganchemin: safeParseFloat(item.enganchemin),
-                enganche_recomendado: safeParseFloat(item.enganche_recomendado),
-                mensualidad_minima: safeParseFloat(item.mensualidad_minima),
-                mensualidad_recomendada: safeParseFloat(item.mensualidad_recomendada),
-                plazomax: safeParseInt(item.plazomax),
-                
-                feature_image: featureImage,
-                galeria_exterior: [...new Set(exteriorGallery.filter(isValidImageUrl))],
-                fotos_exterior_url: [...new Set(exteriorGallery.filter(isValidImageUrl))],
-                galeria_interior: [...new Set(interiorGallery.filter(isValidImageUrl))],
-                
-                ubicacion: normalizedSucursales,
-                sucursal: normalizedSucursales,
-                
-                garantia: item.garantia || '',
-                
-                vendido: !!item.vendido,
-                separado: !!item.separado,
-                ordenstatus: item.ordenstatus || '',
-                
-                clasificacionid: clasificacionid,
-                
-                promociones: Array.isArray(item.promociones) ? item.promociones : [],
-                
-                viewcount: safeParseInt(item.viewcount),
-
-                // --- Compatibility Aliases ---
-                title: title,
-                price: safeParseFloat(item.precio),
-                year: safeParseInt(item.autoano),
-                kms: safeParseInt(item.kilometraje),
-            } as Vehicle;
+            autoano: safeParseInt(item.autoano),
+            precio: safeParseFloat(item.precio),
+            kilometraje: safeParseInt(item.kilometraje),
+            transmision: item.transmision || '',
+            combustible: item.combustible || '',
+            carroceria: item.carroceria || '',
+            cilindros: safeParseInt(item.cilindros),
             
-            return normalizedVehicle;
-        });
+            enganchemin: safeParseFloat(item.enganchemin),
+            enganche_recomendado: safeParseFloat(item.enganche_recomendado),
+            mensualidad_minima: safeParseFloat(item.mensualidad_minima),
+            mensualidad_recomendada: safeParseFloat(item.mensualidad_recomendada),
+            plazomax: safeParseInt(item.plazomax),
+            
+            feature_image: featureImage,
+            galeria_exterior: [...new Set(exteriorGallery)],
+            fotos_exterior_url: [...new Set(exteriorGallery)],
+            galeria_interior: [...new Set(interiorGallery)],
+            
+            ubicacion: normalizedSucursales,
+            sucursal: normalizedSucursales,
+            
+            garantia: item.garantia || '',
+            
+            vendido: !!item.vendido,
+            separado: !!item.separado,
+            ordenstatus: item.ordenstatus || '',
+            
+            clasificacionid: clasificacionid,
+            
+            promociones: Array.isArray(item.promociones) ? item.promociones : [],
+            
+            view_count: viewCount,
+            viewcount: viewCount,
 
-        return normalizedVehicles.filter(vehicle => vehicle.feature_image !== DEFAULT_PLACEHOLDER_IMAGE);
-    }
+            // --- Compatibility Aliases ---
+            title: title,
+            price: safeParseFloat(item.precio),
+            year: safeParseInt(item.autoano),
+            kms: safeParseInt(item.kilometraje),
+        } as Vehicle;
+        
+        return normalizedVehicle;
+    });
+
+    return normalizedVehicles.filter(vehicle => vehicle.feature_image !== DEFAULT_PLACEHOLDER_IMAGE);
+}
 
 
 }

@@ -15,8 +15,11 @@ const Footer: React.FC = () => {
     const { session } = useAuth();
     const navigate = useNavigate();
 
-    // Get app version from environment variable
-    const appVersion = import.meta.env.VITE_APP_VERSION || 'dev';
+    // Get app version from environment variables
+    const gitCommit = import.meta.env.VITE_GIT_COMMIT || 'local';
+    const buildDate = import.meta.env.VITE_BUILD_DATE || new Date().toISOString();
+    
+    const appVersion = `${gitCommit.substring(0, 7)} (${new Date(buildDate).toLocaleString()})`;
 
     const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, to: string, authRequired: boolean) => {
         if (authRequired && !session) {

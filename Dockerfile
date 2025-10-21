@@ -1,43 +1,40 @@
-# ---------- Stage 1: Build the frontend ----------
-FROM node:22 AS builder
-WORKDIR /app
-
-# Build args for Vite (used to replace VITE_* in frontend build)
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
-ARG VITE_APP_VERSION=dev
+ARG VITE_GIT_COMMIT
+ARG VITE_BUILD_DATE
 
-COPY package*.json ./
-RUN npm ci
+# Stage 1: Build the application
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy source code
 COPY . .
 
-# Build frontend using build args
-RUN VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
-    VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
-    VITE_APP_VERSION=$VITE_APP_VERSION \
-    npm run build
+# Install dependencies
+RUN npm install
 
-# ---------- Stage 2: Production server ----------
-FROM node:22
-WORKDIR /workspace
+# Build the application, passing in the build arguments
+RUN npm run build
 
-# Copy server dependencies and install production-only packages
-COPY server/package*.json ./server/
-RUN cd server && npm ci --omit=dev
+# Stage 2: Serve the application from a lightweight server
+FROM node:18-alpine
 
-# Copy server files
-COPY server/server.js ./server/
-COPY server/config.js ./server/
-# COPY server/syncAirtableData.cjs ./server/
+WORKDIR /app
 
-# Copy frontend build outside server folder
+# Copy built assets from the builder stage
 COPY --from=builder /app/dist ./dist
 
-# Expose port and set Node environment
-ENV NODE_ENV=production
-ENV PORT=8080
+# Copy server files
+COPY server.js .
+COPY package.json .
+COPY package-lock.json .
 
+# Install server dependencies
+RUN npm install --production
+
+# Expose the port the server will run on
 EXPOSE 8080
 
-# Start Express server
-CMD ["node", "server/server.js"]
+# Start the server
+CMD ["node", "server.js"]

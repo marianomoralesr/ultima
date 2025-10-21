@@ -5,6 +5,7 @@ WORKDIR /app
 # Build args for Vite (used to replace VITE_* in frontend build)
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_APP_VERSION=dev
 
 COPY package*.json ./
 RUN npm ci
@@ -13,6 +14,7 @@ COPY . .
 # Build frontend using build args
 RUN VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
     VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
+    VITE_APP_VERSION=$VITE_APP_VERSION \
     npm run build
 
 # ---------- Stage 2: Production server ----------

@@ -18,7 +18,7 @@ export interface AirtableVehicleRecord {
     createdTime: string;
 }
 
-class AirtableDirectService {
+export default class AirtableDirectService {
     /**
      * Fetch vehicles directly from Airtable with proper filtering
      */
@@ -366,6 +366,90 @@ class AirtableDirectService {
 
         return validRecords;
     }
-}
+    private static async apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
+        if (!AIRTABLE_API_KEY) {
+            const errorMessage = 'AIRTABLE_API_KEY is not configured.';
+            console.error(`❌ [Airtable] ${errorMessage}`);
+            throw new Error(errorMessage);
+        }
 
-export default AirtableDirectService;
+        const url = `${AIRTABLE_API_BASE}/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}${endpoint}`;
+        
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+                ...options.headers,
+            },
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`❌ [Airtable] API error response from ${url}:`, errorText);
+            throw new Error(`Airtable API error: ${response.status} ${response.statusText}`);
+        }
+
+        return response.json();
+    }
+
+    public static async getVehiclesForImageUpload(): Promise<{ id: string; ordenCompra: string }[]> {
+        const formula = `
+            AND(
+                {ordenstatus} = "Comprado",
+                OR(
+                    {Foto} = BLANK(),
+                    {fotos_exterior_archivos} = BLANK(),
+                    {fotos_interior_archivos} = BLANK()
+                )
+            )
+        `;
+
+        const allRecords: AirtableVehicleRecord[] = [];
+        let offset: string | undefined = undefined;
+
+        do {
+            const params = new URLSearchParams({
+                filterByFormula: formula,
+                fields: ['OrdenCompra', 'ordencompra'],
+                pageSize: '100',
+                sort: '[{ "field": "ordencompra", "direction": "desc"}]'
+            });
+            if (offset) {
+                params.append('offset', offset);
+            }
+
+            const data = await this.apiCall(`?${params.toString()}`);
+            
+            if (data.records && Array.isArray(data.records)) {
+                allRecords.push(...data.records);
+            }
+            offset = data.offset;
+        } while (offset);
+
+        return allRecords.map(record => ({
+            id: record.id,
+            ordenCompra: record.fields.OrdenCompra || record.fields.ordencompra || 'ID: ' + record.id,
+        }));
+    }
+
+    public static async updateVehicleImages(recordId: string, fieldName: string, imageUrls: string[]): Promise<{ success: boolean }> {
+        const payload = {
+            records: [
+                {
+                    id: recordId,
+                    fields: {
+                        [fieldName]: imageUrls.map(url => ({ url })),
+                    },
+                },
+            ],
+        };
+
+        await this.apiCall('', {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        });
+
+        return { success: true };
+    }
+}

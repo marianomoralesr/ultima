@@ -15,6 +15,9 @@ const Footer: React.FC = () => {
     const { session } = useAuth();
     const navigate = useNavigate();
 
+    // Get app version from environment variable
+    const appVersion = import.meta.env.VITE_APP_VERSION || 'dev';
+
     const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, to: string, authRequired: boolean) => {
         if (authRequired && !session) {
             e.preventDefault();
@@ -102,7 +105,11 @@ const Footer: React.FC = () => {
                 </div>
 
                 <div className="mt-8 border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center">
-                    <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} Grupo TREFA </p> <span className="text-sm pt-2 items-center"> Este sitio está en etapa beta y puede sufrir modificaciones significativas. </span>   <Link to="/beta-v.0.1" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-white"> Danos tu opinión </Link> 
+                    <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} Grupo TREFA </p>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 pt-2 sm:pt-0">
+                        <span className="text-sm text-gray-500">Versión: {appVersion}</span>
+                        <Link to="/beta-v.0.1" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-white"> Danos tu opinión </Link>
+                    </div>
                     <div className="flex items-right space-x-6 mt-4 sm:mt-0">
                         {socialLinks.map((item) => (
                             <a key={item.name} href={item.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">

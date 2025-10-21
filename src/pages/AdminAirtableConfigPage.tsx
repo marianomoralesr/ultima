@@ -28,6 +28,8 @@ const ConfigCard: React.FC<{ title: string, children: React.ReactNode }> = ({ ti
     </div>
 );
 
+import AirtableImageUploader from '../components/AirtableImageUploader';
+
 const AdminAirtableConfigPage: React.FC = () => {
     const { register, handleSubmit, formState: { isSubmitting } } = useForm({
         defaultValues: {
@@ -109,8 +111,7 @@ const AdminAirtableConfigPage: React.FC = () => {
                     </button>
                 </div>
             </form>
+            <AirtableImageUploader />
         </div>
     );
 };
-
-export default AdminAirtableConfigPage;

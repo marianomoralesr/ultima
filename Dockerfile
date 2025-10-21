@@ -26,9 +26,10 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 
 # Copy server files
-COPY server.js .
-COPY package.json .
-COPY package-lock.json .
+COPY server/server.js .
+COPY server/package.json .
+COPY server/package-lock.json .
+COPY server/config.js .
 
 # Install server dependencies
 RUN npm install --production

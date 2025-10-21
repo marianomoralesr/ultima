@@ -22,6 +22,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const reloadProfile = useCallback(async (): Promise<Profile | null> => {
+        if (!user) {
+            setProfile(null);
+            sessionStorage.removeItem('userProfile');
+            return null;
+        }
+
+        sessionStorage.removeItem('userProfile'); // Clear cache before fetching
+
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (error && error.code !== 'PGRST116') {
+                console.error('❌ Error reloading profile:', error.message);
+                setProfile(null);
+                return null;
+            }
+            
+            if (data) {
+                console.log('✅ Profile reloaded from Supabase and cached.');
+                setProfile(data as Profile);
+                sessionStorage.setItem('userProfile', JSON.stringify(data));
+                return data as Profile;
+            }
+
+            // If no data, ensure profile is cleared
+            setProfile(null);
+            return null;
+
+        } catch (e: any) {
+            console.error("❌ Unexpected error in reloadProfile:", e.message);
+            setProfile(null);
+            return null;
+        }
+    }, [user]);
+
+    const signOut = async () => {
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        sessionStorage.removeItem('userProfile');
+    };
+
     const fetchProfile = useCallback(async (user: User | null): Promise<Profile | null> => {
         if (!user) {
             setProfile(null);
@@ -113,46 +161,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [user, fetchProfile]);
 
-    const reloadProfile = useCallback(async (): Promise<Profile | null> => {
-        if (!user) {
-            setProfile(null);
-            sessionStorage.removeItem('userProfile');
-            return null;
-        }
-
-        sessionStorage.removeItem('userProfile'); // Clear cache before fetching
-
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (error && error.code !== 'PGRST116') {
-                console.error('❌ Error reloading profile:', error.message);
-                setProfile(null);
-                return null;
-            }
-            
-            if (data) {
-                console.log('✅ Profile reloaded from Supabase and cached.');
-                setProfile(data as Profile);
-                sessionStorage.setItem('userProfile', JSON.stringify(data));
-                return data as Profile;
-            }
-
-            // If no data, ensure profile is cleared
-            setProfile(null);
-            return null;
-
-        } catch (e: any) {
-            console.error("❌ Unexpected error in reloadProfile:", e.message);
-            setProfile(null);
-            return null;
-        }
-    }, [user]); // Dependency on user is correct
-
     useEffect(() => {
         if (profile && profile.role === 'user' && !profile.asesor_asignado_id) {
             const assignAgent = async () => {
@@ -179,14 +187,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             assignAgent();
         }
     }, [profile, reloadProfile]);
-
-    const signOut = async () => {
-        await supabase.auth.signOut();
-        setSession(null);
-        setUser(null);
-        setProfile(null);
-        sessionStorage.removeItem('userProfile');
-    };
 
     const isAdmin = profile?.role === 'admin';
     const isSales = profile?.role === 'sales';

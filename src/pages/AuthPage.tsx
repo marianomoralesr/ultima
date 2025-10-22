@@ -8,7 +8,7 @@ import VehicleService from '../services/VehicleService';
 import { formatPrice } from '../utils/formatters';
 import useSEO from '../hooks/useSEO';
 import { getVehicleImage } from '../utils/getVehicleImage';
-import { getEmailRedirectUrl } from 'config';
+import { getEmailRedirectUrl } from '../config';
 import { proxyImage } from '../utils/proxyImage';
 
 const VehicleFinanceCard: React.FC<{ vehicle: WordPressVehicle }> = ({ vehicle }) => (

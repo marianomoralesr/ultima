@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import { getEmailRedirectUrl } from 'config';
+import { getEmailRedirectUrl } from '../config';
 import { HeartIcon, FileTextIcon, BellIcon, CalendarIcon } from './icons';
 
 const benefits = [

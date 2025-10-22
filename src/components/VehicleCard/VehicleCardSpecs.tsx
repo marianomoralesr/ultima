@@ -17,8 +17,7 @@ const SpecItem: React.FC<{ icon: React.ElementType; label: string }> = ({ icon: 
 );
 
 const VehicleCardSpecs: React.FC<VehicleCardSpecsProps> = ({ sucursal = [], kilometraje, transmision, combustible }) => (
-  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-700 items-center">
-    {sucursal.length > 0 && <SpecItem icon={MapPinIcon} label={sucursal.join(', ')} />}
+  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600 items-center">
     {kilometraje > 0 && <SpecItem icon={GaugeIcon} label={formatMileage(kilometraje)} />}
     {transmision && <SpecItem icon={CogIcon} label={transmision} />}
     {combustible && <SpecItem icon={FuelIcon} label={combustible} />}

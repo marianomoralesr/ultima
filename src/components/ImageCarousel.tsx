@@ -2,6 +2,8 @@ import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import LazyImage from './LazyImage';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
+import { MapPinIcon, TagIcon, ShieldCheckIcon } from './icons';
+import { formatPromotion, getPromotionStyles } from '../utils/formatters';
 
 interface ImageCarouselProps {
   images: string[];
@@ -9,10 +11,11 @@ interface ImageCarouselProps {
   className?: string;
   isSeparado?: boolean;
   garantia?: string;
-  // Add any other props needed for the overlay/badges
+  sucursal?: string[];
+  promociones?: string[];
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal, promociones }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const x = useMotionValue(0);
   const constraintsRef = useRef(null);
@@ -59,15 +62,38 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
               alt={`${alt} - ${index + 1}`}
               className={`w-full h-full object-cover ${isSeparado ? 'filter grayscale' : ''}`}
             />
-            {garantia && garantia !== 'N/A' && (
-              <div className="absolute top-3 left-3 z-20">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-gradient-to-br from-slate-100 via-gray-100 to-zinc-200 text-gray-800 shadow-lg">
-                  {/* Assuming ShieldCheckIcon is available globally or imported */}
-                  {/* <ShieldCheckIcon className="w-4 h-4" /> */}
+
+            {/* Top-left tags: Garantia, Sucursal, Promociones */}
+            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+              {garantia && garantia !== 'N/A' && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md bg-white/95 backdrop-blur-sm text-gray-900 shadow-lg border border-white/20">
+                  <ShieldCheckIcon className="w-3.5 h-3.5 text-green-600" />
                   {garantia}
                 </span>
-              </div>
-            )}
+              )}
+
+              {sucursal && sucursal.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-white/95 backdrop-blur-sm text-gray-800 shadow-lg border border-white/20">
+                  <MapPinIcon className="w-3.5 h-3.5 text-primary-600" />
+                  {sucursal[0]}
+                </span>
+              )}
+
+              {promociones && promociones.length > 0 && promociones.slice(0, 2).map((promo, idx) => {
+                const formattedPromo = formatPromotion(promo);
+                if (!formattedPromo) return null;
+
+                return (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg border border-orange-400/30"
+                  >
+                    <TagIcon className="w-3.5 h-3.5" />
+                    {formattedPromo}
+                  </span>
+                );
+              })}
+            </div>
           </div>
         ))}
       </motion.div>

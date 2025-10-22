@@ -77,6 +77,8 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             alt={vehicle.title}
             isSeparado={isSeparado}
             garantia={vehicle.garantia}
+            sucursal={vehicle.ubicacion}
+            promociones={vehicle.promociones}
             className="w-full h-60 md:h-full"
           />
         </div>

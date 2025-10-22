@@ -15,9 +15,9 @@ interface VehicleGridCardProps {
   vehicle: Vehicle;
 }
 
-const SpecTag: React.FC<{ children: React.ReactNode, icon?: React.ElementType }> = ({ children, icon: Icon }) => (
-    <span className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-        {Icon && <Icon className="w-3.5 h-3.5" />}
+const SpecBadge: React.FC<{ children: React.ReactNode, icon?: React.ElementType }> = ({ children, icon: Icon }) => (
+    <span className="flex items-center gap-1.5 text-gray-600 text-xs font-medium">
+        {Icon && <Icon className="w-4 h-4 text-gray-500" />}
         {children}
     </span>
 );
@@ -66,6 +66,8 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
               alt={vehicle.titulo}
               isSeparado={isSeparado}
               garantia={vehicle.garantia}
+              sucursal={vehicle.ubicacion}
+              promociones={vehicle.promociones}
               className="aspect-[4/3]"
             />
             {isSeparado && (
@@ -78,58 +80,42 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
                     onClick={handleToggleFavorite}
                     data-gtm-id="card-grid-favorite"
                     disabled={isToggling === vehicle.id}
-                    className="bg-white/20 backdrop-blur-sm p-2 rounded-full text-white hover:text-red-400 transition-colors disabled:opacity-50"
+                    className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all shadow-md disabled:opacity-50"
                     aria-label={favorite ? "Quitar de favoritos" : "Añadir a favoritos"}
                  >
-                     <HeartIcon className={`w-6 h-6 ${favorite ? 'text-red-500 fill-current' : ''}`} />
+                     <HeartIcon className={`w-5 h-5 ${favorite ? 'text-red-500 fill-current' : 'text-gray-700'}`} />
                  </button>
-            </div>
-            <div className="absolute bottom-3 left-3 flex flex-wrap gap-2">
-                {vehicle.kilometraje > 0 && <SpecTag icon={GaugeIcon}>{formatMileage(vehicle.kilometraje)}</SpecTag>}
-                {vehicle.combustible && <SpecTag icon={FuelIcon}>{vehicle.combustible}</SpecTag>}
-                {vehicle.transmision && <SpecTag icon={CogIcon}>{vehicle.transmision}</SpecTag>}
             </div>
         </div>
 
         <div className="p-4 flex flex-col flex-grow">
             <div>
                 {vehicle.ordencompra && (
-                    <p className="text-xs font-light text-gray-500 mb-1 tracking-wider uppercase">{vehicle.ordencompra}</p>
+                    <p className="text-xs font-medium text-gray-400 mb-1.5 tracking-wide">{vehicle.ordencompra}</p>
                 )}
-                <h3 className="font-bold text-gray-800 group-hover:text-primary-600 transition-colors truncate" title={vehicle.titulo}>
+                <h3 className="font-bold text-base text-gray-900 group-hover:text-primary-600 transition-colors truncate mb-2" title={vehicle.titulo}>
                     {vehicle.titulo}
                 </h3>
-                {vehicle.ubicacion?.length > 0 && (
-                    <p className="text-xs font-light text-gray-500 mt-1 tracking-wider">{vehicle.ubicacion.join(', ')}</p>
-                )}
-            </div>
-            
-            {vehicle.promociones && vehicle.promociones.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                    {vehicle.promociones.slice(0, 2).map((promo, index) => {
-                       const styleClasses = getPromotionStyles(promo);
-                       const formattedPromo = formatPromotion(promo);
-                       if (!formattedPromo) return null;
 
-                       return (
-                           <span key={index} className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${styleClasses}`}>
-                               <TagIcon className="w-3 h-3" />
-                               {formattedPromo}
-                           </span>
-                       );
-                    })}
+                {/* Specs badges in white section */}
+                <div className="flex flex-wrap gap-3 mb-3 pb-3 border-b border-gray-100">
+                    {vehicle.kilometraje > 0 && <SpecBadge icon={GaugeIcon}>{formatMileage(vehicle.kilometraje)}</SpecBadge>}
+                    {vehicle.transmision && <SpecBadge icon={CogIcon}>{vehicle.transmision}</SpecBadge>}
+                    {vehicle.combustible && <SpecBadge icon={FuelIcon}>{vehicle.combustible}</SpecBadge>}
                 </div>
-            )}
+            </div>
 
-            <div className="mt-auto pt-3">
-                <p className="text-lg font-bold text-gray-900">
-                    {formatPrice(vehicle.precio)}
-                </p>
-                {vehicle.enganchemin > 0 && (
-                    <p className="text-xs text-gray-500 mt-0.5">
-                        Enganche desde {formatPrice(vehicle.enganchemin)}
+            <div className="mt-auto">
+                <div className="flex items-baseline justify-between mb-2">
+                    <p className="text-xl font-bold text-gray-900">
+                        {formatPrice(vehicle.precio)}
                     </p>
-                )}
+                    {vehicle.enganchemin > 0 && (
+                        <p className="text-xs text-gray-500">
+                            Desde {formatPrice(vehicle.enganchemin)}
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
 

@@ -1,53 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { config } from 'config';
-import ValuationApp from '../Valuation/App';
-import { 
-    BuildingIcon, CarIcon, CalendarIcon, MessageSquareIcon, WrenchIcon, MicroscopeIcon, 
-    DollarSignIcon, PenSquareIcon, ChevronLeftIcon, Loader2Icon, CheckCircleIcon 
-} from '../components/icons';
+import React from 'react';
+import { config } from './config';
 import useSEO from '../hooks/useSEO';
 
-// --- Configuration ---
-const BRANCHES = [
-    { id: 'MTY', name: 'Monterrey', calendlyUrl: config.calendly.MTY },
-    { id: 'GPE', name: 'Guadalupe', calendlyUrl: config.calendly.GPE },
-    { id: 'TMPS', name: 'Reynosa', calendlyUrl: config.calendly.TMPS },
-    { id: 'COAH', name: 'Saltillo', calendlyUrl: config.calendly.COAH },
-];
-
-const VISIT_REASONS = [
-    { id: 'Prueba de manejo', label: 'Prueba de manejo', icon: CarIcon },
-    { id: 'Conocer los autos', label: 'Conocer los autos', icon: CarIcon },
-    { id: 'Inspección', label: 'Inspección', icon: MicroscopeIcon },
-    { id: 'Mantenimiento', label: 'Mantenimiento', icon: WrenchIcon },
-    { id: 'Vender auto', label: 'Vender mi auto', icon: DollarSignIcon },
-    { id: 'Otro', label: 'Otro motivo', icon: PenSquareIcon },
-];
-
-// Generates some plausible future dates and times
-const getAvailableSlots = () => {
-    const slots: { date: string, times: string[] }[] = [];
-    const today = new Date();
-    for (let i = 1; i <= 3; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        slots.push({
-            date: date.toLocaleDateString('es-MX', { weekday: 'long', month: 'long', day: 'numeric' }),
-            times: ['10:00 AM', '12:00 PM', '03:00 PM']
-        });
-    }
-    return slots;
-};
-
-// --- Main Component ---
 const VisitasPage: React.FC = () => {
     useSEO({
-        title: 'Agenda tu Visita o Prueba de Manejo | TREFA',
-        description: 'Agenda tu cita en cualquiera de nuestras sucursales para una prueba de manejo, inspección o mantenimiento. Atención personalizada garantizada.',
-        keywords: 'agendar cita trefa, prueba de manejo, cita agencia seminuevos, visitar trefa, inspección de auto'
+        title: 'Agenda tu Visita | TREFA',
+        description: 'Agenda una visita para ver tu próximo auto en una de nuestras sucursales en Monterrey, Guadalupe, Saltillo o Reynosa.',
+        keywords: 'agendar visita, prueba de manejo, sucursales trefa, ver autos'
     });
-
     const { user } = useAuth();
     
     // State Management

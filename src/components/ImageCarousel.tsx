@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import LazyImage from './LazyImage';
-import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
+import { getPlaceholderImage } from '../utils/getPlaceholderImage';
 import { MapPinIcon, TagIcon, ShieldCheckIcon } from './icons';
 import { formatPromotion, getPromotionStyles } from '../utils/formatters';
 
@@ -12,18 +12,19 @@ interface ImageCarouselProps {
   isSeparado?: boolean;
   garantia?: string;
   sucursal?: string[];
+  clasificacionid?: number;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal, clasificacionid }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const x = useMotionValue(0);
   const constraintsRef = useRef(null);
 
   const allImages = useMemo(() => {
-    // Ensure feature_image is always first if available, then exterior gallery
     const filteredImages = images.filter(Boolean);
-    return filteredImages.length > 0 ? filteredImages : [DEFAULT_PLACEHOLDER_IMAGE];
-  }, [images]);
+    const placeholder = getPlaceholderImage(clasificacionid);
+    return filteredImages.length > 0 ? filteredImages : [placeholder];
+  }, [images, clasificacionid]);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const offset = info.offset.x;

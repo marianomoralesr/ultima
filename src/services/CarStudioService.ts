@@ -1,4 +1,4 @@
-import { config } from 'config';
+import { config } from '../pages/config';
 
 const API_KEY = config.carStudio.apiKey;
 const PROXY_URL = config.proxy.url;

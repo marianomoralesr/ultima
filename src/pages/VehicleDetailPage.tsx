@@ -272,7 +272,7 @@ const CharacteristicsSection: React.FC<{ vehicle: WordPressVehicle; inspectionDa
 
         if (vehicle.transmision && vehicle.transmision !== null) list.push({ icon: Cog, text: vehicle.transmision});
 
-        if (vehicle.autocombustible && vehicle.autocombustible !== null) list.push({ icon: Fuel, text: `${vehicle.autocombustible}` });
+        if (vehicle.combustible && vehicle.combustible !== null) list.push({ icon: Fuel, text: `${vehicle.combustible}` });
 
         if (vehicle.motor) list.push({ icon: Wrench, text: `Motor: ${vehicle.motor}` });
 
@@ -596,9 +596,10 @@ const TabsSection: React.FC<{
 const VehicleDetailPage: React.FC = () => {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
-    const { session, user, loading: authLoading } = useAuth();
-    const { vehicles: allVehicles, isLoading: vehiclesLoading } = useVehicles();
+    const { session, user } = useAuth();
+    const { vehicles: allVehicles } = useVehicles();
     const [vehicle, setVehicle] = useState<WordPressVehicle | null>(null);
+    const [isLoadingVehicle, setIsLoadingVehicle] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const { isFavorite, toggleFavorite, isToggling } = useFavorites();
@@ -668,8 +669,12 @@ const VehicleDetailPage: React.FC = () => {
         const fetchVehicleData = async () => {
             if (!slug) {
                 setError('No se proporcionó el identificador del auto.');
+                setIsLoadingVehicle(false);
                 return;
             }
+
+            setIsLoadingVehicle(true);
+            setError(null);
 
             try {
                 const vehicleData = await VehicleService.getAndRecordVehicleView(slug);
@@ -695,13 +700,13 @@ const VehicleDetailPage: React.FC = () => {
                 }
             } catch (err: any) {
                 setError('Error al cargar los detalles del auto: ' + err.message);
+            } finally {
+                setIsLoadingVehicle(false);
             }
         };
 
-        if (!authLoading) {
-            fetchVehicleData();
-        }
-    }, [slug, authLoading]);
+        fetchVehicleData();
+    }, [slug]);
 
     const closeLightbox = () => setIsLightboxOpen(false);
 
@@ -748,9 +753,29 @@ const VehicleDetailPage: React.FC = () => {
         };
     }, [vehicle, downPayment, loanTerm]);
 
-    if (vehiclesLoading || authLoading || !vehicle) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div></div>;
-    if (error) return <div className="flex justify-center items-center h-screen"><p className="text-red-500 px-4 text-center">{error}</p></div>;
-    if (!vehicle) return <div className="flex justify-center items-center h-screen"><p>Auto no encontrado.</p></div>;
+    if (isLoadingVehicle) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <p className="text-red-500 px-4 text-center">{error}</p>
+            </div>
+        );
+    }
+
+    if (!vehicle) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <p>Auto no encontrado.</p>
+            </div>
+        );
+    }
 
     const crumbs = [{ name: 'Inventario', href: '/autos' }, { name: vehicle.titulo }];
     const specifications = [

@@ -619,9 +619,8 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
 
     const handleOptionClick = (option: string) => {
         if (option === OTHER_OPTION) {
-            if (predefinedIncomeOptions.includes(incomeField.value) || incomeField.value === '') {
-                 incomeField.onChange('');
-            }
+            // Set to a placeholder value that triggers isOtherSelected but shows empty input
+            incomeField.onChange('$');
         } else {
             incomeField.onChange(option);
         }

@@ -41,13 +41,17 @@ function print_header() {
 }
 
 function run_git_checks() {
-    echo -e "${YELLOW}[1/5] Running Git pre-deployment checks...${NC}"
+    echo -e "${YELLOW}[1/6] Running Git pre-deployment checks...${NC}"
+
+    # Check for uncommitted changes
     if ! git diff --quiet HEAD; then
         echo -e "${RED}✗ Error: Your working directory has uncommitted changes.${NC}"
         echo "Please commit or stash your changes before deploying."
+        git status --short
         exit 1
     fi
 
+    # Check if on main branch
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
     if [ "$current_branch" != "main" ]; then
         echo -e "${RED}✗ Error: You must be on the 'main' branch to deploy.${NC}"
@@ -55,35 +59,110 @@ function run_git_checks() {
         exit 1
     fi
 
+    # Check if remote tracking branch exists
+    if ! git rev-parse --abbrev-ref --symbolic-full-name @{u} > /dev/null 2>&1; then
+        echo -e "${RED}✗ Error: Your 'main' branch is not tracking a remote branch.${NC}"
+        echo "Please set up remote tracking with: git branch --set-upstream-to=origin/main main"
+        exit 1
+    fi
+
     echo "Fetching latest changes from remote..."
-    # git fetch origin
+    git fetch origin
 
-    # local_commit=$(git rev-parse HEAD)
-    # remote_commit=$(git rev-parse @{u})
+    local_commit=$(git rev-parse HEAD)
+    remote_commit=$(git rev-parse @{u})
 
-    # if [ "$local_commit" != "$remote_commit" ]; then
-    #     echo -e "${RED}✗ Error: Your local 'main' branch is not up-to-date with the remote.${NC}"
-    #     echo "Please run 'git pull' to sync your branch."
-    #     exit 1
-    # fi
+    if [ "$local_commit" != "$remote_commit" ]; then
+        # Check if local is ahead, behind, or diverged
+        local commits_behind=$(git rev-list HEAD..@{u} --count)
+        local commits_ahead=$(git rev-list @{u}..HEAD --count)
+
+        if [ "$commits_behind" -gt 0 ] && [ "$commits_ahead" -eq 0 ]; then
+            echo -e "${RED}✗ Error: Your local 'main' branch is BEHIND the remote by $commits_behind commit(s).${NC}"
+            echo "Please run 'git pull' to sync your branch."
+            exit 1
+        elif [ "$commits_ahead" -gt 0 ] && [ "$commits_behind" -eq 0 ]; then
+            echo -e "${RED}✗ Error: Your local 'main' branch is AHEAD of the remote by $commits_ahead commit(s).${NC}"
+            echo "Please run 'git push' to sync your branch."
+            exit 1
+        else
+            echo -e "${RED}✗ Error: Your local 'main' branch has DIVERGED from the remote.${NC}"
+            echo "Behind: $commits_behind commits | Ahead: $commits_ahead commits"
+            echo "Please resolve this with rebase or merge."
+            exit 1
+        fi
+    fi
 
     echo -e "${GREEN}✓ Git checks passed. You are on the latest version of 'main'.${NC}"
+    echo -e "  Current commit: ${YELLOW}$(git rev-parse --short HEAD)${NC}"
+    echo -e "  Commit message: ${BLUE}$(git log -1 --pretty=%B | head -n 1)${NC}"
+    echo -e "  Author: $(git log -1 --pretty=%an)"
+    echo -e "  Date: $(git log -1 --pretty=%ar)"
     echo ""
+}
+
+function parse_env_vars() {
+    # Parse cloud-build-vars.yaml into Cloud Run env var format
+    # Handles quoted values, comments, and proper escaping
+    local env_string=""
+
+    while IFS=': ' read -r key value; do
+        # Skip comments and empty lines
+        [[ "$key" =~ ^#.*$ ]] && continue
+        [[ -z "$key" ]] && continue
+
+        # Remove quotes and whitespace from value
+        value=$(echo "$value" | sed 's/^"\(.*\)"$/\1/' | xargs)
+
+        # Skip if value is empty
+        [[ -z "$value" ]] && continue
+
+        # Append to env string
+        if [ -z "$env_string" ]; then
+            env_string="$key=$value"
+        else
+            env_string="$env_string,$key=$value"
+        fi
+    done < cloud-build-vars.yaml
+
+    echo "$env_string"
 }
 
 function deploy_staging() {
     local git_commit_short=$(git rev-parse --short HEAD)
+    local git_commit_full=$(git rev-parse HEAD)
     local build_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     local image_url="$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:$git_commit_short"
 
     echo -e "${BLUE}Starting STAGING deployment for commit ${YELLOW}$git_commit_short${NC}"
+    echo -e "Full commit: ${BLUE}$git_commit_full${NC}"
     echo -e "Image URL: ${BLUE}$image_url${NC}"
     echo ""
 
     # --- Step 2: Build Docker Image ---
-    echo -e "${YELLOW}[2/5] Building Docker image with version info...${NC}"
+    echo -e "${YELLOW}[2/6] Building Docker image with version info...${NC}"
+
+    # Read build-time credentials from cloud-build-vars.yaml
+    VITE_SUPABASE_URL=$(grep "^VITE_SUPABASE_URL:" cloud-build-vars.yaml | sed 's/^[^:]*: *"\?\(.*\)"\?$/\1/' | xargs)
+    VITE_SUPABASE_ANON_KEY=$(grep "^VITE_SUPABASE_ANON_KEY:" cloud-build-vars.yaml | sed 's/^[^:]*: *"\?\(.*\)"\?$/\1/' | xargs)
+    VITE_INTELIMOTOR_BUSINESS_UNIT_ID=$(grep "^VITE_INTELIMOTOR_BUSINESS_UNIT_ID:" cloud-build-vars.yaml | sed 's/^[^:]*: *"\?\(.*\)"\?$/\1/' | xargs)
+    VITE_INTELIMOTOR_API_KEY=$(grep "^VITE_INTELIMOTOR_API_KEY:" cloud-build-vars.yaml | sed 's/^[^:]*: *"\?\(.*\)"\?$/\1/' | xargs)
+    VITE_INTELIMOTOR_API_SECRET=$(grep "^VITE_INTELIMOTOR_API_SECRET:" cloud-build-vars.yaml | sed 's/^[^:]*: *"\?\(.*\)"\?$/\1/' | xargs)
+
+    echo "Building with:"
+    echo "  • Git Commit: $git_commit_short"
+    echo "  • Build Date: $build_date"
+    echo "  • Supabase URL: $VITE_SUPABASE_URL"
+    echo "  • Intelimotor Business Unit: $VITE_INTELIMOTOR_BUSINESS_UNIT_ID"
+    echo ""
+
     docker build \
       --platform linux/amd64 \
+      --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" \
+      --build-arg VITE_SUPABASE_ANON_KEY="$VITE_SUPABASE_ANON_KEY" \
+      --build-arg VITE_INTELIMOTOR_BUSINESS_UNIT_ID="$VITE_INTELIMOTOR_BUSINESS_UNIT_ID" \
+      --build-arg VITE_INTELIMOTOR_API_KEY="$VITE_INTELIMOTOR_API_KEY" \
+      --build-arg VITE_INTELIMOTOR_API_SECRET="$VITE_INTELIMOTOR_API_SECRET" \
       --build-arg VITE_GIT_COMMIT="$git_commit_short" \
       --build-arg VITE_BUILD_DATE="$build_date" \
       -t "$image_url" \
@@ -92,22 +171,26 @@ function deploy_staging() {
     echo ""
 
     # --- Step 3: Push to Artifact Registry ---
-    echo -e "${YELLOW}[3/5] Pushing image to Artifact Registry...${NC}"
+    echo -e "${YELLOW}[3/6] Pushing image to Artifact Registry...${NC}"
     gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
     docker push "$image_url"
     echo -e "${GREEN}✓ Image pushed successfully.${NC}"
     echo ""
 
     # --- Step 4: Deploy to Cloud Run (Staging) ---
-    echo -e "${YELLOW}[4/5] Deploying to Cloud Run (Staging)...${NC}"
-    
+    echo -e "${YELLOW}[4/6] Deploying to Cloud Run (Staging)...${NC}"
+
     if [ ! -f "cloud-build-vars.yaml" ]; then
         echo -e "${RED}✗ Error: cloud-build-vars.yaml not found.${NC}"
         exit 1
     fi
 
-    local env_vars=$(awk -F': ' '!/^#/ && NF {printf "%s=%s,", $1, $2}' cloud-build-vars.yaml | sed 's/,$//')
-    
+    # Parse environment variables properly
+    local env_vars=$(parse_env_vars)
+
+    # Add version metadata
+    env_vars="$env_vars,VITE_GIT_COMMIT=$git_commit_short,VITE_BUILD_DATE=$build_date,VITE_ENVIRONMENT=staging"
+
     gcloud run deploy "$STAGING_SERVICE_NAME" \
       --image="$image_url" \
       --platform=managed \
@@ -123,13 +206,20 @@ function deploy_staging() {
       --quiet
 
     local service_url=$(gcloud run services describe "$STAGING_SERVICE_NAME" --region="$REGION" --format='value(status.url)')
-    
-    echo -e "${YELLOW}[5/5] Updating staging environment with its own URL...${NC}"
+
+    echo -e "${YELLOW}[5/6] Updating staging environment with its own URL...${NC}"
     gcloud run services update "$STAGING_SERVICE_NAME" \
         --region="$REGION" \
         --update-env-vars="FRONTEND_URL=$service_url" \
         --quiet
     echo -e "${GREEN}✓ Staging service updated.${NC}"
+    echo ""
+
+    # --- Step 6: Verify deployment ---
+    echo -e "${YELLOW}[6/6] Verifying deployment...${NC}"
+    local deployed_version=$(gcloud run services describe "$STAGING_SERVICE_NAME" --region="$REGION" --format='value(spec.template.metadata.annotations.client.knative.dev/user-image)')
+    echo -e "Deployed image: ${BLUE}$deployed_version${NC}"
+    echo -e "${GREEN}✓ Deployment verified.${NC}"
     echo ""
 
     # --- Success ---
@@ -139,11 +229,20 @@ function deploy_staging() {
     echo ""
     echo -e "Service URL: ${BLUE}$service_url${NC}"
     echo -e "Version: ${YELLOW}$git_commit_short${NC}"
+    echo -e "Build Date: ${BLUE}$build_date${NC}"
     echo ""
-    echo -e "${YELLOW}Please test your changes thoroughly on the staging URL.${NC}"
+    echo -e "${YELLOW}⚠️  NEXT STEPS:${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "1. Test thoroughly on staging:"
+    echo -e "   ${BLUE}$service_url${NC}"
     echo ""
-    echo -e "When you are ready to go live, run the following command to promote this exact build to production:"
-    echo -e "${BLUE}./deploy-v2.sh promote $git_commit_short${NC}"
+    echo "2. Check version in footer (should show: v$git_commit_short)"
+    echo ""
+    echo "3. Verify all features work as expected"
+    echo ""
+    echo "4. When ready to go live, promote to production:"
+    echo -e "   ${GREEN}./deploy-v2.sh promote $git_commit_short${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 }
 
@@ -157,25 +256,60 @@ function promote_to_production() {
 
     local image_url="$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:$git_commit_short"
 
-    echo -e "${RED}⚠️  WARNING: You are about to promote an image to PRODUCTION!${NC}"
-    echo -e "Service:    ${BLUE}$PRODUCTION_SERVICE_NAME${NC}"
-    echo -e "Version:    ${YELLOW}$git_commit_short${NC}"
-    echo -e "Image URL:  ${BLUE}$image_url${NC}"
+    # Verify the image exists in the registry
+    echo -e "${YELLOW}Verifying image exists in Artifact Registry...${NC}"
+    if ! gcloud artifacts docker images describe "$image_url" > /dev/null 2>&1; then
+        echo -e "${RED}✗ Error: Image not found in Artifact Registry!${NC}"
+        echo -e "Image URL: ${BLUE}$image_url${NC}"
+        echo ""
+        echo "This version may not have been deployed to staging yet."
+        echo "Please deploy to staging first: ./deploy-v2.sh staging"
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Image found in registry.${NC}"
     echo ""
-    read -p "Are you sure you want to continue? (yes/no): " -r
+
+    # Get build metadata from the image
+    local build_date=$(gcloud artifacts docker images describe "$image_url" --format='value(image_summary.digest)' 2>/dev/null || echo "unknown")
+
+    echo -e "${RED}╔═══════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║   ⚠️  PRODUCTION DEPLOYMENT WARNING ⚠️        ║${NC}"
+    echo -e "${RED}╚═══════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "You are about to deploy to PRODUCTION:"
+    echo ""
+    echo -e "  Service:     ${BLUE}$PRODUCTION_SERVICE_NAME${NC}"
+    echo -e "  Version:     ${YELLOW}$git_commit_short${NC}"
+    echo -e "  Image URL:   ${BLUE}$image_url${NC}"
+    echo -e "  Production:  ${GREEN}https://trefa.mx${NC}"
+    echo ""
+    read -p "Type 'yes' to confirm deployment to production: " -r
     echo
     if [[ ! $REPLY =~ ^[Yy]es$ ]]; then
-        echo "Promotion cancelled."
+        echo -e "${YELLOW}Promotion cancelled.${NC}"
         exit 0
     fi
     echo ""
 
-    echo -e "${YELLOW}Deploying to Cloud Run (Production)...${NC}"
-    local env_vars=$(paste -d, -s cloud-build-vars.yaml | sed 's/:\s*/=/g' | sed 's/"//g')
-    
-    # Hardcode the production URL
-    local prod_env_vars="FRONTEND_URL=https://trefa.mx,${env_vars}"
+    echo -e "${YELLOW}[1/3] Parsing environment variables...${NC}"
+    if [ ! -f "cloud-build-vars.yaml" ]; then
+        echo -e "${RED}✗ Error: cloud-build-vars.yaml not found.${NC}"
+        exit 1
+    fi
 
+    # Parse environment variables properly
+    local env_vars=$(parse_env_vars)
+
+    # Get the build date from the environment or use current date
+    local build_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+    # Add production-specific environment variables
+    env_vars="FRONTEND_URL=https://trefa.mx,$env_vars,VITE_GIT_COMMIT=$git_commit_short,VITE_BUILD_DATE=$build_date,VITE_ENVIRONMENT=production"
+
+    echo -e "${GREEN}✓ Environment variables parsed.${NC}"
+    echo ""
+
+    echo -e "${YELLOW}[2/3] Deploying to Cloud Run (Production)...${NC}"
     gcloud run deploy "$PRODUCTION_SERVICE_NAME" \
       --image="$image_url" \
       --platform=managed \
@@ -187,16 +321,46 @@ function promote_to_production() {
       --min-instances=0 \
       --max-instances=10 \
       --timeout=300 \
-      --set-env-vars="$prod_env_vars" \
+      --set-env-vars="$env_vars" \
       --quiet
+
+    echo -e "${GREEN}✓ Production deployment complete.${NC}"
+    echo ""
+
+    # --- Verify deployment ---
+    echo -e "${YELLOW}[3/3] Verifying production deployment...${NC}"
+    local deployed_version=$(gcloud run services describe "$PRODUCTION_SERVICE_NAME" --region="$REGION" --format='value(spec.template.metadata.annotations.client.knative.dev/user-image)')
+    echo -e "Deployed image: ${BLUE}$deployed_version${NC}"
+    echo -e "${GREEN}✓ Deployment verified.${NC}"
+    echo ""
 
     # --- Success ---
     echo -e "${GREEN}╔═══════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║     PRODUCTION PROMOTION SUCCESSFUL! 🎉       ║${NC}"
+    echo -e "${GREEN}║     PRODUCTION DEPLOYMENT SUCCESSFUL! 🎉      ║${NC}"
     echo -e "${GREEN}╚═══════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "Production URL: ${BLUE}https://trefa.mx${NC}"
-    echo -e "Version ${YELLOW}$git_commit_short${NC} is now live."
+    echo -e "Production URL: ${GREEN}https://trefa.mx${NC}"
+    echo -e "Version: ${YELLOW}$git_commit_short${NC}"
+    echo -e "Build Date: ${BLUE}$build_date${NC}"
+    echo ""
+    echo -e "${YELLOW}⚠️  POST-DEPLOYMENT CHECKLIST:${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "1. Clear browser cache or test in incognito mode"
+    echo ""
+    echo "2. Verify version in footer shows: v$git_commit_short"
+    echo ""
+    echo "3. Test critical user flows:"
+    echo "   • Homepage load"
+    echo "   • Vehicle listings & filters"
+    echo "   • Vehicle detail pages"
+    echo "   • Application form"
+    echo ""
+    echo "4. Monitor for errors:"
+    echo -e "   ${BLUE}gcloud run logs tail $PRODUCTION_SERVICE_NAME --region=$REGION${NC}"
+    echo ""
+    echo "5. Check health endpoint:"
+    echo -e "   ${BLUE}curl https://trefa.mx/healthz${NC}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 }
 

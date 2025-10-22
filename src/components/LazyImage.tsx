@@ -17,11 +17,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const imgRef = React.useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     if (typeof src !== 'string' || src.trim() === '') {
       console.error('❌ LazyImage: src prop is missing or invalid.', { alt, src });
       setHasError(true);
+      return;
+    }
+
+    // Handle cached images - check if image is already complete
+    if (imgRef.current?.complete) {
+      setIsLoaded(true);
     }
   }, [src, alt]);
 
@@ -41,6 +48,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   return (
     <div className={`overflow-hidden bg-gray-200 ${className}`} onClick={onClick}>
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
         className={`w-full h-full object-${objectFit} transition-all duration-500 ease-in-out ${

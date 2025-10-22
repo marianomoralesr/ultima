@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  CreditCard, 
+import {
+  CreditCard,
   Plus,
   Building2,
   AlertTriangle,
@@ -10,7 +10,9 @@ import {
   ArrowRight,
   X,
   Trash2,
-  FileEdit
+  FileEdit,
+  MessageCircle,
+  UserCircle
 } from 'lucide-react';
 // FIX: Changed single quotes to double quotes to address potential module resolution issues.
 import { Link } from "react-router-dom";
@@ -21,6 +23,7 @@ import VehicleCarousel from '../components/VehicleCarousel';
 import ApplicationCard from '../components/ApplicationCard';
 import DocumentUploadSection from '../components/DocumentUploadSection';
 import { BankProfilingService } from '../services/BankProfilingService';
+import { ProfileService } from '../services/profileService';
 import type { Profile } from '../types/types';
 import { FileTextIcon, DownloadIcon } from '../components/icons';
 import OnboardingModal from '../components/OnboardingModal';
@@ -144,7 +147,7 @@ const EbookCta: React.FC = () => (
                 </p>
             </div>
             <div className="flex-shrink-0 mt-4 md:mt-0">
-                <a 
+                <a
                     href="/public/manual-venta-TREFA.pdf"
                     download="Manual-Venta-TREFA-2025.pdf"
                     className="inline-flex items-center px-5 py-2.5 bg-white text-green-700 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md"
@@ -155,6 +158,87 @@ const EbookCta: React.FC = () => (
         </div>
     </div>
 );
+
+// Mi Asesor Component
+const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
+    const [asesor, setAsesor] = useState<Profile | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchAsesor = async () => {
+            try {
+                const asesorProfile = await ProfileService.getProfile(asesorId);
+                setAsesor(asesorProfile);
+            } catch (error) {
+                console.error('Error fetching advisor profile:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (asesorId) {
+            fetchAsesor();
+        } else {
+            setLoading(false);
+        }
+    }, [asesorId]);
+
+    if (loading) {
+        return (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex justify-center items-center h-32">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
+                </div>
+            </div>
+        );
+    }
+
+    if (!asesor) {
+        return null;
+    }
+
+    const asesorName = `${asesor.first_name || ''} ${asesor.last_name || ''}`.trim() || 'Tu Asesor';
+    const asesorPhone = asesor.phone || '5218187049079';
+    const whatsappLink = `https://wa.me/${asesorPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(asesor.first_name || 'asesor')},%20tengo%20una%20pregunta%20sobre%20mi%20solicitud`;
+    const profilePicture = asesor.avatar_url || asesor.profile_picture_url;
+
+    return (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Mi Asesor</h3>
+            <div className="flex items-center gap-4 mb-4">
+                <div className="flex-shrink-0">
+                    {profilePicture ? (
+                        <img
+                            src={profilePicture}
+                            alt={asesorName}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-primary-200"
+                        />
+                    ) : (
+                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center">
+                            <UserCircle className="w-10 h-10 text-primary-600" />
+                        </div>
+                    )}
+                </div>
+                <div className="flex-grow">
+                    <p className="font-semibold text-gray-900">{asesorName}</p>
+                    <p className="text-sm text-gray-600">Asesor de Ventas</p>
+                    {asesorPhone && (
+                        <p className="text-xs text-gray-500 mt-1">{asesorPhone}</p>
+                    )}
+                </div>
+            </div>
+            <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors shadow-md"
+            >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Contactar Asesor
+            </a>
+        </div>
+    );
+};
 
 
 const Dashboard: React.FC = () => {
@@ -351,6 +435,7 @@ const Dashboard: React.FC = () => {
 
         {/* Sidebar Column (Desktop) */}
         <aside className="hidden lg:block lg:col-span-1 space-y-8">
+            {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
             {drafts.length > 0 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-4">

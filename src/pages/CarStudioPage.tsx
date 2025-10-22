@@ -11,6 +11,27 @@ import { SaveIcon } from '../components/icons';
 
 type SubTab = 'generator' | 'webEditorHistory' | 'orderHistory';
 
+const InputField: React.FC<{
+    id: string;
+    label: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+    type?: string;
+}> = ({ id, label, value, onChange, placeholder, type = "text" }) => (
+    <div>
+        <label htmlFor={id} className="text-sm font-medium text-gray-700">{label}</label>
+        <input
+            id={id}
+            type={type}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className="mt-1 w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        />
+    </div>
+);
+
 const CarStudioPage: React.FC = () => {
     const [activeSubTab, setActiveSubTab] = useState<SubTab>('generator');
     const { data: vehicles = [], isLoading, error: globalError } = useQuery<WordPressVehicle[]>({

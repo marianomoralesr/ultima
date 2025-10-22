@@ -24,14 +24,12 @@ const VehicleListPage: React.FC = () => {
   const { vehicles, totalCount, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
   const { filters, handleFiltersChange, onRemoveFilter, handleClearFilters, currentPage, handlePageChange } = useFilters();
   const isInitialMount = useRef(true);
-  const [showTutorial, setShowTutorial] = useState(false);
 
-  useEffect(() => {
+  // Initialize showTutorial based on localStorage to prevent flash
+  const [showTutorial, setShowTutorial] = useState(() => {
     const tutorialShown = localStorage.getItem('explorarTutorialShown');
-    if (!tutorialShown) {
-      setShowTutorial(true);
-    }
-  }, []);
+    return !tutorialShown;
+  });
 
   const handleCloseTutorial = () => {
     setShowTutorial(false);
@@ -435,7 +433,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
           <div className="absolute inset-0 bg-black/50 animate-fadeIn" onClick={closeSheet}></div>
         )}
         <animated.div
-          className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white/95 backdrop-blur-sm rounded-t-2xl flex flex-col pointer-events-auto"
+          className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white/95 backdrop-blur-sm rounded-t-2xl flex flex-col pointer-events-auto z-[70]"
           style={{ y }}
         >
           <div {...bindSheetDrag()} className="w-full p-4 flex justify-center cursor-grab touch-none">

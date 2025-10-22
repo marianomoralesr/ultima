@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { AdminService } from '../services/AdminService';
+import { SalesService } from '../services/SalesService';
 import { KommoService } from '../services/KommoService';
 import type { Profile } from '../types/types';
-import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Lock } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
 
@@ -15,21 +15,30 @@ const ProfileDataItem: React.FC<{ label: string, value: any }> = ({ label, value
     </div>
 );
 
-const TagsManager: React.FC<{ leadId: string; initialTags: any[] }> = ({ leadId, initialTags }) => {
+const TagsManager: React.FC<{ leadId: string; initialTags: any[]; salesUserId: string }> = ({ leadId, initialTags, salesUserId }) => {
     const [assignedTags, setAssignedTags] = useState(initialTags);
     const [availableTags, setAvailableTags] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>(() => initialTags.map(t => t.id));
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        AdminService.getAvailableTags().then(setAvailableTags);
+        SalesService.getAvailableTags().then(setAvailableTags).catch(err => {
+            console.error('Error loading tags:', err);
+            setError('Error al cargar las etiquetas disponibles.');
+        });
     }, []);
 
     const handleSave = async () => {
-        await AdminService.updateLeadTags(leadId, selectedTagIds);
-        const updatedAssignedTags = availableTags.filter(t => selectedTagIds.includes(t.id));
-        setAssignedTags(updatedAssignedTags);
-        setIsEditing(false);
+        setError(null);
+        try {
+            await SalesService.updateLeadTags(leadId, selectedTagIds, salesUserId);
+            const updatedAssignedTags = availableTags.filter(t => selectedTagIds.includes(t.id));
+            setAssignedTags(updatedAssignedTags);
+            setIsEditing(false);
+        } catch (err: any) {
+            setError(err.message || 'Error al guardar las etiquetas.');
+        }
     };
 
     return (
@@ -40,6 +49,11 @@ const TagsManager: React.FC<{ leadId: string; initialTags: any[] }> = ({ leadId,
                     {isEditing ? 'Cancelar' : 'Editar'}
                 </button>
             </div>
+            {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">
+                    {error}
+                </div>
+            )}
             {isEditing ? (
                 <div className="space-y-4">
                     <div className="flex flex-wrap gap-2">
@@ -71,36 +85,52 @@ const TagsManager: React.FC<{ leadId: string; initialTags: any[] }> = ({ leadId,
     );
 };
 
-const RemindersManager: React.FC<{ leadId: string; initialReminders: any[]; agentId: string }> = ({ leadId, initialReminders, agentId }) => {
+const RemindersManager: React.FC<{ leadId: string; initialReminders: any[]; salesUserId: string }> = ({ leadId, initialReminders, salesUserId }) => {
     const [reminders, setReminders] = useState(initialReminders);
     const [isAdding, setIsAdding] = useState(false);
     const [newReminderText, setNewReminderText] = useState('');
     const [newReminderDate, setNewReminderDate] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const handleAdd = async () => {
         if (!newReminderText || !newReminderDate) return;
-        await AdminService.createReminder({
-            lead_id: leadId,
-            agent_id: agentId,
-            reminder_text: newReminderText,
-            reminder_date: newReminderDate
-        });
-        const updatedReminders = await AdminService.getClientProfile(leadId).then(data => data?.reminders || []);
-        setReminders(updatedReminders);
-        setIsAdding(false);
-        setNewReminderText('');
-        setNewReminderDate('');
+        setError(null);
+        try {
+            await SalesService.createReminder({
+                lead_id: leadId,
+                agent_id: salesUserId,
+                reminder_text: newReminderText,
+                reminder_date: newReminderDate
+            }, salesUserId);
+
+            // Reload reminders
+            const updatedProfile = await SalesService.getClientProfile(leadId, salesUserId);
+            setReminders(updatedProfile?.reminders || []);
+            setIsAdding(false);
+            setNewReminderText('');
+            setNewReminderDate('');
+        } catch (err: any) {
+            setError(err.message || 'Error al crear el recordatorio.');
+        }
     };
-    
+
     const handleToggleComplete = async (reminder: any) => {
-        await AdminService.updateReminder(reminder.id, { is_completed: !reminder.is_completed });
-        setReminders(reminders.map(r => r.id === reminder.id ? { ...r, is_completed: !r.is_completed } : r));
+        try {
+            await SalesService.updateReminder(reminder.id, { is_completed: !reminder.is_completed });
+            setReminders(reminders.map(r => r.id === reminder.id ? { ...r, is_completed: !r.is_completed } : r));
+        } catch (err: any) {
+            setError(err.message || 'Error al actualizar el recordatorio.');
+        }
     };
 
     const handleDelete = async (reminderId: string) => {
         if (window.confirm('¿Seguro que quieres eliminar este recordatorio?')) {
-            await AdminService.deleteReminder(reminderId);
-            setReminders(reminders.filter(r => r.id !== reminderId));
+            try {
+                await SalesService.deleteReminder(reminderId);
+                setReminders(reminders.filter(r => r.id !== reminderId));
+            } catch (err: any) {
+                setError(err.message || 'Error al eliminar el recordatorio.');
+            }
         }
     };
 
@@ -112,6 +142,11 @@ const RemindersManager: React.FC<{ leadId: string; initialReminders: any[]; agen
                     {isAdding ? <X className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
                 </button>
             </div>
+            {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">
+                    {error}
+                </div>
+            )}
             {isAdding && (
                 <div className="space-y-3 p-3 bg-gray-50 rounded-lg border mb-4">
                     <input type="text" value={newReminderText} onChange={e => setNewReminderText(e.target.value)} placeholder="Texto del recordatorio..." className="w-full text-sm p-2 border rounded"/>
@@ -153,8 +188,8 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
                             <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <select 
-                                value={app.status} 
+                            <select
+                                value={app.status}
                                 onChange={(e) => onStatusChange(app.id, e.target.value)}
                                 className="text-xs font-semibold bg-gray-100 text-gray-700 px-2 py-1 rounded-full border-none focus:ring-2 focus:ring-primary-500"
                             >
@@ -188,7 +223,6 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
         </div>
     );
 };
-
 
 const DocumentViewer: React.FC<{ documents: any[] }> = ({ documents }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border">
@@ -233,7 +267,7 @@ const LeadSourceInfo: React.FC<{ metadata: any }> = ({ metadata }) => {
     );
 };
 
-const AdminClientProfilePage: React.FC = () => {
+const SalesClientProfilePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
     const [clientData, setClientData] = useState<{ profile: Profile; applications: any[]; tags: any[]; reminders: any[]; documents: any[] } | null>(null);
@@ -243,8 +277,8 @@ const AdminClientProfilePage: React.FC = () => {
     const [syncMessage, setSyncMessage] = useState('');
 
     useEffect(() => {
-        if (!id) {
-            setError("ID del cliente no proporcionado en la URL. Por favor, verifica el enlace.");
+        if (!id || !user?.id) {
+            setError("ID del cliente o usuario no proporcionado.");
             setLoading(false);
             return;
         }
@@ -252,9 +286,9 @@ const AdminClientProfilePage: React.FC = () => {
             setLoading(true);
             setError(null);
             try {
-                const data = await AdminService.getClientProfile(id);
+                const data = await SalesService.getClientProfile(id, user.id);
                 if (!data || !data.profile) {
-                    throw new Error(`No se encontró el cliente con ID: ${id}. Es posible que no tengas permisos para ver este perfil o que el cliente no exista.`);
+                    throw new Error(`No se encontró el cliente con ID: ${id}. Es posible que no tengas acceso autorizado a este perfil o que el cliente no exista.`);
                 }
                 setClientData(data);
             } catch (err: any) {
@@ -265,7 +299,7 @@ const AdminClientProfilePage: React.FC = () => {
             }
         };
         fetchData();
-    }, [id]);
+    }, [id, user?.id]);
 
     const handleSyncToKommo = async () => {
         if (!clientData) return;
@@ -312,11 +346,11 @@ const AdminClientProfilePage: React.FC = () => {
                             <h2 className="text-lg font-bold mb-2">Error al Cargar Perfil</h2>
                             <p className="text-sm mb-4">{error}</p>
                             <Link
-                                to="/escritorio/admin/leads"
+                                to="/escritorio/ventas/leads"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4" />
-                                Volver al Dashboard de Leads
+                                Volver a Mis Leads
                             </Link>
                         </div>
                     </div>
@@ -329,14 +363,20 @@ const AdminClientProfilePage: React.FC = () => {
         return (
             <div className="max-w-2xl mx-auto mt-10">
                 <div className="p-6 bg-yellow-50 border-2 border-yellow-200 text-yellow-800 rounded-xl">
-                    <p className="font-semibold">No hay datos del cliente disponibles.</p>
-                    <Link
-                        to="/escritorio/admin/leads"
-                        className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Volver al Dashboard de Leads
-                    </Link>
+                    <div className="flex items-start gap-3">
+                        <Lock className="w-6 h-6 flex-shrink-0 mt-0.5" />
+                        <div className="flex-grow">
+                            <h2 className="text-lg font-bold mb-2">Acceso No Autorizado</h2>
+                            <p className="text-sm mb-4">No tienes acceso autorizado a este perfil de cliente. El cliente debe activar "Autorizar Acceso al Asesor" para que puedas ver su información completa.</p>
+                            <Link
+                                to="/escritorio/ventas/leads"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition-colors"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Volver a Mis Leads
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -346,9 +386,9 @@ const AdminClientProfilePage: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <Link to="/escritorio/admin/leads" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-semibold">
+            <Link to="/escritorio/ventas/leads" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-semibold">
                 <ArrowLeft className="w-4 h-4" />
-                Volver al Dashboard de Leads
+                Volver a Mis Leads
             </Link>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -368,8 +408,8 @@ const AdminClientProfilePage: React.FC = () => {
                         <div className="mt-6 grid grid-cols-2 gap-4">
                             <ProfileDataItem label="Fuente" value={profile.source} />
                             <ProfileDataItem label="RFC" value={profile.rfc} />
-                  <p className="text-sm text-gray-500">Asesor Asignado: {profile.asesor_asignado_id || 'N/A'}</p>
                             <ProfileDataItem label="Contactado" value={profile.contactado ? 'Sí' : 'No'} />
+                            <ProfileDataItem label="Acceso Autorizado" value={profile.autorizar_asesor_acceso ? 'Sí' : 'No'} />
                         </div>
                         <div className="mt-6 border-t pt-4">
                             <button onClick={handleSyncToKommo} disabled={isSyncing} className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-60">
@@ -380,8 +420,8 @@ const AdminClientProfilePage: React.FC = () => {
                     </div>
 
                     <LeadSourceInfo metadata={profile.metadata} />
-                    <TagsManager leadId={profile.id} initialTags={tags} />
-                    <RemindersManager leadId={profile.id} initialReminders={reminders} agentId={user.id} />
+                    <TagsManager leadId={profile.id} initialTags={tags} salesUserId={user.id} />
+                    <RemindersManager leadId={profile.id} initialReminders={reminders} salesUserId={user.id} />
                 </div>
 
                 {/* Right Column: Applications & History */}
@@ -393,4 +433,5 @@ const AdminClientProfilePage: React.FC = () => {
         </div>
     );
 };
-export default AdminClientProfilePage;
+
+export default SalesClientProfilePage;

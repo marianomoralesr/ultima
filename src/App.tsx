@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import DashboardLayout from './components/DashboardLayout';
 import AdminRoute from './components/AdminRoute';
+import SalesRoute from './components/SalesRoute';
 import RedirectManager from './components/RedirectManager';
 import LeadSourceHandler from './components/LeadSourceHandler';
 import { VehicleProvider } from './context/VehicleContext';
@@ -18,6 +19,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const VehicleDetailPage = lazy(() => import('./pages/VehicleDetailPage'));
 const VehicleListPage = lazy(() => import('./pages/VehicleListPage'));
 const ResponsiveInventoryPage = lazy(() => import('./pages/ResponsiveInventoryPage'));
+const ExplorarPage = lazy(() => import('./pages/ExplorarPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -42,6 +44,8 @@ const CarStudioPage = lazy(() => import('./pages/CarStudioPage'));
 const AdminLeadsDashboardPage = lazy(() => import('./pages/AdminLeadsDashboardPage'));
 const AdminClientProfilePage = lazy(() => import('./pages/AdminClientProfilePage'));
 const AdminAirtableConfigPage = lazy(() => import('./pages/AdminAirtableConfigPage'));
+const SalesLeadsDashboardPage = lazy(() => import('./pages/SalesLeadsDashboardPage'));
+const SalesClientProfilePage = lazy(() => import('./pages/SalesClientProfilePage'));
 const VacanciesListPage = lazy(() => import('./pages/VacanciesListPage'));
 const VacancyDetailPage = lazy(() => import('./pages/VacancyDetailPage'));
 const AdminVacanciesPage = lazy(() => import('./pages/AdminVacanciesPage'));
@@ -76,12 +80,16 @@ function App(): React.JSX.Element {
       <ScrollToTop />
       <Suspense fallback={loadingSpinner}>
         <Routes>
+          {/* Standalone Explorar page (no layout) */}
+          <Route element={<InventoryLayout />}>
+            <Route path="explorar" element={<ExplorarPage />} />
+          </Route>
+
           {/* Routes that need vehicle and filter context */}
           <Route element={<InventoryLayout />}>
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
               <Route path="autos" element={<VehicleListPage />} />
-              <Route path="explorar" element={<ResponsiveInventoryPage />} />
               <Route path="autos/:slug" element={<VehicleDetailPage />} />
               <Route path="vender-mi-auto" element={<GetAQuotePage />} />
               <Route path="promociones" element={<PromotionsPage />} />
@@ -128,6 +136,13 @@ function App(): React.JSX.Element {
                   <Route path="marketing" element={<MarketingHubPage />} />
                   <Route path="car-studio" element={<CarStudioPage />} />
                 </Route>
+
+                {/* Sales routes - accessible by sales and admin roles */}
+                <Route element={<SalesRoute />}>
+                  <Route path="ventas/leads" element={<SalesLeadsDashboardPage />} />
+                  <Route path="ventas/cliente/:id" element={<SalesClientProfilePage />} />
+                </Route>
+
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Route>

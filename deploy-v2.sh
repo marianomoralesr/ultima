@@ -25,6 +25,17 @@ IMAGE_NAME="app"
 STAGING_SERVICE_NAME="app-staging"
 PRODUCTION_SERVICE_NAME="app"
 
+# --- Cloudflare Configuration ---
+# IMPORTANT: Set these variables securely, e.g., as environment variables
+# or using a secret manager. For this script, we'll define them here.
+# 1. Go to your domain in the Cloudflare dashboard.
+# 2. Find your Zone ID on the "Overview" page (bottom-right).
+# 3. Create an API Token: My Profile > API Tokens > Create Token
+#    - Use the "Purge Cache" template.
+#    - Zone Resources: Include -> Specific zone -> yourdomain.com
+CLOUDFLARE_ZONE_ID="aacada2c4c8bca55be5a06fbcff2f5e8"
+CLOUDFLARE_API_TOKEN="AfSpbCcRu6Fq629PjzEJxClKaXXA2zM9-pXZ1-c2"
+
 # --- Colors for Output ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -37,6 +48,38 @@ function print_header() {
     echo -e "${GREEN}╔═══════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║   TREFA Cloud Run Deployment Script (v2)      ║${NC}"
     echo -e "${GREEN}╚═══════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
+function purge_cloudflare_cache() {
+    echo -e "${YELLOW}Purging Cloudflare cache...${NC}"
+
+    if [ -z "$CLOUDFLARE_ZONE_ID" ] || [ "$CLOUDFLARE_ZONE_ID" == "YOUR_ZONE_ID" ]; then
+        echo -e "${RED}✗ Error: CLOUDFLARE_ZONE_ID is not set.${NC}"
+        echo "Please set it at the top of the script."
+        exit 1
+    fi
+
+    if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ "$CLOUDFLARE_API_TOKEN" == "YOUR_API_TOKEN" ]; then
+        echo -e "${RED}✗ Error: CLOUDFLARE_API_TOKEN is not set.${NC}"
+        echo "Please set it at the top of the script."
+        exit 1
+    fi
+
+    local response_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+         -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+         -H "Content-Type: application/json" \
+         --data '{"purge_everything":true}')
+
+    if [ "$response_code" -eq 200 ]; then
+        echo -e "${GREEN}✓ Cloudflare cache purged successfully.${NC}"
+    else
+        echo -e "${RED}✗ Error: Failed to purge Cloudflare cache.${NC}"
+        echo "  - HTTP Status Code: $response_code"
+        echo "  - Check your Zone ID and API Token."
+        # Do not exit, as the deployment itself was successful.
+        # This is a post-deployment step.
+    fi
     echo ""
 }
 
@@ -291,7 +334,7 @@ function promote_to_production() {
     fi
     echo ""
 
-    echo -e "${YELLOW}[1/3] Parsing environment variables...${NC}"
+    echo -e "${YELLOW}[1/4] Parsing environment variables...${NC}"
     if [ ! -f "cloud-build-vars.yaml" ]; then
         echo -e "${RED}✗ Error: cloud-build-vars.yaml not found.${NC}"
         exit 1
@@ -309,7 +352,7 @@ function promote_to_production() {
     echo -e "${GREEN}✓ Environment variables parsed.${NC}"
     echo ""
 
-    echo -e "${YELLOW}[2/3] Deploying to Cloud Run (Production)...${NC}"
+    echo -e "${YELLOW}[2/4] Deploying to Cloud Run (Production)...${NC}"
     gcloud run deploy "$PRODUCTION_SERVICE_NAME" \
       --image="$image_url" \
       --platform=managed \
@@ -328,11 +371,15 @@ function promote_to_production() {
     echo ""
 
     # --- Verify deployment ---
-    echo -e "${YELLOW}[3/3] Verifying production deployment...${NC}"
+    echo -e "${YELLOW}[3/4] Verifying production deployment...${NC}"
     local deployed_version=$(gcloud run services describe "$PRODUCTION_SERVICE_NAME" --region="$REGION" --format='value(spec.template.metadata.annotations.client.knative.dev/user-image)')
     echo -e "Deployed image: ${BLUE}$deployed_version${NC}"
     echo -e "${GREEN}✓ Deployment verified.${NC}"
     echo ""
+
+    # --- Step 4: Purge Cloudflare Cache ---
+    echo -e "${YELLOW}[4/4] Purging Cloudflare cache...${NC}"
+    purge_cloudflare_cache
 
     # --- Success ---
     echo -e "${GREEN}╔═══════════════════════════════════════════════╗${NC}"

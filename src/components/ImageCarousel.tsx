@@ -63,18 +63,18 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
               className={`w-full h-full object-cover ${isSeparado ? 'filter grayscale' : ''}`}
             />
 
-            {/* Top-left tags: Garantia, Sucursal, Promociones */}
-            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+            {/* Top-left tags: Garantia, Sucursal, Promociones - Glassmorphism with text shadows */}
+            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2 max-w-[calc(100%-1.5rem)]">
               {garantia && garantia !== 'N/A' && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md bg-white/95 backdrop-blur-sm text-gray-900 shadow-lg border border-white/20">
-                  <ShieldCheckIcon className="w-3.5 h-3.5 text-green-600" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white shadow-2xl border border-white/10" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6)' }}>
+                  <ShieldCheckIcon className="w-4 h-4 drop-shadow-lg" />
                   {garantia}
                 </span>
               )}
 
               {sucursal && sucursal.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-white/95 backdrop-blur-sm text-gray-800 shadow-lg border border-white/20">
-                  <MapPinIcon className="w-3.5 h-3.5 text-primary-600" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white shadow-2xl border border-white/10" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6)' }}>
+                  <MapPinIcon className="w-4 h-4 drop-shadow-lg" />
                   {sucursal[0]}
                 </span>
               )}
@@ -86,9 +86,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
                 return (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-md bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg border border-orange-400/30"
+                    className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-500/80 to-orange-600/80 backdrop-blur-md text-white shadow-2xl border border-orange-300/20"
+                    style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6)' }}
                   >
-                    <TagIcon className="w-3.5 h-3.5" />
+                    <TagIcon className="w-4 h-4 drop-shadow-lg" />
                     {formattedPromo}
                   </span>
                 );

@@ -87,9 +87,12 @@ echo ""
 # === Step 3: Build Docker Image ===
 echo -e "${YELLOW}[3/5] Building Docker image...${NC}"
 
-# Read Supabase credentials from cloud-build-vars.yaml
+# Read build-time environment variables from cloud-build-vars.yaml
 VITE_SUPABASE_URL=$(grep "VITE_SUPABASE_URL:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_SUPABASE_ANON_KEY=$(grep "VITE_SUPABASE_ANON_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_INTELIMOTOR_BUSINESS_UNIT_ID=$(grep "VITE_INTELIMOTOR_BUSINESS_UNIT_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_INTELIMOTOR_API_KEY=$(grep "VITE_INTELIMOTOR_API_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_INTELIMOTOR_API_SECRET=$(grep "VITE_INTELIMOTOR_API_SECRET:" cloud-build-vars.yaml | cut -d'"' -f2)
 
 # Generate version string (same for staging and production to ensure identical builds)
 if [ -f "./generate-version.sh" ]; then
@@ -103,6 +106,7 @@ fi
 echo "Building with:"
 echo "  - VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
 echo "  - VITE_APP_VERSION: $VITE_APP_VERSION"
+echo "  - VITE_INTELIMOTOR_BUSINESS_UNIT_ID: $VITE_INTELIMOTOR_BUSINESS_UNIT_ID"
 echo "  - Image URL: $IMAGE_URL"
 
 docker build \
@@ -110,6 +114,9 @@ docker build \
   --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" \
   --build-arg VITE_SUPABASE_ANON_KEY="$VITE_SUPABASE_ANON_KEY" \
   --build-arg VITE_APP_VERSION="$VITE_APP_VERSION" \
+  --build-arg VITE_INTELIMOTOR_BUSINESS_UNIT_ID="$VITE_INTELIMOTOR_BUSINESS_UNIT_ID" \
+  --build-arg VITE_INTELIMOTOR_API_KEY="$VITE_INTELIMOTOR_API_KEY" \
+  --build-arg VITE_INTELIMOTOR_API_SECRET="$VITE_INTELIMOTOR_API_SECRET" \
   -t $IMAGE_URL \
   .
 

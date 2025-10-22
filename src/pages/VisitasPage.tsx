@@ -1,6 +1,53 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { config } from './config';
 import useSEO from '../hooks/useSEO';
+import { useAuth } from '../context/AuthContext';
+import {
+    Building as BuildingIcon,
+    MessageSquare as MessageSquareIcon,
+    PenSquare as PenSquareIcon,
+    DollarSign as DollarSignIcon,
+    Calendar as CalendarIcon,
+    CheckCircle as CheckCircleIcon,
+    ChevronLeft as ChevronLeftIcon,
+    Loader2 as Loader2Icon,
+    Car as CarIcon,
+    Wrench as WrenchIcon,
+    Briefcase as BriefcaseIcon
+} from 'lucide-react';
+import ValuationWidget from '../components/ValuationWidget';
+
+// Constants
+const BRANCHES = [
+    { id: 'monterrey', name: 'Monterrey', calendlyUrl: 'https://calendly.com/trefa-monterrey' },
+    { id: 'guadalupe', name: 'Guadalupe', calendlyUrl: 'https://calendly.com/trefa-guadalupe' },
+    { id: 'reynosa', name: 'Reynosa', calendlyUrl: 'https://calendly.com/trefa-reynosa' },
+    { id: 'saltillo', name: 'Saltillo', calendlyUrl: 'https://calendly.com/trefa-saltillo' }
+];
+
+const VISIT_REASONS = [
+    { id: 'Prueba de manejo', label: 'Prueba de manejo', icon: CarIcon },
+    { id: 'Inspección', label: 'Inspección', icon: WrenchIcon },
+    { id: 'Vender auto', label: 'Vender mi auto', icon: DollarSignIcon },
+    { id: 'Consulta general', label: 'Consulta general', icon: BriefcaseIcon },
+    { id: 'Otro', label: 'Otro', icon: MessageSquareIcon }
+];
+
+// Helper function to generate available time slots
+const getAvailableSlots = () => {
+    const today = new Date();
+    const slots = [];
+    for (let i = 1; i <= 7; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const dateStr = date.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        slots.push({
+            date: dateStr,
+            times: ['9:00 AM', '11:00 AM', '2:00 PM', '4:00 PM', '6:00 PM']
+        });
+    }
+    return slots;
+};
 
 const VisitasPage: React.FC = () => {
     useSEO({
@@ -141,7 +188,7 @@ const VisitasPage: React.FC = () => {
                         <StepHeader icon={DollarSignIcon} title="Primero, ayúdanos a valuar tu auto" />
                         <p className="text-sm text-gray-600 mt-2">Completa el formulario para obtener una oferta instantánea. Al terminar, podrás agendar la cita de inspección.</p>
                         <div className="mt-6 border-t pt-6">
-                            <ValuationApp />
+                            <ValuationWidget />
                         </div>
                         <div className="mt-6 text-center">
                             <ActionButton onClick={handleValuationContinue} text="Terminé de valuar, continuar a la agenda" />

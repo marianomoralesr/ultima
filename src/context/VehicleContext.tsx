@@ -14,7 +14,7 @@ interface VehicleContextType {
 
 const VehicleContext = createContext<VehicleContextType | undefined>(undefined);
 
-export const VehicleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function VehicleProvider({ children }: { children: React.ReactNode }) {
   const { filters, currentPage } = useFilters();
 
   const { data, isLoading, error } = useQuery<{ vehicles: Vehicle[]; totalCount: number }, Error>({
@@ -44,12 +44,12 @@ export const VehicleProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [data, isLoading, error]);
 
   return <VehicleContext.Provider value={contextValue}>{children}</VehicleContext.Provider>;
-};
+}
 
-export const useVehicles = () => {
+export function useVehicles() {
   const context = useContext(VehicleContext);
   if (!context) {
     throw new Error('useVehicles must be used within a VehicleProvider');
   }
   return context;
-};
+}

@@ -98,7 +98,7 @@ const BottomNav: React.FC = () => {
 
     return (
         <>
-            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 lg:hidden">
+            <nav className="fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-gray-200 lg:hidden">
                 <div className="max-w-md mx-auto grid grid-cols-5 justify-around items-center h-16">
                     <NavItem to="/" icon={HomeIcon} label="Inicio" end={true} />
                     <NavItem to="/vender-mi-auto" icon={SellCarIcon} label="Vender" />
@@ -134,14 +134,14 @@ const BottomNav: React.FC = () => {
             {/* Unfoldable menu is only active when NOT on the list page */}
             {!isListPage && (
                 <>
-                    <div 
-                        className={`fixed inset-0 z-50 bg-black/60 lg:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                    <div
+                        className={`fixed inset-0 z-[75] bg-black/60 lg:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         onClick={() => setIsMenuOpen(false)}
                     ></div>
-                    
+
                     <div
                         ref={menuRef}
-                        className={`fixed bottom-0 left-0 right-0 z-50 lg:hidden transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-y-0' : 'translate-y-full'}`}
+                        className={`fixed bottom-0 left-0 right-0 z-[80] lg:hidden transition-transform duration-300 ease-out ${isMenuOpen ? 'translate-y-0' : 'translate-y-full'}`}
                     >
                         <div className="bg-white rounded-t-2xl shadow-2xl overflow-hidden pt-4 pb-16">
                              <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>

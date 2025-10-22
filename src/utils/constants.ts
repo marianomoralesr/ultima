@@ -1,6 +1,6 @@
 import { proxyImage } from './proxyImage';
 
-export const DEFAULT_PLACEHOLDER_IMAGE = 'https://db.trefa.mx/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
+export const DEFAULT_PLACEHOLDER_IMAGE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
 
 export const TREFA_WHATSAPP = '5218187049079';
 
@@ -39,6 +39,13 @@ export const BRANCH_ADDRESSES: Record<string, string> = {
     'Reynosa': 'Boulevard Beethoven #100, Col. Narciso Mendoza | 88700, TMPS',
     'Guadalupe': 'Hidalgo #918, Col. Paraíso | 67140 Centro de Guadalupe, NL',
     'Saltillo': 'Blvd. Nazario Ortiz #2060, Local 132, Col 16 | Saltillo, COAH 25253',
+};
+
+export const BRANCH_COORDINATES: Record<string, { lat: number; lng: number }> = {
+    'Monterrey': { lat: 25.678754, lng: -100.370774 },
+    'Reynosa': { lat: 26.054483, lng: -98.321411 },
+    'Guadalupe': { lat: 25.677388, lng: -100.268381 },
+    'Saltillo': { lat: 25.444583, lng: -100.996395 },
 };
 
 export const branchData = [

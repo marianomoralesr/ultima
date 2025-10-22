@@ -318,7 +318,16 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
             return field.filter(isValidImageUrl);
         }
         if (typeof field === 'string') {
-            return field.split(',').map(url => url.trim()).filter(isValidImageUrl);
+            // Try to parse as JSON first (for fields like fotos_exterior_url that come as JSON strings)
+            try {
+                const parsed = JSON.parse(field);
+                if (Array.isArray(parsed)) {
+                    return parsed.filter(isValidImageUrl);
+                }
+            } catch {
+                // If JSON parse fails, treat as comma-separated
+                return field.split(',').map(url => url.trim()).filter(isValidImageUrl);
+            }
         }
         return [];
     };
@@ -331,7 +340,18 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
         if (Array.isArray(item.clasificacionid)) {
             clasificacionid = item.clasificacionid.map(String);
         } else if (typeof item.clasificacionid === 'string') {
-            clasificacionid = item.clasificacionid.split(',').map((c: string) => c.trim()).filter(Boolean);
+            // Try to parse as JSON first (clasificacionid comes as JSON string like '["SUV"]')
+            try {
+                const parsed = JSON.parse(item.clasificacionid);
+                if (Array.isArray(parsed)) {
+                    clasificacionid = parsed.map(String);
+                } else {
+                    clasificacionid = item.clasificacionid.split(',').map((c: string) => c.trim()).filter(Boolean);
+                }
+            } catch {
+                // If JSON parse fails, treat as comma-separated
+                clasificacionid = item.clasificacionid.split(',').map((c: string) => c.trim()).filter(Boolean);
+            }
         }
 
         const sucursalMapping: Record<string, string> = { 'MTY': 'Monterrey', 'GPE': 'Guadalupe', 'TMPS': 'Reynosa', 'COAH': 'Saltillo' };
@@ -339,7 +359,18 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
         if (Array.isArray(item.ubicacion)) {
             normalizedSucursales = item.ubicacion.map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
         } else if (typeof item.ubicacion === 'string') {
-            normalizedSucursales = item.ubicacion.split(',').map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
+            // Try to parse as JSON first (ubicacion comes as JSON string like '["Reynosa"]')
+            try {
+                const parsed = JSON.parse(item.ubicacion);
+                if (Array.isArray(parsed)) {
+                    normalizedSucursales = parsed.map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
+                } else {
+                    normalizedSucursales = item.ubicacion.split(',').map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
+                }
+            } catch {
+                // If JSON parse fails, treat as comma-separated
+                normalizedSucursales = item.ubicacion.split(',').map((s: string) => sucursalMapping[s.trim().toUpperCase()] || s.trim()).filter(Boolean);
+            }
         }
 
         const featureImage = getVehicleImage(item);
@@ -356,25 +387,31 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
 
         const viewCount = safeParseInt(item.view_count || item.viewcount);
 
+        // Helper to get first element from array or return as string
+        const getFirstOrString = (field: any): string => {
+            if (Array.isArray(field)) return field[0] || '';
+            return field || '';
+        };
+
         const normalizedVehicle = {
             id: item.id || 0,
             slug: slug,
             ordencompra: item.ordencompra || '',
             record_id: item.record_id || null,
-            
+
             titulo: title,
             descripcion: item.descripcion || '',
             metadescripcion: item.metadescripcion || '',
 
             marca: item.marca || '',
             modelo: item.modelo || '',
-            
+
             autoano: safeParseInt(item.autoano),
             precio: safeParseFloat(item.precio),
-            kilometraje: safeParseInt(item.kilometraje),
-            transmision: item.transmision || '',
-            combustible: item.combustible || '',
-            carroceria: item.carroceria || '',
+            kilometraje: safeParseInt(getFirstOrString(item.kilometraje)),
+            transmision: getFirstOrString(item.transmision),
+            combustible: getFirstOrString(item.combustible),
+            carroceria: getFirstOrString(item.carroceria || item.clasificacionid),
             cilindros: safeParseInt(item.cilindros),
             
             enganchemin: safeParseFloat(item.enganchemin),
@@ -383,7 +420,7 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
             mensualidad_recomendada: safeParseFloat(item.mensualidad_recomendada),
             plazomax: safeParseInt(item.plazomax),
             
-            feature_image: featureImage,
+            feature_image: [featureImage],
             galeria_exterior: [...new Set(exteriorGallery)],
             fotos_exterior_url: [...new Set(exteriorGallery)],
             galeria_interior: [...new Set(interiorGallery)],
@@ -414,7 +451,7 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
         return normalizedVehicle;
     });
 
-    return normalizedVehicles.filter(vehicle => vehicle.feature_image !== DEFAULT_PLACEHOLDER_IMAGE);
+    return normalizedVehicles;
 }
 
 

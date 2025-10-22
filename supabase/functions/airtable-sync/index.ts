@@ -136,9 +136,25 @@ serve(async (req: Request) => {
     // --- 5. Transform Data for Supabase (Normalize Field Names) ---
 
     // Helper functions
-    const getImageUrls = (attachments: any): string[] => {
-      if (!attachments || !Array.isArray(attachments)) return [];
-      return attachments.map((att: any) => att.url || att.thumbnails?.large?.url).filter(Boolean);
+    const getImageUrls = (field: any): string[] => {
+      if (!field) return [];
+
+      // If it's an array of attachment objects from Airtable
+      if (Array.isArray(field) && field.length > 0 && typeof field[0] === 'object' && field[0].url) {
+        return field.map((att: any) => att.url || att.thumbnails?.large?.url).filter(Boolean);
+      }
+
+      // If it's a string (comma-separated URLs or single URL)
+      if (typeof field === 'string') {
+        return field.split(',').map((url: string) => url.trim()).filter(Boolean);
+      }
+
+      // If it's an array of strings
+      if (Array.isArray(field)) {
+        return field.map(String).filter(Boolean);
+      }
+
+      return [];
     };
 
     const getArrayField = (fieldValue: any): string[] => {
@@ -148,12 +164,6 @@ serve(async (req: Request) => {
         return fieldValue.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
       return [String(fieldValue)];
-    };
-
-    // Convert single-element arrays to strings, otherwise keep as array
-    const normalizeArrayOrString = (fieldValue: any): string | string[] => {
-      const arrayValue = getArrayField(fieldValue);
-      return arrayValue.length === 1 ? arrayValue[0] : arrayValue;
     };
 
     // Get string value from field, checking multiple possible field names
@@ -193,20 +203,20 @@ serve(async (req: Request) => {
     const interiorImages = getImageUrls(fields.fotos_interior_url);
     const featureImage = getImageUrls(fields.feature_image)[0] || exteriorImages[0] || '';
 
-    // Normalize combustible field (check autocombustible, then combustible)
-    const combustibleValue = getStringField(fields.autocombustible, fields.combustible);
+    // Normalize combustible field - keep as array
+    const combustibleValue = getArrayField(fields.autocombustible || fields.combustible);
 
-    // Normalize kilometraje field (check autokilometraje, then kilometraje)
-    const kilometrajeValue = getNumberField(fields.autokilometraje, fields.kilometraje);
+    // Normalize kilometraje field - keep as array
+    const kilometrajeValue = getArrayField(fields.autokilometraje || fields.kilometraje);
 
-    // Normalize transmision field
-    const transmisionValue = getStringField(fields.autotransmision, fields.transmision);
+    // Normalize transmision field - keep as array
+    const transmisionValue = getArrayField(fields.autotransmision || fields.transmision);
 
-    // Normalize ubicacion - convert ["Guadalupe"] to "Guadalupe"
-    const ubicacionValue = normalizeArrayOrString(fields.Ubicacion);
+    // Normalize ubicacion - keep as array
+    const ubicacionValue = getArrayField(fields.Ubicacion);
 
-    // Normalize clasificacionid - convert ["SUV"] to "SUV"
-    const clasificacionValue = normalizeArrayOrString(fields.ClasificacionID);
+    // Normalize clasificacionid (carroceria) - keep as array
+    const clasificacionValue = getArrayField(fields.ClasificacionID);
 
     // Map Airtable fields to Supabase columns
     const supabaseData = {
@@ -217,11 +227,8 @@ serve(async (req: Request) => {
       marca: fields.AutoMarca || 'Sin Marca',
       modelo: fields.AutoSubmarcaVersion || '',
       transmision: transmisionValue,
-      autotransmision: transmisionValue,
       combustible: combustibleValue,
-      autocombustible: combustibleValue,
       kilometraje: kilometrajeValue,
-      autokilometraje: kilometrajeValue,
       feature_image: featureImage,
       fotos_exterior_url: exteriorImages,
       fotos_interior_url: interiorImages,

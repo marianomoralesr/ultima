@@ -16,22 +16,7 @@ const Footer: React.FC = () => {
     const navigate = useNavigate();
 
     // Get app version from environment variables
-    const gitCommit = import.meta.env.VITE_GIT_COMMIT || 'dev';
-    const buildDate = import.meta.env.VITE_BUILD_DATE;
-    const environment = import.meta.env.VITE_ENVIRONMENT || 'development';
-
-    // Format version string
-    const versionString = gitCommit === 'dev' ? 'dev' : `v${gitCommit}`;
-    const environmentBadge = environment === 'production' ? '' : ` (${environment})`;
-    const dateString = buildDate ? new Date(buildDate).toLocaleString('es-MX', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    }) : '';
-
-    const appVersion = `${versionString}${environmentBadge}${dateString ? ` • ${dateString}` : ''}`;
+    const appVersion = import.meta.env.VITE_APP_VERSION || 'dev';
 
     const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, to: string, authRequired: boolean) => {
         if (authRequired && !session) {

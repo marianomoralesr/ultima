@@ -300,7 +300,7 @@ const AuthPage: React.FC = () => {
         <div className="absolute inset-0 w-full h-full">
             <video 
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
-                src={proxyImage("http://5.183.8.48/wp-content/uploads/2025/04/testomimos-02.mp4")} 
+                src={proxyImage("https://cufm.mx/wp-content/uploads/2025/04/testomimos-02.mp4")} 
                 autoPlay
                 loop
                 muted 

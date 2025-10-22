@@ -478,7 +478,7 @@ const SpecItem: React.FC<{ label: string; value: string | number }> = React.memo
   </div>
 ));
 
-import { BRANCH_ADDRESSES } from '../utils/constants';
+import { BRANCH_ADDRESSES, BRANCH_COORDINATES } from '../utils/constants';
 
 // ... inside VehicleDetailLocation component
 const VehicleDetailLocation: React.FC<{ vehicle: WordPressVehicle }> = React.memo(({ vehicle }) => {
@@ -492,8 +492,12 @@ const VehicleDetailLocation: React.FC<{ vehicle: WordPressVehicle }> = React.mem
   if (!branchName) return null;
 
   const fullAddress = BRANCH_ADDRESSES[branchName] || branchName;
-  const encodedAddress = encodeURIComponent(fullAddress);
-  const mapEmbedUrl = `https://www.google.com/maps?q=${encodedAddress}&output=embed`;
+  const coordinates = BRANCH_COORDINATES[branchName];
+
+  // Use coordinates if available, otherwise fall back to address search
+  const mapEmbedUrl = coordinates
+    ? `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}&output=embed`
+    : `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`;
 
   return (
     <div className={cardStyle}>
@@ -516,7 +520,11 @@ const VehicleDetailLocation: React.FC<{ vehicle: WordPressVehicle }> = React.mem
       </div>
 
       <a
-        href={`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`}
+        href={
+          coordinates
+            ? `https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
+        }
         target="_blank"
         rel="noopener noreferrer"
         className="inline-block mt-3 text-sm text-primary-600 hover:text-primary-700 font-semibold hover:underline"

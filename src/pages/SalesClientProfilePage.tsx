@@ -336,7 +336,7 @@ const SalesClientProfilePage: React.FC = () => {
         );
     }
 
-    if (error) {
+    if (error || !clientData || !user) {
         return (
             <div className="max-w-2xl mx-auto mt-10">
                 <div className="p-6 bg-red-50 border-2 border-red-200 text-red-800 rounded-xl">
@@ -344,33 +344,10 @@ const SalesClientProfilePage: React.FC = () => {
                         <AlertTriangle className="w-6 h-6 flex-shrink-0 mt-0.5" />
                         <div className="flex-grow">
                             <h2 className="text-lg font-bold mb-2">Error al Cargar Perfil</h2>
-                            <p className="text-sm mb-4">{error}</p>
+                            <p className="text-sm mb-4">{error || 'No se pudo cargar el perfil del cliente. Verifica que tengas acceso autorizado.'}</p>
                             <Link
                                 to="/escritorio/ventas/leads"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                                Volver a Mis Leads
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!clientData || !user) {
-        return (
-            <div className="max-w-2xl mx-auto mt-10">
-                <div className="p-6 bg-yellow-50 border-2 border-yellow-200 text-yellow-800 rounded-xl">
-                    <div className="flex items-start gap-3">
-                        <Lock className="w-6 h-6 flex-shrink-0 mt-0.5" />
-                        <div className="flex-grow">
-                            <h2 className="text-lg font-bold mb-2">Acceso No Autorizado</h2>
-                            <p className="text-sm mb-4">No tienes acceso autorizado a este perfil de cliente. El cliente debe activar "Autorizar Acceso al Asesor" para que puedas ver su información completa.</p>
-                            <Link
-                                to="/escritorio/ventas/leads"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4" />
                                 Volver a Mis Leads

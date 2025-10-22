@@ -20,7 +20,7 @@ import {
     DocumentDuplicateIcon, 
     CheckIcon 
 } from '../components/icons';
-import { config } from '../config';
+import { config } from '../pages/config';
 import StepIndicator from './components/StepIndicator';
 
 

@@ -123,6 +123,10 @@ app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ----- Health Check -----
+app.get("/healthz", (_, res) => res.send("ok"));
+app.get("/api/health", (_, res) => res.json({ status: "ok" }));
+
 // ----- Cache Control Headers -----
 // Prevent stale responses and ensure fresh data from Supabase
 app.use((req, res, next) => {
@@ -137,10 +141,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// ----- Health Check -----
-app.get("/healthz", (_, res) => res.send("ok"));
-app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
 // ----- Intelimotor API Proxy -----
 // This endpoint proxies requests to Intelimotor API, hiding credentials from frontend

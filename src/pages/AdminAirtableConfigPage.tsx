@@ -80,10 +80,10 @@ const AdminAirtableConfigPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                <ConfigCard title="Base de Valuación de Vehículos">
+                <ConfigCard title="Base de Valuación de Autos">
                     <InputField id="valuationApiKey" label="API Key (Personal Access Token)" register={register} placeholder="pat..." type="password" isSecret />
                     <InputField id="valuationBaseId" label="Base ID" register={register} placeholder="app..." />
-                    <InputField id="valuationTableId" label="Table ID (Vehículos)" register={register} placeholder="tbl..." />
+                    <InputField id="valuationTableId" label="Table ID (Autos)" register={register} placeholder="tbl..." />
                 </ConfigCard>
 
                 <ConfigCard title="Base de Captura de Leads">

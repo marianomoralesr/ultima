@@ -197,18 +197,11 @@ app.post("/intelimotor-api/", async (req, res) => {
 // ----- Serve React Build -----
 const buildPath = path.resolve(__dirname, "dist");
 
-// Serve static assets with long cache for hashed files, short cache for index.html
+// Serve static assets with long cache for hashed files
 app.use(express.static(buildPath, {
   maxAge: "1y",
   etag: true,
-  setHeaders: (res, path) => {
-    // index.html should never be cached
-    if (path.endsWith('index.html')) {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-    }
-  }
+  index: false, // Let the SPA fallback handle serving index.html
 }));
 
 // ----- SPA Fallback -----

@@ -110,7 +110,7 @@ const AuthPage: React.FC = () => {
                 if (vehicle) setVehicleToFinance(vehicle);
             }).catch(err => {
                 console.error("Error fetching vehicle for AuthPage:", err);
-                setError("Error al cargar la información del vehículo.");
+                setError("Error al cargar la información del auto.");
             }).finally(() => setIsLoadingVehicle(false));
         }
     }, [searchParams]);

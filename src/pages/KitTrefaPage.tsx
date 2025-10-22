@@ -16,7 +16,7 @@ const benefitsData = [
     {
         icon: FileText,
         title: '2. Certificado de Procedencia Segura',
-        description: 'Garantizamos el pasado de tu auto para que tú te enfoques en su futuro. Este certificado es la prueba irrefutable de que el vehículo pasó nuestra rigurosa investigación legal y administrativa, que incluye:',
+        description: 'Garantizamos el pasado de tu auto para que tú te enfoques en su futuro. Este certificado es la prueba irrefutable de que el auto pasó nuestra rigurosa investigación legal y administrativa, que incluye:',
         value: '$3,500 MXN',
         details: [
             'Validación en REPUVE, SAT, Totalcheck y TransUnion.',
@@ -35,14 +35,14 @@ const benefitsData = [
     {
         icon: TrendingUp,
         title: '4. Programa de Recompra Garantizada TREFA',
-        description: 'A través de este programa oficial, eliminamos la incertidumbre financiera. Te garantizamos por escrito la recompra de tu vehículo por el 80% de su valor el primer año y el 70% el segundo. Este beneficio aplica para vehículos con un uso de hasta 20,000 km por año, conservados en condiciones de uso normales y que cumplan con las políticas de compra vigentes de TREFA al momento de la transacción.',
+        description: 'A través de este programa oficial, eliminamos la incertidumbre financiera. Te garantizamos por escrito la recompra de tu auto por el 80% de su valor el primer año y el 70% el segundo. Este beneficio aplica para autos con un uso de hasta 20,000 km por año, conservados en condiciones de uso normales y que cumplan con las políticas de compra vigentes de TREFA al momento de la transacción.',
         value: 'Protección Invaluable.',
         details: []
     },
     {
         icon: Wrench,
         title: '5. "Check-up de Confianza TREFA"',
-        description: 'A los 6 meses o 10,000 km, te incluimos una inspección multipunto de seguridad sin costo. Nuestro equipo de expertos revisará los puntos vitales de tu vehículo (frenos, suspensión, niveles, neumáticos y componentes de seguridad) para asegurar que sigue funcionando en perfectas condiciones y prevenir problemas futuros.',
+        description: 'A los 6 meses o 10,000 km, te incluimos una inspección multipunto de seguridad sin costo. Nuestro equipo de expertos revisará los puntos vitales de tu auto (frenos, suspensión, niveles, neumáticos y componentes de seguridad) para asegurar que sigue funcionando en perfectas condiciones y prevenir problemas futuros.',
         value: '$4,000 MXN',
         details: []
     },

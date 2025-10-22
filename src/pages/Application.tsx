@@ -277,7 +277,7 @@ const Application: React.FC = () => {
         }
 
         if (!vehicleInfo?._ordenCompra) {
-            setSubmissionError("No has seleccionado un vehículo para tu solicitud.");
+            setSubmissionError("No has seleccionado un auto para tu solicitud.");
             setShowVehicleSelector(true);
             return;
         }
@@ -401,7 +401,7 @@ const Application: React.FC = () => {
                              {/* Disclaimer */}
                              <div className="p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm order-4">
                                  <p>
-                                     <strong>Importante:</strong> La disponibilidad del vehículo no está garantizada hasta la aprobación final. Sin embargo, un crédito pre-aprobado es transferible a cualquier otro auto de nuestro inventorio.
+                                     <strong>Importante:</strong> La disponibilidad del auto no está garantizada hasta la aprobación final. Sin embargo, un crédito pre-aprobado es transferible a cualquier otro auto de nuestro inventorio.
                                  </p>
                              </div>
  
@@ -451,16 +451,16 @@ const Application: React.FC = () => {
                                     </div>
                                     <button onClick={() => setShowVehicleSelector(true)} className="flex items-center gap-2 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-md hover:bg-primary-100">
                                         <Edit className="w-4 h-4" />
-                                        Cambiar Vehículo
+                                        Cambiar Auto
                                     </button>
                                 </div>
                             ) : (
                                 !showVehicleSelector && (
                                     <div className="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
-                                        <h1 className="text-lg font-bold text-yellow-800">No has seleccionado un vehículo</h1>
+                                        <h1 className="text-lg font-bold text-yellow-800">No has seleccionado un auto</h1>
                                         <p className="text-sm text-yellow-700 mt-1 mb-4">Tu solicitud se guardará como un borrador general.</p>
                                         <button onClick={() => setShowVehicleSelector(true)} className="text-sm font-semibold text-white bg-primary-600 px-4 py-2 rounded-lg hover:bg-primary-700">
-                                            Seleccionar Vehículo
+                                            Seleccionar Auto
                                         </button>
                                     </div>
                                 )
@@ -491,7 +491,7 @@ const Application: React.FC = () => {
                                                             onClick={() => setShowVehicleSelector(true)}
                                                             className="mt-3 inline-block bg-primary-600 text-white font-semibold px-4 py-2 rounded-lg text-sm"
                                                         >
-                                                            Seleccionar Vehículo
+                                                            Seleccionar Auto
                                                         </button>
                                                     )}
                                                 </div>

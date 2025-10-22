@@ -36,7 +36,7 @@ const PurchaseProjectionModule: React.FC = () => {
         <h2 className="text-lg font-semibold text-gray-900">Proyección de Compra</h2>
       </div>
       <p className="text-sm text-gray-700 mb-4">
-        Estima tus pagos mensuales para la compra de un vehículo.
+        Estima tus pagos mensuales para la compra de un auto.
       </p>
 
       <div className="space-y-4">

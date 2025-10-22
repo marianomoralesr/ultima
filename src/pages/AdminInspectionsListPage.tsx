@@ -46,7 +46,7 @@ const AdminInspectionsListPage: React.FC = () => {
                 <FileText className="w-6 h-6 mr-3 text-primary-600"/>
                 Administrar Reportes de Inspección
             </h1>
-            <p className="text-gray-600 mb-6">Selecciona un vehículo para ver o editar su reporte de inspección.</p>
+            <p className="text-gray-600 mb-6">Selecciona un auto para ver o editar su reporte de inspección.</p>
 
             <div className="relative mb-6">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />

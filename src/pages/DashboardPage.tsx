@@ -186,20 +186,25 @@ const Dashboard: React.FC = () => {
     }
   }, [user?.id]);
 
+  // Effect for loading data when user logs in
   useEffect(() => {
     if (!userLoading && user) {
         loadData();
-
-        const ONBOARDING_KEY = `dashboardOnboardingShown_${user.id}`;
-        const hasSeenOnboarding = localStorage.getItem(ONBOARDING_KEY);
-
-        if (profile && !hasSeenOnboarding) {
-          setShowOnboarding(true);
-        }
     } else if (!userLoading && !user) {
         setAppsLoading(false);
     }
-  }, [user, userLoading, profile, loadData]);
+  }, [user, userLoading, loadData]);
+
+  // Effect for showing the onboarding modal
+  useEffect(() => {
+    if (user && profile) {
+      const ONBOARDING_KEY = `dashboardOnboardingShown_${user.id}`;
+      const hasSeenOnboarding = localStorage.getItem(ONBOARDING_KEY);
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [user, profile]);
   
   const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
   const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);

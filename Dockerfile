@@ -14,9 +14,6 @@ WORKDIR /app
 # Copy source code
 COPY . .
 
-# Copy config file to pages directory
-COPY src/config.ts src/pages/config.ts
-
 # Install dependencies
 RUN npm install
 

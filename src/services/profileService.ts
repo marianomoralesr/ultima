@@ -20,6 +20,7 @@ export const ProfileService = {
     const { data: updatedProfile, error: upsertError } = await supabase
       .from('profiles')
       .upsert({ id: user.id, ...profileData }, { onConflict: 'id' })
+      .select()
       .single();
 
     if (upsertError) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   CreditCard, 
   Plus,
@@ -165,6 +165,7 @@ const Dashboard: React.FC = () => {
   const [isBankProfileComplete, setIsBankProfileComplete] = useState(false);
   const [isSurveyVisible, setIsSurveyVisible] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user?.id) return;
@@ -195,16 +196,17 @@ const Dashboard: React.FC = () => {
     }
   }, [user, userLoading, loadData]);
 
-  // Effect for showing the onboarding modal
+  // Effect for showing the onboarding modal (only check once when user.id becomes available)
   useEffect(() => {
-    if (user && profile) {
+    if (user?.id && !onboardingChecked) {
       const ONBOARDING_KEY = `dashboardOnboardingShown_${user.id}`;
       const hasSeenOnboarding = localStorage.getItem(ONBOARDING_KEY);
       if (!hasSeenOnboarding) {
         setShowOnboarding(true);
       }
+      setOnboardingChecked(true); // Mark as checked to prevent re-running
     }
-  }, [user, profile]);
+  }, [user?.id, onboardingChecked]); // Only run when user.id changes and hasn't been checked yet
   
   const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
   const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);

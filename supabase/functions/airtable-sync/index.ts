@@ -83,8 +83,57 @@ serve(async (req: Request) => {
     const record = await response.json();
     console.log(`✅ Fetched record: ${record.id}`);
 
-    // --- 4. Transform Data for Supabase (Normalize Field Names) ---
+    // --- 4. Check OrdenStatus and Handle Business Logic ---
     const fields = record.fields;
+    const ordenStatus = fields.OrdenStatus || '';
+
+    console.log(`📋 Record status: ${ordenStatus}`);
+
+    // If the record changed from "Comprado" to something else (e.g., "Historico", "Vendido"),
+    // update it in Supabase to mark it as not active
+    if (ordenStatus !== 'Comprado') {
+      console.log(`⚠️ Record ${recordId} is no longer "Comprado" (status: ${ordenStatus}). Updating to Historico in Supabase...`);
+
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Update the record to mark it as Historico so it won't show in listings
+      const { error: updateError } = await supabase
+        .from('inventario_cache')
+        .update({
+          ordenstatus: 'Historico',
+          vendido: true,
+          last_synced_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('record_id', recordId);
+
+      if (updateError) {
+        console.error('❌ Error updating record to Historico:', updateError);
+        throw new Error(`Failed to update record to Historico: ${updateError.message}`);
+      }
+
+      console.log(`✅ Updated record ${recordId} to Historico status`);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: `Record ${recordId} updated to Historico (was: ${ordenStatus})`,
+          data: {
+            record_id: recordId,
+            ordenstatus: 'Historico',
+          }
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    }
+
+    // Only sync records with OrdenStatus = "Comprado"
+    console.log(`✅ Record is "Comprado" - proceeding with sync`);
+
+    // --- 5. Transform Data for Supabase (Normalize Field Names) ---
 
     // Helper functions
     const getImageUrls = (attachments: any): string[] => {
@@ -139,7 +188,7 @@ serve(async (req: Request) => {
       data: fields,
     };
 
-    // --- 5. Upsert Data into Supabase ---
+    // --- 6. Upsert Data into Supabase ---
     console.log(`📤 Upserting record ${record.id} into Supabase...`);
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -157,7 +206,7 @@ serve(async (req: Request) => {
 
     console.log(`✅ Successfully synced record ${record.id}`);
 
-    // --- 6. Return Success Response ---
+    // --- 7. Return Success Response ---
     return new Response(
       JSON.stringify({
         success: true,

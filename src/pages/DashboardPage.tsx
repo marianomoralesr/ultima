@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
   const [isSurveyVisible, setIsSurveyVisible] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user?.id) return;
     
     setAppsLoading(true);
@@ -184,7 +184,7 @@ const Dashboard: React.FC = () => {
     } finally {
         setAppsLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!userLoading && user) {
@@ -199,7 +199,7 @@ const Dashboard: React.FC = () => {
     } else if (!userLoading && !user) {
         setAppsLoading(false);
     }
-  }, [user, userLoading, profile]);
+  }, [user, userLoading, profile, loadData]);
   
   const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
   const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);

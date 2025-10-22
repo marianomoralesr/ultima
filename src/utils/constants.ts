@@ -2,6 +2,15 @@ import { proxyImage } from './proxyImage';
 
 export const DEFAULT_PLACEHOLDER_IMAGE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
 
+export const PLACEHOLDER_IMAGES: Record<string, string> = {
+  "suv": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/suv-2Artboard-12-trefa.png",
+  "pick-up": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
+  "pickup": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
+  "sedan": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
+  "sedán": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
+  "hatchback": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/hbArtboard-12-trefa.png"
+};
+
 export const TREFA_WHATSAPP = '5218187049079';
 
 export const BRAND_LOGOS: Record<string, string> = {

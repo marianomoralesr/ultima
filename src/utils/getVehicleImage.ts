@@ -1,14 +1,5 @@
 import type { Vehicle, WordPressVehicle } from '../types/types';
-import { DEFAULT_PLACEHOLDER_IMAGE } from './constants';
-
-const placeholders: Record<string, string> = {
-  "suv": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/suv-2Artboard-12-trefa.png",
-  "pick-up": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "pickup": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "sedan": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "sedán": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "hatchback": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/hbArtboard-12-trefa.png"
-};
+import { DEFAULT_PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGES } from './constants';
 
 export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): string {
   const parseStringOrArray = (value: string | string[] | undefined): string[] => {
@@ -48,5 +39,5 @@ export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): s
     : vehicle.clasificacionid;
 
   const clasificacion = typeof value === "string" ? value.toLowerCase().replace(/ /g, '-') : "";
-  return placeholders[clasificacion] ?? DEFAULT_PLACEHOLDER_IMAGE;
+  return PLACEHOLDER_IMAGES[clasificacion] ?? DEFAULT_PLACEHOLDER_IMAGE;
 }

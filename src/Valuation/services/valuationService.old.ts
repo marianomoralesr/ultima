@@ -1,5 +1,5 @@
 import type { Vehicle, IntelimotorValuation } from '../../types/types';
-import { config } from '../../config';
+import { config } from '../config';
 
 export class ValuationFailedError extends Error {
   public response: any;

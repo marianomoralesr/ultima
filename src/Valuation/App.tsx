@@ -20,7 +20,7 @@ import {
     DocumentDuplicateIcon, 
     CheckIcon 
 } from '../components/icons';
-import { config } from '../config';
+import { config } from 'config';
 import StepIndicator from './components/StepIndicator';
 
 
@@ -389,7 +389,7 @@ export default ValuationApp;
 //     DocumentDuplicateIcon, 
 //     CheckIcon 
 // } from '../components/icons';
-// import { config } from '../config';
+// import { config } from 'config';
 // import StepIndicator from './components/StepIndicator';
 
 

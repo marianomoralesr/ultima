@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { config } from '../config';
+import { config } from 'config';
 import ValuationApp from '../Valuation/App';
 import { 
     BuildingIcon, CarIcon, CalendarIcon, MessageSquareIcon, WrenchIcon, MicroscopeIcon, 

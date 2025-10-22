@@ -23,7 +23,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [loading, setLoading] = useState(true);
 
     const reloadProfile = useCallback(async (): Promise<Profile | null> => {
-        if (!user) {
+        const currentUserId = user?.id;
+        if (!currentUserId) {
             setProfile(null);
             sessionStorage.removeItem('userProfile');
             return null;
@@ -35,7 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', user.id)
+                .eq('id', currentUserId)
                 .single();
 
             if (error && error.code !== 'PGRST116') {
@@ -43,7 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setProfile(null);
                 return null;
             }
-            
+
             if (data) {
                 console.log('✅ Profile reloaded from Supabase and cached.');
                 setProfile(data as Profile);
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setProfile(null);
             return null;
         }
-    }, [user]);
+    }, [user?.id]); // Only depend on user.id, not the whole user object
 
     const signOut = async () => {
         await supabase.auth.signOut();
@@ -70,20 +71,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sessionStorage.removeItem('userProfile');
     };
 
-    const fetchProfile = useCallback(async (user: User | null): Promise<Profile | null> => {
-        if (!user) {
-            setProfile(null);
-            sessionStorage.removeItem('userProfile');
-            return null;
-        }
-
+    const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
         // Try to get from cache first
         try {
             const cachedProfile = sessionStorage.getItem('userProfile');
             if (cachedProfile) {
                 const parsed = JSON.parse(cachedProfile);
                 // Basic validation to ensure the cached profile belongs to the current user
-                if (parsed.id === user.id) {
+                if (parsed.id === userId) {
                     console.log('✅ Profile loaded from sessionStorage cache.');
                     setProfile(parsed);
                     return parsed;
@@ -98,7 +93,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', user.id)
+                .eq('id', userId)
                 .single();
 
             if (error && error.code !== 'PGRST116') {
@@ -107,7 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 sessionStorage.removeItem('userProfile');
                 return null;
             }
-            
+
             if (data) {
                 console.log('✅ Profile fetched from Supabase and cached.');
                 setProfile(data as Profile);
@@ -123,7 +118,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             sessionStorage.removeItem('userProfile');
             return null;
         }
-    }, [user]);
+    }, []); // No dependencies - stable function
 
     useEffect(() => {
         setLoading(true);
@@ -134,13 +129,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     setSession(session);
                     const currentUser = session?.user ?? null;
                     setUser(currentUser);
-                    await fetchProfile(currentUser);
+                    if (currentUser) {
+                        await fetchProfile(currentUser.id);
+                    } else {
+                        setProfile(null);
+                        sessionStorage.removeItem('userProfile');
+                    }
                     setLoading(false);
                 } else if (event === 'SIGNED_IN') {
                     setSession(session);
                     const currentUser = session?.user ?? null;
                     setUser(currentUser);
-                    await fetchProfile(currentUser);
+                    if (currentUser) {
+                        await fetchProfile(currentUser.id);
+                    }
                 } else if (event === 'SIGNED_OUT') {
                     setSession(null);
                     setUser(null);
@@ -153,13 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => {
             subscription?.unsubscribe();
         };
-    }, [fetchProfile]);
-
-    useEffect(() => {
-        if (user) {
-            fetchProfile(user);
-        }
-    }, [user, fetchProfile]);
+    }, [fetchProfile]); // fetchProfile is now stable (no dependencies)
 
     useEffect(() => {
         if (profile && profile.role === 'user' && !profile.asesor_asignado_id) {

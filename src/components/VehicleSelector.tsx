@@ -40,7 +40,7 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ isOpen, onClose, onSe
         <div className="p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Selecciona un Vehículo</h2>
+              <h2 className="text-xl font-bold text-gray-900">Selecciona un Auto</h2>
               <p className="text-sm text-gray-500 mt-1">Busca en nuestro inventario para iniciar tu solicitud.</p>
             </div>
             <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">

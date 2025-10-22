@@ -12,10 +12,9 @@ interface ImageCarouselProps {
   isSeparado?: boolean;
   garantia?: string;
   sucursal?: string[];
-  promociones?: string[];
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal, promociones }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const x = useMotionValue(0);
   const constraintsRef = useRef(null);
@@ -63,37 +62,21 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
               className={`w-full h-full object-cover ${isSeparado ? 'filter grayscale' : ''}`}
             />
 
-            {/* Top-left tags: Garantia, Sucursal, Promociones - Glassmorphism with text shadows */}
+            {/* Top-left tags: Garantia, Sucursal - Glassmorphism without text shadows */}
             <div className="absolute top-3 left-3 z-20 flex flex-col gap-2 max-w-[calc(100%-1.5rem)]">
               {garantia && garantia !== 'N/A' && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white shadow-2xl border border-white/10" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6)' }}>
-                  <ShieldCheckIcon className="w-4 h-4 drop-shadow-lg" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white border border-white/10">
+                  <ShieldCheckIcon className="w-4 h-4" />
                   {garantia}
                 </span>
               )}
 
               {sucursal && sucursal.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white shadow-2xl border border-white/10" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6)' }}>
-                  <MapPinIcon className="w-4 h-4 drop-shadow-lg" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white border border-white/10">
+                  <MapPinIcon className="w-4 h-4" />
                   {sucursal[0]}
                 </span>
               )}
-
-              {promociones && promociones.length > 0 && promociones.slice(0, 2).map((promo, idx) => {
-                const formattedPromo = formatPromotion(promo);
-                if (!formattedPromo) return null;
-
-                return (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-500/80 to-orange-600/80 backdrop-blur-md text-white shadow-2xl border border-orange-300/20"
-                    style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6)' }}
-                  >
-                    <TagIcon className="w-4 h-4 drop-shadow-lg" />
-                    {formattedPromo}
-                  </span>
-                );
-              })}
             </div>
           </div>
         ))}

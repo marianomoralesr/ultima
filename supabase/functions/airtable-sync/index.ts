@@ -150,6 +150,39 @@ serve(async (req: Request) => {
       return [String(fieldValue)];
     };
 
+    // Convert single-element arrays to strings, otherwise keep as array
+    const normalizeArrayOrString = (fieldValue: any): string | string[] => {
+      const arrayValue = getArrayField(fieldValue);
+      return arrayValue.length === 1 ? arrayValue[0] : arrayValue;
+    };
+
+    // Get string value from field, checking multiple possible field names
+    const getStringField = (primaryField: any, fallbackField: any): string => {
+      if (primaryField) {
+        if (Array.isArray(primaryField)) {
+          return primaryField[0] || '';
+        }
+        return String(primaryField);
+      }
+      if (fallbackField) {
+        if (Array.isArray(fallbackField)) {
+          return fallbackField[0] || '';
+        }
+        return String(fallbackField);
+      }
+      return '';
+    };
+
+    // Get number value, checking multiple possible field names
+    const getNumberField = (primaryField: any, fallbackField: any): number => {
+      const value = primaryField ?? fallbackField;
+      if (!value) return 0;
+      if (Array.isArray(value)) {
+        return parseFloat(value[0]) || 0;
+      }
+      return parseFloat(value) || 0;
+    };
+
     // Build title
     const titulo = fields.AutoMarca && fields.AutoSubmarcaVersion
       ? `${fields.AutoMarca} ${fields.AutoSubmarcaVersion}`.trim()
@@ -160,6 +193,21 @@ serve(async (req: Request) => {
     const interiorImages = getImageUrls(fields.fotos_interior_url);
     const featureImage = getImageUrls(fields.feature_image)[0] || exteriorImages[0] || '';
 
+    // Normalize combustible field (check autocombustible, then combustible)
+    const combustibleValue = getStringField(fields.autocombustible, fields.combustible);
+
+    // Normalize kilometraje field (check autokilometraje, then kilometraje)
+    const kilometrajeValue = getNumberField(fields.autokilometraje, fields.kilometraje);
+
+    // Normalize transmision field
+    const transmisionValue = getStringField(fields.autotransmision, fields.transmision);
+
+    // Normalize ubicacion - convert ["Guadalupe"] to "Guadalupe"
+    const ubicacionValue = normalizeArrayOrString(fields.Ubicacion);
+
+    // Normalize clasificacionid - convert ["SUV"] to "SUV"
+    const clasificacionValue = normalizeArrayOrString(fields.ClasificacionID);
+
     // Map Airtable fields to Supabase columns
     const supabaseData = {
       record_id: record.id,
@@ -168,10 +216,12 @@ serve(async (req: Request) => {
       precio: parseFloat(fields.Precio || '0'),
       marca: fields.AutoMarca || 'Sin Marca',
       modelo: fields.AutoSubmarcaVersion || '',
-      transmision: fields.autotransmision || '',
-      autotransmision: fields.autotransmision || '',
-      combustible: fields.autocombustible || '',
-      autocombustible: fields.autocombustible || '',
+      transmision: transmisionValue,
+      autotransmision: transmisionValue,
+      combustible: combustibleValue,
+      autocombustible: combustibleValue,
+      kilometraje: kilometrajeValue,
+      autokilometraje: kilometrajeValue,
       feature_image: featureImage,
       fotos_exterior_url: exteriorImages,
       fotos_interior_url: interiorImages,
@@ -179,8 +229,8 @@ serve(async (req: Request) => {
       ordenstatus: fields.OrdenStatus || '',
       separado: fields.OrdenStatus === 'Separado',
       vendido: fields.vendido === true,
-      clasificacionid: getArrayField(fields.ClasificacionID),
-      ubicacion: getArrayField(fields.Ubicacion),
+      clasificacionid: clasificacionValue,
+      ubicacion: ubicacionValue,
       descripcion: fields.descripcion || '',
       last_synced_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

@@ -67,7 +67,6 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
               isSeparado={isSeparado}
               garantia={vehicle.garantia}
               sucursal={vehicle.ubicacion}
-              promociones={vehicle.promociones}
               className="aspect-[4/3]"
             />
             {isSeparado && (
@@ -90,9 +89,21 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
 
         <div className="p-4 flex flex-col flex-grow">
             <div>
-                {vehicle.ordencompra && (
-                    <p className="text-xs font-medium text-gray-400 mb-1.5 tracking-wide">{vehicle.ordencompra}</p>
-                )}
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    {vehicle.ordencompra && (
+                        <p className="text-xs font-medium text-gray-400 tracking-wide">{vehicle.ordencompra}</p>
+                    )}
+                    {vehicle.promociones && vehicle.promociones.length > 0 && vehicle.promociones.slice(0, 2).map((promo, idx) => {
+                        const formattedPromo = formatPromotion(promo);
+                        if (!formattedPromo) return null;
+
+                        return (
+                            <span key={idx} className="text-xs font-bold text-orange-600">
+                                {formattedPromo}
+                            </span>
+                        );
+                    })}
+                </div>
                 <h3 className="font-bold text-base text-gray-900 group-hover:text-primary-600 transition-colors truncate mb-2" title={vehicle.titulo}>
                     {vehicle.titulo}
                 </h3>

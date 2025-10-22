@@ -10,7 +10,6 @@ import { getVehicleImage } from '../utils/getVehicleImage';
 import ImageCarousel from './ImageCarousel'; // Import the new ImageCarousel
 import VehicleCardHeader from './VehicleCard/VehicleCardHeader';
 import VehicleCardSpecs from './VehicleCard/VehicleCardSpecs';
-import VehicleCardPromotions from './VehicleCard/VehicleCardPromotions';
 import VehicleCardPrice from './VehicleCard/VehicleCardPrice';
 import VehicleCardActions from './VehicleCard/VehicleCardActions';
 import PriceDropNotificationToggle from './PriceDropNotificationToggle';
@@ -78,21 +77,19 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             isSeparado={isSeparado}
             garantia={vehicle.garantia}
             sucursal={vehicle.ubicacion}
-            promociones={vehicle.promociones}
             className="w-full h-60 md:h-full"
           />
         </div>
 
         <div className="flex-grow p-5 flex flex-col justify-between min-w-0">
           <div>
-            <VehicleCardHeader title={vehicle.titulo} viewCount={vehicle.viewcount || 0} ordencompra={vehicle.ordencompra} />
+            <VehicleCardHeader title={vehicle.titulo} viewCount={vehicle.viewcount || 0} ordencompra={vehicle.ordencompra} promociones={vehicle.promociones} />
             <VehicleCardSpecs
               sucursal={vehicle.ubicacion}
               kilometraje={vehicle.kilometraje}
               transmision={vehicle.transmision}
               combustible={vehicle.combustible}
             />
-            <VehicleCardPromotions promociones={vehicle.promociones} />
           </div>
 
           <div className="mt-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">

@@ -5,6 +5,11 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   base: '/',
   plugins: [react(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      'config': './src/config',
+    },
+  },
   server: {
     port: 5173,
     proxy: {

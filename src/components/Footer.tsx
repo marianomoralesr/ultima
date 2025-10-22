@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
     const navigate = useNavigate();
 
     // Get app version from environment variables
-    const appVersion = import.meta.env.VITE_APP_VERSION || 'dev';
+    const appVersion = import.meta.env.VITE_GIT_COMMIT || 'dev';
 
     const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, to: string, authRequired: boolean) => {
         if (authRequired && !session) {

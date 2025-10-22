@@ -91,7 +91,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
             <div>
                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                     {vehicle.ordencompra && (
-                        <p className="text-xs font-medium text-gray-400 tracking-wide">{vehicle.ordencompra}</p>
+                        <p className="text-xs font-medium uppercase text-gray-400 tracking-wide">{vehicle.ordencompra}</p>
                     )}
                     {vehicle.promociones && vehicle.promociones.length > 0 && vehicle.promociones.slice(0, 2).map((promo, idx) => {
                         const formattedPromo = formatPromotion(promo);

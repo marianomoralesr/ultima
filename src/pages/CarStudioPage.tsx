@@ -34,10 +34,13 @@ const InputField: React.FC<{
 
 const CarStudioPage: React.FC = () => {
     const [activeSubTab, setActiveSubTab] = useState<SubTab>('generator');
-    const { data: vehicles = [], isLoading, error: globalError } = useQuery<WordPressVehicle[]>({
-        queryKey: ['vehicles'],
-        queryFn: VehicleService.getAllVehicles,
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['vehicles-car-studio'],
+        queryFn: () => VehicleService.getAllVehicles(),
     });
+
+    const vehicles = data?.vehicles || [];
+    const globalError = error ? String(error) : null;
 
     const subTabs = [
         { id: 'generator', label: 'Generar Imágenes', icon: Camera },
@@ -82,28 +85,145 @@ const ImageComparison: React.FC<{
     onDiscard: () => void;
     saveStatus: 'idle' | 'saving' | 'success' | 'error';
     saveError: string | null;
-}> = ({ images, onSave, onDiscard, saveStatus, saveError }) => (
-    <div className="mt-4 space-y-4 pt-4 border-t">
-      <h3 className="text-sm font-semibold text-gray-600">Revisa y Confirma las Imágenes</h3>
-      <div className="max-h-80 overflow-y-auto space-y-4 pr-2">
-        {images.map((img, index) => (
-          <div key={index} className="grid grid-cols-2 gap-2 p-2 border rounded-lg bg-gray-50">
-            <div><p className="text-xs text-center mb-1">Original</p><LazyImage src={img.original} alt="Original" className="w-full h-32 rounded" /></div>
-            <div><p className="text-xs text-center mb-1">Procesada</p><LazyImage src={img.processed} alt="Processed" className="w-full h-32 rounded" /></div>
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-4">
-        <button onClick={onSave} disabled={saveStatus === 'saving'} className="w-full flex items-center justify-center gap-2 bg-green-600 text-white font-semibold py-2.5 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
-            {saveStatus === 'saving' ? <Loader2 className="w-5 h-5 animate-spin" /> : <SaveIcon className="w-5 h-5" />}
-            {saveStatus === 'saving' ? 'Guardando...' : 'Guardar y Reemplazar'}
-        </button>
-        <button onClick={onDiscard} className="w-full flex items-center justify-center gap-2 bg-red-600 text-white font-semibold py-2.5 rounded-lg hover:bg-red-700"><Trash2 className="w-5 h-5" />Descartar</button>
-      </div>
-      {saveStatus === 'success' && <p className="p-2 text-center bg-green-100 text-sm text-green-800 rounded-md">¡Imágenes guardadas!</p>}
-      {saveStatus === 'error' && <ErrorDisplay title="Error al Guardar" message={saveError || 'Ocurrió un error desconocido.'} />}
-    </div>
-);
+    replaceFeatureImage: boolean;
+    onToggleFeatureImage: (checked: boolean) => void;
+}> = ({ images, onSave, onDiscard, saveStatus, saveError, replaceFeatureImage, onToggleFeatureImage }) => {
+    const [viewMode, setViewMode] = useState<'grid' | 'slider'>('grid');
+
+    return (
+        <div className="mt-4 space-y-4 pt-4 border-t">
+            <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-gray-600">Revisa y Confirma las Imágenes</h3>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setViewMode('grid')}
+                        className={`px-3 py-1 text-xs rounded ${viewMode === 'grid' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Grid
+                    </button>
+                    <button
+                        onClick={() => setViewMode('slider')}
+                        className={`px-3 py-1 text-xs rounded ${viewMode === 'slider' ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                    >
+                        Slider
+                    </button>
+                </div>
+            </div>
+
+            <div className="max-h-80 overflow-y-auto space-y-4 pr-2">
+                {viewMode === 'grid' ? (
+                    images.map((img, index) => (
+                        <div key={index} className="grid grid-cols-2 gap-2 p-2 border rounded-lg bg-gray-50">
+                            <div>
+                                <p className="text-xs text-center mb-1 font-medium text-gray-600">Original</p>
+                                <LazyImage src={img.original} alt="Original" className="w-full h-32 rounded object-cover" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-center mb-1 font-medium text-gray-600">Procesada</p>
+                                <LazyImage src={img.processed} alt="Processed" className="w-full h-32 rounded object-cover" />
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <ImageSlider images={images} />
+                )}
+            </div>
+
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <input
+                    type="checkbox"
+                    id="replaceFeatureImage"
+                    checked={replaceFeatureImage}
+                    onChange={(e) => onToggleFeatureImage(e.target.checked)}
+                    className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor="replaceFeatureImage" className="text-sm text-gray-700 cursor-pointer">
+                    Reemplazar imagen destacada con la primera imagen procesada
+                </label>
+            </div>
+
+            <div className="flex gap-4">
+                <button
+                    onClick={onSave}
+                    disabled={saveStatus === 'saving'}
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 text-white font-semibold py-2.5 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+                >
+                    {saveStatus === 'saving' ? <Loader2 className="w-5 h-5 animate-spin" /> : <SaveIcon className="w-5 h-5" />}
+                    {saveStatus === 'saving' ? 'Guardando...' : 'Guardar y Reemplazar'}
+                </button>
+                <button
+                    onClick={onDiscard}
+                    className="w-full flex items-center justify-center gap-2 bg-red-600 text-white font-semibold py-2.5 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                    <Trash2 className="w-5 h-5" />
+                    Descartar
+                </button>
+            </div>
+            {saveStatus === 'success' && (
+                <p className="p-2 text-center bg-green-100 text-sm text-green-800 rounded-md font-medium">
+                    ¡Imágenes guardadas exitosamente!
+                </p>
+            )}
+            {saveStatus === 'error' && <ErrorDisplay title="Error al Guardar" message={saveError || 'Ocurrió un error desconocido.'} />}
+        </div>
+    );
+};
+
+const ImageSlider: React.FC<{ images: { original: string; processed: string }[] }> = ({ images }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [sliderPosition, setSliderPosition] = useState(50);
+
+    const handleNext = () => setCurrentIndex((prev) => (prev + 1) % images.length);
+    const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+
+    return (
+        <div className="space-y-3">
+            <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}>
+                    <img src={images[currentIndex].processed} alt="Processed" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute inset-0">
+                    <img src={images[currentIndex].original} alt="Original" className="w-full h-full object-cover" />
+                </div>
+                <div
+                    className="absolute inset-y-0 w-1 bg-white cursor-ew-resize shadow-lg"
+                    style={{ left: `${sliderPosition}%` }}
+                    onMouseDown={(e) => {
+                        const handleMouseMove = (moveEvent: MouseEvent) => {
+                            const rect = e.currentTarget.parentElement!.getBoundingClientRect();
+                            const x = moveEvent.clientX - rect.left;
+                            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                            setSliderPosition(percentage);
+                        };
+                        const handleMouseUp = () => {
+                            document.removeEventListener('mousemove', handleMouseMove);
+                            document.removeEventListener('mouseup', handleMouseUp);
+                        };
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                    }}
+                >
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+                        <div className="text-xs">⟷</div>
+                    </div>
+                </div>
+                <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs">Original</div>
+                <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">Procesada</div>
+            </div>
+            <div className="flex items-center justify-between">
+                <button onClick={handlePrev} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm">
+                    ← Anterior
+                </button>
+                <span className="text-sm text-gray-600">
+                    {currentIndex + 1} / {images.length}
+                </span>
+                <button onClick={handleNext} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm">
+                    Siguiente →
+                </button>
+            </div>
+        </div>
+    );
+};
 
 interface ImageGeneratorTabProps {
     vehicles: WordPressVehicle[];
@@ -112,11 +232,20 @@ interface ImageGeneratorTabProps {
 }
 
 const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoading, globalError }) => {
+    // Filter vehicles to show only those with galleries (exterior photos)
+    const vehiclesWithGalleries = vehicles.filter(v => {
+        const exteriorImages = (v.galeria_exterior || v.fotos_exterior_url || []).filter((url): url is string =>
+            !!url && url !== DEFAULT_PLACEHOLDER_IMAGE
+        );
+        return exteriorImages.length > 0;
+    });
+
     // Component State
     const [selectedVehicle, setSelectedVehicle] = useState<WordPressVehicle | null>(null);
     const [uploadImages, setUploadImages] = useState<{ fileUrl: string; position: string }[]>([]);
     const [fileExtension, setFileExtension] = useState<'PNG' | 'JPG'>('PNG');
-    
+    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(false);
+
     // Additional payload options
     const [chassisNumber, setChassisNumber] = useState('');
     const [platformUrl, setPlatformUrl] = useState('');
@@ -136,13 +265,14 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveStatus('idle');
         setSaveError(null);
         setComparisonImages([]);
+        setReplaceFeatureImage(false);
 
         // Reset/pre-populate additional fields
         setChassisNumber(vehicle.ordencompra || '');
         setPlatformUrl('https://trefa.mx');
-        
-        const exteriorImages = (vehicle.galeriaExterior || []).filter((url): url is string => !!url && url !== DEFAULT_PLACEHOLDER_IMAGE);
-        
+
+        const exteriorImages = (vehicle.galeria_exterior || vehicle.fotos_exterior_url || []).filter((url): url is string => !!url && url !== DEFAULT_PLACEHOLDER_IMAGE);
+
         setUploadImages(exteriorImages.slice(0, 15).map(url => ({ fileUrl: url, position: 'OTHER' })));
     };
 
@@ -191,17 +321,22 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveError(null);
         try {
             const processedUrls = comparisonImages.map(img => img.processed);
-            await ImageService.processAndSaveImages(selectedVehicle.id, processedUrls);
+            await ImageService.processAndSaveImages(
+                selectedVehicle.id,
+                processedUrls,
+                replaceFeatureImage ? processedUrls[0] : undefined
+            );
             setSaveStatus('success');
             setTimeout(() => {
                 setComparisonImages([]);
                 setRequestStatus('idle');
+                setReplaceFeatureImage(false);
             }, 2000);
         } catch (error: any) {
             setSaveStatus('error');
             setSaveError(error.message || 'An unknown error occurred.');
         }
-    }, [selectedVehicle, comparisonImages]);
+    }, [selectedVehicle, comparisonImages, replaceFeatureImage]);
 
     const handleDiscardImages = () => {
         setComparisonImages([]);
@@ -218,20 +353,26 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                     <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary-500" /></div>
                 ) : globalError ? (
                     <ErrorDisplay title="Fallo al Cargar autos" message={globalError} />
+                ) : vehiclesWithGalleries.length === 0 ? (
+                    <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
+                        No hay vehículos con galerías disponibles
+                    </div>
                 ) : (
-                    vehicles.map(vehicle => (
+                    vehiclesWithGalleries.map(vehicle => (
                         <div key={vehicle.id} className={`w-full text-left bg-white rounded-xl shadow-sm border p-4 transition-all duration-200 ${selectedVehicle?.id === vehicle.id ? 'border-primary-500 ring-2 ring-primary-500/50' : 'border-gray-200'}`}>
                             <button onClick={() => handleSelectVehicle(vehicle)} className='w-full text-left'>
                                 <h2 className="font-bold text-gray-800 truncate">{vehicle.titulo}</h2>
                                 <p className="text-sm text-gray-500 mb-2">ID: {vehicle.id}</p>
                             </button>
                             {selectedVehicle?.id === vehicle.id && comparisonImages.length > 0 && (
-                                <ImageComparison 
+                                <ImageComparison
                                     images={comparisonImages}
                                     onSave={handleSaveImages}
                                     onDiscard={handleDiscardImages}
                                     saveStatus={saveStatus}
                                     saveError={saveError}
+                                    replaceFeatureImage={replaceFeatureImage}
+                                    onToggleFeatureImage={setReplaceFeatureImage}
                                 />
                             )}
                         </div>

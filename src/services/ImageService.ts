@@ -72,17 +72,38 @@ export const ImageService = {
    * A comprehensive function to save Car Studio images and back them up.
    * @param vehicleId - The ID of the vehicle.
    * @param processedImages - An array of image URLs from Car Studio.
+   * @param replaceFeatureImageUrl - Optional URL to replace the feature image (first processed image by default)
    */
-  async processAndSaveImages(vehicleId: number, processedImages: string[]) {
+  async processAndSaveImages(vehicleId: number, processedImages: string[], replaceFeatureImageUrl?: string) {
     if (!processedImages || processedImages.length === 0) {
       throw new Error('No images to process.');
     }
-    
-    const featureImage = processedImages[0];
-    const galleryImages = processedImages.slice(0); // Use all images for gallery including feature
 
-    // Step 1: Save the URLs to the vehicle record. This is the most critical step.
-    await this.saveCarStudioImagesToVehicle(vehicleId, featureImage, galleryImages);
+    const galleryImages = processedImages.slice(0); // Use all images for gallery
+
+    // Step 1: Save the gallery images to inventario_cache
+    const updateData: any = {
+      fotos_exterior_url: galleryImages,
+      car_studio_gallery: galleryImages,
+      use_car_studio_images: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    // If replaceFeatureImageUrl is provided, update the feature image
+    if (replaceFeatureImageUrl) {
+      updateData.feature_image_url = replaceFeatureImageUrl;
+      updateData.car_studio_feature_image = replaceFeatureImageUrl;
+    }
+
+    const { error } = await supabase
+      .from('inventario_cache')
+      .update(updateData)
+      .eq('id', vehicleId);
+
+    if (error) {
+      console.error('Error updating vehicle with Car Studio images:', error);
+      throw new Error('No se pudo guardar las nuevas imágenes en el registro del vehículo.');
+    }
 
     // Step 2: Asynchronously back up all images to Supabase Storage.
     // We don't wait for this to finish to give the user a faster response.

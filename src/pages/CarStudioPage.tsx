@@ -242,6 +242,8 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
     // Component State
     const [selectedVehicle, setSelectedVehicle] = useState<WordPressVehicle | null>(null);
+    const [availableImages, setAvailableImages] = useState<string[]>([]);
+    const [selectedImageIndices, setSelectedImageIndices] = useState<Set<number>>(new Set());
     const [uploadImages, setUploadImages] = useState<{ fileUrl: string; position: string }[]>([]);
     const [fileExtension, setFileExtension] = useState<'PNG' | 'JPG'>('PNG');
     const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(false);
@@ -273,7 +275,37 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
         const exteriorImages = (vehicle.galeria_exterior || vehicle.fotos_exterior_url || []).filter((url): url is string => !!url && url !== DEFAULT_PLACEHOLDER_IMAGE);
 
-        setUploadImages(exteriorImages.slice(0, 15).map(url => ({ fileUrl: url, position: 'OTHER' })));
+        // Set available images but don't auto-select any
+        setAvailableImages(exteriorImages.slice(0, 15));
+        setSelectedImageIndices(new Set());
+        setUploadImages([]);
+    };
+
+    const toggleImageSelection = (index: number) => {
+        const newSelection = new Set(selectedImageIndices);
+        if (newSelection.has(index)) {
+            newSelection.delete(index);
+        } else {
+            newSelection.add(index);
+        }
+        setSelectedImageIndices(newSelection);
+
+        // Update uploadImages based on selection
+        const selectedImages = Array.from(newSelection)
+            .sort((a, b) => a - b)
+            .map(i => ({ fileUrl: availableImages[i], position: 'OTHER' }));
+        setUploadImages(selectedImages);
+    };
+
+    const selectAllImages = () => {
+        const allIndices = new Set(availableImages.map((_, i) => i));
+        setSelectedImageIndices(allIndices);
+        setUploadImages(availableImages.map(url => ({ fileUrl: url, position: 'OTHER' })));
+    };
+
+    const deselectAllImages = () => {
+        setSelectedImageIndices(new Set());
+        setUploadImages([]);
     };
 
     const handleSendRequest = useCallback(async () => {
@@ -313,7 +345,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                 setApiResponse(JSON.stringify({ status: 'client_error', message: error.message }, null, 2));
             }
         }
-    }, [selectedVehicle, uploadImages, fileExtension, chassisNumber, platformUrl]);
+    }, [selectedVehicle, uploadImages, fileExtension, chassisNumber, platformUrl, selectedImageIndices]);
 
     const handleSaveImages = useCallback(async () => {
         if (!selectedVehicle || comparisonImages.length === 0) return;
@@ -399,18 +431,60 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                     </div>
 
                     <div className="space-y-4 pt-4 border-t">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">Imágenes a Procesar ({uploadImages.length})</h3>
-                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                             {uploadImages.map((img, index) => (
-                                <div key={index} className="flex items-center gap-3 p-2 border rounded-md bg-gray-50">
-                                    <img src={img.fileUrl} alt={`Preview ${index}`} className="w-16 h-16 object-cover rounded" />
-                                    <div className="flex-grow min-w-0">
-                                        <p className="text-xs text-gray-500 truncate" title={img.fileUrl}>{`Imagen ${index + 1}`}</p>
-                                        <p className="text-sm font-semibold text-gray-800">Posición: EXTERIOR</p>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-medium text-gray-700">Seleccionar Imágenes ({selectedImageIndices.size}/{availableImages.length})</h3>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={selectAllImages}
+                                    disabled={availableImages.length === 0}
+                                    className="px-3 py-1 text-xs bg-primary-100 text-primary-700 rounded hover:bg-primary-200 disabled:opacity-50"
+                                >
+                                    Seleccionar Todas
+                                </button>
+                                <button
+                                    onClick={deselectAllImages}
+                                    disabled={selectedImageIndices.size === 0}
+                                    className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+                                >
+                                    Deseleccionar Todas
+                                </button>
+                            </div>
                         </div>
+                        {availableImages.length === 0 ? (
+                            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500 text-sm">
+                                Selecciona un vehículo para ver sus imágenes
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-2">
+                                {availableImages.map((imageUrl, index) => (
+                                    <div
+                                        key={index}
+                                        className={`relative p-2 border-2 rounded-md cursor-pointer transition-all ${
+                                            selectedImageIndices.has(index)
+                                                ? 'border-primary-500 bg-primary-50'
+                                                : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                                        }`}
+                                        onClick={() => toggleImageSelection(index)}
+                                    >
+                                        <div className="absolute top-3 left-3 z-10">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedImageIndices.has(index)}
+                                                onChange={() => toggleImageSelection(index)}
+                                                className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500 cursor-pointer"
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        </div>
+                                        <img
+                                            src={imageUrl}
+                                            alt={`Imagen ${index + 1}`}
+                                            className="w-full h-32 object-cover rounded"
+                                        />
+                                        <p className="text-xs text-center mt-1 text-gray-600">Imagen {index + 1}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                      <button onClick={handleSendRequest} disabled={isSendDisabled} className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 disabled:opacity-50">

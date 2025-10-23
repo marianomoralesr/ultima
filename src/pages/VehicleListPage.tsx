@@ -455,7 +455,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
           )}
         </animated.div>
       </div>
-      {showTutorial && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}
+      {showTutorial && !isFilterSheetOpen && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}
     </>
   );
 };

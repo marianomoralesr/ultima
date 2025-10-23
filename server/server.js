@@ -202,6 +202,24 @@ app.use(express.static(buildPath, {
   index: false, // Let the SPA fallback handle serving index.html
 }));
 
+// ----- Serve sitemap.xml and robots.txt explicitly -----
+// These files need to be served as static files before the SPA fallback
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  res.set({
+    'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+  });
+  res.sendFile(path.join(buildPath, 'sitemap.xml'));
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.set({
+    'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+  });
+  res.sendFile(path.join(buildPath, 'robots.txt'));
+});
+
 // ----- SPA Fallback -----
 app.get("*", (_, res) => {
   // Ensure index.html is never cached

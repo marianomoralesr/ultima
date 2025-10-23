@@ -22,7 +22,14 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
   const constraintsRef = useRef(null);
 
   const allImages = useMemo(() => {
-    const filteredImages = images.filter(Boolean);
+    // Filter out falsy values and check for valid image URLs
+    const filteredImages = images.filter(img => {
+      if (!img) return false;
+      if (typeof img !== 'string') return false;
+      const trimmed = img.trim();
+      return trimmed.length > 0 && trimmed.startsWith('http');
+    });
+
     const placeholder = getPlaceholderImage(clasificacionid, carroceria);
     return filteredImages.length > 0 ? filteredImages : [placeholder];
   }, [images, clasificacionid, carroceria]);

@@ -24,7 +24,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || "https://jjepfehmuybpctdzipnu.s
 const AIRTABLE_API_URL = process.env.AIRTABLE_API_URL || "https://api.airtable.com";
 const INTELIMOTOR_API_URL = process.env.INTELIMOTOR_API_URL || "https://api.intelimotor.com";
 const PROXY_URL = config?.proxy?.url || "https://proxy.cors.sh";
-const SYNC_SECRET = process.env.SYNC_SECRET || "your-super-secret-key";
+// const SYNC_SECRET = process.env.SYNC_SECRET || "your-super-secret-key";
 
 // Build allowed origins list - support multiple domains
 const ALLOWED_ORIGINS = [
@@ -32,7 +32,6 @@ const ALLOWED_ORIGINS = [
   CLOUD_RUN_URL,
   "https://trefa.mx",
   "https://www.trefa.mx",
-  "https://autos.trefa.mx",
   "https://staging.trefa.mx",
 ].filter(Boolean);
 
@@ -63,7 +62,6 @@ app.use(
           "https://www.trefa.mx",
           "https://autos.trefa.mx",
           "https://jjepfehmuybpctdzipnu.supabase.co",
-          "https://5.183.8.48",
           "https://randomuser.me",
           "https://facebook.com",
           "https://cufm.mx",

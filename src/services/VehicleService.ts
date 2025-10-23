@@ -282,7 +282,7 @@ class VehicleService {
         this.addToRecentlyViewed(vehicle);
 
         // Return vehicle with incremented count for immediate UI feedback
-        return { ...vehicle, viewcount: (vehicle.viewcount || 0) + 1 };
+        return { ...vehicle, view_count: (vehicle.view_count || 0) + 1 };
     }
 
     private static addToRecentlyViewed(vehicle: Vehicle) {
@@ -437,9 +437,8 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
             clasificacionid: clasificacionid,
             
             promociones: Array.isArray(item.promociones) ? item.promociones : [],
-            
+
             view_count: viewCount,
-            viewcount: viewCount,
 
             // --- Compatibility Aliases ---
             title: title,

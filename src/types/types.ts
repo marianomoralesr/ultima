@@ -61,7 +61,7 @@ export interface Vehicle {
   promociones: string[];
   
   // ========== ESTADÍSTICAS ==========
-  viewcount: number;
+  view_count: number;
   
   // ========== LEGACY & COMPATIBILITY (to be phased out) ==========
   // These are kept for now to avoid breaking other parts of the app

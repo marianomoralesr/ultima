@@ -3,7 +3,7 @@ RETURNS void AS $$
 BEGIN
   UPDATE public.inventario_cache
   SET
-    viewcount = COALESCE(viewcount, 0) + 1
+    view_count = COALESCE(view_count, 0) + 1
   WHERE ordencompra = vehicle_ordencompra;
 END;
 $$ LANGUAGE plpgsql;

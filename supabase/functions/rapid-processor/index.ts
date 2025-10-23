@@ -2,7 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.33.0";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
 const BUCKET = "fotos_airtable";
-const CACHE_TTL_MS = 60_000; // 1 min
+const CACHE_TTL_MS = 3600_000; // 1 hour (was 1 min - reduces DB queries)
 
 // Placeholder images by carroceria/clasificacionid
 const DEFAULT_PLACEHOLDER_IMAGE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
@@ -411,7 +411,7 @@ Deno.serve(async (req)=>{
           headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
-            "Cache-Control": "public, max-age=60"
+            "Cache-Control": "public, max-age=3600, s-maxage=3600" // 1 hour cache
           }
         });
       } else {
@@ -424,7 +424,7 @@ Deno.serve(async (req)=>{
           headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
-            "Cache-Control": "public, max-age=60"
+            "Cache-Control": "public, max-age=3600, s-maxage=3600" // 1 hour cache
           }
         });
       }

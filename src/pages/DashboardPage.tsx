@@ -163,14 +163,22 @@ const EbookCta: React.FC = () => (
 const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
     const [asesor, setAsesor] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchAsesor = async () => {
+            console.log('Fetching advisor with ID:', asesorId);
             try {
                 const asesorProfile = await ProfileService.getProfile(asesorId);
-                setAsesor(asesorProfile);
-            } catch (error) {
+                console.log('Advisor profile fetched:', asesorProfile);
+                if (asesorProfile) {
+                    setAsesor(asesorProfile);
+                } else {
+                    setError('No se pudo cargar la información del asesor');
+                }
+            } catch (error: any) {
                 console.error('Error fetching advisor profile:', error);
+                setError('Error al cargar el asesor: ' + (error.message || 'Desconocido'));
             } finally {
                 setLoading(false);
             }
@@ -179,7 +187,9 @@ const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
         if (asesorId) {
             fetchAsesor();
         } else {
+            console.warn('No advisor ID provided');
             setLoading(false);
+            setError('No se ha asignado un asesor aún');
         }
     }, [asesorId]);
 
@@ -193,8 +203,17 @@ const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
         );
     }
 
-    if (!asesor) {
-        return null;
+    if (error || !asesor) {
+        return (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Mi Asesor</h3>
+                <div className="text-center py-4">
+                    <Info className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">{error || 'Información del asesor no disponible'}</p>
+                    <p className="text-xs text-gray-500 mt-2">Si necesitas ayuda, contáctanos por WhatsApp</p>
+                </div>
+            </div>
+        );
     }
 
     const asesorName = `${asesor.first_name || ''} ${asesor.last_name || ''}`.trim() || 'Tu Asesor';
@@ -280,17 +299,22 @@ const Dashboard: React.FC = () => {
     }
   }, [user, userLoading, loadData]);
 
-  // Effect for showing the onboarding modal (only check once when user.id becomes available)
+  // Effect for showing the onboarding modal (only for new users without profile data)
   useEffect(() => {
-    if (user?.id && !onboardingChecked) {
+    if (user?.id && profile && !onboardingChecked) {
+      // Only show onboarding if profile is incomplete AND they haven't dismissed it in this session
       const ONBOARDING_KEY = `dashboardOnboardingShown_${user.id}`;
-      const hasSeenOnboarding = localStorage.getItem(ONBOARDING_KEY);
-      if (!hasSeenOnboarding) {
+      const hasSeenOnboarding = sessionStorage.getItem(ONBOARDING_KEY); // Use sessionStorage instead of localStorage
+
+      // Check if profile is incomplete (missing key fields)
+      const isNewUser = !profile.first_name || !profile.last_name || !profile.phone;
+
+      if (!hasSeenOnboarding && isNewUser) {
         setShowOnboarding(true);
       }
       setOnboardingChecked(true); // Mark as checked to prevent re-running
     }
-  }, [user?.id, onboardingChecked]); // Only run when user.id changes and hasn't been checked yet
+  }, [user?.id, profile, onboardingChecked]); // Check when profile loads
   
   const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
   const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);
@@ -309,7 +333,7 @@ const Dashboard: React.FC = () => {
     setShowOnboarding(false);
     if (user) {
       const ONBOARDING_KEY = `dashboardOnboardingShown_${user.id}`;
-      localStorage.setItem(ONBOARDING_KEY, 'true');
+      sessionStorage.setItem(ONBOARDING_KEY, 'true'); // Use sessionStorage so it resets per session
     }
   };
 

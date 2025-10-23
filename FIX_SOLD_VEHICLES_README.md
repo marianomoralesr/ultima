@@ -1,7 +1,12 @@
 # Fix Sold Vehicles Showing in Inventory
 
 ## Problem
-Some vehicles that have been sold (OrdenStatus = "Historico" or vendido = true in Airtable) are still showing as available on the website because their `ordenstatus` field in `inventario_cache` is still set to "Comprado".
+Some vehicles that have been sold (OrdenStatus = "Historico" in Airtable) are still showing as available on the website because their `ordenstatus` field in `inventario_cache` is still set to "Comprado".
+
+## Airtable Field Structure
+- **OrdenStatus**: Can only be "Comprado" or "Historico"
+- **separado**: Boolean field (separate from OrdenStatus)
+- **vendido**: Boolean field
 
 ## Root Cause
 The airtable-sync function was not properly syncing the OrdenStatus and vendido fields when vehicles were marked as sold.
@@ -11,7 +16,8 @@ The airtable-sync function was not properly syncing the OrdenStatus and vendido 
 ### 1. Updated airtable-sync Function
 The function now:
 - Properly checks OrdenStatus from Airtable and updates it in Supabase
-- Sets `vendido = true` if OrdenStatus is "Historico" or "Vendido"
+- Sets `vendido = true` if OrdenStatus is "Historico" or vendido field is true
+- Correctly reads `separado` from its own field (not from OrdenStatus)
 - Always syncs the current OrdenStatus from Airtable
 
 ### 2. Fix Existing Inconsistent Records

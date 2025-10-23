@@ -112,6 +112,13 @@ function normalizePathsField(field) {
 // ✅ Corrige %2F y mantiene estructura original
 function buildPublicUrl(bucket, path) {
   if (!path || typeof path !== "string" || !path.trim()) return null;
+
+  // If path is already a full URL, return it as-is (don't double-wrap)
+  const trimmed = path.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+
   const cleaned = decodeURIComponent(path).replace(/^\/+/, "");
   const segments = cleaned.split("/").map((seg)=>encodeURIComponent(seg));
   const encodedPath = segments.join("/");

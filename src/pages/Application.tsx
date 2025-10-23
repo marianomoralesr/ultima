@@ -231,15 +231,50 @@ const Application: React.FC = () => {
     ];
     
     const handleNext = async () => {
-      const isValidStep = await trigger(steps[currentStep].fields as any);
-      if (isValidStep && applicationId) {
-        try {
+      console.log('handleNext called:', { currentStep, applicationId, hasFields: steps[currentStep].fields.length > 0 });
+
+      // If there are no fields to validate (like Documents or Summary steps), just move forward
+      if (steps[currentStep].fields.length === 0) {
+        if (applicationId) {
+          try {
             await ApplicationService.saveApplicationDraft(applicationId, { application_data: getValues() });
             if(currentStep < steps.length - 1) setCurrentStep(s => s + 1);
-        } catch (e) {
+          } catch (e) {
             console.error("Error saving application draft:", e);
             alert("Hubo un problema al guardar tu progreso. Por favor, intenta de nuevo.");
+          }
+        } else {
+          console.error('No applicationId available');
+          alert("No se pudo guardar el progreso. Por favor, recarga la página.");
         }
+        return;
+      }
+
+      // Validate step fields
+      const isValidStep = await trigger(steps[currentStep].fields as any);
+      console.log('Validation result:', isValidStep, 'Errors:', errors);
+
+      if (!isValidStep) {
+        // Show which fields have errors
+        const stepErrors = steps[currentStep].fields.filter(field => errors[field as keyof typeof errors]);
+        console.error('Validation failed for fields:', stepErrors);
+        alert(`Por favor, completa todos los campos requeridos antes de continuar.`);
+        return;
+      }
+
+      if (!applicationId) {
+        console.error('No applicationId available');
+        alert("No se pudo guardar el progreso. Por favor, recarga la página.");
+        return;
+      }
+
+      // Save and proceed
+      try {
+        await ApplicationService.saveApplicationDraft(applicationId, { application_data: getValues() });
+        if(currentStep < steps.length - 1) setCurrentStep(s => s + 1);
+      } catch (e) {
+        console.error("Error saving application draft:", e);
+        alert("Hubo un problema al guardar tu progreso. Por favor, intenta de nuevo.");
       }
     };
     

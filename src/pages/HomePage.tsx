@@ -338,6 +338,39 @@ const AnimatedHeading: React.FC<{ children: React.ReactNode, as?: 'h2' | 'h3', c
     );
 };
 
+/* ---------- YouTube VSL Section ---------- */
+const YouTubeVSLSection: React.FC = () => {
+  return (
+    <Section className="bg-white pt-0">
+      <div className="max-w-6xl mx-auto">
+        <div className="rounded-3xl overflow-hidden relative" style={{ paddingBottom: '56.25%', height: 0 }}>
+          <iframe
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+            title="TREFA VSL"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+/* ---------- Testimonio Separator ---------- */
+const TestimonioSeparator: React.FC = () => {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <LazyImage
+        src="/images/testimonio.png"
+        alt="Testimonio de cliente TREFA"
+        className="w-full h-auto"
+        objectFit="contain"
+      />
+    </div>
+  );
+};
+
 /* ---------- CTA Cards Section ---------- */
 const CTACardsSection: React.FC = () => {
   const { vehicles: allVehicles } = useVehicles();
@@ -490,7 +523,9 @@ const HomePage: React.FC = () => {
     <main className="relative z-10">
       <NewHeroSection />
       <CTACardsSection />
+      <YouTubeVSLSection />
       <WhyChooseTrefaSection />
+      <TestimonioSeparator />
       <FeaturedInventorySection />
       <HowItWorksSection />
       <WallOfLove />

@@ -227,6 +227,10 @@ serve(async (req: Request) => {
     const clasificacionArray = getArrayField(fields.ClasificacionID);
     const clasificacionValue = clasificacionArray.join(', ');
 
+    // Normalize promociones - convert to JSONB array
+    const promocionesArray = getArrayField(fields.Promociones || fields.promociones);
+    const promocionesValue = promocionesArray.length > 0 ? promocionesArray : null;
+
     // Map Airtable fields to Supabase columns
     const supabaseData = {
       record_id: record.id,
@@ -237,7 +241,9 @@ serve(async (req: Request) => {
       modelo: fields.AutoSubmarcaVersion || '',
       transmision: transmisionValue,
       combustible: combustibleValue,
-      kilometraje: kilometrajeValue,
+      kilometraje: getNumberField(fields.autokilometraje, fields.kilometraje),
+      autoano: getNumberField(fields.AutoAno, fields.autoano),
+      cilindros: getNumberField(fields.AutoCilindros, fields.cilindros),
       feature_image: featureImage,
       fotos_exterior_url: exteriorImages,
       fotos_interior_url: interiorImages,
@@ -248,6 +254,23 @@ serve(async (req: Request) => {
       clasificacionid: clasificacionValue,
       ubicacion: ubicacionValue,
       descripcion: fields.descripcion || '',
+
+      // Financial fields
+      enganchemin: getNumberField(fields.EngancheMin, fields.enganchemin),
+      enganche_recomendado: getNumberField(fields.EngancheRecomendado, fields.enganche_recomendado),
+      mensualidad_minima: getNumberField(fields.MensualidadMinima, fields.mensualidad_minima),
+      mensualidad_recomendada: getNumberField(fields.MensualidadRecomendada, fields.mensualidad_recomendada),
+      plazomax: getNumberField(fields.PlazoMax, fields.plazomax),
+
+      // Additional fields
+      garantia: getStringField(fields.Garantia, fields.garantia),
+      titulometa: getStringField(fields.TituloMeta, fields.metadescripcion),
+      AutoMotor: getStringField(fields.AutoMotor, fields.motor),
+      ingreso_inventario: fields.IngresoInventario || fields.ingreso_inventario || null,
+      numero_duenos: getNumberField(fields.NumeroDuenos, fields.numero_duenos),
+      rezago: fields.Rezago === true || fields.rezago === true,
+      promociones: promocionesValue,
+
       last_synced_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       // Store full Airtable data for reference

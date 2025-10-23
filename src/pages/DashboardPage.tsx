@@ -423,8 +423,9 @@ const Dashboard: React.FC = () => {
             
             <FinancialProjection />
             
-            {/* Surveys on Mobile */}
+            {/* Surveys and Advisor on Mobile */}
             <div className="lg:hidden space-y-8">
+                {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
                 {isSurveyVisible && <SurveyInvitation onClose={() => setIsSurveyVisible(false)} />}
                 { <EbookCta /> }
             </div>

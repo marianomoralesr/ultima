@@ -64,11 +64,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [user?.id]); // Only depend on user.id, not the whole user object
 
     const signOut = async () => {
-        await supabase.auth.signOut();
-        setSession(null);
-        setUser(null);
-        setProfile(null);
-        sessionStorage.removeItem('userProfile');
+        try {
+            console.log('🔒 Signing out...');
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+                console.error('❌ Error signing out:', error);
+                // Force local logout even if server signout fails
+            }
+
+            // Clear local state regardless of server response
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+            sessionStorage.removeItem('userProfile');
+            localStorage.clear(); // Clear all localStorage items
+            console.log('✅ Signed out successfully');
+        } catch (error) {
+            console.error('❌ Unexpected error during sign out:', error);
+            // Force local logout even on unexpected errors
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+            sessionStorage.removeItem('userProfile');
+            localStorage.clear();
+        }
     };
 
     const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {

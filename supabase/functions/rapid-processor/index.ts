@@ -112,6 +112,13 @@ function normalizePathsField(field) {
 // ✅ Corrige %2F y mantiene estructura original
 function buildPublicUrl(bucket, path) {
   if (!path || typeof path !== "string" || !path.trim()) return null;
+
+  // If path is already a full URL, return it as-is (don't double-wrap)
+  const trimmed = path.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+
   const cleaned = decodeURIComponent(path).replace(/^\/+/, "");
   const segments = cleaned.split("/").map((seg)=>encodeURIComponent(seg));
   const encodedPath = segments.join("/");
@@ -372,10 +379,23 @@ async function fetchBySlug(slug) {
 /* ================================
    🌐 MAIN HANDLER
 ================================== */ console.info("🚀 rapid-processor function started");
+
+// CORS headers for all responses
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 Deno.serve(async (req)=>{
   const url = new URL(req.url);
   const pathname = url.pathname;
   const searchParams = url.searchParams;
+
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
 
   try {
     // GET /rapid-processor - with or without filters
@@ -389,6 +409,7 @@ Deno.serve(async (req)=>{
         const result = await fetchFilteredVehicles(filters);
         return new Response(JSON.stringify(result), {
           headers: {
+            ...corsHeaders,
             "Content-Type": "application/json",
             "Cache-Control": "public, max-age=60"
           }
@@ -401,6 +422,7 @@ Deno.serve(async (req)=>{
           count: cars.length
         }), {
           headers: {
+            ...corsHeaders,
             "Content-Type": "application/json",
             "Cache-Control": "public, max-age=60"
           }
@@ -417,11 +439,13 @@ Deno.serve(async (req)=>{
         return new Response(JSON.stringify({
           error: "Vehicle not found"
         }), {
-          status: 404
+          status: 404,
+          headers: corsHeaders
         });
       }
       return new Response(JSON.stringify(car), {
         headers: {
+          ...corsHeaders,
           "Content-Type": "application/json",
           "Cache-Control": "public, max-age=60"
         }
@@ -429,7 +453,8 @@ Deno.serve(async (req)=>{
     }
 
     return new Response("Not found", {
-      status: 404
+      status: 404,
+      headers: corsHeaders
     });
   } catch (err) {
     console.error("❌ Error in rapid-processor:", err);
@@ -438,6 +463,7 @@ Deno.serve(async (req)=>{
     }), {
       status: 500,
       headers: {
+        ...corsHeaders,
         "Content-Type": "application/json"
       }
     });

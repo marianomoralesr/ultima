@@ -135,9 +135,10 @@ export const ApplicationService = {
   },
 
   async createDraftApplication(userId: string, initialData: Record<string, any> = {}): Promise<ApplicationListItem | null> {
+    // Don't pass user_id explicitly - let the trigger set it from auth.uid()
     const { data: newDraft, error: createError } = await supabase
       .from('financing_applications')
-      .insert({ user_id: userId, status: 'draft', ...initialData })
+      .insert({ status: 'draft', ...initialData })
       .select('id, status, created_at, updated_at')
       .single();
 

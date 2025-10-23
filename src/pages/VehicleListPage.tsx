@@ -72,10 +72,51 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     if (ubicacion) {
         parts.push(`en ${ubicacion}`);
     }
-    
+
     parts.push('disponibles');
 
     return `${parts.join(' ')} | TREFA`;
+  };
+
+  // Generate dynamic results display with highlighted count
+  const generateResultsDisplay = (count: number, filters: VehicleFilters) => {
+    if (count === 0) {
+      return <span>No se encontraron autos</span>;
+    }
+
+    const marca = filters.marca?.[0];
+    const carroceria = filters.carroceria?.[0];
+    const ubicacion = filters.ubicacion?.[0];
+    const transmision = filters.transmision?.[0];
+
+    // Build the text parts
+    const parts: (string | JSX.Element)[] = [];
+
+    // Add count in orange
+    parts.push(<span key="count" className="text-orange-500 font-bold">{count}</span>);
+
+    // Build descriptive text
+    if (marca) {
+      parts.push(' ', marca);
+    } else {
+      parts.push(' autos');
+    }
+
+    if (carroceria) {
+      parts.push(' ', carroceria);
+    }
+
+    if (transmision) {
+      parts.push(' con transmisión ', transmision);
+    }
+
+    if (ubicacion) {
+      parts.push(' en ', ubicacion);
+    }
+
+    parts.push(' disponibles');
+
+    return <>{parts}</>;
   };
 
   useSEO({
@@ -371,7 +412,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
 
               <div>
                 <h1 className="text-base font-semibold text-gray-800">
-                  {generateDynamicTitle(totalCount, filters).replace(' | TREFA', '')}
+                  {generateResultsDisplay(totalCount, filters)}
                 </h1>
               </div>
             </div>
@@ -379,7 +420,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
             <div className="lg:hidden bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 flex items-center justify-between">
               <div>
                 <h1 className="text-sm font-semibold text-gray-800">
-                    {generateDynamicTitle(totalCount, filters).replace(' | TREFA', '')}
+                    {generateResultsDisplay(totalCount, filters)}
                 </h1>
                 <p className="text-xs text-gray-500 mt-0.5">Toca para filtrar</p>
               </div>

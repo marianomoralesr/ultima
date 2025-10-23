@@ -20,7 +20,8 @@ const INTELIMOTOR_API_KEY = env.VITE_INTELIMOTOR_API_KEY || '920b45727bb711069c9
 const INTELIMOTOR_API_SECRET = env.VITE_INTELIMOTOR_API_SECRET || 'ee4b975fb97eb1573624adfe45cb5c78ca53f3a002729e61b499dd182cb23a6a';
 
 // --- Car Studio API Configuration ---
-const CAR_STUDIO_API_KEY = env.VITE_CAR_STUDIO_API_KEY || 'AIzaSyBzx6k35qkY0FzG8RAwwDgMazCzdyA-AZ8';
+// For AI-powered image editing.
+const CAR_STUDIO_API_KEY = env.VITE_CAR_STUDIO_API_KEY || 'e3c31fe81d1345b9a91996043d452d91';
 
 // --- Webhook Configuration ---
 const LEAD_CONNECTOR_WEBHOOK_URL = env.VITE_LEAD_CONNECTOR_WEBHOOK_URL || 'https://services.leadconnectorhq.com/hooks/LJhjk6eFZEHwptjuIF0a/webhook-trigger/eprKrEBZDa2DNegPGQ3T';

@@ -1,6 +1,6 @@
 import type { Vehicle, IntelimotorValuation } from '../../types/types';
 
-const INTELIMOTOR_BASE_URL = 'https://api.intelimotor.com/api';
+const INTELIMOTOR_BASE_URL = 'https://app.intelimotor.com/api';
 
 export class ValuationFailedError extends Error {
   public response: any;
@@ -235,15 +235,18 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
         }
 
         const callProxy = async (endpoint: string, method: 'POST' | 'GET', requestBody: any = null) => {
-            const fullUrl = `${INTELIMOTOR_BASE_URL}/${endpoint}`;
+            // Intelimotor uses query parameters for authentication, not headers
+            const authParams = new URLSearchParams({
+                apiKey: apiKey.trim(),
+                apiSecret: apiSecret.trim()
+            });
+            const fullUrl = `${INTELIMOTOR_BASE_URL}/${endpoint}?${authParams.toString()}`;
 
             const proxyPayload = {
                 url: fullUrl,
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-Api-Key': apiKey.trim(),
-                    'X-Api-Secret': apiSecret.trim()
+                    'Content-Type': 'application/json'
                 },
                 body: requestBody
             };

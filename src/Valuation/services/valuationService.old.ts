@@ -1,5 +1,14 @@
 import type { Vehicle, IntelimotorValuation } from '../../types/types';
-import { config } from '../config';
+import { config } from '../../config';
+
+// --- In-memory cache for valuation results ---
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+const valuationCache = new Map<string, CacheEntry<any>>();
+// Valuations are less volatile than inventory. Cache for 30 minutes.
+const VALUATION_CACHE_TTL = 30 * 60 * 1000;
 
 export class ValuationFailedError extends Error {
   public response: any;
@@ -39,7 +48,7 @@ export const searchVehiclesWithAI = async (
 
   const formula = `SEARCH(LOWER("${query.replace(/"/g, '""')}"), LOWER({Vehicle Name}))`;
   const baseUrl = `https://api.airtable.com/v0/${cleanBaseId}/${airtableTableId}?view=${encodeURIComponent(airtableTableView)}&filterByFormula=${encodeURIComponent(formula)}&maxRecords=5`;
-  const url = baseUrl;
+  const url = `${config.proxy.url}${baseUrl}`;
 
   try {
     const response = await fetch(url, {
@@ -236,7 +245,7 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
 
         // Step 1: POST to create a new valuation.
         const postAuthParams = new URLSearchParams({ apiKey: apiKey.trim(), apiSecret: apiSecret.trim() });
-        const postBaseUrl = `/intelimotor-api/api/valuations?${postAuthParams.toString()}`;
+        const postBaseUrl = `https://app.intelimotor.com/api/valuations?${postAuthParams.toString()}`;
         const finalPostUrl = getUrlWithProxy(postBaseUrl);
 
         const postBody = {
@@ -302,7 +311,7 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
             await sleep(pollInterval);
 
             const getAuthParams = new URLSearchParams({ apiKey: apiKey.trim(), apiSecret: apiSecret.trim() });
-            const getBaseUrl = `/intelimotor-api/api/valuations/${valuationId}?${getAuthParams.toString()}`;
+            const getBaseUrl = `https://app.intelimotor.com/api/valuations/${valuationId}?${getAuthParams.toString()}`;
             const finalGetUrl = getUrlWithProxy(getBaseUrl);
 
             try {

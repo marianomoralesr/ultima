@@ -382,74 +382,66 @@ const Application: React.FC = () => {
             case 'error':
                  return <StatusDisplay icon={Info} title="Ocurrió un Error" message={pageError || 'Error desconocido'} linkTo="/escritorio" linkText="Volver al Escritorio" />;
             case 'success':
-                 const expiryDate = new Date();
-                 expiryDate.setDate(expiryDate.getDate() + 2); // Hold for 48 hours
-                 const formattedExpiryDate = new Intl.DateTimeFormat('es-MX', {
-                     month: 'long',
-                     day: 'numeric',
-                     hour: 'numeric',
-                     minute: 'numeric',
-                     hour12: true,
-                 }).format(expiryDate);
- 
                  return (
-                     <div className="max-w-2xl mx-auto p-4 sm:p-0 text-gray-900">
-                         {/* Unified Card Container */}
+                     <div className="max-w-3xl mx-auto p-4 sm:p-6 text-gray-900">
+                         {/* Empowering Title */}
+                         <div className="text-center mb-6">
+                             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+                                 ¡Tu Solicitud Ha Sido Enviada Exitosamente!
+                             </h1>
+                             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                                 Has dado el primer paso hacia el auto que deseas. Te recomendamos revisar frecuentemente el estado de tu solicitud para estar al tanto de cualquier actualización.
+                             </p>
+                         </div>
+
+                         {/* Process Explanation */}
+                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+                             <h2 className="text-xl font-bold text-blue-900 mb-3">¿Qué Sigue?</h2>
+                             <div className="space-y-3 text-blue-800">
+                                 <div className="flex items-start gap-3">
+                                     <div className="bg-blue-200 rounded-full p-1 mt-0.5 flex-shrink-0">
+                                         <div className="w-6 h-6 flex items-center justify-center text-blue-900 font-bold">1</div>
+                                     </div>
+                                     <p className="text-sm">Nuestro equipo revisará tu solicitud y documentación.</p>
+                                 </div>
+                                 <div className="flex items-start gap-3">
+                                     <div className="bg-blue-200 rounded-full p-1 mt-0.5 flex-shrink-0">
+                                         <div className="w-6 h-6 flex items-center justify-center text-blue-900 font-bold">2</div>
+                                     </div>
+                                     <p className="text-sm">Te notificaremos por email y WhatsApp sobre el estado de tu solicitud.</p>
+                                 </div>
+                                 <div className="flex items-start gap-3">
+                                     <div className="bg-blue-200 rounded-full p-1 mt-0.5 flex-shrink-0">
+                                         <div className="w-6 h-6 flex items-center justify-center text-blue-900 font-bold">3</div>
+                                     </div>
+                                     <p className="text-sm">Una vez aprobada, podrás separar tu auto en línea o elegir otro de nuestro inventario.</p>
+                                 </div>
+                             </div>
+                         </div>
+
+                         {/* Main Card Container */}
                          <div className="bg-white p-6 rounded-xl shadow-sm border flex flex-col gap-6">
                             {/* Vehicle Info */}
                              {vehicleInfo?._vehicleTitle && (
-                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 order-1 lg:order-2">
+                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                      <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-full sm:w-32 sm:h-24 object-cover rounded-md" />
                                      <div>
-                                         <p className="text-sm text-gray-500">Auto en tu solicitud:</p>
+                                         <p className="text-sm text-gray-500">Vehículo en tu solicitud:</p>
                                          <h3 className="text-lg font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h3>
                                      </div>
                                  </div>
                              )}
 
-                             {/* "On Hold" Banner */}
-                             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start gap-4 order-2 lg:order-1">
-                                 <div className="bg-yellow-100 p-2 rounded-full mt-1">
-                                     <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                                 </div>
-                                 <div>
-                                     <h2 className="font-bold text-yellow-900">Tu Solicitud está en Proceso</h2>
-                                     <p className="text-sm text-yellow-800 mt-1">
-                                         Estamos revisando tu información. <strong>{formattedExpiryDate}</strong>. Te notificaremos cualquier cambio. 
-                                     </p>
-                                 </div>
-                             </div>
- 
-                             {/* Separar Button and Info */}
-                             <div className="p-4 bg-gray-50 rounded-lg border order-3">
-                                 <button
-                                     disabled
-                                     className="w-full bg-gray-300 text-gray-500 font-bold py-3 px-6 rounded-lg cursor-not-allowed"
-                                 >
-                                     Separar
-                                 </button>
-                                 <p className="text-xs text-gray-600 text-center mt-2">
-                                     La separación en línea se habilitará una vez que tu solicitud de crédito sea aprobada. 
-                                 </p>
-                             </div>
-                             
-                             {/* Disclaimer */}
-                             <div className="p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm order-4">
-                                 <p>
-                                     <strong>Importante:</strong> La disponibilidad del auto no está garantizada hasta la aprobación final. Sin embargo, un crédito pre-aprobado es transferible a cualquier otro auto de nuestro inventorio.
-                                 </p>
-                             </div>
- 
                              {/* Confirmation and User Details */}
-                             <div className="pt-6 border-t order-5">
+                             <div className="pt-4 border-t">
                                  <h2 className="text-xl font-bold mb-4">Información de la Solicitud</h2>
-                                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+                                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3 mb-6">
                                      <div className="bg-green-100 p-2 rounded-full">
                                         <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
                                      </div>
                                      <p className="text-green-800 font-semibold self-center">¡Felicidades! Hemos recibido tu solicitud y se encuentra actualmente en revisión.</p>
                                  </div>
-                                 <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                                      <div>
                                          <p className="text-gray-500">Nombre Completo</p>
                                          <p className="font-semibold">{`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim()}</p>
@@ -464,6 +456,40 @@ const Application: React.FC = () => {
                                      </div>
                                  </div>
                              </div>
+
+                             {/* Important Disclaimer */}
+                             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+                                 <p className="text-yellow-900">
+                                     <strong>Importante:</strong> El vehículo seleccionado no está garantizado hasta que tu crédito sea aprobado y realices la separación. Sin embargo, una vez aprobado tu crédito, podrás utilizarlo para cualquier vehículo de nuestro inventario con un precio similar (hasta 15% más caro o cualquier precio menor).
+                                 </p>
+                             </div>
+
+                             {/* Grayed Out Reservation Button */}
+                             <div className="p-4 bg-gray-50 rounded-lg border">
+                                 <button
+                                     disabled
+                                     className="w-full bg-gray-300 text-gray-500 font-bold py-3 px-6 rounded-lg cursor-not-allowed mb-3"
+                                 >
+                                     Separar Vehículo
+                                 </button>
+                                 <p className="text-xs text-gray-600 text-center font-medium">
+                                     La separación de autos solo está disponible para usuarios con créditos aprobados
+                                 </p>
+                                 <p className="text-sm text-gray-700 text-center mt-4">
+                                     Una vez que recibas el estatus de <strong>aprobado</strong>, podrás reservar tu vehículo directamente desde esta plataforma. Te notificaremos por email y WhatsApp cuando esto suceda.
+                                 </p>
+                             </div>
+                         </div>
+
+                         {/* Action Button */}
+                         <div className="mt-6 text-center">
+                             <Link
+                                 to="/escritorio/seguimiento"
+                                 className="inline-flex items-center gap-2 px-8 py-3 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors"
+                             >
+                                 Ver Estado de mi Solicitud
+                                 <ArrowRight className="w-5 h-5" />
+                             </Link>
                          </div>
                      </div>
                  );

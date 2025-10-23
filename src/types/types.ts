@@ -140,3 +140,32 @@ export interface Profile {
     role: 'user' | 'admin' | 'sales';
     [key: string]: any;
 }
+
+export interface UserVehicleForSale {
+    id?: string;
+    user_id: string;
+    status: 'draft' | 'in_inspection' | 'offer_made' | 'accepted' | 'rejected' | 'completed';
+    valuation_data?: any;
+    owner_count?: number;
+    key_info?: string;
+    invoice_status?: 'liberada' | 'financiada';
+    financing_entity_type?: 'banco' | 'agencia';
+    financing_entity_name?: string;
+    vehicle_state?: string;
+    plate_registration_state?: string;
+    accident_history?: string;
+    reason_for_selling?: string;
+    additional_details?: string;
+    exterior_photos?: string[];
+    interior_photos?: string[];
+    inspection_notes?: string;
+    final_offer?: number;
+    listing_url?: string;
+    inspection_branch?: string;
+    created_at?: string;
+    updated_at?: string;
+    contacted?: boolean;
+    asesor_asignado_id?: string;
+    asesor_asignado?: string;
+    tags?: string[];
+}

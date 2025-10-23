@@ -60,7 +60,7 @@ async function generateSitemap() {
   try {
     const response = await fetchAllVehicles();
     console.log('Received raw response:', JSON.stringify(response, null, 2)); // Debugging line
-    const vehicles = response.vehicles;
+    const vehicles = response.data || response.vehicles || response;
 
     if (!Array.isArray(vehicles)) {
       throw new Error('Fetched data is not an array. Aborting sitemap generation.');

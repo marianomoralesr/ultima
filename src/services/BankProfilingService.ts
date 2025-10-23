@@ -2,19 +2,19 @@ import { supabase } from '../../supabaseClient';
 import type { BankProfileData } from '../types/types';
 
 export const BankProfilingService = {
-  async saveUserBankProfile(userId: string, profileData: { 
-      respuestas: any; 
-      banco_recomendado: string; 
-      banco_segunda_opcion: string | null; 
+  async saveUserBankProfile(userId: string, profileData: {
+      respuestas: any;
+      banco_recomendado: string;
+      banco_segunda_opcion: string | null;
     }) {
-    const payload = { 
-      user_id: userId, 
+    // Don't pass user_id explicitly - let the trigger set it from auth.uid()
+    const payload = {
       respuestas: profileData.respuestas,
       banco_recomendado: profileData.banco_recomendado,
       banco_segunda_opcion: profileData.banco_segunda_opcion,
-      is_complete: true 
+      is_complete: true
     };
-    
+
     const { data, error } = await supabase
       .from('bank_profiles')
       .upsert(payload, { onConflict: 'user_id' })

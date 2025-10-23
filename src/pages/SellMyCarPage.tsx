@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -39,6 +39,7 @@ type SellCarFormData = z.infer<typeof sellCarSchema>;
 const SellMyCarPage: React.FC = () => {
     const { user } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
     
     // Check for data passed from ValuationApp navigation OR from sessionStorage
     const initialValuationData = location.state?.valuationData || JSON.parse(sessionStorage.getItem('sellCarValuation') || 'null');
@@ -102,6 +103,11 @@ const SellMyCarPage: React.FC = () => {
             await SellCarService.createOrUpdateSellListing(listingPayload);
             sessionStorage.removeItem('sellCarValuation');
             setStatus('success');
+
+            // Redirect to Visitas page with Cita de Inspección pre-selected after a short delay
+            setTimeout(() => {
+                navigate('/escritorio/visitas', { state: { activeTab: 'cita-inspeccion' } });
+            }, 2000);
         } catch (error: any) {
             console.error("Failed to submit sell car form:", error);
             setErrorMessage(error.message || "No se pudo guardar la información. Intenta de nuevo.");

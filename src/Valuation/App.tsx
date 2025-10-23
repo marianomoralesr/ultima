@@ -129,13 +129,40 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
     setIsDropdownOpen(false);
     setError(null);
     setAlternativeVehicles([]);
-    
+
     const currentYear = new Date().getFullYear();
     const carAge = Math.max(0, currentYear - vehicle.year);
     const estimatedMileage = Math.min(carAge * 15000, 85000);
     const roundedMileage = Math.round(estimatedMileage / 1000) * 1000;
     setValue('mileage', roundedMileage > 0 ? roundedMileage.toLocaleString('es-MX') : '');
     trigger('mileage');
+  };
+
+  const handleSelectAlternativeVehicle = (vehicle: Vehicle) => {
+    // Update the selected vehicle
+    setSelectedVehicle(vehicle);
+    setSearchQuery(vehicle.label);
+    setError(null);
+    setAlternativeVehicles([]);
+
+    // Update mileage estimate for the new vehicle
+    const currentYear = new Date().getFullYear();
+    const carAge = Math.max(0, currentYear - vehicle.year);
+    const estimatedMileage = Math.min(carAge * 15000, 85000);
+    const roundedMileage = Math.round(estimatedMileage / 1000) * 1000;
+    setValue('mileage', roundedMileage > 0 ? roundedMileage.toLocaleString('es-MX') : '');
+
+    // Create a NEW valuation promise with the new vehicle
+    const numericMileage = parseInt(getValues('mileage').replace(/[^0-9]/g, ''), 10);
+    const promise = fetchIntelimotorValuation({
+        vehicle: vehicle,
+        mileage: numericMileage,
+        businessUnitId: config.intelimotor.businessUnitId,
+        apiKey: config.intelimotor.apiKey,
+        apiSecret: config.intelimotor.apiSecret,
+        proxyUrl: 'https://jjepfehmuybpctdzipnu.supabase.co/functions/v1/intelimotor-proxy'
+    });
+    setValuationPromise(promise);
   };
   
   const handleContinueToContact = async () => {
@@ -335,7 +362,7 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <h4 className="font-semibold text-gray-800 text-sm flex items-center"><Info className="w-5 h-5 mr-2 text-blue-500" />Alternativas Sugeridas</h4>
                         <ul className="mt-2 space-y-2">
-                            {alternativeVehicles.map(v => <li key={v.id} onClick={() => handleSelectVehicle(v)} className="p-2 text-sm bg-white rounded cursor-pointer hover:bg-primary-50">{v.label}</li>)}
+                            {alternativeVehicles.map(v => <li key={v.id} onClick={() => handleSelectAlternativeVehicle(v)} className="p-2 text-sm bg-white rounded cursor-pointer hover:bg-primary-50">{v.label}</li>)}
                         </ul>
                     </div>
                 )}

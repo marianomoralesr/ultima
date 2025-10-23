@@ -59,6 +59,8 @@ const HeroVehicleCard: React.FC<HeroVehicleCardProps> = ({ vehicle }) => {
 
                         clasificacionid={vehicle.clasificacionid}
 
+                        carroceria={vehicle.carroceria}
+
                         className="align-center h-full w-full"
 
                         objectFit="cover"

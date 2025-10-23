@@ -29,6 +29,7 @@ const DashboardVehicleCard: React.FC<DashboardVehicleCardProps> = ({ vehicle }) 
           images={imagesForCarousel}
           alt={vehicle.titulo}
           clasificacionid={vehicle.clasificacionid}
+          carroceria={vehicle.carroceria}
           className="w-full h-full"
         />
       </div>

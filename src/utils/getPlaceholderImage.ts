@@ -1,10 +1,14 @@
 import { PLACEHOLDER_IMAGES, DEFAULT_PLACEHOLDER_IMAGE } from './constants';
 
-export const getPlaceholderImage = (clasificacionid?: string[] | number): string => {
+export const getPlaceholderImage = (
+  clasificacionid?: string[] | number,
+  carroceria?: string
+): string => {
   // Handle string array (from vehicle.clasificacionid)
   if (Array.isArray(clasificacionid) && clasificacionid.length > 0) {
     const clasificacion = clasificacionid[0].toLowerCase().replace(/ /g, '-');
-    return PLACEHOLDER_IMAGES[clasificacion] ?? DEFAULT_PLACEHOLDER_IMAGE;
+    const placeholder = PLACEHOLDER_IMAGES[clasificacion];
+    if (placeholder) return placeholder;
   }
 
   // Handle number (legacy support)
@@ -17,7 +21,15 @@ export const getPlaceholderImage = (clasificacionid?: string[] | number): string
       5: 'motos',
     };
     const clasificacion = numberToStringMap[clasificacionid];
-    return PLACEHOLDER_IMAGES[clasificacion] ?? DEFAULT_PLACEHOLDER_IMAGE;
+    const placeholder = PLACEHOLDER_IMAGES[clasificacion];
+    if (placeholder) return placeholder;
+  }
+
+  // Fallback to carroceria if clasificacionid doesn't match
+  if (carroceria) {
+    const carroceriaKey = carroceria.toLowerCase().replace(/ /g, '-');
+    const placeholder = PLACEHOLDER_IMAGES[carroceriaKey];
+    if (placeholder) return placeholder;
   }
 
   // Default fallback

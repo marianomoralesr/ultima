@@ -47,6 +47,7 @@ const EdgeVehicleCard: React.FC<EdgeVehicleCardProps> = ({ vehicle }) => {
               alt={vehicle.titulo}
               isSeparado={isSeparado}
               clasificacionid={vehicle.clasificacionid}
+              carroceria={vehicle.carroceria}
               className={`w-full h-56 ${isSeparado ? 'filter grayscale' : ''}`}
             />
             <div className="absolute top-3 right-3 z-20">

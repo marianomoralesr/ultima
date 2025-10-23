@@ -13,18 +13,19 @@ interface ImageCarouselProps {
   garantia?: string;
   sucursal?: string[];
   clasificacionid?: string[] | number;
+  carroceria?: string;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal, clasificacionid }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal, clasificacionid, carroceria }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const x = useMotionValue(0);
   const constraintsRef = useRef(null);
 
   const allImages = useMemo(() => {
     const filteredImages = images.filter(Boolean);
-    const placeholder = getPlaceholderImage(clasificacionid);
+    const placeholder = getPlaceholderImage(clasificacionid, carroceria);
     return filteredImages.length > 0 ? filteredImages : [placeholder];
-  }, [images, clasificacionid]);
+  }, [images, clasificacionid, carroceria]);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const offset = info.offset.x;

@@ -341,8 +341,8 @@ const AnimatedHeading: React.FC<{ children: React.ReactNode, as?: 'h2' | 'h3', c
 /* ---------- YouTube VSL Section ---------- */
 const YouTubeVSLSection: React.FC = () => {
   return (
-    <Section className="bg-white pt-0">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-white pb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl overflow-hidden relative" style={{ paddingBottom: '56.25%', height: 0 }}>
           <iframe
             className="absolute top-0 left-0 w-full h-full"
@@ -353,14 +353,14 @@ const YouTubeVSLSection: React.FC = () => {
           />
         </div>
       </div>
-    </Section>
+    </div>
   );
 };
 
 /* ---------- Testimonio Separator ---------- */
 const TestimonioSeparator: React.FC = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="bg-white w-full">
       <LazyImage
         src="/images/testimonio.png"
         alt="Testimonio de cliente TREFA"

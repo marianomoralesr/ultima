@@ -231,15 +231,10 @@ serve(async (req: Request) => {
     const promocionesArray = getArrayField(fields.Promociones || fields.promociones);
     const promocionesValue = promocionesArray.length > 0 ? promocionesArray : null;
 
-    // Determine vendido status based on OrdenStatus and vendido field
-    // A vehicle is vendido if:
-    // 1. OrdenStatus is "Historico" or "Vendido"
-    // 2. The vendido field in Airtable is explicitly true
+    // Determine vendido status based on OrdenStatus
+    // A vehicle is vendido if OrdenStatus is "Historico"
     const currentOrdenStatus = fields.OrdenStatus || '';
-    const isVendido =
-      currentOrdenStatus === 'Historico' ||
-      currentOrdenStatus === 'Vendido' ||
-      fields.vendido === true;
+    const isVendido = currentOrdenStatus === 'Historico' || fields.vendido === true;
 
     // Map Airtable fields to Supabase columns
     const supabaseData = {
@@ -259,7 +254,7 @@ serve(async (req: Request) => {
       fotos_interior_url: interiorImages,
       ordencompra: fields.OrdenCompra || '',
       ordenstatus: currentOrdenStatus,
-      separado: currentOrdenStatus === 'Separado',
+      separado: fields.separado === true || fields.Separado === true,
       vendido: isVendido,
       clasificacionid: clasificacionValue,
       ubicacion: ubicacionValue,

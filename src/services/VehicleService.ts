@@ -19,7 +19,223 @@ class VehicleService {
     private static readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
     private static readonly RECENTLY_VIEWED_KEY = 'trefa_recently_viewed';
     private static cache = new Map<string, CacheEntry<Vehicle[]>>();
-    private static readonly VEHICLES_PER_PAGE = 20;
+    private static readonly VEHICLES_PER_PAGE = 21;
+    private static readonly USE_RAPID_PROCESSOR = true; // Feature flag for rapid-processor
+
+    /**
+     * Transform rapid-processor response to match expected Vehicle format
+     * Ensures compatibility with existing components
+     */
+    private static transformRapidProcessorData(rpVehicles: any[]): Vehicle[] {
+        return rpVehicles.map((item: any) => {
+            const safeParseFloat = (val: any, fallback = 0) => {
+                const n = parseFloat(String(val).replace(/,/g, ''));
+                return isNaN(n) ? fallback : n;
+            };
+            const safeParseInt = (val: any, fallback = 0) => {
+                const n = parseInt(String(val).replace(/,/g, ''), 10);
+                return isNaN(n) ? fallback : n;
+            };
+
+            // Handle ubicacion mapping
+            const sucursalMapping: Record<string, string> = {
+                'MTY': 'Monterrey',
+                'GPE': 'Guadalupe',
+                'TMPS': 'Reynosa',
+                'COAH': 'Saltillo'
+            };
+
+            const parseArrayField = (field: any): string[] => {
+                if (Array.isArray(field)) return field.map(String).filter(Boolean);
+                if (typeof field === 'string') {
+                    try {
+                        const parsed = JSON.parse(field);
+                        if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+                        return field.split(',').map((s: string) => s.trim()).filter(Boolean);
+                    } catch {
+                        return field.split(',').map((s: string) => s.trim()).filter(Boolean);
+                    }
+                }
+                return [];
+            };
+
+            let normalizedSucursales: string[] = [];
+            const ubicacionArray = parseArrayField(item.ubicacion);
+            normalizedSucursales = ubicacionArray.map((s: string) =>
+                sucursalMapping[s.trim().toUpperCase()] || s.trim()
+            ).filter(Boolean);
+
+            // Extract gallery images from rapid-processor format
+            const galeriaExterior = item.galeriaExterior || item.galeria_exterior || [];
+            const galeriaInterior = item.galeriaInterior || item.galeria_interior || [];
+
+            // Get feature image from public_urls or fallback
+            const featureImage = item.public_urls?.feature_image ||
+                                item.thumbnail ||
+                                item.feature_image ||
+                                galeriaExterior[0] ||
+                                '';
+
+            const title = item.titulo || item.title ||
+                         `${item.marca || ''} ${item.modelo || ''} ${item.autoano || ''}`.trim() ||
+                         'Auto sin título';
+
+            // Helper to get first element from array or return as string
+            const getFirstOrString = (field: any): string => {
+                if (Array.isArray(field)) return field[0] || '';
+                if (typeof field === 'string') {
+                    // Try to parse as JSON first (for fields that might be stored as JSONB arrays)
+                    try {
+                        const parsed = JSON.parse(field);
+                        if (Array.isArray(parsed)) {
+                            return parsed[0] || '';
+                        }
+                    } catch {
+                        // If JSON parse fails, return as is
+                        return field;
+                    }
+                }
+                return field || '';
+            };
+
+            return {
+                id: item.id || 0,
+                slug: item.slug || '',
+                ordencompra: item.ordencompra || '',
+                record_id: item.record_id || null,
+
+                titulo: title,
+                descripcion: item.descripcion || '',
+                metadescripcion: item.metadescripcion || '',
+
+                marca: item.marca || '',
+                modelo: item.modelo || '',
+
+                autoano: safeParseInt(item.autoano),
+                precio: safeParseFloat(item.precio),
+                kilometraje: safeParseInt(getFirstOrString(item.kilometraje)),
+                transmision: getFirstOrString(item.transmision),
+                combustible: getFirstOrString(item.combustible),
+                carroceria: getFirstOrString(item.carroceria || item.clasificacionid),
+                cilindros: safeParseInt(item.cilindros),
+                AutoMotor: item.AutoMotor || '',
+
+                enganchemin: safeParseFloat(item.enganchemin),
+                enganche_recomendado: safeParseFloat(item.enganche_recomendado),
+                mensualidad_minima: safeParseFloat(item.mensualidad_minima),
+                mensualidad_recomendada: safeParseFloat(item.mensualidad_recomendada),
+                plazomax: safeParseInt(item.plazomax),
+
+                // Normalize image fields to match expected format
+                feature_image: [featureImage],
+                galeria_exterior: Array.isArray(galeriaExterior) ? galeriaExterior : [],
+                fotos_exterior_url: Array.isArray(galeriaExterior) ? galeriaExterior : [],
+                galeria_interior: Array.isArray(galeriaInterior) ? galeriaInterior : [],
+                fotos_interior_url: Array.isArray(galeriaInterior) ? galeriaInterior : [],
+
+                ubicacion: normalizedSucursales,
+                sucursal: normalizedSucursales, // Alias
+
+                garantia: item.garantia || '',
+
+                vendido: !!item.vendido,
+                separado: !!item.separado,
+                ordenstatus: item.ordenstatus || '',
+
+                clasificacionid: parseArrayField(item.clasificacionid),
+
+                promociones: Array.isArray(item.promociones) ? item.promociones : [],
+
+                view_count: safeParseInt(item.view_count),
+
+                // Legacy aliases
+                title: title,
+                price: safeParseFloat(item.precio),
+                year: safeParseInt(item.autoano),
+                kms: safeParseInt(item.kilometraje),
+            } as Vehicle;
+        });
+    }
+
+    /**
+     * Fetch vehicles from rapid-processor edge function
+     */
+    private static async fetchFromRapidProcessor(filters: VehicleFilters = {}, page: number = 1): Promise<{ vehicles: Vehicle[], totalCount: number }> {
+        const supabaseUrl = supabase.supabaseUrl;
+        const supabaseKey = supabase.supabaseKey;
+
+        // Build query parameters
+        const params = new URLSearchParams({
+            page: page.toString(),
+            pageSize: this.VEHICLES_PER_PAGE.toString(),
+        });
+
+        // Add array filters
+        if (filters.marca?.length) {
+            filters.marca.forEach(m => params.append('marca', m));
+        }
+        if (filters.autoano?.length) {
+            filters.autoano.forEach(y => params.append('autoano', y.toString()));
+        }
+        if (filters.transmision?.length) {
+            filters.transmision.forEach(t => params.append('transmision', t));
+        }
+        if (filters.combustible?.length) {
+            filters.combustible.forEach(c => params.append('combustible', c));
+        }
+        if (filters.garantia?.length) {
+            filters.garantia.forEach(g => params.append('garantia', g));
+        }
+        if (filters.carroceria?.length) {
+            filters.carroceria.forEach(c => params.append('carroceria', c));
+        }
+        if (filters.ubicacion?.length) {
+            filters.ubicacion.forEach(u => params.append('ubicacion', u));
+        }
+        if (filters.promociones?.length) {
+            filters.promociones.forEach(p => params.append('promociones', p));
+        }
+
+        // Add range filters
+        if (filters.minPrice) params.append('minPrice', filters.minPrice.toString());
+        if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+        if (filters.enganchemin) params.append('enganchemin', filters.enganchemin.toString());
+        if (filters.maxEnganche) params.append('maxEnganche', filters.maxEnganche.toString());
+
+        // Add boolean filters
+        if (filters.hideSeparado) params.append('hideSeparado', 'true');
+
+        // Add search
+        if (filters.search) params.append('search', filters.search);
+
+        // Add ordering
+        if (filters.orderby) params.append('orderby', filters.orderby);
+
+        const url = `${supabaseUrl}/functions/v1/rapid-processor?${params.toString()}`;
+
+        console.log('[VehicleService] Fetching from rapid-processor:', url);
+
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`rapid-processor returned ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Transform data to match expected format
+        const transformedVehicles = this.transformRapidProcessorData(data.vehicles || []);
+
+        return {
+            vehicles: transformedVehicles,
+            totalCount: data.totalCount || 0,
+        };
+    }
 
     private static async buildSupabaseQuery(filters: VehicleFilters = {}, page: number = 1) {
         console.log('Building Supabase query with filters:', filters);
@@ -35,7 +251,7 @@ class VehicleService {
         // --- Base Filters ---
         query = query.eq('ordenstatus', 'Comprado');
         if (filters.hideSeparado) {
-            query = query.or('separado.is.false,separado.is.null');
+            query = query.or('separado.eq.false,separado.is.null');
         }
 
         // --- Direct Equality Filters ---
@@ -119,10 +335,10 @@ class VehicleService {
 
     public static async getAllVehicles(filters: VehicleFilters = {}, page: number = 1): Promise<{ vehicles: Vehicle[], totalCount: number }> {
         const cacheKey = `vehicles_${JSON.stringify(filters)}_${page}`;
-        
+
         const cached = this.cache.get(cacheKey);
         if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-            console.log('Cache hit!');
+            console.log('[VehicleService] Cache hit!');
             return { vehicles: cached.data, totalCount: cached.totalCount };
         }
 
@@ -131,55 +347,83 @@ class VehicleService {
             if (localCache) {
                 const { data, totalCount, timestamp } = JSON.parse(localCache);
                 if (Date.now() - timestamp < this.CACHE_TTL) {
-                    console.log('Local storage cache hit!');
+                    console.log('[VehicleService] Local storage cache hit!');
                     this.cache.set(cacheKey, { data, totalCount, timestamp });
                     return { vehicles: data, totalCount };
                 }
             }
         } catch (e) {
-            console.warn("Could not read localStorage cache.", e);
+            console.warn("[VehicleService] Could not read localStorage cache.", e);
         }
 
+        // Try rapid-processor first if enabled
+        if (this.USE_RAPID_PROCESSOR) {
+            try {
+                console.log('[VehicleService] Attempting to fetch from rapid-processor...');
+                const result = await this.fetchFromRapidProcessor(filters, page);
+
+                console.log('[VehicleService] rapid-processor fetch successful:', result.vehicles.length, 'vehicles');
+
+                // Cache the results
+                this.cache.set(cacheKey, { data: result.vehicles, totalCount: result.totalCount, timestamp: Date.now() });
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify({
+                        data: result.vehicles,
+                        totalCount: result.totalCount,
+                        timestamp: Date.now()
+                    }));
+                } catch (e) {
+                    console.warn("[VehicleService] Could not write to localStorage cache.", e);
+                }
+
+                return result;
+            } catch (rapidError) {
+                console.warn('[VehicleService] rapid-processor failed, falling back to direct Supabase query:', rapidError);
+                // Continue to fallback below
+            }
+        }
+
+        // Fallback to direct Supabase query
         try {
+            console.log('[VehicleService] Using direct Supabase query (fallback)');
             const query = await this.buildSupabaseQuery(filters, page);
             const { data, error, count } = await query;
-            
+
             if (error) throw error;
             if (!data) throw new Error("No data returned from Supabase.");
 
             const normalizedData = this.normalizeVehicleData(data);
             const totalCount = count || 0;
-            
-            console.log('Normalized Data:', normalizedData);
-            console.log('Total Count:', totalCount);
+
+            console.log('[VehicleService] Supabase query successful:', normalizedData.length, 'vehicles');
 
             this.cache.set(cacheKey, { data: normalizedData, totalCount, timestamp: Date.now() });
             try {
                 localStorage.setItem(cacheKey, JSON.stringify({ data: normalizedData, totalCount, timestamp: Date.now() }));
             } catch (e) {
-                console.warn("Could not write to localStorage cache.", e);
+                console.warn("[VehicleService] Could not write to localStorage cache.", e);
             }
 
             return { vehicles: normalizedData, totalCount };
         } catch (error) {
-            console.error('Primary data source failed, attempting to use stale cache.', error);
-            // If the network fails, try to return from cache even if it's stale.
+            console.error('[VehicleService] All data sources failed, attempting to use stale cache.', error);
+            // If all sources fail, try to return from cache even if it's stale
             const staleCached = this.cache.get(cacheKey);
             if (staleCached) {
-                console.warn('Returning stale in-memory cache data.');
+                console.warn('[VehicleService] Returning stale in-memory cache data.');
                 return { vehicles: staleCached.data, totalCount: staleCached.totalCount };
             }
             try {
                 const staleLocalCache = localStorage.getItem(cacheKey);
                 if (staleLocalCache) {
-                    console.warn('Returning stale localStorage cache data.');
+                    console.warn('[VehicleService] Returning stale localStorage cache data.');
                     const { data, totalCount } = JSON.parse(staleLocalCache);
                     return { vehicles: data, totalCount };
                 }
             } catch (e) {
-                console.error("Could not read or parse stale localStorage cache.", e);
+                console.error("[VehicleService] Could not read or parse stale localStorage cache.", e);
             }
-            // If there's no stale cache, re-throw the original error.
+            // If there's no stale cache, re-throw the original error
             throw error;
         }
     }
@@ -390,6 +634,18 @@ private static normalizeVehicleData(rawData: any[]): Vehicle[] {
         // Helper to get first element from array or return as string
         const getFirstOrString = (field: any): string => {
             if (Array.isArray(field)) return field[0] || '';
+            if (typeof field === 'string') {
+                // Try to parse as JSON first (for fields that might be stored as JSONB arrays)
+                try {
+                    const parsed = JSON.parse(field);
+                    if (Array.isArray(parsed)) {
+                        return parsed[0] || '';
+                    }
+                } catch {
+                    // If JSON parse fails, return as is
+                    return field;
+                }
+            }
             return field || '';
         };
 

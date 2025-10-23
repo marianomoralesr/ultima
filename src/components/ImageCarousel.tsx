@@ -71,17 +71,20 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
               className={`w-full h-full object-cover ${isSeparado ? 'filter grayscale' : ''}`}
             />
 
-            {/* Top-left tags: Garantia, Sucursal - Glassmorphism without text shadows */}
-            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2 max-w-[calc(100%-1.5rem)]">
+            {/* Dark fadeout gradient at bottom for better text readability */}
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-10"></div>
+
+            {/* Bottom-left tags: Garantia, Sucursal - Enhanced glassmorphism */}
+            <div className="absolute bottom-3 left-3 z-20 flex flex-col gap-2 max-w-[calc(100%-1.5rem)]">
               {garantia && garantia !== 'N/A' && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white border border-white/10">
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-2 py-1.5 rounded-lg bg-white/20 backdrop-blur-md text-white border border-white/30">
                   <ShieldCheckIcon className="w-4 h-4" />
                   {garantia}
                 </span>
               )}
 
               {sucursal && sucursal.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-md text-white border border-white/10">
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-2 py-1.5 rounded-lg bg-white/20 backdrop-blur-md text-white border border-white/30">
                   <MapPinIcon className="w-4 h-4" />
                   {sucursal[0]}
                 </span>
@@ -92,7 +95,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
       </motion.div>
 
       {allImages.length > 1 && (
-        <div className="absolute bottom-3 right-0 flex justify-end gap-1 z-10 pr-4">
+        <div className="absolute bottom-3 right-0 flex justify-end gap-1 z-30 pr-4">
           {allImages.slice(0, 5).map((_, index) => (
             <button
               key={index}

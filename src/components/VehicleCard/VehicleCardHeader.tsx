@@ -20,7 +20,7 @@ const VehicleCardHeader: React.FC<VehicleCardHeaderProps> = ({ title, view_count
         if (!formattedPromo) return null;
 
         return (
-          <span key={idx} className="text-xs font-bold text-orange-600">
+          <span key={idx} className="text-xs font-medium text-orange-600 border border-orange-600 px-2 py-0.5 rounded-md">
             {formattedPromo}
           </span>
         );

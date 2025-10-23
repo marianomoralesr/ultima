@@ -30,7 +30,8 @@ const VALUATION_WEBHOOK_URL = env.VITE_VALUATION_WEBHOOK_URL || 'https://api.int
 const BREVO_WEBHOOK_URL = env.VITE_BREVO_WEBHOOK_URL || 'YOUR_BREVO_WEBHOOK_URL_HERE';
 
 // --- CORS Proxy Configuration ---
-const CORS_PROXY_URL = env.VITE_CORS_PROXY_URL || 'https://proxy.cors.sh/';
+// Updated to use Supabase Edge Function for reliable CarStudio API proxying
+const CORS_PROXY_URL = env.VITE_CORS_PROXY_URL || `${SUPABASE_URL}/functions/v1/carstudio-proxy?url=`;
 
 // --- Calendly Configuration ---
 const CALENDLY_URL_MTY = env.VITE_CALENDLY_URL_MTY || 'https://calendly.com/trefa-monterrey/cita-monterrey?month=2025-09';

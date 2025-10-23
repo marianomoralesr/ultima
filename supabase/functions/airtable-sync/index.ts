@@ -198,25 +198,34 @@ serve(async (req: Request) => {
       ? `${fields.AutoMarca} ${fields.AutoSubmarcaVersion}`.trim()
       : fields.Auto || 'Auto sin título';
 
-    // Extract images
-    const exteriorImages = getImageUrls(fields.fotos_exterior_url);
-    const interiorImages = getImageUrls(fields.fotos_interior_url);
-    const featureImage = getImageUrls(fields.feature_image)[0] || exteriorImages[0] || '';
+    // Extract images - save as comma-separated text
+    const exteriorImagesArray = getImageUrls(fields.fotos_exterior_url);
+    const interiorImagesArray = getImageUrls(fields.fotos_interior_url);
+    const featureImageArray = getImageUrls(fields.feature_image);
 
-    // Normalize combustible field - keep as array
-    const combustibleValue = getArrayField(fields.autocombustible || fields.combustible);
+    const exteriorImages = exteriorImagesArray.join(', ');
+    const interiorImages = interiorImagesArray.join(', ');
+    const featureImage = featureImageArray[0] || exteriorImagesArray[0] || '';
 
-    // Normalize kilometraje field - keep as array
-    const kilometrajeValue = getArrayField(fields.autokilometraje || fields.kilometraje);
+    // Normalize combustible field - convert to plain text (first element)
+    const combustibleArray = getArrayField(fields.autocombustible || fields.combustible);
+    const combustibleValue = combustibleArray.length > 0 ? combustibleArray[0] : '';
 
-    // Normalize transmision field - keep as array
-    const transmisionValue = getArrayField(fields.autotransmision || fields.transmision);
+    // Normalize kilometraje field - convert to plain text (first element)
+    const kilometrajeArray = getArrayField(fields.autokilometraje || fields.kilometraje);
+    const kilometrajeValue = kilometrajeArray.length > 0 ? kilometrajeArray[0] : '';
 
-    // Normalize ubicacion - keep as array
-    const ubicacionValue = getArrayField(fields.Ubicacion);
+    // Normalize transmision field - convert to plain text (first element)
+    const transmisionArray = getArrayField(fields.autotransmision || fields.transmision);
+    const transmisionValue = transmisionArray.length > 0 ? transmisionArray[0] : '';
 
-    // Normalize clasificacionid (carroceria) - keep as array
-    const clasificacionValue = getArrayField(fields.ClasificacionID);
+    // Normalize ubicacion - convert to comma-separated text
+    const ubicacionArray = getArrayField(fields.Ubicacion);
+    const ubicacionValue = ubicacionArray.join(', ');
+
+    // Normalize clasificacionid (carroceria) - convert to comma-separated text
+    const clasificacionArray = getArrayField(fields.ClasificacionID);
+    const clasificacionValue = clasificacionArray.join(', ');
 
     // Map Airtable fields to Supabase columns
     const supabaseData = {

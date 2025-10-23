@@ -25,9 +25,10 @@ const DashboardVehicleCard: React.FC<DashboardVehicleCardProps> = ({ vehicle }) 
   const CardContent = () => (
     <div className="flex flex-col h-full bg-white rounded-xl shadow-md overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <div className="relative aspect-[4/3] bg-gray-100">
-        <ImageCarousel 
-          images={imagesForCarousel} 
-          alt={vehicle.titulo} 
+        <ImageCarousel
+          images={imagesForCarousel}
+          alt={vehicle.titulo}
+          clasificacionid={vehicle.clasificacionid}
           className="w-full h-full"
         />
       </div>

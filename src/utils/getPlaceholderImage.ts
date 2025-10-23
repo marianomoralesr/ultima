@@ -1,22 +1,25 @@
-import sedanPlaceholder from '/public/images/sedan-filter.png';
-import suvPlaceholder from '/public/images/suv-filter.png';
-import hatchbackPlaceholder from '/public/images/hatchback-filter.png';
-import pickupPlaceholder from '/public/images/pickup-filter.png';
-import motosPlaceholder from '/public/images/motos-filter.png';
+import { PLACEHOLDER_IMAGES, DEFAULT_PLACEHOLDER_IMAGE } from './constants';
 
-export const getPlaceholderImage = (clasificacionid?: number): string => {
-  switch (clasificacionid) {
-    case 1: // Sedan
-      return sedanPlaceholder;
-    case 2: // SUV
-      return suvPlaceholder;
-    case 3: // Hatchback
-      return hatchbackPlaceholder;
-    case 4: // Pickup
-      return pickupPlaceholder;
-    case 5: // Moto
-      return motosPlaceholder;
-    default:
-      return sedanPlaceholder;
+export const getPlaceholderImage = (clasificacionid?: string[] | number): string => {
+  // Handle string array (from vehicle.clasificacionid)
+  if (Array.isArray(clasificacionid) && clasificacionid.length > 0) {
+    const clasificacion = clasificacionid[0].toLowerCase().replace(/ /g, '-');
+    return PLACEHOLDER_IMAGES[clasificacion] ?? DEFAULT_PLACEHOLDER_IMAGE;
   }
+
+  // Handle number (legacy support)
+  if (typeof clasificacionid === 'number') {
+    const numberToStringMap: Record<number, string> = {
+      1: 'sedan',
+      2: 'suv',
+      3: 'hatchback',
+      4: 'pickup',
+      5: 'motos',
+    };
+    const clasificacion = numberToStringMap[clasificacionid];
+    return PLACEHOLDER_IMAGES[clasificacion] ?? DEFAULT_PLACEHOLDER_IMAGE;
+  }
+
+  // Default fallback
+  return DEFAULT_PLACEHOLDER_IMAGE;
 };

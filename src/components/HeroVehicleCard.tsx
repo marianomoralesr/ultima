@@ -51,11 +51,13 @@ const HeroVehicleCard: React.FC<HeroVehicleCardProps> = ({ vehicle }) => {
 
                 <div className="relative aspect-video bg-white flex-grow">
 
-                    <ImageCarousel 
+                    <ImageCarousel
 
-                        images={imagesForCarousel} 
+                        images={imagesForCarousel}
 
                         alt={vehicle.titulo}
+
+                        clasificacionid={vehicle.clasificacionid}
 
                         className="align-center h-full w-full"
 

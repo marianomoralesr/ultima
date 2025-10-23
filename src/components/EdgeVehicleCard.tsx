@@ -46,6 +46,7 @@ const EdgeVehicleCard: React.FC<EdgeVehicleCardProps> = ({ vehicle }) => {
               images={imagesForCarousel}
               alt={vehicle.titulo}
               isSeparado={isSeparado}
+              clasificacionid={vehicle.clasificacionid}
               className={`w-full h-56 ${isSeparado ? 'filter grayscale' : ''}`}
             />
             <div className="absolute top-3 right-3 z-20">

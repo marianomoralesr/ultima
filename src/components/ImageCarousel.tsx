@@ -12,7 +12,7 @@ interface ImageCarouselProps {
   isSeparado?: boolean;
   garantia?: string;
   sucursal?: string[];
-  clasificacionid?: number;
+  clasificacionid?: string[] | number;
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, isSeparado, garantia, sucursal, clasificacionid }) => {

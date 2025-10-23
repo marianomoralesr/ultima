@@ -146,12 +146,21 @@ serve(async (req: Request) => {
 
       // If it's a string (comma-separated URLs or single URL)
       if (typeof field === 'string') {
-        return field.split(',').map((url: string) => url.trim()).filter(Boolean);
+        const trimmed = field.trim();
+        // Filter out invalid strings like "[]", "{}", "null", etc.
+        if (trimmed === '[]' || trimmed === '{}' || trimmed === 'null' || trimmed === 'undefined' || trimmed === '') {
+          return [];
+        }
+        return field.split(',').map((url: string) => url.trim()).filter((url: string) => {
+          return url && url !== '[]' && url !== '{}' && url.startsWith('http');
+        });
       }
 
       // If it's an array of strings
       if (Array.isArray(field)) {
-        return field.map(String).filter(Boolean);
+        return field.map(String).filter((url: string) => {
+          return url && url !== '[]' && url !== '{}' && url.startsWith('http');
+        });
       }
 
       return [];
@@ -203,9 +212,9 @@ serve(async (req: Request) => {
     const interiorImagesArray = getImageUrls(fields.fotos_interior_url);
     const featureImageArray = getImageUrls(fields.feature_image);
 
-    const exteriorImages = exteriorImagesArray.join(', ');
-    const interiorImages = interiorImagesArray.join(', ');
-    const featureImage = featureImageArray[0] || exteriorImagesArray[0] || '';
+    const exteriorImages = exteriorImagesArray.length > 0 ? exteriorImagesArray.join(', ') : '';
+    const interiorImages = interiorImagesArray.length > 0 ? interiorImagesArray.join(', ') : '';
+    const featureImage = featureImageArray[0] || exteriorImagesArray[0] || null;
 
     // Normalize combustible field - convert to plain text (first element)
     const combustibleArray = getArrayField(fields.autocombustible || fields.combustible);

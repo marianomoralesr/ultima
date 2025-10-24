@@ -346,9 +346,11 @@ const YouTubeVSLSection: React.FC = () => {
         <div className="rounded-3xl overflow-hidden relative" style={{ paddingBottom: '56.25%', height: 0 }}>
           <iframe
             className="absolute top-0 left-0 w-full h-full"
-            src="https://www.youtube.com/embed/p-nMlle-xfw"
+            src="https://www.youtube.com/embed/p-nMlle-xfw?rel=0"
             title="TREFA VSL"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
         </div>

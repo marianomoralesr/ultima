@@ -1,12 +1,12 @@
 name = "trefa-image-proxy"
 main = "image-proxy.js"
 compatibility_date = "2024-01-01"
-account_id = "" # Add your Cloudflare account ID
+account_id = "a5de5a4fb11ab70d53e850749ece3cf7" # Add your Cloudflare account ID
 
 # Routes - uncomment and update with your domain
-# routes = [
-#   { pattern = "images.trefa.mx/*", zone_name = "trefa.mx" }
-# ]
+ routes = [
+   { pattern = "images.trefa.mx/*", zone_name = "trefa.mx" }
+ ]
 
 [observability]
 enabled = true

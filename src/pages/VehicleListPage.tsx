@@ -129,16 +129,16 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Animation for the filter sheet
-  const [{ y }, api] = useSpring(() => ({ y: window.innerHeight }));
+  const [{ y, opacity }, api] = useSpring(() => ({ y: window.innerHeight, opacity: 0, config: { tension: 300, friction: 30 } }));
 
   const openSheet = useCallback(() => {
-    api.start({ y: 0, immediate: false });
     setIsFilterSheetOpen(true);
+    api.start({ y: 0, opacity: 1, immediate: false });
   }, [api]);
 
   const closeSheet = useCallback(() => {
-    api.start({ y: window.innerHeight, immediate: false });
-    setIsFilterSheetOpen(false);
+    api.start({ y: window.innerHeight, opacity: 0, immediate: false });
+    setTimeout(() => setIsFilterSheetOpen(false), 300); // Delay state update to allow animation to complete
   }, [api]);
 
   useEffect(() => {
@@ -472,10 +472,11 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
       {isFilterSheetOpen && (
         <div className="fixed inset-0 bg-black/50 z-[90] animate-fadeIn lg:hidden" onClick={closeSheet}></div>
       )}
-      <animated.div
-        className={`fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white/95 backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden ${isFilterSheetOpen ? '' : 'pointer-events-none'}`}
-        style={{ y }}
-      >
+      {isFilterSheetOpen && (
+        <animated.div
+          className="fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden overflow-hidden"
+          style={{ y, opacity }}
+        >
           <div {...bindSheetDrag()} className="w-full p-4 flex justify-center cursor-grab touch-none">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
           </div>
@@ -493,7 +494,8 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
               activeFiltersList={activeFiltersList}
             />
           )}
-      </animated.div>
+        </animated.div>
+      )}
       {showTutorial && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}
     </>
   );

@@ -247,7 +247,10 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
   const whatsappUrl = `https://wa.me/528187049079?text=${encodeURIComponent(whatsappText)}`;
 
   const handleContinueToSellForm = () => {
-    navigate('/escritorio/vende-tu-auto', { state: { valuationData: { vehicle: selectedVehicle, valuation } } });
+    // Store valuation data in localStorage so it persists through login if needed
+    const valuationData = { vehicle: selectedVehicle, valuation };
+    localStorage.setItem('pendingValuationData', JSON.stringify(valuationData));
+    navigate('/escritorio/vende-tu-auto', { state: { valuationData } });
   };
   
   const steps = [

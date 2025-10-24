@@ -41,9 +41,11 @@ const SellMyCarPage: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     
-    // Check for data passed from ValuationApp navigation OR from sessionStorage
-    const initialValuationData = location.state?.valuationData || JSON.parse(sessionStorage.getItem('sellCarValuation') || 'null');
-    
+    // Check for data passed from ValuationApp navigation, sessionStorage, or localStorage (for post-login redirect)
+    const initialValuationData = location.state?.valuationData ||
+                                  JSON.parse(sessionStorage.getItem('sellCarValuation') || 'null') ||
+                                  JSON.parse(localStorage.getItem('pendingValuationData') || 'null');
+
     const [valuationData] = useState<any>(initialValuationData);
     const [status, setStatus] = useState<'form' | 'submitting' | 'success' | 'error'>('form');
     const [exteriorPhotos, setExteriorPhotos] = useState<File[]>([]);
@@ -60,6 +62,8 @@ const SellMyCarPage: React.FC = () => {
         // If valuation data exists, save it to session storage to persist across reloads
         if (valuationData) {
             sessionStorage.setItem('sellCarValuation', JSON.stringify(valuationData));
+            // Clear the pendingValuationData from localStorage after we've loaded it
+            localStorage.removeItem('pendingValuationData');
         }
     }, [valuationData]);
     

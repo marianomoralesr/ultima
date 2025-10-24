@@ -609,11 +609,12 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
     useEffect(() => {
         const profileAddressIsValid = profile?.address && profile.address.length >= 5;
         if (profileAddressIsValid && !useDifferentAddress) {
-            setValue('current_address', profile.address || '', { shouldValidate: true });
-            setValue('current_colony', profile.colony || '', { shouldValidate: true });
-            setValue('current_city', profile.city || '', { shouldValidate: true });
-            setValue('current_state', profile.state || '', { shouldValidate: true });
-            setValue('current_zip_code', profile.zip_code || '', { shouldValidate: true });
+            // Set values with validation and mark as touched
+            setValue('current_address', profile.address || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            setValue('current_colony', profile.colony || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            setValue('current_city', profile.city || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            setValue('current_state', profile.state || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            setValue('current_zip_code', profile.zip_code || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
         }
     }, [profile, setValue, useDifferentAddress]);
 
@@ -749,6 +750,18 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
     );
 };
 
+const FAMILY_RELATIONSHIPS = [
+    'Hijo/Hija',
+    'Primo/Prima',
+    'Madre',
+    'Padre',
+    'Hermano/Hermana',
+    'Tía/Tío',
+    'Sobrino/Sobrina',
+    'Abuelo/Abuela',
+    'Nieto/Nieta'
+];
+
 const ReferencesStep: React.FC<{ control: any, errors: any }> = ({ control, errors }) => (
     <div className="space-y-8">
         <div>
@@ -763,7 +776,7 @@ const ReferencesStep: React.FC<{ control: any, errors: any }> = ({ control, erro
             <div className="grid md:grid-cols-3 gap-6 mt-4">
                 <FormInput control={control} name="family_reference_name" label="Nombre Completo" error={errors.family_reference_name?.message} />
                 <FormInput control={control} name="family_reference_phone" label="Teléfono" error={errors.family_reference_phone?.message} />
-                <FormInput control={control} name="parentesco" label="Parentesco" error={errors.parentesco?.message} />
+                <FormSelect control={control} name="parentesco" label="Parentesco" options={FAMILY_RELATIONSHIPS} error={errors.parentesco?.message} />
             </div>
         </div>
     </div>

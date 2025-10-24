@@ -469,14 +469,13 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
         <RecentlyViewed layout="carousel" />
       </main>
 
-      <div className={`fixed inset-0 z-[60] lg:hidden ${isFilterSheetOpen ? '' : 'pointer-events-none'}`}>
-        {isFilterSheetOpen && (
-          <div className="absolute inset-0 bg-black/50 animate-fadeIn" onClick={closeSheet}></div>
-        )}
-        <animated.div
-          className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white/95 backdrop-blur-sm rounded-t-2xl flex flex-col pointer-events-auto z-[70]"
-          style={{ y }}
-        >
+      {isFilterSheetOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[90] animate-fadeIn lg:hidden" onClick={closeSheet}></div>
+      )}
+      <animated.div
+        className={`fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white/95 backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden ${isFilterSheetOpen ? '' : 'pointer-events-none'}`}
+        style={{ y }}
+      >
           <div {...bindSheetDrag()} className="w-full p-4 flex justify-center cursor-grab touch-none">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
           </div>
@@ -494,9 +493,8 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
               activeFiltersList={activeFiltersList}
             />
           )}
-        </animated.div>
-      </div>
-      {showTutorial && !isFilterSheetOpen && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}
+      </animated.div>
+      {showTutorial && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}
     </>
   );
 };

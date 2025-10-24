@@ -83,7 +83,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         // Admin role specific links
         ...((isAdmin) ? [
             { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon },
-            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users },
+            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
             { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
             { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera },
             { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText },

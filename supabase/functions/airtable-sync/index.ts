@@ -114,6 +114,20 @@ serve(async (req: Request) => {
 
       console.log(`✅ Updated record ${recordId} to Historico status`);
 
+      // Invalidate cache (fire and forget)
+      try {
+        const rapidProcessorUrl = `${supabaseUrl}/functions/v1/rapid-processor/invalidate-cache`;
+        fetch(rapidProcessorUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseServiceKey}`
+          }
+        }).catch(err => console.warn('⚠️  Cache invalidation failed:', err.message));
+      } catch (e) {
+        console.warn('⚠️  Cache invalidation error:', e.message);
+      }
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -309,7 +323,49 @@ serve(async (req: Request) => {
 
     console.log(`✅ Successfully synced record ${record.id}`);
 
-    // --- 7. Return Success Response ---
+    // --- 7. Log sync success ---
+    try {
+      const syncStartTime = Date.now(); // You'd want to track this from the beginning
+      await supabase.from('sync_logs').insert({
+        record_id: record.id,
+        sync_type: 'webhook',
+        source: body.source || 'airtable_automation',
+        status: 'success',
+        message: `Successfully synced record ${record.id}`,
+        attempt_number: body.attempt || 1,
+        vehicle_title: titulo,
+        ordencompra: fields.OrdenCompra,
+        ordenstatus: currentOrdenStatus,
+        metadata: {
+          fields_synced: Object.keys(supabaseData).length,
+          has_images: !!(exteriorImagesArray.length || interiorImagesArray.length),
+          cache_invalidated: true
+        }
+      });
+    } catch (logError) {
+      console.warn('⚠️  Failed to log sync (non-critical):', logError.message);
+    }
+
+    // --- 8. Invalidate rapid-processor cache (fire and forget) ---
+    try {
+      const rapidProcessorUrl = `${supabaseUrl}/functions/v1/rapid-processor/invalidate-cache`;
+      console.log('🔄 Invalidating rapid-processor cache...');
+
+      // Fire and forget - don't wait for response
+      fetch(rapidProcessorUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`
+        }
+      }).catch(err => {
+        console.warn('⚠️  Cache invalidation failed (non-critical):', err.message);
+      });
+    } catch (cacheError) {
+      console.warn('⚠️  Cache invalidation error (non-critical):', cacheError.message);
+    }
+
+    // --- 8. Return Success Response ---
     return new Response(
       JSON.stringify({
         success: true,
@@ -328,6 +384,36 @@ serve(async (req: Request) => {
 
   } catch (error) {
     console.error('❌ Error occurred:', error);
+
+    // Log error to sync_logs
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL');
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+      if (supabaseUrl && supabaseServiceKey) {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        const body = await req.clone().json().catch(() => ({}));
+        await supabase.from('sync_logs').insert({
+          record_id: body.recordId || 'unknown',
+          sync_type: 'webhook',
+          source: body.source || 'airtable_automation',
+          status: 'error',
+          message: error.message,
+          error_details: {
+            name: error.name,
+            stack: error.stack,
+            cause: error.cause
+          },
+          attempt_number: body.attempt || 1,
+          metadata: {
+            error_type: error.name,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+    } catch (logError) {
+      console.warn('⚠️  Failed to log error (non-critical):', logError.message);
+    }
+
     return new Response(
       JSON.stringify({
         success: false,

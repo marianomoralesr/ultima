@@ -30,6 +30,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 let cachedAll = null;
 let cachedOne = new Map();
+
+// Cache invalidation tracking
+let lastCacheInvalidation = Date.now();
 /* ================================
    🔧 HELPERS
 ================================== */
@@ -310,12 +313,20 @@ async function buildFilteredQuery(filters) {
   return query;
 }
 
-async function fetchAllComprado() {
+async function fetchAllComprado(forceRefresh = false) {
   const now = Date.now();
-  if (cachedAll && now - cachedAll.ts < CACHE_TTL_MS) {
+  const cacheExpired = !cachedAll || now - cachedAll.ts >= CACHE_TTL_MS;
+  const shouldRefresh = forceRefresh || cacheExpired;
+
+  if (!shouldRefresh) {
     console.log("♻️ Using cached Comprado data");
     return cachedAll.data;
   }
+
+  if (forceRefresh) {
+    console.log("🔄 Force refreshing cache...");
+  }
+
   const { data, error } = await supabase.from("inventario_cache").select("*").ilike("ordenstatus", "Comprado");
   if (error) throw new Error(error.message);
   const enriched = (data || []).map(transformVehicle);
@@ -398,6 +409,64 @@ Deno.serve(async (req)=>{
   }
 
   try {
+    // POST /rapid-processor/invalidate-cache - clear all caches
+    if (req.method === "POST" && pathname === "/rapid-processor/invalidate-cache") {
+      console.log("🗑️ Cache invalidation requested");
+
+      // Clear all caches
+      cachedAll = null;
+      cachedOne.clear();
+      lastCacheInvalidation = Date.now();
+
+      console.log("✅ All caches cleared");
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: "Cache invalidated successfully",
+        timestamp: new Date(lastCacheInvalidation).toISOString(),
+        cleared: {
+          cachedAll: true,
+          cachedOne_entries: 0 // Count was cleared
+        }
+      }), {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json"
+        }
+      });
+    }
+
+    // GET /rapid-processor/cache-stats - get cache statistics
+    if (req.method === "GET" && pathname === "/rapid-processor/cache-stats") {
+      const now = Date.now();
+      const cacheStats = {
+        cachedAll: cachedAll ? {
+          cached: true,
+          age_ms: now - cachedAll.ts,
+          count: cachedAll.data.length,
+          expires_in_ms: Math.max(0, CACHE_TTL_MS - (now - cachedAll.ts))
+        } : {
+          cached: false
+        },
+        cachedOne: {
+          count: cachedOne.size,
+          entries: Array.from(cachedOne.keys()).map(key => ({
+            key: key.substring(0, 50) + (key.length > 50 ? '...' : ''),
+            age_ms: now - cachedOne.get(key).ts,
+            expires_in_ms: Math.max(0, CACHE_TTL_MS - (now - cachedOne.get(key).ts))
+          }))
+        },
+        lastInvalidation: new Date(lastCacheInvalidation).toISOString(),
+        cacheTtlMs: CACHE_TTL_MS
+      };
+
+      return new Response(JSON.stringify(cacheStats), {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json"
+        }
+      });
+    }
     // GET /rapid-processor - with or without filters
     if (req.method === "GET" && pathname === "/rapid-processor") {
       // Check if any filter parameters are present

@@ -75,6 +75,8 @@ const SimpleCRMPage: React.FC = () => {
 
             if (profilesError) throw profilesError;
 
+            console.log('[SimpleCRM] Fetched profiles:', profilesData?.length);
+
             // Fetch latest application for each user
             const { data: applicationsData, error: applicationsError } = await supabase
                 .from('financing_applications')
@@ -120,6 +122,9 @@ const SimpleCRMPage: React.FC = () => {
                 };
             });
 
+            console.log('[SimpleCRM] Combined leads:', combinedLeads.length);
+            console.log('[SimpleCRM] Sample lead:', combinedLeads[0]);
+
             setLeads(combinedLeads);
 
             // Calculate stats
@@ -142,7 +147,12 @@ const SimpleCRMPage: React.FC = () => {
             });
 
         } catch (err: any) {
-            console.error('Error fetching CRM data:', err);
+            console.error('[SimpleCRM] Error fetching CRM data:', err);
+            console.error('[SimpleCRM] Error details:', {
+                message: err.message,
+                code: err.code,
+                details: err.details
+            });
             setError(err.message || 'Error al cargar los datos');
         } finally {
             setIsLoading(false);

@@ -479,6 +479,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
         <animated.div
           className="fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden overflow-hidden"
           style={{ y }}
+        >
           <div {...bindSheetDrag()} className="w-full p-4 flex justify-center cursor-grab touch-none">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
           </div>

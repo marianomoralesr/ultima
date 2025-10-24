@@ -615,8 +615,13 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
             setValue('current_city', profile.city || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             setValue('current_state', profile.state || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             setValue('current_zip_code', profile.zip_code || '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+
+            // Explicitly trigger validation for the address fields to ensure form is valid
+            setTimeout(() => {
+                trigger(['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code']);
+            }, 0);
         }
-    }, [profile, setValue, useDifferentAddress]);
+    }, [profile, setValue, useDifferentAddress, trigger]);
 
     return (
     <div className="space-y-6">

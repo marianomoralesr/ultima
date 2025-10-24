@@ -143,10 +143,11 @@ export default class AirtableDirectService {
                 return attachments.map((att: any) => att.url || att.thumbnails?.large?.url || att.thumbnails?.full?.url).filter(Boolean);
             };
 
-            // Build title with all variations
-            const titulo = fields.AutoMarca && fields.AutoSubmarcaVersion
-                ? `${fields.AutoMarca} ${fields.AutoSubmarcaVersion}`.trim()
-                : fields.Auto || 'Auto sin título';
+            // Use Airtable's "Auto" field first, then construct as fallback
+            const titulo = fields.Auto ||
+                (fields.AutoMarca && fields.AutoSubmarcaVersion && fields.AutoAno
+                    ? `${fields.AutoMarca} ${fields.AutoSubmarcaVersion} ${fields.AutoAno}`.trim()
+                    : 'Auto sin título');
 
             // Generate numeric ID from OrdenCompra or hash recordId
             let numericId = 0;
@@ -161,8 +162,9 @@ export default class AirtableDirectService {
                 numericId = 1000000 + index; // Fallback
             }
 
-            // Build slug
-            const slugBase = (fields.ligawp || fields.OrdenCompra || titulo || recordId).toLowerCase().replace(/\s+/g, '-');
+            // Use Airtable's slug field first, then ligawp, then generate from other fields
+            const slugBase = fields.slug || fields.ligawp ||
+                (fields.OrdenCompra || titulo || recordId).toLowerCase().replace(/\s+/g, '-');
 
             // Process images
             const exteriorImages = getImageUrls(fields.fotos_exterior);

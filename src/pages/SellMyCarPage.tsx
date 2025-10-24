@@ -69,6 +69,8 @@ const SellMyCarPage: React.FC = () => {
     
     const uploadPhotos = async (files: File[], type: 'exterior' | 'interior'): Promise<string[]> => {
         if (!user) throw new Error("Usuario no autenticado");
+        if (files.length === 0) return [];
+
         const uploadPromises = files.map(file => {
             const filePath = `${user.id}/sell-my-car/${type}/${Date.now()}-${file.name}`;
             return supabase.storage.from('user-car-photos').upload(filePath, file);
@@ -108,9 +110,9 @@ const SellMyCarPage: React.FC = () => {
             sessionStorage.removeItem('sellCarValuation');
             setStatus('success');
 
-            // Redirect to Visitas page with Cita de Inspección pre-selected after a short delay
+            // Redirect to Citas page with Cita de Inspección pre-selected after a short delay
             setTimeout(() => {
-                navigate('/escritorio/visitas', { state: { activeTab: 'cita-inspeccion' } });
+                navigate('/escritorio/citas', { state: { activeTab: 'cita-inspeccion' } });
             }, 2000);
         } catch (error: any) {
             console.error("Failed to submit sell car form:", error);
@@ -230,11 +232,11 @@ const SellMyCarPage: React.FC = () => {
                     </select>
                 </FormField>
 
-                <FormField label="Sube fotos del exterior (al menos 4)">
-                    <FileUpload onChange={(e) => handleFileChange(e, setExteriorPhotos)} multiple />
+                <FormField label="Sube fotos del exterior (opcional)">
+                    <FileUpload id="exterior-upload" onChange={(e) => handleFileChange(e, setExteriorPhotos)} multiple filesCount={exteriorPhotos.length} />
                 </FormField>
-                <FormField label="Sube fotos del interior (al menos 4)">
-                    <FileUpload onChange={(e) => handleFileChange(e, setInteriorPhotos)} multiple />
+                <FormField label="Sube fotos del interior (opcional)">
+                    <FileUpload id="interior-upload" onChange={(e) => handleFileChange(e, setInteriorPhotos)} multiple filesCount={interiorPhotos.length} />
                 </FormField>
                 
                 <FormField label="Selecciona una sucursal para la inspección" error={errors.inspection_branch?.message}>
@@ -264,15 +266,22 @@ const FormField: React.FC<{ label: string, error?: string, children: React.React
         {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
     </div>
 );
-const FileUpload: React.FC<{ onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, multiple?: boolean }> = ({ onChange, multiple }) => (
-    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+const FileUpload: React.FC<{ id: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, multiple?: boolean, filesCount?: number }> = ({ id, onChange, multiple, filesCount = 0 }) => (
+    <div className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors ${filesCount > 0 ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}>
         <div className="space-y-1 text-center">
-            <Upload className="mx-auto h-12 w-12 text-gray-400" />
-            <div className="flex text-sm text-gray-600">
-                <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500">
-                    <span>Sube archivos</span>
-                    <input id="file-upload" type="file" className="sr-only" onChange={onChange} multiple={multiple} accept="image/*" />
+            {filesCount > 0 ? (
+                <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
+            ) : (
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            )}
+            <div className="flex flex-col items-center text-sm text-gray-600">
+                <label htmlFor={id} className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 px-2 py-1">
+                    <span>{filesCount > 0 ? 'Cambiar archivos' : 'Sube archivos'}</span>
+                    <input id={id} type="file" className="sr-only" onChange={onChange} multiple={multiple} accept="image/*" />
                 </label>
+                {filesCount > 0 && (
+                    <p className="text-green-600 font-semibold mt-2">{filesCount} archivo{filesCount !== 1 ? 's' : ''} seleccionado{filesCount !== 1 ? 's' : ''}</p>
+                )}
             </div>
         </div>
     </div>

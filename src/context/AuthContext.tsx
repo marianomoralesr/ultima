@@ -130,7 +130,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 return data as Profile;
             }
 
-            return null;
+            // Profile doesn't exist (PGRST116 error), create it
+            console.log('⚠️ Profile not found, creating new profile...');
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                console.error('❌ Cannot create profile: user not found');
+                return null;
+            }
+
+            // Determine role based on email
+            const adminEmails = ['marianomorales@outlook.com', 'mariano.morales@autostrefa.mx', 'genauservices@gmail.com'];
+            const role = adminEmails.includes(user.email || '') ? 'admin' : 'user';
+
+            const newProfile = {
+                id: userId,
+                email: user.email,
+                first_name: user.user_metadata?.first_name || user.user_metadata?.full_name?.split(' ')[0] || null,
+                last_name: user.user_metadata?.last_name || user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || null,
+                phone: user.phone || null,
+                role: role,
+                metadata: user.user_metadata || {},
+            };
+
+            const { data: createdProfile, error: createError } = await supabase
+                .from('profiles')
+                .insert(newProfile)
+                .select()
+                .single();
+
+            if (createError) {
+                console.error('❌ Error creating profile:', createError.message);
+                setProfile(null);
+                return null;
+            }
+
+            console.log(`✅ Profile created successfully with role: ${role}`);
+            setProfile(createdProfile as Profile);
+            sessionStorage.setItem('userProfile', JSON.stringify(createdProfile));
+            return createdProfile as Profile;
 
         } catch (e: any) {
             console.error("❌ Unexpected error in fetchProfile:", e.message);

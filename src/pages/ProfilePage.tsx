@@ -136,10 +136,11 @@ const ProfilePage: React.FC = () => {
       }
 
       const finalRfc = calculateRFC(data);
-      const payload: Partial<Profile> = { 
+      const payload: Partial<Profile> = {
         id: user.id,
-        ...data, 
-        rfc: finalRfc ?? undefined, 
+        email: user.email, // Ensure email is always included
+        ...data,
+        rfc: finalRfc ?? undefined,
         asesor_autorizado_acceso: asesorAutorizadoAcceso,
         picture_url: pictureUrl
       };

@@ -10,9 +10,14 @@ interface PaginationProps {
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5); // Limit to 5 pages for simplicity
 
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleNext = () => {
     if (currentPage < totalPages) {
-        onPageChange(currentPage + 1);
+        handlePageChange(currentPage + 1);
     }
   }
 
@@ -21,7 +26,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       {pages.map((page) => (
         <button
           key={page}
-          onClick={() => onPageChange(page)}
+          onClick={() => handlePageChange(page)}
           className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
             currentPage === page
               ? 'bg-primary-600 text-white'

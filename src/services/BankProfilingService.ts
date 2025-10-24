@@ -7,8 +7,9 @@ export const BankProfilingService = {
       banco_recomendado: string;
       banco_segunda_opcion: string | null;
     }) {
-    // Don't pass user_id explicitly - let the trigger set it from auth.uid()
+    // Include user_id in payload for upsert to work correctly
     const payload = {
+      user_id: userId,
       respuestas: profileData.respuestas,
       banco_recomendado: profileData.banco_recomendado,
       banco_segunda_opcion: profileData.banco_segunda_opcion,
@@ -18,7 +19,7 @@ export const BankProfilingService = {
     const { data, error } = await supabase
       .from('bank_profiles')
       .upsert(payload, { onConflict: 'user_id' })
-      .select('user_id, is_complete') // Select user_id instead of id
+      .select('user_id, is_complete')
       .single();
 
     if (error) {

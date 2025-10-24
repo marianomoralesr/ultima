@@ -236,7 +236,7 @@ const TitlePriceActionsBlock: React.FC<{
                     {vehicle.ordencompra}
                 </p>
             )}
-            <h1 className="text-2xl lg:text-4xl font-extrabold text-gray-900 leading-tight">{vehicle.titulo}</h1>
+            <h1 className="text-2xl lg:text-4xl font-extrabold text-gray-900 leading-tight">{vehicle.titulo} {(vehicle.autoano || vehicle.year) && <span className="text-gray-600">{vehicle.autoano || vehicle.year}</span>}</h1>
             <div className="mt-2 flex items-center gap-x-4 gap-y-1 text-xs lg:text-sm text-gray-500 flex-wrap">
                 <div className="flex items-center gap-1.5"> <HeartIcon className="w-4 h-4 text-red-400" /> <span className="font-medium">{favoriteCount} {favoriteCount === 1 ? 'favorito' : 'favoritos'}</span> </div>
                 <div className="flex items-center gap-1.5"> <EyeIcon className="w-4 h-4" /> <span className="font-medium">{(vehicle.view_count || 0).toLocaleString('es-MX')} vistas</span> <PopularityBadge viewCount={vehicle.view_count || 0} /> </div>

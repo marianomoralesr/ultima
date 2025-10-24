@@ -189,12 +189,16 @@ const Application: React.FC = () => {
                             const carData = { _vehicleTitle: vehicle.titulo, _ordenCompra: vehicle.ordencompra, _featureImage: featureImage };
                             initialData.car_info = carData;
                             initialData.application_data = { ordencompra: finalOrdenCompra };
+                            setVehicleInfo(carData);
+                            setValue('ordencompra', vehicle.ordencompra);
+                        } else {
+                            console.warn(`Vehicle with ordencompra ${finalOrdenCompra} not found in vehicles array`);
                         }
                         sessionStorage.removeItem('pendingOrdenCompra');
                     } else {
                         setShowVehicleSelector(true);
                     }
-                    
+
                     const newDraft = await ApplicationService.createDraftApplication(user.id, initialData);
                     if (newDraft && newDraft.id) {
                         navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });

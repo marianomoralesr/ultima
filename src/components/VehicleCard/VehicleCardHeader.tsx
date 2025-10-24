@@ -4,12 +4,13 @@ import { formatPromotion } from '../../utils/formatters';
 
 interface VehicleCardHeaderProps {
   title: string;
+  year?: number;
   view_count?: number;
   ordencompra?: string;
   promociones?: string[];
 }
 
-const VehicleCardHeader: React.FC<VehicleCardHeaderProps> = ({ title, view_count = 0, ordencompra, promociones }) => (
+const VehicleCardHeader: React.FC<VehicleCardHeaderProps> = ({ title, year, view_count = 0, ordencompra, promociones }) => (
   <div>
     <div className="flex items-center gap-2 mb-1 flex-wrap">
       {ordencompra && (
@@ -27,7 +28,7 @@ const VehicleCardHeader: React.FC<VehicleCardHeaderProps> = ({ title, view_count
       })}
     </div>
     <h2 className="text-xl font-semibold text-gray-800 group-hover:text-primary-600 transition-colors leading-tight">
-      {title}
+      {title} {year && <span className="text-gray-600">{year}</span>}
     </h2>
     {view_count > 100 && (
       <div className="flex items-center gap-1.5 text-xs text-gray-500 flex-shrink-0 pt-1" title={`${view_count.toLocaleString('es-MX')} vistas`}>

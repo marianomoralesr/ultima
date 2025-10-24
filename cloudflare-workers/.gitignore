@@ -1,0 +1,10 @@
+# Wrangler
+.wrangler/
+worker-configuration.d.ts
+wrangler.toml.bak
+
+# Logs
+*.log
+
+# Environment
+.dev.vars

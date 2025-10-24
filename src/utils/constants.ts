@@ -1,17 +1,31 @@
 import { proxyImage } from './proxyImage';
+import { getCdnUrl } from './imageUrl';
 
-export const DEFAULT_PLACEHOLDER_IMAGE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
+// Base Supabase URLs for placeholder images
+const SUPABASE_BASE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app';
 
-export const PLACEHOLDER_IMAGES: Record<string, string> = {
-  "suv": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/suv-2Artboard-12-trefa.png",
-  "pick-up": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "pickup": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "sedan": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "sedán": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "hatchback": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/hbArtboard-12-trefa.png",
-  "motos": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/motos-placeholder.png",
-  "moto": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/motos-placeholder.png",
+// Raw placeholder URLs (before CDN transformation)
+const RAW_PLACEHOLDER_IMAGES: Record<string, string> = {
+  "suv": `${SUPABASE_BASE}/suv-2Artboard-12-trefa.png`,
+  "pick-up": `${SUPABASE_BASE}/pickup-2Artboard-12-trefa-1.png`,
+  "pickup": `${SUPABASE_BASE}/pickup-2Artboard-12-trefa-1.png`,
+  "sedan": `${SUPABASE_BASE}/sedan-2Artboard-12-trefa.png`,
+  "sedán": `${SUPABASE_BASE}/sedan-2Artboard-12-trefa.png`,
+  "hatchback": `${SUPABASE_BASE}/hbArtboard-12-trefa.png`,
+  "motos": `${SUPABASE_BASE}/motos-placeholder.png`,
+  "moto": `${SUPABASE_BASE}/motos-placeholder.png`,
 };
+
+// Export CDN-optimized placeholder images
+export const PLACEHOLDER_IMAGES: Record<string, string> = Object.entries(RAW_PLACEHOLDER_IMAGES).reduce(
+  (acc, [key, url]) => {
+    acc[key] = getCdnUrl(url, { width: 800, quality: 85, format: 'auto' });
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
+export const DEFAULT_PLACEHOLDER_IMAGE = PLACEHOLDER_IMAGES.sedan;
 
 export const TREFA_WHATSAPP = '5218187049079';
 

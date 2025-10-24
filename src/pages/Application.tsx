@@ -538,7 +538,7 @@ const Application: React.FC = () => {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <input type="hidden" {...form.register('ordencompra')} />
                                 <div className="bg-white p-8 rounded-xl shadow-sm border">
-                                    {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} />}
+                                    {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
                                     {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
                                     {currentStep === 2 && <ReferencesStep control={control} errors={errors} />}
                                     {currentStep === 3 && applicationId && user && <DocumentUploadStep applicationId={applicationId} userId={user.id} onDocumentsChange={setUploadedDocuments} />}
@@ -605,7 +605,7 @@ const MissingFields: React.FC<{ errors: any }> = ({ errors }) => {
 
 // --- STEP COMPONENTS ---
 
-const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean, profile: Profile | null, setValue: any }> = ({ control, errors, isMarried, profile, setValue }) => {
+const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean, profile: Profile | null, setValue: any, trigger: any }> = ({ control, errors, isMarried, profile, setValue, trigger }) => {
     const [useDifferentAddress, setUseDifferentAddress] = useState(
         () => !(profile?.address && profile.address.length >= 5)
     );

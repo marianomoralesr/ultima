@@ -2,7 +2,7 @@
 // Lists files in Cloudflare R2 bucket
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { S3Client, ListObjectsV2Command } from "https://esm.sh/@aws-sdk/client-s3@3.450.0";
+import { S3Client, ListObjectsV2Command } from "https://esm.sh/@aws-sdk/client-s3@3.666.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

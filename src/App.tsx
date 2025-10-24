@@ -59,6 +59,7 @@ const AdminConfigPage = lazy(() => import('./pages/AdminConfigPage'));
 const MarketingHubPage = lazy(() => import('./pages/MarketingHubPage'));
 const AdminComprasDashboardPage = lazy(() => import('./pages/AdminComprasDashboardPage'));
 const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
+const SimpleCRMPage = lazy(() => import('./pages/SimpleCRMPage'));
 
 import ConfigService from './services/ConfigService';
 
@@ -124,6 +125,9 @@ function App(): React.JSX.Element {
                 <Route path="mis-aplicaciones" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
                 
+                {/* Simple CRM - accessible to authenticated users, checks admin email internally */}
+                <Route path="crm" element={<SimpleCRMPage />} />
+
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>
                   <Route path="admin/leads" element={<AdminLeadsDashboardPage />} />

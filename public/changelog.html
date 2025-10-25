@@ -224,6 +224,92 @@
 
                 <div class="change-category">
                     <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Autenticación con Intelimotor</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔐</div>
+                            <div class="change-text">
+                                <strong>Corregido error 401 al obtener valuaciones de autos</strong>
+                                <span class="commit-hash">1b6bfbd</span>
+                                <p class="change-description">
+                                    Se solucionó el error "Error de autenticación con Intelimotor (401)" que impedía obtener valuaciones de vehículos. La API de Intelimotor requiere que las credenciales (API Key y API Secret) se envíen como parámetros en la URL, no como headers. El proxy ahora extrae las credenciales de los headers y las agrega correctamente a la URL como query parameters (?apiKey=...&apiSecret=...).
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-improvement">Mejora</span>
+                        <span>Estandarización de Filtros y Categorías</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🏷️</div>
+                            <div class="change-text">
+                                <strong>Estandarizados nombres de campos de filtros</strong>
+                                <span class="commit-hash">221fdf6</span>
+                                <p class="change-description">
+                                    Se uniformaron los nombres de los campos de filtros para mejorar la consistencia: 'marcas' → 'marca', 'promotion' → 'promociones', 'ano' → 'autoano'. También se actualizaron las imágenes de categorías: 'sedán' → 'sedan' (sin acento), se agregó imagen de Ducati para motos, y se reemplazó motos-filter.png con motocicleta-filter.png.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-improvement">Mejora</span>
+                        <span>Infraestructura y Rendimiento</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">⚡</div>
+                            <div class="change-text">
+                                <strong>Incrementados recursos de Cloud Run para mejor rendimiento</strong>
+                                <span class="commit-hash">37c9b65</span>
+                                <p class="change-description">
+                                    Se aumentaron los recursos del servidor en producción: memoria de 512Mi → 2Gi (4x más memoria) y CPU de 1 → 4 cores. Esto mejora significativamente la velocidad de carga de páginas, procesamiento de imágenes, y capacidad para manejar múltiples usuarios simultáneos.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="change-item">
+                            <div class="change-icon">🏷️</div>
+                            <div class="change-text">
+                                <strong>Mejorado el display de versión en el footer</strong>
+                                <span class="commit-hash">37c9b65</span>
+                                <p class="change-description">
+                                    El footer ahora muestra el hash del commit de Git en lugar de "versión dev", facilitando el rastreo de cuál versión exacta del código está desplegada en producción. Ejemplo: "v1.3.0 • 1b6bfbd".
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Creación de Usuarios</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">👤</div>
+                            <div class="change-text">
+                                <strong>Corregido error "Database error saving new user" al registrarse</strong>
+                                <span class="commit-hash">SQL fix</span>
+                                <p class="change-description">
+                                    Se simplificó el trigger de creación de perfiles de usuario (handle_new_user) para prevenir errores al crear nuevas cuentas. La función ahora solo inserta los campos esenciales (id, email, role) y evita fallos al intentar procesar campos opcionales. Los usuarios ya pueden registrarse sin problemas.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
                         <span class="badge badge-improvement">Mejora</span>
                         <span>Formulario de Solicitud de Crédito</span>
                     </div>
@@ -291,7 +377,8 @@
                             <div class="change-icon">🔐</div>
                             <div class="change-text">
                                 <strong>Restaurados valores de respaldo para configuración de Airtable</strong>
-                                <span class="commit-hash">pending</span>
+                                <span class="commit-hash">ffa319f</span>
+                                <span class="commit-hash">09c9d94</span>
                                 <p class="change-description">
                                     Se restauraron los valores de respaldo (fallbacks) para la configuración de Airtable, garantizando que la herramienta de valuación de autos ("Vende tu Auto") funcione correctamente incluso si las variables de entorno no están configuradas durante el build. Esto previene el error "La configuración de Airtable está incompleta" que aparecía en producción.
                                 </p>

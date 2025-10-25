@@ -110,7 +110,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
     const handleToggleChange = (filterKey: keyof VehicleFilters) => {
         onFiltersChange({
             ...currentFilters,
-            [filterKey]: !currentFilters[filterKey] || undefined
+            [filterKey]: currentFilters[filterKey] ? undefined : true
         });
     };
 

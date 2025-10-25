@@ -86,7 +86,6 @@ export const config = {
 };
 
 export const getEmailRedirectUrl = (): string => {
-  // Always redirect to /auth after OAuth callback
-  // The AuthHandler and AuthPage will handle the final redirect based on loginRedirect in localStorage
-  return `${window.location.origin}/auth`;
+  // Always redirect to /escritorio after OAuth callback
+  return `${window.location.origin}/escritorio`;
 };

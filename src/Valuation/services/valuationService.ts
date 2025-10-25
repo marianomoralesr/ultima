@@ -280,12 +280,8 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
         }
 
         const callProxy = async (endpoint: string, method: 'POST' | 'GET', requestBody: any = null) => {
-            // Intelimotor uses query parameters for authentication, not headers
-            const authParams = new URLSearchParams({
-                apiKey: apiKey.trim(),
-                apiSecret: apiSecret.trim()
-            });
-            const fullUrl = `${INTELIMOTOR_BASE_URL}/${endpoint}?${authParams.toString()}`;
+            // The proxy function will add the auth query params. We pass the credentials in headers.
+            const fullUrl = `${INTELIMOTOR_BASE_URL}/${endpoint}`;
 
             const proxyPayload = {
                 url: fullUrl,
@@ -296,9 +292,13 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
                 body: requestBody
             };
 
-            const response = await fetch('/intelimotor-api/', {
+            const response = await fetch(proxyUrl || '/intelimotor-api/', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey.trim(),
+                    'x-api-secret': apiSecret.trim(),
+                },
                 body: JSON.stringify(proxyPayload),
             });
 

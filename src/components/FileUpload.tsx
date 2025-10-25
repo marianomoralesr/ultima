@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { Upload, Camera, CheckCircle, Trash2 } from 'lucide-react';
 import { DocumentService, UploadedDocument } from '../services/documentService';
-import IDScanner from './IDScanner';
+
+const IDScanner = lazy(() => import('./IDScanner'));
 
 interface FileUploadProps {
   onFileSelect: (files: File[]) => void;
@@ -169,10 +170,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       {isScannerOpen && (
-        <IDScanner
-          onCapture={handleScanCapture}
-          onClose={() => setIsScannerOpen(false)}
-        />
+        <Suspense fallback={<div className="fixed inset-0 z-50 bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"></div></div>}>
+          <IDScanner
+            onCapture={handleScanCapture}
+            onClose={() => setIsScannerOpen(false)}
+          />
+        </Suspense>
       )}
     </div>
   );

@@ -15,7 +15,11 @@ DECLARE
     admin_emails TEXT[] := ARRAY[
         'marianomorales@outlook.com',
         'mariano.morales@autostrefa.mx',
-        'genauservices@gmail.com'
+        'genauservices@gmail.com',
+        'alejandro.trevino@autostrefa.mx',
+        'evelia.castillo@autostrefa.mx',
+        'holding@autostrefa.mx',
+        'fernando.trevino@autostrefa.mx'
     ];
 BEGIN
     -- Determine role based on email

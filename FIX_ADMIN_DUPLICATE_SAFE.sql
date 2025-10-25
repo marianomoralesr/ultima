@@ -14,7 +14,7 @@ SELECT
     p.created_at
 FROM auth.users u
 LEFT JOIN profiles p ON u.id = p.id
-WHERE u.email = 'your-admin@example.com'  -- CHANGE THIS!
+WHERE u.email = 'marianomorales@outlook.com'  -- CHANGE THIS!
 ORDER BY p.created_at DESC;
 
 -- Step 2: Check if there's an orphaned admin profile
@@ -26,9 +26,9 @@ SELECT
     p.created_at,
     'This profile is NOT connected to auth.users' as note
 FROM profiles p
-WHERE p.email = 'your-admin@example.com'  -- CHANGE THIS!
+WHERE p.email = 'marianomorales@outlook.com'  -- CHANGE THIS!
 AND p.id NOT IN (
-    SELECT id FROM auth.users WHERE email = 'your-admin@example.com'  -- CHANGE THIS!
+    SELECT id FROM auth.users WHERE email = 'marianomorales@outlook.com'  -- CHANGE THIS!
 );
 
 -- Step 3: SOLUTION - Simply update the connected profile to be admin
@@ -40,18 +40,18 @@ SET role = 'admin'::user_role
 WHERE id IN (
     SELECT u.id
     FROM auth.users u
-    WHERE u.email = 'your-admin@example.com'  -- CHANGE THIS!
+    WHERE u.email = 'marianomorales@outlook.com'  -- CHANGE THIS!
 )
-AND email = 'your-admin@example.com';  -- CHANGE THIS! (double safety check)
+AND email = 'marianomorales@outlook.com';  -- CHANGE THIS! (double safety check)
 
 -- Step 4: (Optional) Delete the orphaned admin profile if it exists
 -- Only run this if Step 2 showed an orphaned profile
 -- UNCOMMENT TO RUN:
 /*
 DELETE FROM profiles
-WHERE email = 'your-admin@example.com'  -- CHANGE THIS!
+WHERE email = 'marianomorales@outlook.com'  -- CHANGE THIS!
 AND id NOT IN (
-    SELECT id FROM auth.users WHERE email = 'your-admin@example.com'  -- CHANGE THIS!
+    SELECT id FROM auth.users WHERE email = 'marianomorales@outlook.com'  -- CHANGE THIS!
 );
 */
 
@@ -66,7 +66,7 @@ SELECT
     'SUCCESS - IDs match and role is admin' as status
 FROM auth.users u
 JOIN profiles p ON u.id = p.id
-WHERE u.email = 'your-admin@example.com';  -- CHANGE THIS!
+WHERE u.email = 'marianomorales@outlook.com';  -- CHANGE THIS!
 
 -- Expected result:
 -- - auth_id = profile_id (they should match)

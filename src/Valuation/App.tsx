@@ -160,7 +160,7 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
         businessUnitId: config.intelimotor.businessUnitId,
         apiKey: config.intelimotor.apiKey,
         apiSecret: config.intelimotor.apiSecret,
-        proxyUrl: 'https://jjepfehmuybpctdzipnu.supabase.co/functions/v1/intelimotor-proxy'
+        proxyUrl: '/intelimotor-api/'
     });
     setValuationPromise(promise);
   };
@@ -180,7 +180,7 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
         vehicle: selectedVehicle, mileage: numericMileage,
         businessUnitId: config.intelimotor.businessUnitId, apiKey: config.intelimotor.apiKey,
         apiSecret: config.intelimotor.apiSecret,
-        proxyUrl: 'https://jjepfehmuybpctdzipnu.supabase.co/functions/v1/intelimotor-proxy'
+        proxyUrl: '/intelimotor-api/'
     });
     setValuationPromise(promise);
     setStep('contact');

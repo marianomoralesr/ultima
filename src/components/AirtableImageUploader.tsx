@@ -36,7 +36,7 @@ const DropzoneField: React.FC<{
       ) : error ? (
          <div className="flex flex-col items-center justify-center">
           <AlertTriangle className="w-8 h-8 text-red-500" />
-          <p className="mt-2 text-sm text-red-700">Error</p>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
         </div>
       ) : uploadedFile ? (
         <div className="flex flex-col items-center justify-center">
@@ -105,7 +105,7 @@ const AirtableImageUploader: React.FC = () => {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`Error uploading to ${fieldName}:`, error);
         setUploads(prev => ({ ...prev, [fieldName]: { file: null, uploading: false, error: errorMessage } }));
-        setGlobalStatus({ type: 'error', message: `Error al subir ${file.name}: ${errorMessage}` });
+        setGlobalStatus({ type: 'error', message: `Error al subir ${String(file.name)}: ${errorMessage}` });
     }
   };
   
@@ -147,8 +147,8 @@ const AirtableImageUploader: React.FC = () => {
                 className="block w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                 <option value="" disabled>Selecciona un vehículo</option>
-                {vehicles.map(v => (
-                    <option key={v.id} value={v.id}>{v.ordenCompra}</option>
+                {Array.isArray(vehicles) && vehicles.filter(v => v.ordenCompra).map(v => (
+                    <option key={v.id} value={v.id}>{String(v.ordenCompra)}</option>
                 ))}
                 </select>
                 <button onClick={resetUploader} className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">

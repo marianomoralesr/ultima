@@ -115,5 +115,22 @@ export const AdminService = {
       console.error(`Error updating config for key "${key}":`, error);
       throw new Error(`Could not update configuration for "${key}".`);
     }
+  },
+
+  /**
+   * Updates the status of a document.
+   * @param documentId The ID of the document to update.
+   * @param status The new status (reviewing, approved, rejected).
+   */
+  async updateDocumentStatus(documentId: string, status: string): Promise<void> {
+    const { error } = await supabase
+      .from('uploaded_documents')
+      .update({ status })
+      .eq('id', documentId);
+
+    if (error) {
+      console.error(`Error updating document status:`, error);
+      throw new Error(`Could not update document status.`);
+    }
   }
 };

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { AdminService } from '../services/AdminService';
 import { KommoService } from '../services/KommoService';
 import type { Profile } from '../types/types';
-import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Download, Eye, Phone } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
 
@@ -190,22 +190,113 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
 };
 
 
-const DocumentViewer: React.FC<{ documents: any[] }> = ({ documents }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Documentos Cargados ({documents.length})</h2>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-            {documents.length > 0 ? documents.map(doc => (
-                <a href={doc.url} target="_blank" rel="noopener noreferrer" key={doc.id} className="p-3 border rounded-lg flex items-center gap-3 hover:bg-gray-50">
-                    <FileText className="w-5 h-5 text-primary-600"/>
-                    <div>
-                        <p className="text-sm font-semibold text-gray-800">{doc.file_name}</p>
-                        <p className="text-xs text-gray-500">{doc.document_type} - {new Date(doc.created_at).toLocaleDateString()}</p>
+const DocumentViewer: React.FC<{ documents: any[]; onStatusChange: (docId: string, status: string) => void }> = ({ documents, onStatusChange }) => {
+    const [viewingDoc, setViewingDoc] = useState<any | null>(null);
+
+    const getStatusColor = (status: string) => {
+        switch(status) {
+            case 'approved': return 'bg-green-100 text-green-800 border-green-200';
+            case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
+            case 'reviewing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+
+    const downloadDocument = async (doc: any) => {
+        try {
+            const response = await fetch(doc.url);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = doc.file_name;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error('Error downloading document:', error);
+            alert('Error al descargar el documento');
+        }
+    };
+
+    return (
+        <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Documentos Cargados ({documents.length})</h2>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+                {documents.length > 0 ? documents.map(doc => (
+                    <div key={doc.id} className="p-3 border rounded-lg hover:bg-gray-50">
+                        <div className="flex items-center gap-3 mb-2">
+                            <FileText className="w-5 h-5 text-primary-600 flex-shrink-0"/>
+                            <div className="flex-grow min-w-0">
+                                <p className="text-sm font-semibold text-gray-800 truncate">{doc.file_name}</p>
+                                <p className="text-xs text-gray-500">{doc.document_type} - {new Date(doc.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <select
+                                value={doc.status}
+                                onChange={(e) => onStatusChange(doc.id, e.target.value)}
+                                className={`text-xs font-semibold px-2 py-1 rounded-full border ${getStatusColor(doc.status)} cursor-pointer`}
+                            >
+                                <option value="reviewing">En Revisión</option>
+                                <option value="approved">Aprobado</option>
+                                <option value="rejected">Rechazado</option>
+                            </select>
+                            <div className="flex-grow"></div>
+                            <button
+                                onClick={() => setViewingDoc(doc)}
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                title="Ver documento"
+                            >
+                                <Eye className="w-4 h-4"/>
+                            </button>
+                            <button
+                                onClick={() => downloadDocument(doc)}
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                title="Descargar documento"
+                            >
+                                <Download className="w-4 h-4"/>
+                            </button>
+                        </div>
                     </div>
-                </a>
-            )) : <p className="text-sm text-gray-500 text-center py-8">No hay documentos cargados.</p>}
+                )) : <p className="text-sm text-gray-500 text-center py-8">No hay documentos cargados.</p>}
+            </div>
+
+            {viewingDoc && (
+                <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setViewingDoc(null)}>
+                    <div className="relative bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
+                            <div>
+                                <h3 className="text-lg font-bold">{viewingDoc.file_name}</h3>
+                                <p className="text-sm text-gray-500">{viewingDoc.document_type}</p>
+                            </div>
+                            <button onClick={() => setViewingDoc(null)} className="p-2 rounded-full hover:bg-gray-100"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="overflow-y-auto flex-1 p-4 bg-gray-100">
+                            {viewingDoc.content_type?.startsWith('image/') ? (
+                                <img src={viewingDoc.url} alt={viewingDoc.file_name} className="max-w-full h-auto mx-auto" />
+                            ) : viewingDoc.content_type === 'application/pdf' ? (
+                                <iframe src={viewingDoc.url} className="w-full h-full min-h-[600px]" title={viewingDoc.file_name} />
+                            ) : (
+                                <div className="text-center py-8">
+                                    <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                                    <p className="text-gray-600">Vista previa no disponible para este tipo de archivo</p>
+                                    <button
+                                        onClick={() => downloadDocument(viewingDoc)}
+                                        className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                                    >
+                                        Descargar Archivo
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-    </div>
-);
+    );
+};
 
 const LeadSourceInfo: React.FC<{ metadata: any }> = ({ metadata }) => {
     if (!metadata || Object.keys(metadata).length === 0) {
@@ -294,6 +385,25 @@ const AdminClientProfilePage: React.FC = () => {
         }
     };
 
+    const handleDocumentStatusChange = async (docId: string, status: string) => {
+        if (!clientData) return;
+        try {
+            await AdminService.updateDocumentStatus(docId, status);
+            setClientData(prev => prev ? ({
+                ...prev,
+                documents: prev.documents.map(doc => doc.id === docId ? { ...doc, status } : doc),
+            }) : null);
+        } catch(e: any) {
+            alert(`Error updating document status: ${e.message}`);
+        }
+    };
+
+    const handleCallClient = () => {
+        if (clientData?.profile?.phone) {
+            window.location.href = `tel:${clientData.profile.phone}`;
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-full">
@@ -371,7 +481,11 @@ const AdminClientProfilePage: React.FC = () => {
                   <p className="text-sm text-gray-500">Asesor Asignado: {profile.asesor_asignado_id || 'N/A'}</p>
                             <ProfileDataItem label="Contactado" value={profile.contactado ? 'Sí' : 'No'} />
                         </div>
-                        <div className="mt-6 border-t pt-4">
+                        <div className="mt-6 border-t pt-4 space-y-2">
+                            <button onClick={handleCallClient} disabled={!profile.phone} className="w-full flex items-center justify-center gap-2 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <Phone className="w-4 h-4" />
+                                Llamar Cliente
+                            </button>
                             <button onClick={handleSyncToKommo} disabled={isSyncing} className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-60">
                                 {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sincronizar a Kommo'}
                             </button>
@@ -387,7 +501,7 @@ const AdminClientProfilePage: React.FC = () => {
                 {/* Right Column: Applications & History */}
                 <div className="lg:col-span-2 space-y-6">
                     <ApplicationManager applications={applications} onStatusChange={handleStatusChange} />
-                    <DocumentViewer documents={documents} />
+                    <DocumentViewer documents={documents} onStatusChange={handleDocumentStatusChange} />
                 </div>
             </div>
         </div>

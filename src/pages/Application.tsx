@@ -592,11 +592,31 @@ const Application: React.FC = () => {
 
 // --- HELPER: Missing Fields Component ---
 const MissingFields: React.FC<{ errors: any }> = ({ errors }) => {
-    const errorMessages = Object.values(errors).map((err: any) => err.message);
+    const errorMessages: string[] = [];
+
+    // Extract error messages from nested error objects
+    const extractErrors = (obj: any, prefix = '') => {
+        Object.entries(obj).forEach(([key, value]: [string, any]) => {
+            if (value && typeof value === 'object') {
+                if (value.message) {
+                    errorMessages.push(value.message);
+                } else {
+                    extractErrors(value, key);
+                }
+            }
+        });
+    };
+
+    extractErrors(errors);
+
+    if (errorMessages.length === 0) {
+        return null;
+    }
+
     return (
-        <div className="mt-4 text-center text-sm text-red-600 p-3 bg-red-50 rounded-lg">
+        <div className="mt-4 text-center text-sm text-red-600 p-3 bg-red-50 rounded-lg border-2 border-red-200">
             <p className="font-bold mb-2">Por favor, corrige los siguientes errores:</p>
-            <ul className="list-disc list-inside">
+            <ul className="list-disc list-inside text-left max-w-2xl mx-auto">
                 {errorMessages.map((msg, i) => <li key={i}>{msg}</li>)}
             </ul>
         </div>

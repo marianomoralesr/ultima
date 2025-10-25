@@ -8,30 +8,29 @@
 
 ## 🔧 Remaining Steps
 
-### Step 1: Configure Database Settings
+### Step 1: Configure Database Settings ⚡ QUICK & EASY
 
-Go to your Supabase SQL Editor and run these commands:
+**Option A - Use the SQL file (Recommended)**:
+1. Go to https://supabase.com/dashboard/project/jjepfehmuybpctdzipnu/sql/new
+2. Open the file `configure_database_settings.sql` from the project root
+3. Copy its entire contents and paste into the SQL Editor
+4. Click "Run"
+5. Verify you see the settings in the output
 
+**Option B - Manual copy-paste**:
+Run these commands in Supabase SQL Editor:
 ```sql
--- Set Supabase URL (replace with your actual URL if different)
 ALTER DATABASE postgres SET app.settings.supabase_url = 'https://jjepfehmuybpctdzipnu.supabase.co';
-
--- Set Supabase Anon Key
 ALTER DATABASE postgres SET app.settings.supabase_anon_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZXBmZWhtdXlicGN0ZHppcG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTk2MDMsImV4cCI6MjA1OTc3NTYwM30.yaMESZqaoLvkbVSgdHxpU-Vb7q-naxj95QxcpRYPrX4';
 ```
 
-### Step 2: Apply Email Triggers Migration
+### ✅ Step 2: Apply Email Triggers Migration - ALREADY DONE
 
-Copy and paste the entire content of `supabase/migrations/20251024220000_add_email_notification_triggers.sql` into your Supabase SQL Editor and execute it.
-
-**Quick Link**:
-1. Go to https://supabase.com/dashboard/project/jjepfehmuybpctdzipnu/sql/new
-2. Copy the SQL from the migration file
-3. Click "Run"
+You already ran this migration and updated the URL to trefa.mx/escritorio/solicitudes. No action needed!
 
 ### Step 3: Upload Logo to Storage
 
-1. Go to **Storage** in Supabase Dashboard
+1. Go to **Storage** in Supabase Dashboard: https://supabase.com/dashboard/project/jjepfehmuybpctdzipnu/storage/buckets
 2. Create bucket `public-assets` (make it public)
 3. Upload `public/images/logoblanco.png` to the bucket
 4. The logo will be accessible at: `https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/public-assets/logoblanco.png`

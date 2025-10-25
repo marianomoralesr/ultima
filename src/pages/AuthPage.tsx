@@ -126,7 +126,6 @@ const AuthPage: React.FC = () => {
 
             const source = sessionStorage.getItem('rfdm_source');
             const options: any = {
-                emailRedirectTo: getEmailRedirectUrl(),
                 shouldCreateUser: true,
             };
             if (source) {

@@ -106,7 +106,8 @@ const ProfilePage: React.FC = () => {
         });
       }
     }
-  }, [profile, resetProfileForm]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile]);
 
   const [firstName, lastName, motherLastName, birthDate, homoclave] = watchProfileFields(['first_name', 'last_name', 'mother_last_name', 'birth_date', 'homoclave']);
 

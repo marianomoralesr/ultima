@@ -25,11 +25,11 @@ const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California S
 const baseApplicationObject = z.object({
   // Step 1: Personal Info & Address
   civil_status: z.string().optional(),
-  current_address: z.string().min(5, 'La dirección es obligatoria'),
-  current_colony: z.string().min(3, 'La colonia es obligatoria'),
-  current_city: z.string().min(2, 'La ciudad es obligatoria'),
-  current_state: z.string().min(2, 'El estado es obligatorio'),
-  current_zip_code: z.string().min(5, 'El código postal debe tener 5 dígitos'),
+  current_address: z.string().optional(),
+  current_colony: z.string().optional(),
+  current_city: z.string().optional(),
+  current_state: z.string().optional(),
+  current_zip_code: z.string().optional(),
   housing_type: z.string().min(1, 'El tipo de vivienda es obligatorio'),
   grado_de_estudios: z.string().min(1, 'El grado de estudios es obligatorio'),
   dependents: z.string().min(1, 'El número de dependientes es obligatorio'),

@@ -123,6 +123,7 @@ function App(): React.JSX.Element {
                 <Route path="citas" element={<VisitasPage />} />
                 <Route path="autos" element={<VehicleListPage />} />
                 <Route path="mis-aplicaciones" element={<UserApplicationsPage />} />
+                <Route path="solicitudes" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
 
                 {/* Admin-only routes nested under protected dashboard */}

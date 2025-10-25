@@ -124,12 +124,10 @@ function App(): React.JSX.Element {
                 <Route path="autos" element={<VehicleListPage />} />
                 <Route path="mis-aplicaciones" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
-                
-                {/* Simple CRM - accessible to authenticated users, checks admin email internally */}
-                <Route path="crm" element={<SimpleCRMPage />} />
 
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>
+                  <Route path="admin/crm" element={<SimpleCRMPage />} />
                   <Route path="admin/leads" element={<AdminLeadsDashboardPage />} />
                   <Route path="admin/client/:id" element={<AdminClientProfilePage />} />
                   <Route path="admin/cliente/:id" element={<AdminClientProfilePage />} />

@@ -57,9 +57,17 @@ serve(async (req) => {
     const headers = new Headers()
     req.headers.forEach((value, key) => {
       if (key.toLowerCase() !== 'host') {
-        headers.set(key, value)
+        // CarStudio expects 'apiKey' with capital K, but browsers normalize to lowercase
+        // So we need to handle it specially
+        if (key.toLowerCase() === 'apikey') {
+          headers.set('apiKey', value)
+        } else {
+          headers.set(key, value)
+        }
       }
     })
+
+    console.log(`Forwarding headers:`, Array.from(headers.entries()))
 
     // Make the proxied request
     const response = await fetch(targetUrl, {

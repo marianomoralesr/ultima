@@ -7,6 +7,9 @@ import type { Profile } from '../types/types';
 import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Download, Eye, Phone } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
+import { supabase } from '../../supabaseClient';
+
+const BUCKET_NAME = 'application-documents';
 
 const ProfileDataItem: React.FC<{ label: string, value: any }> = ({ label, value }) => (
     <div>
@@ -192,6 +195,42 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
 
 const DocumentViewer: React.FC<{ documents: any[]; onStatusChange: (docId: string, status: string) => void }> = ({ documents, onStatusChange }) => {
     const [viewingDoc, setViewingDoc] = useState<any | null>(null);
+    const [documentsWithUrls, setDocumentsWithUrls] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadDocumentUrls = async () => {
+            setLoading(true);
+            const docsWithSignedUrls = await Promise.all(
+                documents.map(async (doc) => {
+                    try {
+                        const { data, error } = await supabase.storage
+                            .from(BUCKET_NAME)
+                            .createSignedUrl(doc.file_path, 3600); // 1 hour expiry
+
+                        if (error) {
+                            console.error(`Error generating signed URL for ${doc.file_path}:`, error);
+                            return { ...doc, url: null };
+                        }
+
+                        return { ...doc, url: data.signedUrl };
+                    } catch (error) {
+                        console.error('Error loading document URL:', error);
+                        return { ...doc, url: null };
+                    }
+                })
+            );
+            setDocumentsWithUrls(docsWithSignedUrls);
+            setLoading(false);
+        };
+
+        if (documents.length > 0) {
+            loadDocumentUrls();
+        } else {
+            setDocumentsWithUrls([]);
+            setLoading(false);
+        }
+    }, [documents]);
 
     const getStatusColor = (status: string) => {
         switch(status) {
@@ -204,7 +243,16 @@ const DocumentViewer: React.FC<{ documents: any[]; onStatusChange: (docId: strin
 
     const downloadDocument = async (doc: any) => {
         try {
+            if (!doc.url) {
+                alert('No se pudo generar la URL del documento');
+                return;
+            }
+
             const response = await fetch(doc.url);
+            if (!response.ok) {
+                throw new Error('Error al descargar el archivo');
+            }
+
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -223,8 +271,14 @@ const DocumentViewer: React.FC<{ documents: any[]; onStatusChange: (docId: strin
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Documentos Cargados ({documents.length})</h2>
+            {loading ? (
+                <div className="flex justify-center items-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
+                    <span className="ml-2 text-sm text-gray-600">Cargando documentos...</span>
+                </div>
+            ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
-                {documents.length > 0 ? documents.map(doc => (
+                {documentsWithUrls.length > 0 ? documentsWithUrls.map(doc => (
                     <div key={doc.id} className="p-3 border rounded-lg hover:bg-gray-50">
                         <div className="flex items-center gap-3 mb-2">
                             <FileText className="w-5 h-5 text-primary-600 flex-shrink-0"/>
@@ -262,6 +316,7 @@ const DocumentViewer: React.FC<{ documents: any[]; onStatusChange: (docId: strin
                     </div>
                 )) : <p className="text-sm text-gray-500 text-center py-8">No hay documentos cargados.</p>}
             </div>
+            )}
 
             {viewingDoc && (
                 <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setViewingDoc(null)}>

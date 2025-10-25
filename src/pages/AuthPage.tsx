@@ -123,7 +123,7 @@ const AuthPage: React.FC = () => {
             if (!localStorage.getItem('loginRedirect')) {
                 localStorage.setItem('loginRedirect', '/escritorio');
             }
-            
+
             const source = sessionStorage.getItem('rfdm_source');
             const options: any = {
                 emailRedirectTo: getEmailRedirectUrl(),
@@ -133,15 +133,24 @@ const AuthPage: React.FC = () => {
                 options.data = { source };
             }
 
-            const { error } = await supabase.auth.signInWithOtp({
+            console.log('Sending OTP to:', email);
+            console.log('With options:', options);
+
+            const { data, error } = await supabase.auth.signInWithOtp({
                 email,
                 options
             });
-            if (error) throw error;
-            
+
+            if (error) {
+                console.error('OTP Send Error:', error);
+                throw error;
+            }
+
+            console.log('OTP sent successfully:', data);
             setView('verifyOtp');
         } catch (error: any) {
-            setError('No se pudo enviar el código. Revisa el correo o inténtalo de nuevo.');
+            console.error('Full Email Submit Error:', error);
+            setError(`No se pudo enviar el código. ${error.message || 'Revisa el correo o inténtalo de nuevo.'}`);
         } finally {
             setLoading(false);
         }
@@ -152,20 +161,26 @@ const AuthPage: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
-            const { error } = await supabase.auth.verifyOtp({
+            const { data, error } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
                 type: 'email'
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error('OTP Verification Error:', error);
+                throw error;
+            }
+
+            console.log('OTP Verification Success:', data);
 
             const redirectPath = localStorage.getItem('loginRedirect') || '/escritorio';
             localStorage.removeItem('loginRedirect');
             navigate(redirectPath, { replace: true });
 
         } catch (error: any) {
-             setError('Código inválido o expirado. Por favor, inténtalo de nuevo.');
+             console.error('Full OTP Error:', error);
+             setError(`Código inválido o expirado. ${error.message || 'Por favor, inténtalo de nuevo.'}`);
         } finally {
             setLoading(false);
         }

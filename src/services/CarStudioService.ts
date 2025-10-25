@@ -46,9 +46,9 @@ export class CarStudioApiError extends Error {
 class CarStudioService {
 
     private static async makeRequest(url: string, options: RequestInit): Promise<any> {
-        const fullUrl = `${PROXY_URL}?url=${encodeURIComponent(url)}`;
+        // Call CarStudio API directly - no proxy needed
         try {
-            const response = await fetch(fullUrl, options);
+            const response = await fetch(url, options);
             const result = await response.json();
 
             if (!response.ok || result.status === 'fail' || result.success === false) {

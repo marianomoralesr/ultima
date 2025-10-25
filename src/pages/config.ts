@@ -32,7 +32,8 @@ const BREVO_WEBHOOK_URL = env.VITE_BREVO_WEBHOOK_URL || 'YOUR_BREVO_WEBHOOK_URL_
 
 // --- CORS Proxy Configuration ---
 // Updated to use Supabase Edge Function for reliable CarStudio API proxying
-const CORS_PROXY_URL = env.VITE_CORS_PROXY_URL || `${SUPABASE_URL}/functions/v1/carstudio-proxy?url=`;
+// Note: Do not include ?url= at the end - it's added by CarStudioService
+const CORS_PROXY_URL = env.VITE_CORS_PROXY_URL || `${SUPABASE_URL}/functions/v1/carstudio-proxy`;
 
 // --- Calendly Configuration ---
 const CALENDLY_URL_MTY = env.VITE_CALENDLY_URL_MTY || 'https://calendly.com/trefa-monterrey/cita-monterrey?month=2025-09';

@@ -55,26 +55,52 @@ serve(async (req) => {
 
     // Forward headers except host
     const headers = new Headers()
+    let apiKeyValue = ''
+
     req.headers.forEach((value, key) => {
-      if (key.toLowerCase() !== 'host') {
-        // CarStudio expects 'apiKey' with capital K, but browsers normalize to lowercase
-        // So we need to handle it specially
-        if (key.toLowerCase() === 'apikey') {
-          headers.set('apiKey', value)
+      const lowerKey = key.toLowerCase()
+      console.log(`Incoming header: ${key}: ${value}`)
+
+      if (lowerKey !== 'host' && lowerKey !== 'content-length') {
+        if (lowerKey === 'apikey') {
+          apiKeyValue = value
+          console.log(`Found apiKey: ${value}`)
         } else {
+          // Forward all other headers including content-type (important for multipart boundary)
           headers.set(key, value)
         }
       }
     })
 
-    console.log(`Forwarding headers:`, Array.from(headers.entries()))
+    // Set the apiKey header with exact casing expected by CarStudio
+    if (apiKeyValue) {
+      headers.set('apiKey', apiKeyValue)
+      console.log(`Set apiKey header: ${apiKeyValue}`)
+    } else {
+      console.error('No apiKey header found in request headers')
+    }
+
+    console.log(`Final forwarding headers:`, Array.from(headers.entries()))
+
+    // Get the raw body for non-GET/HEAD requests
+    let body = undefined
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      // Use arrayBuffer to get raw bytes - this preserves FormData exactly
+      const buffer = await req.arrayBuffer()
+      body = buffer.byteLength > 0 ? buffer : undefined
+      console.log(`Body size: ${buffer.byteLength} bytes`)
+    }
+
+    console.log(`Making request to ${targetUrl} with method ${req.method}`)
 
     // Make the proxied request
     const response = await fetch(targetUrl, {
       method: req.method,
       headers: headers,
-      body: req.method !== 'GET' && req.method !== 'HEAD' ? await req.arrayBuffer() : undefined,
+      body: body,
     })
+
+    console.log(`Response status: ${response.status} ${response.statusText}`)
 
     // Forward the response with CORS headers
     const responseHeaders = new Headers(response.headers)

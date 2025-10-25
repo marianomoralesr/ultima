@@ -8,21 +8,15 @@
 
 ## 🔧 Remaining Steps
 
-### Step 1: Configure Database Settings ⚡ QUICK & EASY
+### Step 1: Fix Email Trigger Functions ⚡ QUICK & EASY (2 minutes)
 
-**Option A - Use the SQL file (Recommended)**:
+The email triggers need to be updated with hardcoded configuration instead of dynamic settings.
+
 1. Go to https://supabase.com/dashboard/project/jjepfehmuybpctdzipnu/sql/new
-2. Open the file `configure_database_settings.sql` from the project root
+2. Open the file `apply_email_trigger_fix.sql` from the project root
 3. Copy its entire contents and paste into the SQL Editor
 4. Click "Run"
-5. Verify you see the settings in the output
-
-**Option B - Manual copy-paste**:
-Run these commands in Supabase SQL Editor:
-```sql
-ALTER DATABASE postgres SET app.settings.supabase_url = 'https://jjepfehmuybpctdzipnu.supabase.co';
-ALTER DATABASE postgres SET app.settings.supabase_anon_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZXBmZWhtdXlicGN0ZHppcG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTk2MDMsImV4cCI6MjA1OTc3NTYwM30.yaMESZqaoLvkbVSgdHxpU-Vb7q-naxj95QxcpRYPrX4';
-```
+5. You should see "Success. No rows returned"
 
 ### ✅ Step 2: Apply Email Triggers Migration - ALREADY DONE
 
@@ -39,9 +33,9 @@ You already ran this migration and updated the URL to trefa.mx/escritorio/solici
 
 1. Log in to Brevo: https://app.brevo.com
 2. Go to **Senders & IP** → **Senders**
-3. Add `noreply@trefaautos.com` (or your preferred sender)
+3. Add `hola@trefa.mx` as a verified sender
 4. Verify the email by following Brevo's instructions
-5. If using a custom domain, add DNS records as instructed
+5. Add DNS records (SPF, DKIM) as instructed by Brevo for your domain
 
 ## 🧪 Testing
 

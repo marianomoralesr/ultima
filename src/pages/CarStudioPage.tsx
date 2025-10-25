@@ -332,8 +332,30 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
             console.log('CarStudio API Response:', response);
 
-            // Check if processing was successful
-            if (response.success && response.return?.afterStudioImages && response.return.afterStudioImages.length > 0) {
+            // Check for faulty images first (CarStudio AI failures)
+            const faultyImages = response.return?.faultyImages || [];
+            const hasProcessedImages = response.return?.afterStudioImages && response.return.afterStudioImages.length > 0;
+
+            if (faultyImages.length > 0) {
+                // Extract error details from faulty images
+                const faultyErrors = faultyImages.map((img: any) =>
+                    `${img.errorCode || 'ERROR'}: ${img.errorMessage || 'Unknown error'}`
+                );
+
+                const errorMsg = `CarStudio AI no pudo procesar ${faultyImages.length} imagen(es):\n\n` +
+                    faultyErrors.join('\n') +
+                    '\n\nPosibles causas:\n' +
+                    '• La imagen no contiene un vehículo claramente visible\n' +
+                    '• El fondo es demasiado complejo para el AI\n' +
+                    '• La calidad de la imagen es muy baja\n' +
+                    '• La imagen está muy borrosa o sobreexpuesta\n\n' +
+                    'Intenta con imágenes más claras del vehículo con fondos simples.';
+
+                setInterpretedError(errorMsg);
+                setApiResponse(JSON.stringify(response, null, 2));
+                setRequestStatus('error');
+            } else if (hasProcessedImages) {
+                // Success: images were processed
                 const originalUrls = uploadImages.map(img => img.fileUrl);
                 const processedUrls = response.return.afterStudioImages.map((img: any) => img.imageUrl);
                 const comparisons = processedUrls.map((pUrl: string, index: number) => ({ original: originalUrls[index], processed: pUrl }));
@@ -341,7 +363,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                 setApiResponse(JSON.stringify(response, null, 2));
                 setRequestStatus('success');
             } else {
-                // Check for error messages in beforeStudioImages
+                // No processed images and no faulty images - check beforeStudioImages for errors
                 const errors = response.return?.beforeStudioImages
                     ?.filter((img: any) => img.errorMessage)
                     .map((img: any) => img.errorMessage) || [];

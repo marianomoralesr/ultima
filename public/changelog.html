@@ -224,6 +224,35 @@
 
                 <div class="change-category">
                     <div class="category-title">
+                        <span class="badge badge-improvement">Mejora</span>
+                        <span>Formulario de Solicitud de Crédito</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📝</div>
+                            <div class="change-text">
+                                <strong>Simplificado flujo de solicitud - campos de dirección ahora opcionales</strong>
+                                <span class="commit-hash">0ccd25e</span>
+                                <p class="change-description">
+                                    El formulario de solicitud de crédito ya no requiere que llenes los campos de dirección (calle, colonia, ciudad, estado, código postal) para avanzar. Ahora solo se requieren 3 campos obligatorios: tipo de vivienda, grado de estudios y número de dependientes. Esto mejora significativamente la experiencia del usuario y permite completar las solicitudes más rápido.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="change-item">
+                            <div class="change-icon">🔗</div>
+                            <div class="change-text">
+                                <strong>Agregada ruta /escritorio/solicitudes para acceso directo</strong>
+                                <span class="commit-hash">0ccd25e</span>
+                                <p class="change-description">
+                                    Los enlaces en los correos electrónicos que reciben los clientes ahora funcionan correctamente. Se agregó la ruta /escritorio/solicitudes que lleva directamente a la página donde pueden ver todas sus solicitudes de crédito enviadas.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
                         <span class="badge badge-fix">Corrección</span>
                         <span>API de CarStudio</span>
                     </div>
@@ -236,6 +265,35 @@
                                 <span class="commit-hash">0bf995e</span>
                                 <p class="change-description">
                                     La integración con CarStudio (herramienta para mejorar fotos de autos) ahora funciona correctamente. El sistema mostraba un error de autorización que impedía procesar las imágenes. Se realizaron dos correcciones: primero se actualizó el formato de seguridad que CarStudio espera, y segundo se corrigió la forma en que el sistema se comunica con el servidor de CarStudio para enviar las fotos.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="change-item">
+                            <div class="change-icon">🤖</div>
+                            <div class="change-text">
+                                <strong>Mejorado manejo de errores cuando la IA de CarStudio no puede procesar imágenes</strong>
+                                <span class="commit-hash">ce04ae5</span>
+                                <p class="change-description">
+                                    Ahora el sistema detecta correctamente cuando la inteligencia artificial de CarStudio no puede procesar una imagen (por ejemplo, si la imagen no contiene un vehículo claramente visible, el fondo es muy complejo, o la calidad es muy baja). Antes solo mostraba "Error desconocido", ahora muestra mensajes claros explicando qué salió mal y sugiere cómo resolverlo (usar imágenes más claras, con fondos simples, mejor calidad, etc.).
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Configuración de Airtable</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔐</div>
+                            <div class="change-text">
+                                <strong>Restaurados valores de respaldo para configuración de Airtable</strong>
+                                <span class="commit-hash">pending</span>
+                                <p class="change-description">
+                                    Se restauraron los valores de respaldo (fallbacks) para la configuración de Airtable, garantizando que la herramienta de valuación de autos ("Vende tu Auto") funcione correctamente incluso si las variables de entorno no están configuradas durante el build. Esto previene el error "La configuración de Airtable está incompleta" que aparecía en producción.
                                 </p>
                             </div>
                         </li>

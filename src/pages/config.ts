@@ -1,10 +1,11 @@
 const env = (import.meta as any)?.env ?? {};
 
 // --- Supabase Configuration ---
-const SUPABASE_URL = 'https://jjepfehmuybpctdzipnu.supabase.co';
-const SUPABASE_ANON_KEY ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZXBmZWhtdXlicGN0ZHppcG51Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDE5OTYwMywiZXhwIjoyMDU5Nzc1NjAzfQ.KwSFEXOrtgwgIjMVG-czB73VWQIVDahgDvTdyL5qSQo';
+const SUPABASE_URL = env.VITE_SUPABASE_URL || 'https://jjepfehmuybpctdzipnu.supabase.co';
+const SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZXBmZWhtdXlicGN0ZHppcG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTk2MDMsImV4cCI6MjA1OTc3NTYwM30.yaMESZqaoLvkbVSgdHxpU-Vb7q-naxj95QxcpRYPrX4';
 
 // --- Airtable Configuration ---
+// API keys must be provided via environment variables for security
 const AIRTABLE_VALUATION_API_KEY = env.VITE_AIRTABLE_VALUATION_API_KEY;
 const AIRTABLE_VALUATION_BASE_ID = env.VITE_AIRTABLE_VALUATION_BASE_ID || 'appbOPKYqQRW2HgyB';
 const AIRTABLE_VALUATION_TABLE_ID = env.VITE_AIRTABLE_VALUATION_TABLE_ID || 'tblGuvYLMnZXr6o8f';

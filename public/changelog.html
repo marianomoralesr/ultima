@@ -310,6 +310,436 @@ WITH CHECK (
                 </div>
             </div>
 
+            <!-- Versión 1.1.0 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.1.0</span>
+                    <span class="version-date">23 de Octubre, 2025</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Panel de Ventas para Asesores</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📊</div>
+                            <div class="change-text">
+                                <strong>Dashboard completo para gestionar clientes asignados</strong>
+                                <p class="change-description">
+                                    Los asesores de ventas ahora tienen acceso a un panel personalizado en /escritorio/ventas/leads donde pueden ver todos sus clientes asignados. El panel muestra un resumen con estadísticas en tiempo real, incluyendo número de clientes, solicitudes pendientes y clientes contactados. Pueden buscar y filtrar clientes, ver sus perfiles completos, gestionar tags y recordatorios, y sincronizar automáticamente con el CRM Kommo. El sistema está completamente protegido con permisos de seguridad - cada asesor solo ve sus propios clientes asignados.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Servidor de Procesamiento de Vehículos</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🌐</div>
+                            <div class="change-text">
+                                <strong>Solucionado error de CORS que bloqueaba la carga de vehículos</strong>
+                                <p class="change-description">
+                                    El servidor de procesamiento de vehículos (rapid-processor) no estaba permitiendo solicitudes desde nuestro dominio de staging. Se agregaron los encabezados CORS correctos y el manejador de preflight, permitiendo que la lista de vehículos se cargue correctamente en todas las pruebas de staging.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Guardado de Perfil Bancario</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🏦</div>
+                            <div class="change-text">
+                                <strong>Solucionado error que impedía guardar el perfil bancario del cliente</strong>
+                                <p class="change-description">
+                                    El sistema mostraba error "no tiene campo uid" cuando los clientes intentaban guardar su información bancaria. El problema era una función de base de datos que buscaba una columna con nombre incorrecto. Se corrigió la función para usar el nombre de columna correcto (user_id), permitiendo que los clientes completen exitosamente su perfilamiento bancario y reciban recomendaciones de instituciones financieras.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Creación de Solicitudes de Financiamiento</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📋</div>
+                            <div class="change-text">
+                                <strong>Solucionado error 403 que impedía crear nuevas solicitudes de crédito</strong>
+                                <p class="change-description">
+                                    Los clientes recibían un error "Forbidden" (403) cuando intentaban crear una nueva solicitud de financiamiento. El error ocurría porque la misma función que guardaba el perfil bancario no estaba asignando correctamente el ID del usuario a las nuevas solicitudes. Con la corrección anterior (user_id), este problema se resolvió automáticamente, permitiendo que los clientes completen todo su flujo de solicitud de crédito sin interrupciones.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Integración con Airtable como Sistema de Respaldo</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔄</div>
+                            <div class="change-text">
+                                <strong>Sistema robusto de 4 niveles para cargar inventario de vehículos</strong>
+                                <p class="change-description">
+                                    Se implementó un sistema de respaldo en cascada para garantizar que el inventario de vehículos siempre está disponible. El sistema intenta cargar desde: (1) smooth-handler, (2) cache de inventario, (3) cache normalizado, y finalmente (4) directamente desde Airtable. Esto significa que incluso si algunos servidores fallan o están lentos, la aplicación siempre conseguirá mostrar los vehículos desde Airtable como último recurso. El sistema es inteligente y cachea los datos en el navegador para que las cargas posteriores sean más rápidas.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-improvement">Mejora</span>
+                        <span>Slugs de Vehículos Mejorados</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔗</div>
+                            <div class="change-text">
+                                <strong>Los URLs de vehículos ahora usan números de orden más legibles</strong>
+                                <p class="change-description">
+                                    Antes los vehículos tenían URLs confusas. Ahora, cuando entras a ver un auto, el URL incluye el número de orden del vehículo (por ejemplo: /autos/honda-civic-id123456) en lugar de IDs técnicos. Esto hace los enlaces más fáciles de compartir, más legibles y mejores para SEO. El sistema todavía puede encontrar vehículos usando múltiples formas de identificación como respaldo.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Versión 1.0.0 - Lanzamiento Beta -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.0.0</span>
+                    <span class="version-date">15 de Octubre, 2025</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Lanzamiento Beta de Portal Digital TREFA</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🚀</div>
+                            <div class="change-text">
+                                <strong>Plataforma completa de compra-venta y financiamiento de vehículos</strong>
+                                <p class="change-description">
+                                    Se lanzó la versión beta del Portal Digital TREFA, una plataforma revolucionaria que permite a los clientes comprar, vender y financiar vehículos seminuevos 100% en línea. El proyecto integra 1600+ horas de desarrollo con tecnologías modernas (React, TypeScript, Supabase, etc.) e integraciones con múltiples servicios externos (WordPress, Airtable, Intelimotor, Car Studio AI, Google Analytics, etc.).
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Sistema de Autenticación Digital</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔐</div>
+                            <div class="change-text">
+                                <strong>Inicio de sesión seguro sin contraseña usando códigos OTP por correo</strong>
+                                <p class="change-description">
+                                    Los usuarios pueden registrarse e iniciar sesión de forma segura y fácil usando un código de 6 dígitos enviado a su correo, eliminando la necesidad de recordar contraseñas. También se soporta autenticación con Google y Facebook para acceso rápido. El sistema maneja automáticamente la recuperación de contraseña y preserva la intención del usuario (si intentaba financiar un auto específico, lo lleva allí después de registrarse).
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Catálogo de Vehículos con Filtros Avanzados</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🚗</div>
+                            <div class="change-text">
+                                <strong>Exploración inteligente del inventario con búsqueda y filtros</strong>
+                                <p class="change-description">
+                                    Los clientes pueden explorar más de 70 vehículos seminuevos con búsqueda avanzada y filtros por marca, modelo, año, rango de precio, cuotas disponibles, promociones y ubicación. La página de detalles del vehículo muestra galerías de fotos en alta resolución, videos, especificaciones técnicas, reporte de inspección de 150 puntos, calculadora de financiamiento interactiva, y opciones para compartir o guardar el vehículo.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Sistema de Favoritos y Comparación</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">❤️</div>
+                            <div class="change-text">
+                                <strong>Guardar y comparar vehículos favoritos en tu perfil</strong>
+                                <p class="change-description">
+                                    Los usuarios registrados pueden guardar sus vehículos preferidos en su lista de favoritos, accesible desde su dashboard personal. Esta lista facilita la comparación entre múltiples autos para tomar mejor decisión de compra.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Herramienta "Vende tu Auto"</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">💰</div>
+                            <div class="change-text">
+                                <strong>Valuación instantánea de vehículos usando inteligencia artificial</strong>
+                                <p class="change-description">
+                                    Clientes que quieren vender sus autos pueden usar la herramienta de valuación en /quote-car. Simplemente describen su vehículo en lenguaje natural, el sistema lo identifica y proporciona una oferta de compra competitiva en segundos usando la API profesional de Intelimotor®. Si aceptan la oferta, pueden agendar una inspección directamente por WhatsApp.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Solicitud de Financiamiento Digital Multietapa</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📝</div>
+                            <div class="change-text">
+                                <strong>Formulario completo para solicitar financiamiento de vehículos</strong>
+                                <p class="change-description">
+                                    Usuarios registrados pueden completar una solicitud de financiamiento completa en la página /aplicacion. El formulario está pre-llenado con la información del perfil, puede auto-seleccionar el vehículo si vienes desde una página específica, permite cargar documentos requeridos (INE, comprobante de domicilio, etc.) con una interfaz intuitiva de arrastrar-soltar, y guarda la solicitud de forma segura en la base de datos. Los clientes ven confirmación de envío y pueden hacer seguimiento del estado de su solicitud.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Perfilamiento Bancario Inteligente</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🏦</div>
+                            <div class="change-text">
+                                <strong>Cuestionario que determina qué banco tiene más probabilidades de aprobar tu crédito</strong>
+                                <p class="change-description">
+                                    En la página /perfilacion-bancaria, el sistema hace preguntas inteligentes sobre la situación financiera del cliente para determinar cuáles instituciones bancarias tienen más probabilidades de aprobar su solicitud de crédito. El sistema usa esta información para optimizar recomendaciones bancarias posteriores, aumentando significativamente la tasa de aprobación.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Dashboard de Usuario Personalizado</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📈</div>
+                            <div class="change-text">
+                                <strong>Panel de control central para usuarios registrados</strong>
+                                <p class="change-description">
+                                    El dashboard en /escritorio es el centro de control para usuarios. Aquí ven un resumen de sus solicitudes activas, proyecciones financieras basadas en su perfil, recomendaciones personalizadas de vehículos que se ajustan a su presupuesto, y un sistema de guía que los dirige a completar los pasos necesarios (perfil → perfilamiento → solicitud) para poder aplicar a financiamiento.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Gestión de Perfil de Usuario</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">👤</div>
+                            <div class="change-text">
+                                <strong>Página para actualizar información personal, fiscal y de contacto</strong>
+                                <p class="change-description">
+                                    En /profile, usuarios pueden actualizar su información personal, dirección, datos fiscales (nombre, apellido, RFC, CURP), teléfono y correo. El sistema calcula automáticamente su RFC en tiempo real mientras escriben, proporcionando feedback inmediato y asegurando que los datos sean correctos antes de guardarlos.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Centro de Marketing para Administradores</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🛠️</div>
+                            <div class="change-text">
+                                <strong>Panel todo-en-uno para gestionar marketing digital y campañas</strong>
+                                <p class="change-description">
+                                    Los administradores acceden a /marketing para un control centralizado de todas las herramientas de marketing. Pueden habilitar/deshabilitar integraciones (Google Analytics, GTM, Facebook Pixel, etc.), crear eventos de seguimiento personalizados visualmente (sin escribir código), generar URLs de campaña con UTMs automáticamente, usar un generador de contenido con IA para crear artículos y copys, depurar la API de Car Studio directamente, y ver analíticas simuladas de sesiones de usuarios.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Mejora de Fotos con Inteligencia Artificial</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📸</div>
+                            <div class="change-text">
+                                <strong>Integración con Car Studio AI para procesar y mejorar fotos de vehículos</strong>
+                                <p class="change-description">
+                                    El sistema se conecta a la API de Car Studio para mejorar automáticamente las fotos de vehículos con fondos de calidad profesional y mejor procesamiento de imagen. Las imágenes procesadas se guardan tanto en el registro del vehículo como en un respaldo seguro en Supabase Storage para garantizar que nunca se pierdan.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Página de Promociones</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🏷️</div>
+                            <div class="change-text">
+                                <strong>Sección dedicada a mostrar vehículos con ofertas especiales</strong>
+                                <p class="change-description">
+                                    En /promociones, los clientes ven todos los vehículos que actualmente tienen ofertas especiales o bonificaciones (descuentos, tasas preferenciales, etc.) con banners visuales destacados para cada promoción activa.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Página de Preguntas Frecuentes</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">❓</div>
+                            <div class="change-text">
+                                <strong>Sección de ayuda completa y categorizada</strong>
+                                <p class="change-description">
+                                    En /faq, los usuarios pueden encontrar respuestas a preguntas frecuentes sobre financiamiento, vender su auto, requisitos de documentos, etc. Las preguntas están organizadas por categorías con acordeones interactivos para fácil navegación.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Landing Pages de Prueba A/B/C</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🎨</div>
+                            <div class="change-text">
+                                <strong>Múltiples versiones de página de inicio para optimizar conversiones</strong>
+                                <p class="change-description">
+                                    El sistema incluye varias landing pages (/landing-b, /landing-c) con diseños diferentes para probar cuál versión convierte mejor. Todas incluyen sliders dinámicos de vehículos, secciones de captura de leads, narrativa de marca, garantías y testimonios de clientes reales.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Integración con CRM Kommo</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔗</div>
+                            <div class="change-text">
+                                <strong>Sincronización automática de datos de clientes con sistema de CRM</strong>
+                                <p class="change-description">
+                                    Los datos de nuevas solicitudes y clientes se sincronizan automáticamente con el CRM Kommo para que el equipo de ventas tenga información actualizada en tiempo real. Esto garantiza que no se pierda ningún lead y facilita el seguimiento del embudo de ventas.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Correcciones Iniciales de Bugs</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🐛</div>
+                            <div class="change-text">
+                                <strong>Corrección del crash de la página de listado de vehículos</strong>
+                                <p class="change-description">
+                                    Se arregló un error que hacía que la página de vehículos se fuera en blanco después de cargar. El problema era que los filtros no estaban calculados correctamente cuando el HTML se renderizaba. Se implementaron optimizaciones con React useMemo para calcular correctamente todos los conteos de filtros (marcas, años, ubicaciones, clasificaciones) basados en los vehículos disponibles.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="change-item">
+                            <div class="change-icon">🔄</div>
+                            <div class="change-text">
+                                <strong>Solucionado bucle infinito de creación de perfiles</strong>
+                                <p class="change-description">
+                                    El sistema estaba intentando crear perfiles de usuario indefinidamente cuando los usuarios se registraban, llenando la consola con errores. Se removió la lógica de creación de perfil desde el navegador y se implementó una solución con triggers de base de datos que crean perfiles automáticamente cuando un usuario se registra, de forma más eficiente y segura.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="change-item">
+                            <div class="change-icon">🖼️</div>
+                            <div class="change-text">
+                                <strong>Corrección de normalización de imágenes de vehículos</strong>
+                                <p class="change-description">
+                                    Las fotos de vehículos no se mostraban correctamente en el carrusel de la página de inicio y en las tarjetas del listado. Se arregló el código que procesa las imágenes para manejar correctamente diferentes formatos (texto, arrays de URLs, objetos de attachment) que vienen de diferentes fuentes de datos.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Versiones Anteriores -->
             <div class="version">
                 <div class="version-header">
@@ -372,7 +802,7 @@ WITH CHECK (
         <div class="footer">
             <p>Documentado por el equipo de Autos TREFA</p>
             <p style="margin-top: 10px; font-size: 0.85em;">
-                Última actualización: 25 de Octubre, 2025
+                Última actualización: 25 de Octubre, 2025 - Historial Completo Agregado
             </p>
         </div>
     </div>

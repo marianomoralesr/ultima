@@ -19,10 +19,10 @@ const MarketingHubPage: React.FC = () => {
       color: 'bg-purple-500',
     },
     {
-      title: 'Leads Dashboard',
+      title: 'CRM Dashboard',
       description: 'Gestionar y dar seguimiento a leads',
       icon: Users,
-      link: '/escritorio/admin/leads',
+      link: '/escritorio/admin/crm',
       color: 'bg-green-500',
     },
     {

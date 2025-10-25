@@ -1,5 +1,6 @@
 import type { Vehicle, WordPressVehicle } from '../types/types';
 import { DEFAULT_PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGES } from './constants';
+import { getCdnUrl } from './imageUrl';
 
 export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): string {
   const parseStringOrArray = (value: string | string[] | undefined): string[] => {
@@ -25,11 +26,13 @@ export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): s
   // Find the first valid, non-empty URL from the prioritized list
   for (const imageSource of potentialImages) {
     if (imageSource && typeof imageSource === 'string' && imageSource.trim() !== '' && imageSource.trim() !== '#ERROR!') {
-      return imageSource.trim();
+      // Convert Supabase URL to CDN URL
+      return getCdnUrl(imageSource.trim());
     }
     // Handle cases where a field might be an array with one item
     if (Array.isArray(imageSource) && imageSource.length > 0 && imageSource[0] && typeof imageSource[0] === 'string' && imageSource[0].trim() !== '') {
-        return imageSource[0].trim();
+        // Convert Supabase URL to CDN URL
+        return getCdnUrl(imageSource[0].trim());
     }
   }
 

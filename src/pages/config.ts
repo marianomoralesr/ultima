@@ -86,10 +86,7 @@ export const config = {
 };
 
 export const getEmailRedirectUrl = (): string => {
-  const isProduction = (import.meta as any).env.MODE === 'production';
-  if (isProduction) {
-    return window.location.origin;
-  } else {
-    return window.location.origin;
-  }
+  // Always redirect to /auth after OAuth callback
+  // The AuthHandler and AuthPage will handle the final redirect based on loginRedirect in localStorage
+  return `${window.location.origin}/auth`;
 };

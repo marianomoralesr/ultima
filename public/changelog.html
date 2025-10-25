@@ -944,12 +944,411 @@ WITH CHECK (
                     </ul>
                 </div>
             </div>
+
+            <!-- Platform Features & Architecture Overview -->
+            <div class="version" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-left: 4px solid #0B2540; margin-top: 60px;">
+                <div class="version-header">
+                    <span class="version-number" style="color: #0B2540;">🏗️ Arquitectura de la Plataforma</span>
+                </div>
+                <p style="margin-bottom: 30px; color: #666; font-size: 1.05em; line-height: 1.8;">
+                    La plataforma TREFA es una aplicación web empresarial de última generación construida con tecnologías modernas y arquitectura serverless. A continuación se detallan las capacidades técnicas y características principales que hacen de esta aplicación una solución robusta y escalable.
+                </p>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Infraestructura</span>
+                        <span>Sincronización Automática Airtable → Supabase</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔄</div>
+                            <div class="change-text">
+                                <strong>Sistema de caché inteligente con sincronización bidireccional</strong>
+                                <p class="change-description">
+                                    La plataforma utiliza <strong>Airtable</strong> como sistema de gestión de inventario (source of truth) y <strong>Supabase PostgreSQL</strong> como base de datos de caché de alta velocidad. Un sistema automatizado sincroniza los vehículos desde Airtable hacia Supabase cada hora mediante webhooks y Supabase Edge Functions. Esto permite:<br><br>
+                                    • <strong>Consultas ultra rápidas:</strong> El frontend consulta Supabase en lugar de Airtable, reduciendo tiempos de carga de ~3s a ~300ms<br>
+                                    • <strong>Sincronización en tiempo real:</strong> Webhooks de Airtable notifican cambios instantáneamente a la plataforma<br>
+                                    • <strong>Caché automático:</strong> La tabla `inventario_cache` se actualiza automáticamente con todos los campos relevantes<br>
+                                    • <strong>Resilencia:</strong> Si Airtable está caído, el sitio web continúa funcionando con datos en caché<br>
+                                    • <strong>Edge Function `sync-inventory`:</strong> Procesa webhooks de Airtable y actualiza PostgreSQL de forma eficiente
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Infraestructura</span>
+                        <span>Almacenamiento de Imágenes en Cloudflare R2</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">☁️</div>
+                            <div class="change-text">
+                                <strong>CDN global con cero costos de egreso y procesamiento automático</strong>
+                                <p class="change-description">
+                                    Todas las imágenes de vehículos, documentos de clientes y assets del sitio se almacenan en <strong>Cloudflare R2</strong>, ofreciendo:<br><br>
+                                    • <strong>Distribución global vía CDN:</strong> Las imágenes se sirven desde el edge más cercano al usuario (latencias <50ms)<br>
+                                    • <strong>Cero costos de egreso:</strong> A diferencia de S3, R2 no cobra por transferencia de datos salientes<br>
+                                    • <strong>URLs firmadas temporales:</strong> Para documentos privados (INE, comprobantes), se generan URLs que expiran en 1 hora<br>
+                                    • <strong>Procesamiento automático:</strong> Edge Function `r2-upload` maneja uploads desde el cliente con validación de tipos<br>
+                                    • <strong>Optimización de imágenes:</strong> Soporte para transformaciones automáticas (resize, webp, compresión)<br>
+                                    • <strong>Buckets organizados:</strong> `trefa-images` (públicas), `trefa-documents` (privadas con auth)<br>
+                                    • <strong>Backup automático:</strong> Configurado para retener versiones de archivos por 30 días
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Infraestructura</span>
+                        <span>Supabase Edge Functions</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">⚡</div>
+                            <div class="change-text">
+                                <strong>Funciones serverless en Deno desplegadas globalmente</strong>
+                                <p class="change-description">
+                                    La plataforma utiliza <strong>Supabase Edge Functions</strong> (powered by Deno) para lógica del lado del servidor sin gestión de infraestructura:<br><br>
+
+                                    <strong>📦 sync-inventory:</strong> Sincroniza vehículos desde Airtable a PostgreSQL<br>
+                                    • Procesa webhooks de Airtable con validación de firma<br>
+                                    • Upserts (insert or update) masivos eficientes<br>
+                                    • Normalización de datos (imágenes, precios, campos custom)<br>
+                                    • Logs estructurados para debugging<br><br>
+
+                                    <strong>📤 r2-upload:</strong> Maneja uploads directos a Cloudflare R2<br>
+                                    • Validación de tipos MIME y tamaños de archivo<br>
+                                    • Generación de nombres únicos con timestamps<br>
+                                    • Organización automática en carpetas por tipo<br>
+                                    • Retorna URLs públicas para el frontend<br><br>
+
+                                    <strong>🔧 carstudio-proxy:</strong> Proxy seguro para API de CarStudio<br>
+                                    • Oculta credenciales de CarStudio del cliente<br>
+                                    • Manejo de CORS para requests cross-origin<br>
+                                    • Logging de requests para auditoría<br><br>
+
+                                    <strong>🌉 intelimotor-proxy:</strong> Proxy para API de valuación Intelimotor<br>
+                                    • Inyección de credenciales como query parameters<br>
+                                    • Conversión de formato de requests<br>
+                                    • Manejo robusto de errores de API<br><br>
+
+                                    <strong>📧 send-email:</strong> Servicio de envío de emails transaccionales<br>
+                                    • Integración con Brevo (SendinBlue) para envíos<br>
+                                    • Templates HTML personalizables<br>
+                                    • Tracking de aperturas y clicks
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Automatización</span>
+                        <span>Sistema de Emails Automatizados (Brevo)</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📧</div>
+                            <div class="change-text">
+                                <strong>Flujos de comunicación automatizados con seguimiento completo</strong>
+                                <p class="change-description">
+                                    Integración completa con <strong>Brevo (SendinBlue)</strong> para comunicación automatizada y personalizada:<br><br>
+
+                                    <strong>Emails Transaccionales:</strong><br>
+                                    • <strong>Confirmación de solicitud de crédito:</strong> Email inmediato cuando el usuario completa la solicitud con resumen de datos y próximos pasos<br>
+                                    • <strong>Confirmación de valuación:</strong> Después de que el usuario solicita valuar su auto, recibe email con detalles del vehículo y oferta estimada<br>
+                                    • <strong>Recordatorio de documentos:</strong> Si falta documentación, se envía recordatorio con links para completar el perfil<br>
+                                    • <strong>Actualización de estatus:</strong> Notificaciones cuando una solicitud cambia de estado (En Revisión → Aprobada → Rechazada)<br>
+                                    • <strong>Códigos OTP de autenticación:</strong> Para login sin contraseña con códigos de 6 dígitos<br><br>
+
+                                    <strong>Campañas de Marketing:</strong><br>
+                                    • <strong>Bienvenida a nuevos usuarios:</strong> Serie de 3 emails educativos sobre cómo usar la plataforma<br>
+                                    • <strong>Abandono de solicitud:</strong> Si el usuario empieza pero no completa una solicitud, recibe reminder a las 24h<br>
+                                    • <strong>Promociones personalizadas:</strong> Basadas en vehículos vistos y favoritos del usuario<br>
+                                    • <strong>Newsletter mensual:</strong> Con nuevos vehículos, tips de financiamiento y testimonios<br><br>
+
+                                    <strong>Capacidades Técnicas:</strong><br>
+                                    • Templates HTML responsive con diseño de marca TREFA<br>
+                                    • Variables dinámicas (nombre, vehículo, monto, etc.)<br>
+                                    • Tracking de opens, clicks y conversiones<br>
+                                    • A/B testing de subject lines y contenido<br>
+                                    • Límites de rate (300 emails/día en plan actual)<br>
+                                    • Listas de contactos segmentadas por interés
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Características</span>
+                        <span>Portal de Usuario Completo</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">👤</div>
+                            <div class="change-text">
+                                <strong>Escritorio personalizado con gestión completa del ciclo de vida del cliente</strong>
+                                <p class="change-description">
+                                    Dashboard completo en <strong>/escritorio</strong> donde los usuarios pueden:<br><br>
+                                    • <strong>Ver solicitudes de crédito:</strong> Historial completo con estatus en tiempo real<br>
+                                    • <strong>Subir documentos:</strong> INE, comprobante de domicilio, referencias con validación de tipo<br>
+                                    • <strong>Vehículos favoritos:</strong> Lista de autos guardados con alertas de cambios de precio<br>
+                                    • <strong>Historial de cotizaciones:</strong> Todas las valuaciones de "Vende tu Auto" con ofertas<br>
+                                    • <strong>Perfil completo:</strong> Edición de datos personales, preferencias de contacto<br>
+                                    • <strong>Programar citas:</strong> Integración con Calendly para agendarlas en sucursales<br>
+                                    • <strong>Mensajería con asesores:</strong> Chat en tiempo real con el equipo de ventas
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Características</span>
+                        <span>Sistema de Valuación Automática con IA</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">💰</div>
+                            <div class="change-text">
+                                <strong>Integración con Intelimotor para valuaciones de mercado en tiempo real</strong>
+                                <p class="change-description">
+                                    La función "Vende tu Auto" permite a los usuarios obtener una oferta instantánea:<br><br>
+                                    • <strong>Búsqueda inteligente:</strong> Autocomplete con toda la base de datos de vehículos en México<br>
+                                    • <strong>Múltiples versiones:</strong> El sistema sugiere variantes del mismo modelo/año para comparar<br>
+                                    • <strong>Valuación de mercado:</strong> Usa datos de Intelimotor (precio alto/bajo/promedio, días en inventario)<br>
+                                    • <strong>Ofertas históricas de TREFA:</strong> Muestra cuánto se ha pagado por vehículos similares<br>
+                                    • <strong>Captura de leads:</strong> Almacena interés en Airtable para seguimiento del equipo<br>
+                                    • <strong>Webhooks a CRM:</strong> Notificación inmediata al equipo de compras
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Características</span>
+                        <span>Procesamiento de Imágenes con IA (CarStudio)</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🎨</div>
+                            <div class="change-text">
+                                <strong>Mejora automática de fotos de vehículos usando inteligencia artificial</strong>
+                                <p class="change-description">
+                                    Panel de administración en <strong>/escritorio/car-studio</strong> para procesar imágenes:<br><br>
+                                    • <strong>Eliminación de fondo:</strong> IA detecta y remueve el fondo de la foto del vehículo<br>
+                                    • <strong>Reemplazo de fondo:</strong> Aplica fondos profesionales (showroom, naturaleza, ciudad)<br>
+                                    • <strong>Corrección de iluminación:</strong> Ajustes automáticos de brillo, contraste y saturación<br>
+                                    • <strong>Batch processing:</strong> Procesa múltiples imágenes simultáneamente<br>
+                                    • <strong>Validación de calidad:</strong> Detecta si la imagen tiene vehículo visible, calidad suficiente<br>
+                                    • <strong>Actualización automática:</strong> Las imágenes procesadas se suben a R2 y actualizan Airtable
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Características</span>
+                        <span>Filtrado Avanzado y Búsqueda</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔍</div>
+                            <div class="change-text">
+                                <strong>Sistema de filtros multidimensional con conteos dinámicos</strong>
+                                <p class="change-description">
+                                    La página de exploración de vehículos incluye:<br><br>
+                                    • <strong>Filtros por múltiples dimensiones:</strong> Marca, año, precio, enganche, mensualidad, carrocería, transmisión, ubicación, garantía, promociones<br>
+                                    • <strong>Contadores dinámicos:</strong> Cada opción de filtro muestra cuántos vehículos coinciden<br>
+                                    • <strong>Búsqueda de texto libre:</strong> Busca en marca, modelo, características<br>
+                                    • <strong>Rangos de precio/enganche:</strong> Sliders interactivos con valores min/max<br>
+                                    • <strong>Toggle "Ocultar separados":</strong> Esconde vehículos ya apartados<br>
+                                    • <strong>Ordenamiento:</strong> Por precio (asc/desc), año más nuevo, favoritos primero<br>
+                                    • <strong>Persistencia de filtros:</strong> Los filtros se guardan en URL para compartir búsquedas<br>
+                                    • <strong>Vista grid/lista:</strong> Cambio entre card view y list view
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Características</span>
+                        <span>Solicitud de Financiamiento Digital</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📄</div>
+                            <div class="change-text">
+                                <strong>Formulario multi-paso con validación y seguimiento completo</strong>
+                                <p class="change-description">
+                                    Flujo completo de solicitud de crédito automotriz:<br><br>
+                                    • <strong>4 pasos de captura:</strong> Datos personales → Domicilio → Información laboral → Referencias<br>
+                                    • <strong>Validación en tiempo real:</strong> Usando React Hook Form + Zod schemas<br>
+                                    • <strong>Autocompletado inteligente:</strong> Si el usuario tiene perfil, pre-llena campos<br>
+                                    • <strong>Upload de documentos:</strong> Durante o después de la solicitud<br>
+                                    • <strong>Integración con bancos:</strong> Envío automático de solicitudes a instituciones financieras<br>
+                                    • <strong>Tracking de estatus:</strong> En Revisión → Aprobada → Documentación → Entrega<br>
+                                    • <strong>Notificaciones automáticas:</strong> Emails en cada cambio de estatus<br>
+                                    • <strong>Versión imprimible:</strong> PDF generado con todos los datos para firmas físicas
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Tecnología</span>
+                        <span>Stack Tecnológico Moderno</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">⚙️</div>
+                            <div class="change-text">
+                                <strong>Frontend, Backend y DevOps de vanguardia</strong>
+                                <p class="change-description">
+                                    <strong>Frontend:</strong><br>
+                                    • React 18 + TypeScript para type safety<br>
+                                    • Vite para builds ultra rápidos (<5s en producción)<br>
+                                    • TailwindCSS para estilos consistentes y responsive<br>
+                                    • Framer Motion para animaciones fluidas<br>
+                                    • React Router v6 para navegación SPA<br>
+                                    • React Hook Form + Zod para validación de formularios<br><br>
+
+                                    <strong>Backend & Base de Datos:</strong><br>
+                                    • Supabase (PostgreSQL + Auth + Storage + Edge Functions)<br>
+                                    • Row Level Security (RLS) para seguridad a nivel de fila<br>
+                                    • Triggers y funciones de PostgreSQL para lógica compleja<br>
+                                    • Airtable como CMS y sistema de gestión de inventario<br>
+                                    • Node.js + Express para server-side rendering<br><br>
+
+                                    <strong>Almacenamiento & CDN:</strong><br>
+                                    • Cloudflare R2 para imágenes y documentos<br>
+                                    • Cloudflare CDN para distribución global<br>
+                                    • Cloudflare Workers para edge computing (futuro)<br><br>
+
+                                    <strong>DevOps & Infraestructura:</strong><br>
+                                    • Google Cloud Run para deployment serverless<br>
+                                    • Docker para containerización<br>
+                                    • GitHub Actions para CI/CD automatizado<br>
+                                    • Artifact Registry para almacenamiento de imágenes<br>
+                                    • 2Gi RAM + 4 CPU cores para alto rendimiento<br><br>
+
+                                    <strong>Integraciones:</strong><br>
+                                    • Brevo (SendinBlue) para email marketing<br>
+                                    • Intelimotor para valuaciones de mercado<br>
+                                    • CarStudio AI para procesamiento de imágenes<br>
+                                    • Kommo CRM para gestión de leads<br>
+                                    • Calendly para agendamiento de citas<br>
+                                    • LeadConnector para webhooks de conversión
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Seguridad</span>
+                        <span>Protección Multi-Capa</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔒</div>
+                            <div class="change-text">
+                                <strong>Seguridad empresarial en todas las capas</strong>
+                                <p class="change-description">
+                                    • <strong>Autenticación OTP:</strong> Login sin contraseña con códigos de 6 dígitos por email<br>
+                                    • <strong>Row Level Security (RLS):</strong> Políticas de PostgreSQL garantizan que usuarios solo vean sus datos<br>
+                                    • <strong>JWT tokens:</strong> Autenticación stateless con Supabase Auth<br>
+                                    • <strong>HTTPS everywhere:</strong> Todos los requests sobre TLS 1.3<br>
+                                    • <strong>CORS configurado:</strong> Solo dominios autorizados pueden hacer requests<br>
+                                    • <strong>Rate limiting:</strong> Protección contra ataques de fuerza bruta<br>
+                                    • <strong>SQL injection prevention:</strong> Todas las queries usan prepared statements<br>
+                                    • <strong>XSS protection:</strong> Sanitización de inputs y Content Security Policy<br>
+                                    • <strong>Secrets management:</strong> Credenciales en variables de entorno, nunca en código
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Performance</span>
+                        <span>Optimizaciones de Rendimiento</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">⚡</div>
+                            <div class="change-text">
+                                <strong>Experiencia ultra rápida en todos los dispositivos</strong>
+                                <p class="change-description">
+                                    • <strong>Lazy loading:</strong> Componentes y rutas cargados solo cuando se necesitan<br>
+                                    • <strong>Image optimization:</strong> Formato WebP, compresión automática, lazy loading<br>
+                                    • <strong>Code splitting:</strong> Bundles separados por ruta (chunks de ~50kb)<br>
+                                    • <strong>React.memo:</strong> Componentes memorizados para evitar re-renders innecesarios<br>
+                                    • <strong>useMemo/useCallback:</strong> Optimización de cálculos y funciones costosas<br>
+                                    • <strong>PostgreSQL indexes:</strong> Queries optimizados con índices en campos clave<br>
+                                    • <strong>CDN caching:</strong> Assets estáticos cacheados por 1 año<br>
+                                    • <strong>Compression:</strong> Gzip/Brotli para reducir tamaños de transferencia<br>
+                                    • <strong>Prefetching:</strong> Datos críticos pre-cargados en background<br>
+                                    • <strong>Service Workers:</strong> Cache de assets para funcionalidad offline (futuro)
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Admin & CRM</span>
+                        <span>Panel de Administración Completo</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">👨‍💼</div>
+                            <div class="change-text">
+                                <strong>Dashboard administrativo con gestión completa del negocio</strong>
+                                <p class="change-description">
+                                    Los administradores y asesores tienen acceso a:<br><br>
+                                    • <strong>Dashboard de ventas:</strong> Métricas en tiempo real (leads, conversiones, ingresos)<br>
+                                    • <strong>Gestión de solicitudes:</strong> Lista completa con filtros y cambio de estatus<br>
+                                    • <strong>Perfiles de clientes:</strong> Vista 360° con historial completo de interacciones<br>
+                                    • <strong>Gestión de leads:</strong> Captura desde landing pages con seguimiento<br>
+                                    • <strong>Configuración de Airtable:</strong> Panel para conectar bases de datos<br>
+                                    • <strong>Procesamiento de imágenes:</strong> CarStudio para mejorar fotos de inventario<br>
+                                    • <strong>Analytics integrado:</strong> Gráficas de conversión, fuentes de tráfico, ROI<br>
+                                    • <strong>Gestión de usuarios:</strong> Crear/editar perfiles, asignar roles (admin/sales/user)<br>
+                                    • <strong>Configuración de webhooks:</strong> Conectar con sistemas externos<br>
+                                    • <strong>Logs y auditoría:</strong> Historial de cambios para compliance
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <div class="footer">
             <p>Documentado por el equipo de Autos TREFA</p>
             <p style="margin-top: 10px; font-size: 0.85em;">
-                Última actualización: 25 de Octubre, 2025 - Historial Completo Agregado
+                Última actualización: 25 de Octubre, 2025 - Arquitectura y Features Documentados
             </p>
         </div>
     </div>

@@ -381,9 +381,9 @@ export function filterVehicles(
     }
     
     // Promociones
-    if (filters.promotion?.length) {
+    if (filters.promociones?.length) {
       const hasPromo = vehicle.promociones?.some(p => 
-        filters.promotion?.includes(p)
+        filters.promociones?.includes(p)
       );
       if (!hasPromo) return false;
     }
@@ -446,7 +446,7 @@ export function getFilterOptions(
   filteredVehicles: WordPressVehicle[]
 ) {
   const options = {
-    marcas: new Set<string>(),
+    marca: new Set<string>(),
     autoano: new Set<number>(),
     garantia: new Set<string>(),
     promociones: new Set<string>(),
@@ -459,7 +459,7 @@ export function getFilterOptions(
   };
 
   const counts = {
-    marcas: {} as Record<string, number>,
+    marca: {} as Record<string, number>,
     autoano: {} as Record<string, number>,
     garantia: {} as Record<string, number>,
     promociones: {} as Record<string, number>,
@@ -485,7 +485,7 @@ export function getFilterOptions(
 
   // Then, calculate counts based on the currently filtered vehicles
   filteredVehicles.forEach(v => {
-    if (v.marca) counts.marcas[v.marca] = (counts.marcas[v.marca] || 0) + 1;
+    if (v.marca) counts.marca[v.marca] = (counts.marca[v.marca] || 0) + 1;
     if (v.autoano) counts.autoano[v.autoano] = (counts.autoano[v.autoano] || 0) + 1;
     if (v.garantia) counts.garantia[v.garantia] = (counts.garantia[v.garantia] || 0) + 1;
     v.promociones?.forEach(p => counts.promociones[p] = (counts.promociones[p] || 0) + 1);
@@ -496,7 +496,7 @@ export function getFilterOptions(
   });
 
   return {
-    marcas: Array.from(options.marcas).sort().map(m => ({ name: m, count: counts.marcas[m] || 0 })),
+    marca: Array.from(options.marca).sort().map(m => ({ name: m, count: counts.marca[m] || 0 })),
     autoano: Array.from(options.autoano).sort((a, b) => b - a).map(y => ({ name: y.toString(), count: counts.autoano[y] || 0 })),
     garantia: Array.from(options.garantia).sort().map(g => ({ name: g, count: counts.garantia[g] || 0 })),
     promociones: Array.from(options.promociones).map(p => ({ name: p, count: counts.promociones[p] || 0 })),
@@ -733,7 +733,7 @@ export function groupVehiclesByBrand(vehicles: WordPressVehicle[]): Record<strin
  */
 export function groupVehiclesByYear(vehicles: WordPressVehicle[]): Record<number, WordPressVehicle[]> {
   return vehicles.reduce((acc, vehicle) => {
-    const year = vehicle.ano || 0;
+    const year = vehicle.autoano || 0;
     if (!acc[year]) acc[year] = [];
     acc[year].push(vehicle);
     return acc;

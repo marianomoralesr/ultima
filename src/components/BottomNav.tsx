@@ -102,37 +102,30 @@ const BottomNav: React.FC = () => {
                 <div className="max-w-md mx-auto grid grid-cols-5 justify-around items-center h-16">
                     <NavItem to="/" icon={HomeIcon} label="Inicio" end={true} />
                     <NavItem to="/vender-mi-auto" icon={SellCarIcon} label="Vender" />
-                    
+
                     <div className="flex justify-center">
-                        {isListPage ? (
-                             <button
-                                ref={buttonRef}
-                                onClick={handleFilterClick}
-                                className="w-14 h-14 rounded-full flex items-center justify-center transform -translate-y-4 shadow-lg transition-all duration-300 active:scale-95 bg-primary-600"
-                                aria-label="Abrir filtros"
-                            >
+                        <button
+                            ref={buttonRef}
+                            onClick={isListPage ? handleFilterClick : () => setIsMenuOpen(o => !o)}
+                            className={`w-14 h-14 rounded-full flex items-center justify-center transform -translate-y-4 shadow-lg transition-all duration-300 active:scale-95 ${isMenuOpen && !isListPage ? 'bg-primary-700 rotate-[225deg]' : 'bg-primary-600'}`}
+                            aria-expanded={!isListPage && isMenuOpen}
+                            aria-label={isListPage ? "Abrir filtros" : "Abrir menú"}
+                        >
+                            {isListPage ? (
                                 <FilterIcon className="w-7 h-7 text-white" />
-                            </button>
-                        ) : (
-                            <button
-                                ref={buttonRef}
-                                onClick={() => setIsMenuOpen(o => !o)}
-                                className={`w-14 h-14 rounded-full flex items-center justify-center transform -translate-y-4 shadow-lg transition-all duration-300 active:scale-95 ${isMenuOpen ? 'bg-primary-700 rotate-[225deg]' : 'bg-primary-600'}`}
-                                aria-expanded={isMenuOpen}
-                                aria-label="Abrir menú"
-                            >
+                            ) : (
                                 <ChevronUpIcon className="w-8 h-8 text-white transition-transform duration-300" />
-                            </button>
-                        )}
+                            )}
+                        </button>
                     </div>
 
                     <NavItem to="/autos" icon={BuyCarIcon} label="Comprar" />
                     <NavItem to={accountLink} icon={UserIcon} label="Mi Cuenta" />
                 </div>
             </nav>
-            
-            {/* Unfoldable menu is only active when NOT on the list page */}
-            {!isListPage && (
+
+            {/* Unfoldable menu - now always available but shows filter sheet on list pages */}
+            {(
                 <>
                     <div
                         className={`fixed inset-0 z-[75] bg-black/60 lg:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}

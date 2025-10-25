@@ -28,7 +28,8 @@ import {
     WrenchIcon,
     CalendarIcon,
     FileEdit,
-    Loader2
+    Loader2,
+    BookOpen
 } from 'lucide-react';
 
 // @ts-ignore
@@ -87,6 +88,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
             { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
             { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera },
             { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText },
+            { to: '/changelog.html', label: 'Registro de Cambios', icon: BookOpen },
         ] : []),
     ];
 

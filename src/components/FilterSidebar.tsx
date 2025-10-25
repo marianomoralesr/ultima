@@ -248,7 +248,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
 
     if (isMobileSheet) {
         return (
-            <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex flex-col h-full overflow-hidden relative">
                 <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
                     <h2 className="text-lg font-bold text-gray-800">Filtros</h2>
                     <button onClick={onCloseSheet} className="p-2 rounded-full text-gray-600 hover:bg-gray-100"><XIcon className="w-6 h-6" /></button>
@@ -256,7 +256,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
                 <div className="overflow-y-auto px-6 py-4 flex-grow pb-24">
                     {FilterBody}
                 </div>
-                <div className="p-4 border-t border-gray-200 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[100]">
                     <button onClick={onCloseSheet} className="w-full bg-primary-600 text-white font-bold py-3.5 rounded-lg hover:bg-primary-700 transition-colors">
                         Mostrar {resultsCount} resultados
                     </button>

@@ -1,18 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserIcon, LogOutIcon, ChevronDownIcon } from './icons';
 import { useAuth } from '../context/AuthContext';
 import MegaMenu from './MegaMenu';
 import HeaderSearchBar from './HeaderSearchBar';
 
+const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+);
+
 
 const Header: React.FC = () => {
     const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { session, profile, signOut } = useAuth();
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const profileMenuRef = useRef<HTMLDivElement>(null);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
     const location = useLocation();
+    const navigate = useNavigate();
     const isListPage = location.pathname === '/autos';
 
     useEffect(() => {
@@ -30,12 +38,27 @@ const Header: React.FC = () => {
     const handleSignOut = async () => {
         await signOut();
         setProfileMenuOpen(false);
+        setMobileMenuOpen(false);
+    };
+
+    const handleMobileLinkClick = (path: string) => {
+        setMobileMenuOpen(false);
+        navigate(path);
     };
 
     return (
       <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-24 lg:h-28 gap-x-4">
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Toggle mobile menu"
+            >
+                <MenuIcon className="w-6 h-6" />
+            </button>
+
             {/* Left Section */}
             <div className={`flex justify-start items-center ${!isListPage ? 'lg:w-1/3' : ''}`}>
                 <div className="flex items-center">
@@ -105,12 +128,71 @@ const Header: React.FC = () => {
                 </div>
             </div>
           </div>
-          <MegaMenu 
-            isOpen={megaMenuOpen} 
+          <MegaMenu
+            isOpen={megaMenuOpen}
             onClose={() => setMegaMenuOpen(false)}
             triggerRef={menuButtonRef as any}
           />
         </div>
+
+        {/* Mobile Sidebar Menu */}
+        {mobileMenuOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '96px' }}>
+                <div
+                    className="absolute inset-0 bg-black/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+                <div className="absolute left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
+                    <div className="p-6 space-y-4">
+                        {session ? (
+                            <>
+                                <div className="pb-4 border-b border-gray-200">
+                                    <p className="text-sm text-gray-500">Conectado como</p>
+                                    <p className="font-semibold text-gray-900">{profile?.first_name || profile?.email}</p>
+                                </div>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mi Escritorio
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/profile')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mi Perfil
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/favoritos')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mis Favoritos
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/seguimiento')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mis Solicitudes
+                                </button>
+                                <button
+                                    onClick={handleSignOut}
+                                    className="w-full text-left flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-red-50 font-semibold text-red-600 mt-4"
+                                >
+                                    <LogOutIcon className="w-5 h-5" /> Cerrar Sesión
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => handleMobileLinkClick('/acceder')}
+                                className="w-full text-center px-6 py-3 rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold shadow-md"
+                            >
+                                Iniciar Sesión
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
       </header>
     );
 };

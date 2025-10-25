@@ -483,18 +483,24 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
           <div {...bindSheetDrag()} className="w-full p-4 flex justify-center cursor-grab touch-none">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
           </div>
-          <FilterSidebar
-            allVehicles={vehicles}
-            isMobileSheet={true}
-            onCloseSheet={closeSheet}
-            resultsCount={totalCount}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-            filterOptions={filterOptions}
-            currentFilters={filters}
-            onRemoveFilter={onRemoveFilter}
-            activeFiltersList={activeFiltersList}
-          />
+          {Object.keys(filterOptions).length > 0 ? (
+            <FilterSidebar
+              allVehicles={vehicles}
+              isMobileSheet={true}
+              onCloseSheet={closeSheet}
+              resultsCount={totalCount}
+              onFiltersChange={handleFiltersChange}
+              onClearFilters={handleClearFilters}
+              filterOptions={filterOptions}
+              currentFilters={filters}
+              onRemoveFilter={onRemoveFilter}
+              activeFiltersList={activeFiltersList}
+            />
+          ) : (
+            <div className="flex items-center justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            </div>
+          )}
         </animated.div>
       )}
       {showTutorial && !isFilterSheetOpen && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}

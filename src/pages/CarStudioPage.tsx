@@ -325,16 +325,35 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             if (chassisNumber) options.chassisNumber = chassisNumber;
             if (platformUrl) options.platformUrl = platformUrl;
 
+            console.log('Sending images to CarStudio:', uploadImages);
+            console.log('Options:', options);
+
             const response = await CarStudioService.uploadImagesWithUrlV2(uploadImages, options);
 
-            if (response.success && response.return?.afterStudioImages) {
+            console.log('CarStudio API Response:', response);
+
+            // Check if processing was successful
+            if (response.success && response.return?.afterStudioImages && response.return.afterStudioImages.length > 0) {
                 const originalUrls = uploadImages.map(img => img.fileUrl);
                 const processedUrls = response.return.afterStudioImages.map((img: any) => img.imageUrl);
                 const comparisons = processedUrls.map((pUrl: string, index: number) => ({ original: originalUrls[index], processed: pUrl }));
                 setComparisonImages(comparisons);
+                setApiResponse(JSON.stringify(response, null, 2));
+                setRequestStatus('success');
+            } else {
+                // Check for error messages in beforeStudioImages
+                const errors = response.return?.beforeStudioImages
+                    ?.filter((img: any) => img.errorMessage)
+                    .map((img: any) => img.errorMessage) || [];
+
+                const errorMsg = errors.length > 0
+                    ? `Error procesando imágenes: ${errors.join(', ')}. Verifica que las URLs sean accesibles públicamente y que las imágenes sean JPG o PNG.`
+                    : 'No se generaron imágenes procesadas. Verifica que las URLs sean accesibles públicamente.';
+
+                setInterpretedError(errorMsg);
+                setApiResponse(JSON.stringify(response, null, 2));
+                setRequestStatus('error');
             }
-            setApiResponse(JSON.stringify(response, null, 2));
-            setRequestStatus('success');
         } catch (error: any) {
             setRequestStatus('error');
             if (error instanceof CarStudioApiError) {

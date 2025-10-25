@@ -142,12 +142,14 @@
             flex-shrink: 0;
             width: 24px;
             height: 24px;
-            background: #FF6801;
+            background: transparent;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color:#FF6801;
+            border: 2px solid #FF6801;
+            border-color: #FF6801;
             font-size: 0.8em;
             margin-top: 2px;
         }
@@ -233,7 +235,7 @@
                                 <span class="commit-hash">a47cf26</span>
                                 <span class="commit-hash">0bf995e</span>
                                 <p class="change-description">
-                                    La integración con CarStudio (herramienta para mejorar fotos de vehículos) ahora funciona correctamente. El sistema mostraba un error de autorización que impedía procesar las imágenes. Se realizaron dos correcciones: primero se actualizó el formato de seguridad que CarStudio espera, y segundo se corrigió la forma en que el sistema se comunica con el servidor de CarStudio para enviar las fotos.
+                                    La integración con CarStudio (herramienta para mejorar fotos de autos) ahora funciona correctamente. El sistema mostraba un error de autorización que impedía procesar las imágenes. Se realizaron dos correcciones: primero se actualizó el formato de seguridad que CarStudio espera, y segundo se corrigió la forma en que el sistema se comunica con el servidor de CarStudio para enviar las fotos.
                                 </p>
                             </div>
                         </li>
@@ -338,15 +340,15 @@ WITH CHECK (
                 <div class="change-category">
                     <div class="category-title">
                         <span class="badge badge-fix">Corrección</span>
-                        <span>Servidor de Procesamiento de Vehículos</span>
+                        <span>Servidor de Procesamiento de autos</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
                             <div class="change-icon">🌐</div>
                             <div class="change-text">
-                                <strong>Solucionado error de CORS que bloqueaba la carga de vehículos</strong>
+                                <strong>Solucionado error de CORS que bloqueaba la carga de autos</strong>
                                 <p class="change-description">
-                                    El servidor de procesamiento de vehículos (rapid-processor) no estaba permitiendo solicitudes desde nuestro dominio de staging. Se agregaron los encabezados CORS correctos y el manejador de preflight, permitiendo que la lista de vehículos se cargue correctamente en todas las pruebas de staging.
+                                    El servidor de procesamiento de autos (rapid-processor) no estaba permitiendo solicitudes desde nuestro dominio de staging. Se agregaron los encabezados CORS correctos y el manejador de preflight, permitiendo que la lista de autos se cargue correctamente en todas las pruebas de staging.
                                 </p>
                             </div>
                         </li>
@@ -398,9 +400,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">🔄</div>
                             <div class="change-text">
-                                <strong>Sistema robusto de 4 niveles para cargar inventario de vehículos</strong>
+                                <strong>Sistema robusto de 4 niveles para cargar inventario de autos</strong>
                                 <p class="change-description">
-                                    Se implementó un sistema de respaldo en cascada para garantizar que el inventario de vehículos siempre está disponible. El sistema intenta cargar desde: (1) smooth-handler, (2) cache de inventario, (3) cache normalizado, y finalmente (4) directamente desde Airtable. Esto significa que incluso si algunos servidores fallan o están lentos, la aplicación siempre conseguirá mostrar los vehículos desde Airtable como último recurso. El sistema es inteligente y cachea los datos en el navegador para que las cargas posteriores sean más rápidas.
+                                    Se implementó un sistema de respaldo en cascada para garantizar que el inventario de autos siempre está disponible. El sistema intenta cargar desde: (1) smooth-handler, (2) cache de inventario, (3) cache normalizado, y finalmente (4) directamente desde Airtable. Esto significa que incluso si algunos servidores fallan o están lentos, la aplicación siempre conseguirá mostrar los autos desde Airtable como último recurso. El sistema es inteligente y cachea los datos en el navegador para que las cargas posteriores sean más rápidas.
                                 </p>
                             </div>
                         </li>
@@ -410,15 +412,15 @@ WITH CHECK (
                 <div class="change-category">
                     <div class="category-title">
                         <span class="badge badge-improvement">Mejora</span>
-                        <span>Slugs de Vehículos Mejorados</span>
+                        <span>Slugs de autos Mejorados</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
                             <div class="change-icon">🔗</div>
                             <div class="change-text">
-                                <strong>Los URLs de vehículos ahora usan números de orden más legibles</strong>
+                                <strong>Los URLs de autos ahora usan números de orden más legibles</strong>
                                 <p class="change-description">
-                                    Antes los vehículos tenían URLs confusas. Ahora, cuando entras a ver un auto, el URL incluye el número de orden del vehículo (por ejemplo: /autos/honda-civic-id123456) en lugar de IDs técnicos. Esto hace los enlaces más fáciles de compartir, más legibles y mejores para SEO. El sistema todavía puede encontrar vehículos usando múltiples formas de identificación como respaldo.
+                                    Antes los autos tenían URLs confusas. Ahora, cuando entras a ver un auto, el URL incluye el número de orden del auto (por ejemplo: /autos/honda-civic-id123456) en lugar de IDs técnicos. Esto hace los enlaces más fáciles de compartir, más legibles y mejores para SEO. El sistema todavía puede encontrar autos usando múltiples formas de identificación como respaldo.
                                 </p>
                             </div>
                         </li>
@@ -442,9 +444,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">🚀</div>
                             <div class="change-text">
-                                <strong>Plataforma completa de compra-venta y financiamiento de vehículos</strong>
+                                <strong>Plataforma completa de compra-venta y financiamiento de autos</strong>
                                 <p class="change-description">
-                                    Se lanzó la versión beta del Portal Digital TREFA, una plataforma revolucionaria que permite a los clientes comprar, vender y financiar vehículos seminuevos 100% en línea. El proyecto integra 1600+ horas de desarrollo con tecnologías modernas (React, TypeScript, Supabase, etc.) e integraciones con múltiples servicios externos (WordPress, Airtable, Intelimotor, Car Studio AI, Google Analytics, etc.).
+                                    Se lanzó la versión beta del Portal Digital TREFA, una plataforma revolucionaria que permite a los clientes comprar, vender y financiar autos seminuevos 100% en línea. El proyecto integra 1600+ horas de desarrollo con tecnologías modernas (React, TypeScript, Supabase, etc.) e integraciones con múltiples servicios externos (WordPress, Airtable, Intelimotor, Car Studio AI, Google Analytics, etc.).
                                 </p>
                             </div>
                         </li>
@@ -472,7 +474,7 @@ WITH CHECK (
                 <div class="change-category">
                     <div class="category-title">
                         <span class="badge badge-feature">Nueva Función</span>
-                        <span>Catálogo de Vehículos con Filtros Avanzados</span>
+                        <span>Catálogo de autos con Filtros Avanzados</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
@@ -480,7 +482,7 @@ WITH CHECK (
                             <div class="change-text">
                                 <strong>Exploración inteligente del inventario con búsqueda y filtros</strong>
                                 <p class="change-description">
-                                    Los clientes pueden explorar más de 70 vehículos seminuevos con búsqueda avanzada y filtros por marca, modelo, año, rango de precio, cuotas disponibles, promociones y ubicación. La página de detalles del vehículo muestra galerías de fotos en alta resolución, videos, especificaciones técnicas, reporte de inspección de 150 puntos, calculadora de financiamiento interactiva, y opciones para compartir o guardar el vehículo.
+                                    Los clientes pueden explorar más de 70 autos seminuevos con búsqueda avanzada y filtros por marca, modelo, año, rango de precio, cuotas disponibles, promociones y ubicación. La página de detalles del auto muestra galerías de fotos en alta resolución, videos, especificaciones técnicas, reporte de inspección de 150 puntos, calculadora de financiamiento interactiva, y opciones para compartir o guardar el auto.
                                 </p>
                             </div>
                         </li>
@@ -496,9 +498,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">❤️</div>
                             <div class="change-text">
-                                <strong>Guardar y comparar vehículos favoritos en tu perfil</strong>
+                                <strong>Guardar y comparar autos favoritos en tu perfil</strong>
                                 <p class="change-description">
-                                    Los usuarios registrados pueden guardar sus vehículos preferidos en su lista de favoritos, accesible desde su dashboard personal. Esta lista facilita la comparación entre múltiples autos para tomar mejor decisión de compra.
+                                    Los usuarios registrados pueden guardar sus autos preferidos en su lista de favoritos, accesible desde su dashboard personal. Esta lista facilita la comparación entre múltiples autos para tomar mejor decisión de compra.
                                 </p>
                             </div>
                         </li>
@@ -514,9 +516,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">💰</div>
                             <div class="change-text">
-                                <strong>Valuación instantánea de vehículos usando inteligencia artificial</strong>
+                                <strong>Valuación instantánea de autos usando inteligencia artificial</strong>
                                 <p class="change-description">
-                                    Clientes que quieren vender sus autos pueden usar la herramienta de valuación en /quote-car. Simplemente describen su vehículo en lenguaje natural, el sistema lo identifica y proporciona una oferta de compra competitiva en segundos usando la API profesional de Intelimotor®. Si aceptan la oferta, pueden agendar una inspección directamente por WhatsApp.
+                                    Clientes que quieren vender sus autos pueden usar la herramienta de valuación en /quote-car. Simplemente describen su auto en lenguaje natural, el sistema lo identifica y proporciona una oferta de compra competitiva en segundos usando la API profesional de Intelimotor®. Si aceptan la oferta, pueden agendar una inspección directamente por WhatsApp.
                                 </p>
                             </div>
                         </li>
@@ -532,9 +534,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">📝</div>
                             <div class="change-text">
-                                <strong>Formulario completo para solicitar financiamiento de vehículos</strong>
+                                <strong>Formulario completo para solicitar financiamiento de autos</strong>
                                 <p class="change-description">
-                                    Usuarios registrados pueden completar una solicitud de financiamiento completa en la página /aplicacion. El formulario está pre-llenado con la información del perfil, puede auto-seleccionar el vehículo si vienes desde una página específica, permite cargar documentos requeridos (INE, comprobante de domicilio, etc.) con una interfaz intuitiva de arrastrar-soltar, y guarda la solicitud de forma segura en la base de datos. Los clientes ven confirmación de envío y pueden hacer seguimiento del estado de su solicitud.
+                                    Usuarios registrados pueden completar una solicitud de financiamiento completa en la página /aplicacion. El formulario está pre-llenado con la información del perfil, puede auto-seleccionar el auto si vienes desde una página específica, permite cargar documentos requeridos (INE, comprobante de domicilio, etc.) con una interfaz intuitiva de arrastrar-soltar, y guarda la solicitud de forma segura en la base de datos. Los clientes ven confirmación de envío y pueden hacer seguimiento del estado de su solicitud.
                                 </p>
                             </div>
                         </li>
@@ -570,7 +572,7 @@ WITH CHECK (
                             <div class="change-text">
                                 <strong>Panel de control central para usuarios registrados</strong>
                                 <p class="change-description">
-                                    El dashboard en /escritorio es el centro de control para usuarios. Aquí ven un resumen de sus solicitudes activas, proyecciones financieras basadas en su perfil, recomendaciones personalizadas de vehículos que se ajustan a su presupuesto, y un sistema de guía que los dirige a completar los pasos necesarios (perfil → perfilamiento → solicitud) para poder aplicar a financiamiento.
+                                    El dashboard en /escritorio es el centro de control para usuarios. Aquí ven un resumen de sus solicitudes activas, proyecciones financieras basadas en su perfil, recomendaciones personalizadas de autos que se ajustan a su presupuesto, y un sistema de guía que los dirige a completar los pasos necesarios (perfil → perfilamiento → solicitud) para poder aplicar a financiamiento.
                                 </p>
                             </div>
                         </li>
@@ -622,9 +624,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">📸</div>
                             <div class="change-text">
-                                <strong>Integración con Car Studio AI para procesar y mejorar fotos de vehículos</strong>
+                                <strong>Integración con Car Studio AI para procesar y mejorar fotos de autos</strong>
                                 <p class="change-description">
-                                    El sistema se conecta a la API de Car Studio para mejorar automáticamente las fotos de vehículos con fondos de calidad profesional y mejor procesamiento de imagen. Las imágenes procesadas se guardan tanto en el registro del vehículo como en un respaldo seguro en Supabase Storage para garantizar que nunca se pierdan.
+                                    El sistema se conecta a la API de Car Studio para mejorar automáticamente las fotos de autos con fondos de calidad profesional y mejor procesamiento de imagen. Las imágenes procesadas se guardan tanto en el registro del auto como en un respaldo seguro en Supabase Storage para garantizar que nunca se pierdan.
                                 </p>
                             </div>
                         </li>
@@ -640,9 +642,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">🏷️</div>
                             <div class="change-text">
-                                <strong>Sección dedicada a mostrar vehículos con ofertas especiales</strong>
+                                <strong>Sección dedicada a mostrar autos con ofertas especiales</strong>
                                 <p class="change-description">
-                                    En /promociones, los clientes ven todos los vehículos que actualmente tienen ofertas especiales o bonificaciones (descuentos, tasas preferenciales, etc.) con banners visuales destacados para cada promoción activa.
+                                    En /promociones, los clientes ven todos los autos que actualmente tienen ofertas especiales o bonificaciones (descuentos, tasas preferenciales, etc.) con banners visuales destacados para cada promoción activa.
                                 </p>
                             </div>
                         </li>
@@ -678,7 +680,7 @@ WITH CHECK (
                             <div class="change-text">
                                 <strong>Múltiples versiones de página de inicio para optimizar conversiones</strong>
                                 <p class="change-description">
-                                    El sistema incluye varias landing pages (/landing-b, /landing-c) con diseños diferentes para probar cuál versión convierte mejor. Todas incluyen sliders dinámicos de vehículos, secciones de captura de leads, narrativa de marca, garantías y testimonios de clientes reales.
+                                    El sistema incluye varias landing pages (/landing-b, /landing-c) con diseños diferentes para probar cuál versión convierte mejor. Todas incluyen sliders dinámicos de autos, secciones de captura de leads, narrativa de marca, garantías y testimonios de clientes reales.
                                 </p>
                             </div>
                         </li>
@@ -712,9 +714,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">🐛</div>
                             <div class="change-text">
-                                <strong>Corrección del crash de la página de listado de vehículos</strong>
+                                <strong>Corrección del crash de la página de listado de autos</strong>
                                 <p class="change-description">
-                                    Se arregló un error que hacía que la página de vehículos se fuera en blanco después de cargar. El problema era que los filtros no estaban calculados correctamente cuando el HTML se renderizaba. Se implementaron optimizaciones con React useMemo para calcular correctamente todos los conteos de filtros (marcas, años, ubicaciones, clasificaciones) basados en los vehículos disponibles.
+                                    Se arregló un error que hacía que la página de autos se fuera en blanco después de cargar. El problema era que los filtros no estaban calculados correctamente cuando el HTML se renderizaba. Se implementaron optimizaciones con React useMemo para calcular correctamente todos los conteos de filtros (marcas, años, ubicaciones, clasificaciones) basados en los autos disponibles.
                                 </p>
                             </div>
                         </li>
@@ -730,9 +732,9 @@ WITH CHECK (
                         <li class="change-item">
                             <div class="change-icon">🖼️</div>
                             <div class="change-text">
-                                <strong>Corrección de normalización de imágenes de vehículos</strong>
+                                <strong>Corrección de normalización de imágenes de autos</strong>
                                 <p class="change-description">
-                                    Las fotos de vehículos no se mostraban correctamente en el carrusel de la página de inicio y en las tarjetas del listado. Se arregló el código que procesa las imágenes para manejar correctamente diferentes formatos (texto, arrays de URLs, objetos de attachment) que vienen de diferentes fuentes de datos.
+                                    Las fotos de autos no se mostraban correctamente en el carrusel de la página de inicio y en las tarjetas del listado. Se arregló el código que procesa las imágenes para manejar correctamente diferentes formatos (texto, arrays de URLs, objetos de attachment) que vienen de diferentes fuentes de datos.
                                 </p>
                             </div>
                         </li>

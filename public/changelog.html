@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Cambios - Trefa Autos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0B2540 0%, #1a3a5c 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6801 0%, #ff8533 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .version {
+            margin-bottom: 50px;
+            border-left: 4px solid #FF6801;
+            padding-left: 30px;
+        }
+
+        .version-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .version-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #0B2540;
+        }
+
+        .version-date {
+            background: #f5f5f5;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .change-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-fix {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-feature {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-improvement {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .change-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .change-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .change-item:last-child {
+            border-bottom: none;
+        }
+
+        .change-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: #FF6801;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+
+        .change-text {
+            flex: 1;
+        }
+
+        .change-description {
+            color: #666;
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+
+        .commit-hash {
+            font-family: 'Courier New', monospace;
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .version {
+                padding-left: 20px;
+            }
+
+            .version-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Registro de Cambios</h1>
+            <p>Autos TREFA - Historial de Actualizaciones</p>
+            <p style="font-size: 0.9em; margin-top: 5px; opacity: 0.9;">trefa.mx</p>
+        </div>
+
+        <div class="content">
+            <!-- Version Actual -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.3.0</span>
+                    <span class="version-date">25 de Octubre, 2025</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>API de CarStudio</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔧</div>
+                            <div class="change-text">
+                                <strong>Solucionado problema con la herramienta de edición de fotos</strong>
+                                <span class="commit-hash">a47cf26</span>
+                                <p class="change-description">
+                                    La integración con CarStudio (herramienta para mejorar fotos de vehículos) ahora funciona correctamente. Anteriormente mostraba un error de autorización que impedía procesar las imágenes. Se actualizó la configuración de seguridad para que la comunicación funcione sin problemas.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Autenticación OTP</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔐</div>
+                            <div class="change-text">
+                                <strong>Solucionado error al iniciar sesión con código de 6 dígitos</strong>
+                                <span class="commit-hash">d63d85c</span>
+                                <p class="change-description">
+                                    Los usuarios ya pueden iniciar sesión correctamente usando el código de 6 dígitos que reciben por correo. Anteriormente aparecía el mensaje "Código inválido o expirado" incluso con códigos válidos. Se corrigió el proceso de validación para que funcione sin problemas.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Visualización de Documentos</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📄</div>
+                            <div class="change-text">
+                                <strong>Solucionado problema para ver y descargar documentos de clientes</strong>
+                                <span class="commit-hash">33cfb5a</span>
+                                <p class="change-description">
+                                    Ahora puedes ver y descargar correctamente los documentos que los clientes suben (INE, comprobante de domicilio, etc.) desde la página de Perfil del Cliente. Antes no se podían abrir y todos mostraban el mismo tamaño de archivo. También se corrigió para que muestre el tamaño real de cada documento.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-pending">Pendiente</span>
+                        <span>Actualización de Estado de Solicitudes</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">⚠️</div>
+                            <div class="change-text">
+                                <strong>Permisos para cambiar estado de solicitudes de crédito</strong>
+                                <p class="change-description">
+                                    <strong>Acción requerida por el equipo de sistemas:</strong> Actualmente los asesores y administradores no pueden cambiar el estado de las solicitudes de crédito desde el perfil del cliente (por ejemplo, cambiar de "En Revisión" a "Aprobada"). Se necesita actualizar los permisos en la base de datos ejecutando el siguiente código:
+                                    <br><br>
+                                    <code style="display: block; background: #f5f5f5; padding: 15px; border-radius: 8px; font-size: 0.9em; white-space: pre-wrap; margin-top: 10px;">DROP POLICY IF EXISTS "financing_apps_update" ON public.financing_applications;
+
+CREATE POLICY "financing_apps_update" ON public.financing_applications
+FOR UPDATE TO authenticated
+USING (
+  user_id = auth.uid() OR
+  get_my_role() IN ('admin', 'sales')
+)
+WITH CHECK (
+  user_id = auth.uid() OR
+  get_my_role() IN ('admin', 'sales')
+);</code>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Versiones Anteriores -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.2.0</span>
+                    <span class="version-date">24 de Octubre, 2025</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Función</span>
+                        <span>Sistema de Notificaciones por Correo</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">📧</div>
+                            <div class="change-text">
+                                <strong>Sistema de notificaciones automáticas por correo electrónico</strong>
+                                <p class="change-description">
+                                    Ahora los clientes reciben correos automáticos en momentos importantes:
+                                    <br>• Cuando envían una solicitud de crédito
+                                    <br>• Cuando cambia el estado de su solicitud (en revisión, aprobada, rechazada, etc.)
+                                    <br>• Cuando sus documentos son revisados (aprobados o rechazados)
+                                    <br><br>
+                                    Los correos tienen el diseño y colores de Autos TREFA, y incluyen un link directo para que el cliente entre a su portal y vea más detalles.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        <span>Navegación y Rutas</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">🔗</div>
+                            <div class="change-text">
+                                <strong>Reorganización del menú de navegación del CRM</strong>
+                                <p class="change-description">
+                                    El CRM (sistema de gestión de clientes) ahora está organizado dentro del menú de administración. Se actualizaron todos los enlaces y permisos para que funcione correctamente en su nueva ubicación.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="change-item">
+                            <div class="change-icon">↩️</div>
+                            <div class="change-text">
+                                <strong>Ajuste en inicio de sesión con Google</strong>
+                                <p class="change-description">
+                                    Cuando inicias sesión con tu cuenta de Google, ahora te lleva directo a tu escritorio en lugar de mostrar una página intermedia.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Documentado por el equipo de Autos TREFA</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">
+                Última actualización: 25 de Octubre, 2025
+            </p>
+        </div>
+    </div>
+</body>
+</html>

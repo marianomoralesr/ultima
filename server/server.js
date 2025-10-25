@@ -150,10 +150,29 @@ app.post("/intelimotor-api/", async (req, res) => {
       return res.status(400).json({ error: "Missing 'url' in request body" });
     }
 
-    console.log('Intelimotor proxy request:', { url, method, headers: Object.keys(headers || {}) });
+    // Extract API credentials from request headers
+    const apiKey = req.headers['x-api-key'];
+    const apiSecret = req.headers['x-api-secret'];
 
-    // Make request to Intelimotor API
-    const response = await fetch(url, {
+    if (!apiKey || !apiSecret) {
+      console.error('Missing Intelimotor credentials in headers');
+      return res.status(401).json({ error: 'Missing API Key or API Secret in request headers' });
+    }
+
+    // Add apiKey and apiSecret as query parameters to the URL
+    const targetUrl = new URL(url);
+    targetUrl.searchParams.set('apiKey', apiKey);
+    targetUrl.searchParams.set('apiSecret', apiSecret);
+
+    console.log('Intelimotor proxy request:', {
+      url: targetUrl.toString(),
+      method,
+      hasApiKey: !!apiKey,
+      hasApiSecret: !!apiSecret
+    });
+
+    // Make request to Intelimotor API with credentials as query params
+    const response = await fetch(targetUrl.toString(), {
       method: method || 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -165,11 +184,11 @@ app.post("/intelimotor-api/", async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Intelimotor API error:', { status: response.status, url, data });
+      console.error('Intelimotor API error:', { status: response.status, url: targetUrl.toString(), data });
       return res.status(response.status).json(data);
     }
 
-    console.log('Intelimotor API success:', { status: response.status, url });
+    console.log('Intelimotor API success:', { status: response.status, url: targetUrl.toString() });
     res.json(data);
   } catch (error) {
     console.error('Intelimotor proxy error:', error);

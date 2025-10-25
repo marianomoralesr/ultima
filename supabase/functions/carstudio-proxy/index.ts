@@ -13,7 +13,7 @@ serve(async (req) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-ApiKey',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, apiKey',
         'Access-Control-Max-Age': '86400',
       },
     })
@@ -72,7 +72,7 @@ serve(async (req) => {
     const responseHeaders = new Headers(response.headers)
     responseHeaders.set('Access-Control-Allow-Origin', '*')
     responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-ApiKey')
+    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, apiKey')
 
     return new Response(await response.arrayBuffer(), {
       status: response.status,

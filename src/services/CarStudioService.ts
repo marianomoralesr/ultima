@@ -83,7 +83,7 @@ class CarStudioService {
 
         return this.makeRequest(API_URLS.GET, {
             method: 'POST',
-            headers: { 'X-ApiKey': API_KEY },
+            headers: { 'apiKey': API_KEY },
             body: formData,
         });
     }
@@ -105,7 +105,7 @@ class CarStudioService {
 
         return this.makeRequest(API_URLS.LIST, {
             method: 'POST',
-            headers: { 'X-ApiKey': API_KEY },
+            headers: { 'apiKey': API_KEY },
             body: formData,
         });
     }
@@ -121,7 +121,7 @@ class CarStudioService {
 
         return this.makeRequest(urlWithParams, {
             method: 'GET',
-            headers: { 'X-ApiKey': API_KEY },
+            headers: { 'apiKey': API_KEY },
         });
     }
     
@@ -158,7 +158,7 @@ class CarStudioService {
 
         return this.makeRequest(API_URLS.UPLOAD_V2, {
             method: 'POST',
-            headers: { 'X-ApiKey': API_KEY },
+            headers: { 'apiKey': API_KEY },
             body: formData,
         });
     }
@@ -178,7 +178,7 @@ class CarStudioService {
 
         return this.makeRequest(API_URLS.WEB_EDITOR_LIST, {
             method: 'POST',
-            headers: { 'X-ApiKey': API_KEY },
+            headers: { 'apiKey': API_KEY },
             body: formData,
         });
     }
@@ -190,7 +190,7 @@ class CarStudioService {
 
         return this.makeRequest(API_URLS.GET_CREDIT, {
             method: 'POST',
-            headers: { 'X-ApiKey': API_KEY },
+            headers: { 'apiKey': API_KEY },
             body: formData,
         });
     }

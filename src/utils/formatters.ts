@@ -471,7 +471,7 @@ export function getFilterOptions(
 
   // First, get all possible options from the complete vehicle list
   allVehicles.forEach(v => {
-    if (v.marca && typeof v.marca === 'string' && v.marca.trim() !== '') options.marcas.add(v.marca.trim());
+    if (v.marca && typeof v.marca === 'string' && v.marca.trim() !== '') options.marca.add(v.marca.trim());
     if (v.autoano) options.autoano.add(v.autoano);
     if (v.garantia && v.garantia !== 'N/A') options.garantia.add(v.garantia);
     v.promociones?.forEach(p => options.promociones.add(p));
@@ -496,7 +496,7 @@ export function getFilterOptions(
   });
 
   return {
-    marca: Array.from(options.marca).sort().map(m => ({ name: m, count: counts.marca[m] || 0 })),
+    marcas: Array.from(options.marca).sort().map(m => ({ name: m, count: counts.marca[m] || 0 })),
     autoano: Array.from(options.autoano).sort((a, b) => b - a).map(y => ({ name: y.toString(), count: counts.autoano[y] || 0 })),
     garantia: Array.from(options.garantia).sort().map(g => ({ name: g, count: counts.garantia[g] || 0 })),
     promociones: Array.from(options.promociones).map(p => ({ name: p, count: counts.promociones[p] || 0 })),
@@ -506,7 +506,7 @@ export function getFilterOptions(
     ubicacion: Array.from(options.ubicacion).sort().map(s => ({ name: s, count: counts.ubicacion[s] || 0 })),
     minPrice: options.precio.length > 0 ? Math.min(...options.precio) : 0,
     maxPrice: options.precio.length > 0 ? Math.max(...options.precio) : 0,
-    minEnganche: options.downPayments.length > 0 ? Math.min(...options.downPayments) : 0,
+    enganchemin: options.downPayments.length > 0 ? Math.min(...options.downPayments) : 0,
     maxEnganche: options.downPayments.length > 0 ? Math.max(...options.downPayments) : 0,
     counts,
   };

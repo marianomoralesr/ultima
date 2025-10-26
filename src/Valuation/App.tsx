@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useAuth } from '../context/AuthContext';
 import {
     searchVehiclesWithAI,
     fetchIntelimotorValuation,
@@ -15,10 +16,10 @@ import Spinner from './components/Spinner';
 import Confetti from './components/Confetti';
 import AnimatedNumber from './components/AnimatedNumber';
 import { Car, AlertTriangle, Search, CheckCircle, Info, RefreshCw, ArrowLeft } from 'lucide-react';
-import { 
-    PrintIcon, 
-    DocumentDuplicateIcon, 
-    CheckIcon 
+import {
+    PrintIcon,
+    DocumentDuplicateIcon,
+    CheckIcon
 } from '../components/icons';
 import { config } from '../pages/config';
 import StepIndicator from './components/StepIndicator';
@@ -26,7 +27,12 @@ import { BrevoEmailService } from '../services/BrevoEmailService';
 
 
 const valuationSchema = z.object({
-  mileage: z.string().min(1, 'El kilometraje es requerido.'),
+  mileage: z.string()
+    .min(1, 'El kilometraje es requerido.')
+    .refine((val) => {
+      const numericValue = parseInt(val.replace(/[^0-9]/g, ''), 10);
+      return !isNaN(numericValue) && numericValue <= 99999;
+    }, 'El kilometraje debe ser menor a 100,000 km'),
   clientName: z.string().min(2, 'Tu nombre es requerido.'),
   clientPhone: z.string().min(10, 'El teléfono debe tener 10 dígitos.'),
   clientEmail: z.string().email('El correo es inválido.'),
@@ -38,6 +44,7 @@ const VALUATION_FORM_STATE_KEY = 'trefaValuationFormState';
 
 function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?: string | null; onComplete?: () => void }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState<'vehicle' | 'contact' | 'valuating' | 'success'>('vehicle');
   const [error, setError] = useState<string | null>(null);
   
@@ -273,9 +280,20 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
   const whatsappUrl = `https://wa.me/528187049079?text=${encodeURIComponent(whatsappText)}`;
 
   const handleContinueToSellForm = () => {
-    // Store valuation data in localStorage so it persists through login if needed
     const valuationData = { vehicle: selectedVehicle, valuation };
-    localStorage.setItem('pendingValuationData', JSON.stringify(valuationData));
+
+    // Check if user is authenticated
+    if (!user) {
+      // Store valuation data in localStorage so it persists through login
+      localStorage.setItem('pendingValuationData', JSON.stringify(valuationData));
+      // Store redirect path
+      localStorage.setItem('redirectAfterLogin', '/escritorio/vende-tu-auto');
+      // Redirect to auth page with a message
+      navigate('/auth?message=Por favor inicia sesión para continuar con la venta de tu vehículo&redirect=/escritorio/vende-tu-auto');
+      return;
+    }
+
+    // User is authenticated, proceed normally
     navigate('/escritorio/vende-tu-auto', { state: { valuationData } });
   };
   
@@ -353,7 +371,50 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
             <div>
                 <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">2. Kilometraje</label>
                 <input id="mileage" {...register('mileage')} placeholder="Ej: 45,000 km" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
-                {errors.mileage && <p className="text-xs text-red-500 mt-1">{errors.mileage.message}</p>}
+                {errors.mileage && (
+                  <>
+                    <p className="text-xs text-red-500 mt-1">{errors.mileage.message}</p>
+                    {(() => {
+                      const mileageValue = getValues('mileage');
+                      const numericValue = parseInt((mileageValue || '').replace(/[^0-9]/g, ''), 10);
+                      return !isNaN(numericValue) && numericValue > 99999;
+                    })() && (
+                      <div className="mt-3 p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg border border-orange-200">
+                        <div className="flex items-start gap-2 mb-3">
+                          <Info className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-800">
+                              ¡Gracias por tu interés! 😊
+                            </p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              En este momento estamos comprando vehículos con menos de 90,000 km.
+                              Pero no te preocupes, tenemos algunas opciones excelentes para ti:
+                            </p>
+                          </div>
+                        </div>
+                        <div className="space-y-2 ml-7">
+                          <a
+                            href="https://www.kavak.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                          >
+                            <Car className="w-4 h-4" />
+                            Visita Kavak.com - Otra opción confiable para vender tu auto
+                          </a>
+                          <a
+                            href="/Manual-Venta-TREFA-2025.pdf"
+                            download
+                            className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                          >
+                            <DocumentDuplicateIcon className="w-4 h-4" />
+                            Descarga nuestra Guía de Venta TREFA 2025
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
             </div>
             {error && <div className="p-3 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200 flex items-start gap-2"><AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />{error}</div>}
              <button type="button" onClick={handleContinueToContact} data-gtm-id="valuation-step1-continue"

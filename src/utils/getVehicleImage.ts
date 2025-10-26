@@ -9,7 +9,15 @@ export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): s
     return [];
   };
 
+  // Check if we should use Car Studio images
+  const useCarStudioImages = (vehicle as any).use_car_studio_images === true;
+
   const potentialImages = [
+    // 0. HIGHEST PRIORITY: Car Studio images if flag is enabled
+    ...(useCarStudioImages ? [
+      (vehicle as any).car_studio_feature_image,
+      ...parseStringOrArray((vehicle as any).car_studio_gallery),
+    ] : []),
     // 1. Prioritize explicit feature images and their variants
     vehicle.feature_image,
     vehicle.feature_image_url,

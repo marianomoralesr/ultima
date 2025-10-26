@@ -170,11 +170,11 @@ export const ApplicationService = {
     const { data, error } = await supabase
       .from('financing_applications')
       .delete()
-      .match({ id: applicationId, user_id: userId, status: 'draft' });
+      .match({ id: applicationId, user_id: userId });
 
     if (error) {
       console.error('Error deleting application:', error.message, { code: error.code, details: error.details });
-      throw new Error('No se pudo eliminar el borrador.');
+      throw new Error('No se pudo eliminar la solicitud.');
     }
     return data;
   },

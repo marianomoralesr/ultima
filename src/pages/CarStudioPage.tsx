@@ -283,7 +283,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
     const toggleImageSelection = (index: number) => {
         const newSelection = new Set(selectedImageIndices);
-        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
+        const positions = ['FRONT', 'RIGHT_FRONT', 'RIGHT_SIDE', 'RIGHT_BACK', 'BACK', 'LEFT_BACK', 'LEFT_SIDE', 'LEFT_FRONT', 'CENTRAL_DASH', 'STEERING_WHEEL', 'LEFT_DRIVER_DOOR_OPEN', 'LEFT_REAR_DOOR_OPEN', 'RIGHT_PASSENGER_DOOR_OPEN', 'CEELING_FEATURES', 'OTHER'];
 
         if (newSelection.has(index)) {
             // Remove from selection
@@ -305,7 +305,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
     const selectAllImages = () => {
         const allIndices = new Set(availableImages.map((_, i) => i));
         setSelectedImageIndices(allIndices);
-        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
+        const positions = ['FRONT', 'RIGHT_FRONT', 'RIGHT_SIDE', 'RIGHT_BACK', 'BACK', 'LEFT_BACK', 'LEFT_SIDE', 'LEFT_FRONT', 'CENTRAL_DASH', 'STEERING_WHEEL', 'LEFT_DRIVER_DOOR_OPEN', 'LEFT_REAR_DOOR_OPEN', 'RIGHT_PASSENGER_DOOR_OPEN', 'CEELING_FEATURES', 'OTHER'];
         setUploadImages(availableImages.map((url, idx) => ({ fileUrl: url, position: positions[idx % positions.length] })));
     };
 
@@ -575,13 +575,20 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                                                     className="w-full text-xs px-2 py-1 border border-primary-300 rounded bg-white text-gray-700 focus:ring-1 focus:ring-primary-500"
                                                 >
                                                     <option value="FRONT">FRONT</option>
+                                                    <option value="RIGHT_FRONT">RIGHT_FRONT</option>
+                                                    <option value="RIGHT_SIDE">RIGHT_SIDE</option>
+                                                    <option value="RIGHT_BACK">RIGHT_BACK</option>
                                                     <option value="BACK">BACK</option>
-                                                    <option value="LEFT">LEFT</option>
-                                                    <option value="RIGHT">RIGHT</option>
-                                                    <option value="FRONT_LEFT">FRONT_LEFT</option>
-                                                    <option value="FRONT_RIGHT">FRONT_RIGHT</option>
-                                                    <option value="BACK_LEFT">BACK_LEFT</option>
-                                                    <option value="BACK_RIGHT">BACK_RIGHT</option>
+                                                    <option value="LEFT_BACK">LEFT_BACK</option>
+                                                    <option value="LEFT_SIDE">LEFT_SIDE</option>
+                                                    <option value="LEFT_FRONT">LEFT_FRONT</option>
+                                                    <option value="CENTRAL_DASH">CENTRAL_DASH</option>
+                                                    <option value="STEERING_WHEEL">STEERING_WHEEL</option>
+                                                    <option value="LEFT_DRIVER_DOOR_OPEN">LEFT_DRIVER_DOOR_OPEN</option>
+                                                    <option value="LEFT_REAR_DOOR_OPEN">LEFT_REAR_DOOR_OPEN</option>
+                                                    <option value="RIGHT_PASSENGER_DOOR_OPEN">RIGHT_PASSENGER_DOOR_OPEN</option>
+                                                    <option value="CEELING_FEATURES">CEELING_FEATURES</option>
+                                                    <option value="OTHER">OTHER</option>
                                                 </select>
                                             )}
                                         </div>

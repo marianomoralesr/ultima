@@ -1,11 +1,11 @@
 // Supabase Edge Function: Airtable Webhook → inventario_cache Sync
 // This function receives a single record update from Airtable webhooks
-// Now uploads images to Cloudflare R2 for permanent storage
+// and syncs all vehicle data to Supabase inventario_cache table.
+// Image URLs are read from Airtable text fields (populated by airtable-image-upload-optimized.js)
 // Deploy with: supabase functions deploy airtable-sync
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { uploadImagesToR2 } from './r2-helper.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -225,52 +225,24 @@ serve(async (req: Request) => {
 
     const ordenCompra = fields.OrdenCompra || record.id;
 
-    // Extract images from Airtable and upload to R2
-    console.log(`🖼️  Processing images for ${ordenCompra}...`);
-    const exteriorImagesArray = getImageUrls(fields.fotos_exterior_url);
-    const interiorImagesArray = getImageUrls(fields.fotos_interior_url);
+    // Read R2 image URLs directly from Airtable text fields
+    // These URLs are populated by the airtable-image-upload-optimized.js automation
+    // which handles uploading attachments to R2 and saving URLs back to Airtable
+    console.log(`🖼️  Reading image URLs for ${ordenCompra}...`);
+
+    const exteriorImages = getImageUrls(fields.fotos_exterior_url).join(', ') || '';
+    const interiorImages = getImageUrls(fields.fotos_interior_url).join(', ') || '';
     const featureImageArray = getImageUrls(fields.feature_image);
 
-    // Upload to R2 (concurrent with rate limiting)
-    let r2ExteriorImages: string[] = [];
-    let r2InteriorImages: string[] = [];
-    let r2FeatureImage: string | null = null;
+    // Use feature_image if available, otherwise use first exterior image as fallback
+    let featureImage = featureImageArray.length > 0 ? featureImageArray[0] : null;
 
-    try {
-      // Upload exterior images
-      if (exteriorImagesArray.length > 0) {
-        console.log(`📤 Uploading ${exteriorImagesArray.length} exterior images to R2...`);
-        r2ExteriorImages = await uploadImagesToR2(exteriorImagesArray, ordenCompra, 'exterior');
-        console.log(`✅ Uploaded ${r2ExteriorImages.length}/${exteriorImagesArray.length} exterior images`);
-      }
-
-      // Upload interior images
-      if (interiorImagesArray.length > 0) {
-        console.log(`📤 Uploading ${interiorImagesArray.length} interior images to R2...`);
-        r2InteriorImages = await uploadImagesToR2(interiorImagesArray, ordenCompra, 'interior');
-        console.log(`✅ Uploaded ${r2InteriorImages.length}/${interiorImagesArray.length} interior images`);
-      }
-
-      // Upload feature image
-      if (featureImageArray.length > 0) {
-        console.log(`📤 Uploading feature image to R2...`);
-        const r2FeatureImages = await uploadImagesToR2([featureImageArray[0]], ordenCompra, 'feature');
-        r2FeatureImage = r2FeatureImages[0] || null;
-        console.log(`✅ Uploaded feature image`);
-      }
-
-      // If no feature image was uploaded, use first exterior image as feature
-      if (!r2FeatureImage && r2ExteriorImages.length > 0) {
-        r2FeatureImage = r2ExteriorImages[0];
-      }
-    } catch (uploadError: any) {
-      console.error('⚠️  Image upload error (non-critical):', uploadError.message);
-      // Continue with sync even if image upload fails
+    if (!featureImage && exteriorImages) {
+      const exteriorArray = exteriorImages.split(',').map(url => url.trim()).filter(Boolean);
+      featureImage = exteriorArray[0] || null;
     }
 
-    const exteriorImages = r2ExteriorImages.length > 0 ? r2ExteriorImages.join(', ') : '';
-    const interiorImages = r2InteriorImages.length > 0 ? r2InteriorImages.join(', ') : '';
-    const featureImage = r2FeatureImage;
+    console.log(`✅ Found ${exteriorImages.split(',').filter(Boolean).length} exterior, ${interiorImages.split(',').filter(Boolean).length} interior, ${featureImage ? 1 : 0} feature image URLs`);
 
     // Normalize combustible field - convert to plain text (first element)
     const combustibleArray = getArrayField(fields.autocombustible || fields.combustible);

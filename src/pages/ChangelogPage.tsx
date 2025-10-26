@@ -218,6 +218,363 @@ const ChangelogPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Version 1.2.0 - Major Features */}
+          <div className="border-l-4 border-blue-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.2.0</h2>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* CRM System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema CRM Completo</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">✓</span>
+                    <div className="flex-1">
+                      <strong>Dashboard de leads y gestión de clientes</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">d2f9f54</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Implementación completa de CRM con dashboard de leads, perfiles de clientes, seguimiento de aplicaciones,
+                        y sistema de notificaciones por email. Incluye acceso basado en roles (admin/sales) y permisos de asesor.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">🔒</span>
+                    <div className="flex-1">
+                      <strong>Control de acceso seguro para agentes de ventas</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">301631a</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Los agentes solo pueden ver perfiles de clientes que les han otorgado permiso explícito mediante
+                        el flag asesor_autorizado_acceso. Implementado con función RPC segura get_secure_client_profile.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">📊</span>
+                    <div className="flex-1">
+                      <strong>Tracking de fuentes de leads (UTM, RFDM)</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Captura automática de parámetros UTM, RFDM y OrdenCompra desde la URL, almacenados en metadatos
+                        del perfil de usuario para análisis de efectividad de campañas.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Application System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Solicitudes de Financiamiento</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">📝</span>
+                    <div className="flex-1">
+                      <strong>Formulario flexible de solicitud</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">0ccd25e</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Los usuarios pueden enviar solicitudes sin tener todos los documentos listos. El campo documents_pending
+                        permite tracking de documentos faltantes. Dirección ahora es opcional para mejor UX.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">👤</span>
+                    <div className="flex-1">
+                      <strong>Flujo de perfilación bancaria</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de dos pasos: primero completar perfil personal, luego perfilación bancaria antes de aplicar.
+                        Redirecciones automáticas para guiar al usuario por el flujo correcto.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">💾</span>
+                    <div className="flex-1">
+                      <strong>Guardado de borradores</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">4f609b4</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Las solicitudes se guardan automáticamente como borradores. Los usuarios pueden continuar
+                        desde donde lo dejaron en /escritorio/seguimiento.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Valuation System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Valuación de Vehículos</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">💰</span>
+                    <div className="flex-1">
+                      <strong>Integración con Intelimotor API</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">1eaaf7b</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema completo de valuación conectado a Intelimotor para obtener precios de mercado en tiempo real.
+                        Incluye búsqueda por marca/modelo/año y VIN lookup.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">🔄</span>
+                    <div className="flex-1">
+                      <strong>Flujo público y protegido</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Ruta pública /vender-mi-auto para obtener valuación inicial. Ruta protegida /escritorio/vende-tu-auto
+                        para subir fotos y completar detalles post-valuación.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* CarStudio AI */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">CarStudio AI - Procesamiento de Imágenes</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">🤖</span>
+                    <div className="flex-1">
+                      <strong>Extracción automática de datos de vehículos</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">ce04ae5</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        AI que analiza fotos de vehículos para extraer marca, modelo, año, color y más.
+                        Incluye manejo robusto de errores para imágenes de baja calidad o fondos complejos.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Airtable Integration */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Integración con Airtable</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-blue-500 text-xl">🔗</span>
+                    <div className="flex-1">
+                      <strong>Sincronización bidireccional de datos</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">ffa319f</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de sincronización con Airtable para inventario, leads y compras. Incluye configuración
+                        de API keys con fallbacks y página de administración para gestionar la integración.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.1.0 - Core Infrastructure */}
+          <div className="border-l-4 border-green-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.1.0</h2>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Authentication */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Autenticación</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">🔐</span>
+                    <div className="flex-1">
+                      <strong>Login con OTP y Google OAuth</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">781ab4b</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de autenticación dual: login sin contraseña vía código OTP enviado por email,
+                        o login con cuenta de Google. Redirección automática a /escritorio después de login exitoso.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">👥</span>
+                    <div className="flex-1">
+                      <strong>Sistema de roles (Admin/Sales/User)</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Asignación automática de roles basada en email. Protección de rutas con AdminRoute y SalesRoute.
+                        Agente de ventas asignado automáticamente en round-robin con función get_next_sales_agent.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">🛡️</span>
+                    <div className="flex-1">
+                      <strong>Row Level Security (RLS) completo</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">54d0e1c</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Políticas RLS implementadas en todas las tablas: profiles, financing_applications, bank_profiling,
+                        documents, vacancies, applications, y más. Garantiza que usuarios solo accedan a sus propios datos.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Vehicle Display */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejora
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Vehículos</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">🚗</span>
+                    <div className="flex-1">
+                      <strong>Fetching centralizado con VehicleContext</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Todos los vehículos se obtienen vía VehicleContext usando TanStack Query.
+                        Fallback automático de inventario_cache a smooth-handler Edge Function.
+                        Caché de 1 hora en IndexedDB para rendimiento óptimo.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">🔍</span>
+                    <div className="flex-1">
+                      <strong>Sistema de filtros avanzado</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">38ed671</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        FilterSidebar con cálculo dinámico de counts por marca, año, sucursal, clasificación, transmisión y combustible.
+                        FilterSheet móvil con UI optimizada para pantallas pequeñas.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">🔗</span>
+                    <div className="flex-1">
+                      <strong">Generación de slugs con fallbacks</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Slugs generados con cadena de prioridad: slug/ligawp → ordencompra → record_id → id.
+                        Garantiza URLs únicas y amigables para SEO.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Vacancies System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Reclutamiento</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">💼</span>
+                    <div className="flex-1">
+                      <strong>Portal de vacantes y aplicaciones</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Listado público de vacantes en /vacantes. Formulario de aplicación con upload de CV.
+                        Dashboard admin para gestionar vacantes y revisar candidatos en /escritorio/admin/vacantes.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Infrastructure */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejora
+                  </span>
+                  <h3 className="text-xl font-semibold">Infraestructura y Deployment</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">🐳</span>
+                    <div className="flex-1">
+                      <strong>Docker multi-stage build optimizado</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Dockerfile con build de dos etapas para imágenes ligeras. Deploy automatizado a Google Cloud Run
+                        con variables de entorno desde cloud-build-vars.yaml.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">☁️</span>
+                    <div className="flex-1">
+                      <strong>Cloudflare R2 para almacenamiento</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">37c9b65</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Imágenes y documentos almacenados en Cloudflare R2 con URLs firmadas para seguridad.
+                        Recursos de Cloud Run aumentados (2GB RAM, 2 CPUs) para mejor rendimiento.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Email System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Notificaciones</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-green-500 text-xl">📧</span>
+                    <div className="flex-1">
+                      <strong>Emails automáticos vía Supabase Edge Functions</strong>
+                      <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">94c526b</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de notificaciones por email con Resend API. Emails de bienvenida, confirmación de solicitudes,
+                        asignación de asesor y más. Sender configurado como hola@trefa.mx.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

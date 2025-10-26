@@ -35,7 +35,7 @@ type ValuationFormData = z.infer<typeof valuationSchema>;
 const VALUATION_FORM_STATE_KEY = 'trefaValuationFormState';
 
 
-function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | null }) {
+function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?: string | null; onComplete?: () => void }) {
   const navigate = useNavigate();
   const [step, setStep] = useState<'vehicle' | 'contact' | 'valuating' | 'success'>('vehicle');
   const [error, setError] = useState<string | null>(null);
@@ -206,9 +206,17 @@ function ValuationApp({ initialSearchQuery }: { initialSearchQuery?: string | nu
             'Valor Mercado Bajo': result.valuation.lowMarketValue,
             'Client Name': data.clientName, 'Client Phone': data.clientPhone, 'Client Email': data.clientEmail,
         }, config.airtable.valuation.apiKey, config.airtable.valuation.baseId, config.airtable.valuation.storageTableId);
-        
+
         localStorage.removeItem(VALUATION_FORM_STATE_KEY);
         setStep('success');
+
+        // Call onComplete callback if provided (for embedded use in VisitasPage)
+        if (onComplete) {
+            // Delay slightly to show success screen before transitioning
+            setTimeout(() => {
+                onComplete();
+            }, 2000);
+        }
     } catch (err: any) {
         if (err instanceof ValuationFailedError) {
             setError("No pudimos generar una oferta. ¿Quizá alguno de estos sea tu auto?");

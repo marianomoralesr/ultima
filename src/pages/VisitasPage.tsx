@@ -15,7 +15,7 @@ import {
     Wrench as WrenchIcon,
     Briefcase as BriefcaseIcon
 } from 'lucide-react';
-import ValuationWidget from '../components/ValuationWidget';
+import ValuationApp from '../Valuation/App';
 
 // Constants
 const BRANCHES = [
@@ -188,10 +188,7 @@ const VisitasPage: React.FC = () => {
                         <StepHeader icon={DollarSignIcon} title="Primero, ayúdanos a valuar tu auto" />
                         <p className="text-sm text-gray-600 mt-2">Completa el formulario para obtener una oferta instantánea. Al terminar, podrás agendar la cita de inspección.</p>
                         <div className="mt-6 border-t pt-6">
-                            <ValuationWidget />
-                        </div>
-                        <div className="mt-6 text-center">
-                            <ActionButton onClick={handleValuationContinue} text="Terminé de valuar, continuar a la agenda" />
+                            <ValuationApp onComplete={handleValuationContinue} />
                         </div>
                     </div>
                 );

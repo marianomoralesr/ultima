@@ -8,7 +8,13 @@ export const InspectionService = {
    * @returns The inspection data or null if not found.
    */
   async getInspectionByVehicleId(vehicleId: number): Promise<InspectionReportData | null> {
-    const { data, error } = await supabase
+    // Validate vehicleId is a valid number
+    if (!vehicleId || isNaN(vehicleId) || vehicleId <= 0) {
+      console.warn(`Invalid vehicleId provided: ${vehicleId}`);
+      return null; // Return null for invalid IDs instead of throwing
+    }
+
+    const { data, error} = await supabase
       .from('vehicle_inspections')
       .select('*')
       .eq('vehicle_id', vehicleId)

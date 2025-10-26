@@ -19,7 +19,7 @@ const ChangelogPage: React.FC = () => {
           <p className="text-sm mt-2 opacity-90">trefa.mx</p>
           <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
             <p className="text-lg font-semibold">
-              ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">1,900+</span> horas
+              ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">550+</span> horas
             </p>
           </div>
         </div>
@@ -811,7 +811,7 @@ const ChangelogPage: React.FC = () => {
                         • <strong>Sistema de documentos:</strong> Upload de INE, comprobantes, referencias<br/>
                         • <strong>Perfilamiento bancario:</strong> Recomendaciones personalizadas de instituciones<br/>
                         • <strong>Autenticación segura:</strong> OTP por email, Google y Facebook login<br/><br/>
-                        <strong>Horas invertidas:</strong> ~800 horas en desarrollo del MVP
+                        <strong>Horas invertidas:</strong> ~50 horas en desarrollo del MVP
                       </p>
                     </div>
                   </li>
@@ -858,7 +858,7 @@ const ChangelogPage: React.FC = () => {
                       <p className="text-gray-600 text-sm mt-1">
                         Captura desde múltiples fuentes (landing pages, valuaciones, formularios de financiamiento).
                         Sistema de tags, recordatorios, historial de interacciones y sincronización con Kommo CRM.<br/><br/>
-                        <strong>Horas invertidas:</strong> ~120 horas
+                        <strong>Horas invertidas:</strong> ~120 horas en CRM completo
                       </p>
                     </div>
                   </li>
@@ -925,7 +925,7 @@ const ChangelogPage: React.FC = () => {
                       <p className="text-gray-600 text-sm mt-1">
                         Webhooks de Airtable + Edge Function sync-inventory. Consultas ultra rápidas (~300ms vs ~3s).
                         Cron job horario como respaldo. Resiliente si Airtable está caído.<br/><br/>
-                        <strong>Horas invertidas:</strong> ~45 horas
+                        <strong>Horas invertidas:</strong> ~80 horas
                       </p>
                     </div>
                   </li>
@@ -948,7 +948,7 @@ const ChangelogPage: React.FC = () => {
                       <p className="text-gray-600 text-sm mt-1">
                         Distribución global vía CDN (latencias menor50ms). URLs firmadas temporales para documentos privados.
                         Buckets organizados (imágenes públicas, documentos privados). Reducción de costos ~60% vs Supabase Storage.<br/><br/>
-                        <strong>Horas invertidas:</strong> ~35 horas
+                        <strong>Horas invertidas:</strong> ~70 horas
                       </p>
                     </div>
                   </li>
@@ -971,7 +971,7 @@ const ChangelogPage: React.FC = () => {
                       <p className="text-gray-600 text-sm mt-1">
                         Emails transaccionales (confirmación, actualizaciones de estatus, OTP). Campañas de marketing
                         (bienvenida, abandono de solicitud, promociones). Templates HTML responsive con tracking.<br/><br/>
-                        <strong>Horas invertidas:</strong> ~40 horas
+                        <strong>Horas invertidas:</strong> ~80 horas
                       </p>
                     </div>
                   </li>
@@ -1006,7 +1006,7 @@ const ChangelogPage: React.FC = () => {
                       <p className="text-gray-600 text-sm mt-1">
                         Repositorio privado en GitHub con branches (main, develop, feature/*). Commits semánticos y
                         protección de main branch. Code review via pull requests.<br/><br/>
-                        <strong>Horas invertidas:</strong> ~15 horas en setup y documentación
+                        <strong>Horas invertidas:</strong> ~30 horas en setup y documentación
                       </p>
                     </div>
                   </li>
@@ -1029,7 +1029,7 @@ const ChangelogPage: React.FC = () => {
                       <p className="text-gray-600 text-sm mt-1">
                         Dockerfile multi-stage optimizado. Deploy script automatizado. Variables de entorno desde YAML.
                         Auto-scaling de 0 a 100 instancias. SSL/HTTPS automático via Cloud Load Balancer.<br/><br/>
-                        <strong>Horas invertidas:</strong> ~50 horas en setup y optimización
+                        <strong>Horas invertidas:</strong> ~112 horas en setup y optimización
                       </p>
                     </div>
                   </li>

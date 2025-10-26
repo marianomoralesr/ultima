@@ -22,6 +22,7 @@ import {
 } from '../components/icons';
 import { config } from '../pages/config';
 import StepIndicator from './components/StepIndicator';
+import { BrevoEmailService } from '../services/BrevoEmailService';
 
 
 const valuationSchema = z.object({
@@ -207,6 +208,23 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
             'Client Name': data.clientName, 'Client Phone': data.clientPhone, 'Client Email': data.clientEmail,
         }, config.airtable.valuation.apiKey, config.airtable.valuation.baseId, config.airtable.valuation.storageTableId);
 
+        // Send email notification to admins
+        try {
+            await BrevoEmailService.notifyAdminsNewValuation(
+                data.clientName,
+                data.clientEmail,
+                data.clientPhone,
+                selectedVehicle!.label,
+                parseInt(data.mileage.replace(/[^0-9]/g, ''), 10),
+                result.valuation.suggestedOffer,
+                result.valuation.highMarketValue,
+                result.valuation.lowMarketValue
+            );
+        } catch (emailError) {
+            // Log email error but don't fail the valuation
+            console.error('Error sending valuation notification email:', emailError);
+        }
+
         localStorage.removeItem(VALUATION_FORM_STATE_KEY);
         setStep('success');
 
@@ -286,8 +304,8 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
           <p className="text-sm text-gray-500">para tu {selectedVehicle?.label}</p>
         </div>
         <div className="space-y-3">
-          <button onClick={handleContinueToSellForm} className="block w-full py-3.5 px-4 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700">Continuar con la venta</button>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-3.5 px-4 font-bold text-white bg-green-600 rounded-lg transition hover:bg-green-700">Aceptar y Agendar Inspección</a>
+          <button onClick={handleContinueToSellForm} className="block w-full py-3.5 px-4 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700">Continuar con la venta en línea</button>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-3.5 px-4 font-bold text-white bg-green-600 rounded-lg transition hover:bg-green-700 text-center">Continuar por WhatsApp con un asesor</a>
         </div>
         <div className="flex items-center justify-center gap-6 pt-6 mt-4 border-t border-gray-200">
             <button onClick={() => window.print()} className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary-600 transition-colors">

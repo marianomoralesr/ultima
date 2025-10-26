@@ -13,7 +13,7 @@ interface EmailNotificationParams {
     to: string;
     toName: string;
     subject: string;
-    templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification';
+    templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification';
     templateData: Record<string, any>;
 }
 
@@ -160,5 +160,42 @@ export const BrevoEmailService = {
                 statusUrl
             }
         });
+    },
+
+    /**
+     * Send valuation notification to admins
+     */
+    async notifyAdminsNewValuation(
+        clientName: string,
+        clientEmail: string,
+        clientPhone: string,
+        vehicleLabel: string,
+        mileage: number,
+        suggestedOffer: number,
+        highMarketValue: number,
+        lowMarketValue: number
+    ): Promise<boolean> {
+        // Send to all admin emails
+        const promises = ADMIN_EMAILS.map(adminEmail =>
+            this.sendEmail({
+                to: adminEmail,
+                toName: 'Administrador Autos TREFA',
+                subject: `🚗 Nueva Cotización de Vehículo - ${clientName}`,
+                templateType: 'valuation_notification',
+                templateData: {
+                    clientName,
+                    clientEmail,
+                    clientPhone,
+                    vehicleLabel,
+                    mileage,
+                    suggestedOffer,
+                    highMarketValue,
+                    lowMarketValue
+                }
+            })
+        );
+
+        const results = await Promise.all(promises);
+        return results.every(result => result === true);
     }
 };

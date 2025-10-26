@@ -534,167 +534,19 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
   /* Popular Card - Animated Gradient Border (1000+ views) */
   .popular-card {
     position: relative;
-    isolation: isolate;
-  }
-
-  .popular-card::before {
-    content: '';
-    position: absolute;
-    inset: -1.5px;
-    border-radius: 1rem;
-    background: linear-gradient(
-      90deg,
-      #FF6801,
-      #FFB37A,
-      #274C77,
-      #FFB37A,
-      #FF6801
-    );
-    background-size: 300% 100%;
+    border: 3px solid transparent;
+    background:
+      linear-gradient(white, white) padding-box,
+      linear-gradient(90deg, #FF6801, #FFB37A, #FDC830, #FFB37A, #FF6801) border-box;
+    background-size: 100% 100%, 300% 100%;
     animation: popular-gradient-move 4s linear infinite;
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  .popular-card > div:first-child {
-    position: relative;
-    border-radius: calc(1rem - 1.5px);
-    z-index: 0;
   }
 
   @keyframes popular-gradient-move {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 300% 50%; }
+    0% { background-position: 0% 0%, 0% 50%; }
+    100% { background-position: 0% 0%, 300% 50%; }
   }
 }
-/* ========================================
-   ANIMATED BACKGROUND BLOBS
-   ======================================== */
-
-@keyframes blob-float-1 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    transform: translate(15vw, 10vh) rotate(60deg) scale(1.05);
-  }
-  66% {
-    transform: translate(-10vw, 15vh) rotate(120deg) scale(0.95);
-  }
-}
-
-@keyframes blob-float-2 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    transform: translate(-12vw, 12vh) rotate(70deg) scale(0.92);
-  }
-  66% {
-    transform: translate(10vw, -10vh) rotate(140deg) scale(1.08);
-  }
-}
-
-@keyframes blob-float-3 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    transform: translate(8vw, -15vh) rotate(50deg) scale(1.03);
-  }
-  66% {
-    transform: translate(-15vw, 8vh) rotate(100deg) scale(0.97);
-  }
-}
-
-@keyframes blob-float-4 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    transform: translate(10vw, 8vh) rotate(80deg) scale(1.04);
-  }
-  66% {
-    transform: translate(-8vw, -10vh) rotate(160deg) scale(0.96);
-  }
-}
-
-@keyframes blob-float-5 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    transform: translate(-10vw, -12vh) rotate(65deg) scale(0.98);
-  }
-  66% {
-    transform: translate(12vw, 10vh) rotate(130deg) scale(1.02);
-  }
-}
-
-.animated-blob-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.animated-blob {
-  position: absolute;
-  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-  filter: blur(80px);
-  opacity: 0.25;
-  mix-blend-mode: screen;
-}
-
-.blob-1 {
-  width: 600px;
-  height: 600px;
-  background: linear-gradient(45deg, #FF6801, #FF8C42, #FFB37A);
-  top: -200px;
-  left: -200px;
-  animation: blob-float-1 250s ease-in-out infinite;
-}
-
-.blob-2 {
-  width: 700px;
-  height: 700px;
-  background: linear-gradient(135deg, #274C77, #4A90E2, #6096BA);
-  bottom: -250px;
-  right: -250px;
-  animation: blob-float-2 280s ease-in-out infinite;
-}
-
-.blob-3 {
-  width: 550px;
-  height: 550px;
-  background: linear-gradient(225deg, #A8DADC, #457B9D, #1D3557);
-  top: 30%;
-  left: 60%;
-  animation: blob-float-3 220s ease-in-out infinite;
-}
-
-.blob-4 {
-  width: 500px;
-  height: 500px;
-  background: linear-gradient(315deg, #F4A261, #E76F51, #E63946);
-  top: 60%;
-  left: 10%;
-  animation: blob-float-4 260s ease-in-out infinite;
-}
-
-.blob-5 {
-  width: 650px;
-  height: 650px;
-  background: linear-gradient(90deg, #2A9D8F, #56C596, #8DD9CC);
-  top: 10%;
-  right: 15%;
-  animation: blob-float-5 240s ease-in-out infinite;
-}
-
 /* ========================================
    LIQUID GLASS EFFECT FOR VEHICLE CARDS
    ======================================== */

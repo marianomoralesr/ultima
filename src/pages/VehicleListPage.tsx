@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import type { VehicleFilters } from '../types/types';
 import { useVehicles } from '../context/VehicleContext';
 import { useFilters } from '../context/FilterContext';
-import { getFilterOptions } from '../utils/formatters';
+import VehicleService from '../services/VehicleService';
 import VehicleCard from '../components/VehicleCard';
 import VehicleGridCard from '../components/VehicleGridCard';
 import RecentlyViewed from '../components/RecentlyViewed';
@@ -41,15 +41,18 @@ const VehicleListPage: React.FC = () => {
 
   const [filterOptions, setFilterOptions] = useState<any>({});
 
+  // Fetch filter options from database (not from paginated vehicles array)
   useEffect(() => {
-    if (vehicles.length > 0) {
+    const fetchFilterOptions = async () => {
       try {
-        setFilterOptions(getFilterOptions(vehicles, vehicles));
+        const options = await VehicleService.getFilterOptions();
+        setFilterOptions(options);
       } catch (error) {
-        console.error('Error in getFilterOptions:', error);
+        console.error('Error fetching filter options:', error);
       }
-    }
-  }, [vehicles]);
+    };
+    fetchFilterOptions();
+  }, []); // Only fetch once on mount
 
 const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     if (count === 0) return 'No se encontraron autos | TREFA';

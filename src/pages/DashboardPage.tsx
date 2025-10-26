@@ -148,7 +148,7 @@ const EbookCta: React.FC = () => (
             </div>
             <div className="flex-shrink-0 mt-4 md:mt-0">
                 <a
-                    href="/public/manual-venta-TREFA.pdf"
+                    href="/Manual-Venta-TREFA-2025.pdf"
                     download="Manual-Venta-TREFA-2025.pdf"
                     className="inline-flex items-center px-5 py-2.5 bg-white text-green-700 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md"
                 >

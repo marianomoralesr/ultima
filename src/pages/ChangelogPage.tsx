@@ -40,6 +40,85 @@ const ChangelogPage: React.FC = () => {
             </div>
 
             <div className="space-y-8">
+              {/* Bug Fixes */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Correcciones
+                  </span>
+                  <h3 className="text-xl font-semibold">Correcciones Críticas de Bugs</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔧</span>
+                    <div className="flex-1">
+                      <strong>Corrección de error en página de Vacantes</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se corrigió el error "column reference 'id' is ambiguous" que impedía cargar la lista de vacantes.
+                        El problema se debía a una referencia incorrecta a la tabla vacancy_applications en lugar de
+                        job_applications en la función de base de datos get_vacancies_with_application_count.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📋</span>
+                    <div className="flex-1">
+                      <strong>Corrección de Reportes de Inspección</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se solucionó el error "ID de vehículo no válido" que aparecía al intentar acceder a reportes de
+                        inspección. El problema era una discrepancia entre el parámetro de ruta definido como :id y el
+                        código que intentaba extraerlo como vehicleId.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🖼️</span>
+                    <div className="flex-1">
+                      <strong>Corrección de recorte de imágenes en CarStudio</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se cambió la visualización de imágenes en el selector de CarStudio de object-cover a object-contain
+                        para evitar el recorte vertical de las fotos de vehículos y permitir ver la imagen completa antes
+                        de procesar con IA.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🤖</span>
+                    <div className="flex-1">
+                      <strong>Mejor manejo de errores de CarStudio AI</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se agregó manejo robusto de errores para cuando la API de CarStudio devuelve estructuras de
+                        respuesta inesperadas. Ahora se muestra información detallada del error incluyendo las claves
+                        de respuesta recibidas para facilitar el debugging. Se corrigió el error "NO RESPONSE: AI response
+                        parsing failed" con mensajes informativos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎯</span>
+                    <div className="flex-1">
+                      <strong>Asignación manual de posiciones de imágenes en CarStudio</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se implementó un sistema de asignación manual de posiciones (FRONT, BACK, LEFT, RIGHT, FRONT_LEFT,
+                        FRONT_RIGHT, BACK_LEFT, BACK_RIGHT) para cada imagen seleccionada. Ahora los usuarios pueden elegir
+                        explícitamente qué posición corresponde a cada imagen mediante dropdowns, en lugar de depender del
+                        orden de selección automático.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📥</span>
+                    <div className="flex-1">
+                      <strong>Corrección de enlace de descarga del Manual 2025</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se actualizó el enlace de descarga del Manual de Venta TREFA 2025 en el Dashboard para apuntar
+                        correctamente a /Manual-Venta-TREFA-2025.pdf en lugar de la ruta incorrecta /public/manual-venta-TREFA.pdf.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
               {/* CRM Enhancements */}
               <div>
                 <div className="flex items-center gap-3 mb-4">

@@ -291,16 +291,20 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSelectedImageIndices(newSelection);
 
         // Update uploadImages based on selection
+        // CarStudio requires specific positions: FRONT, BACK, LEFT, RIGHT, FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT
+        // For exterior images, we'll cycle through these positions
+        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
         const selectedImages = Array.from(newSelection)
             .sort((a, b) => a - b)
-            .map(i => ({ fileUrl: availableImages[i], position: 'OTHER' }));
+            .map((i, idx) => ({ fileUrl: availableImages[i], position: positions[idx % positions.length] }));
         setUploadImages(selectedImages);
     };
 
     const selectAllImages = () => {
         const allIndices = new Set(availableImages.map((_, i) => i));
         setSelectedImageIndices(allIndices);
-        setUploadImages(availableImages.map(url => ({ fileUrl: url, position: 'OTHER' })));
+        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
+        setUploadImages(availableImages.map((url, idx) => ({ fileUrl: url, position: positions[idx % positions.length] })));
     };
 
     const deselectAllImages = () => {
@@ -325,8 +329,12 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             if (chassisNumber) options.chassisNumber = chassisNumber;
             if (platformUrl) options.platformUrl = platformUrl;
 
-            console.log('Sending images to CarStudio:', uploadImages);
-            console.log('Options:', options);
+            console.log('Sending images to CarStudio:');
+            console.log('- Total images:', uploadImages.length);
+            uploadImages.forEach((img, idx) => {
+                console.log(`  [${idx}] Position: ${img.position}, URL: ${img.fileUrl}`);
+            });
+            console.log('- Options:', options);
 
             const response = await CarStudioService.uploadImagesWithUrlV2(uploadImages, options);
 

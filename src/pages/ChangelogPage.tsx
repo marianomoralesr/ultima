@@ -1,31 +1,35 @@
 import React from 'react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Rocket } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
 
 const ChangelogPage: React.FC = () => {
   useSEO({
-    title: 'Registro de Cambios - Trefa Autos',
-    description: 'Historial de actualizaciones y mejoras de la plataforma Trefa',
+    title: 'Registro de Cambios y Roadmap - Trefa Autos',
+    description: 'Historial de actualizaciones y plan de desarrollo de la plataforma Trefa',
   });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 to-primary-700 py-8 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-12 text-center">
-          <BookOpen className="w-16 h-16 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold mb-3">📝 Registro de Cambios</h1>
-          <p className="text-lg opacity-95">Autos TREFA - Historial de Actualizaciones</p>
-          <p className="text-sm mt-2 opacity-90">trefa.mx</p>
-          <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
-            <p className="text-lg font-semibold">
-              ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">550+</span> horas
-            </p>
-          </div>
-        </div>
+      {/* Two Column Layout */}
+      <div className="max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Content */}
-        <div className="px-8 py-10 space-y-12">
+        {/* LEFT COLUMN: CHANGELOG (Orange) */}
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-12 text-center flex-shrink-0">
+            <BookOpen className="w-16 h-16 mx-auto mb-4" />
+            <h1 className="text-4xl font-bold mb-3">📝 Registro de Cambios</h1>
+            <p className="text-lg opacity-95">Autos TREFA - Historial de Actualizaciones</p>
+            <p className="text-sm mt-2 opacity-90">trefa.mx</p>
+            <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
+              <p className="text-lg font-semibold">
+                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">550+</span> horas
+              </p>
+            </div>
+          </div>
+
+          {/* Content - Scrollable */}
+          <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
           {/* Version 1.4.0 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -1037,17 +1041,325 @@ const ChangelogPage: React.FC = () => {
               </div>
             </div>
           </div>
+          </div>
+
+          {/* Footer */}
+          <div className="bg-gray-50 px-8 py-6 text-center flex-shrink-0">
+            <p className="text-gray-600 text-sm">
+              Desarrollado con ❤️ por el equipo de TREFA
+            </p>
+            <p className="text-gray-500 text-xs mt-2">
+              © 2025 Autos TREFA. Todos los derechos reservados.
+            </p>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="bg-gray-50 px-8 py-6 text-center">
-          <p className="text-gray-600 text-sm">
-            Desarrollado con ❤️ por el equipo de TREFA
-          </p>
-          <p className="text-gray-500 text-xs mt-2">
-            © 2025 Autos TREFA. Todos los derechos reservados.
-          </p>
+        {/* RIGHT COLUMN: ROADMAP (Blue) */}
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-12 text-center flex-shrink-0">
+            <Rocket className="w-16 h-16 mx-auto mb-4" />
+            <h1 className="text-4xl font-bold mb-3">🚀 Roadmap</h1>
+            <p className="text-lg opacity-95">Plan de Desarrollo y Próximas Funcionalidades</p>
+            <p className="text-sm mt-2 opacity-90">Innovación Continua</p>
+            <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
+              <p className="text-lg font-semibold">
+                📊 Proyectos en Desarrollo: <span className="text-2xl">6+</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Content - Scrollable */}
+          <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+
+            {/* En Desarrollo Activo */}
+            <div className="border-l-4 border-blue-500 pl-8">
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <h2 className="text-3xl font-bold text-gray-900">En Desarrollo Activo</h2>
+                <span className="bg-green-100 px-4 py-1 rounded-full text-sm text-green-800 font-semibold animate-pulse">
+                  🟢 En Progreso
+                </span>
+              </div>
+
+              <div className="space-y-8">
+                {/* Integración Kommo CRM */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Integración
+                    </span>
+                    <h3 className="text-xl font-semibold">Comunicación Directa con Kommo CRM</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">🔗</span>
+                      <div className="flex-1">
+                        <strong>API Bidireccional con Kommo</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Sincronización automática de leads, contactos y oportunidades entre Trefa y Kommo CRM.
+                          Actualización en tiempo real de estados de solicitudes, seguimiento de comunicaciones,
+                          y automatización de flujos de ventas. Incluye webhooks para eventos bidireccionales.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-blue-50 px-3 py-1 rounded-full text-xs text-blue-700 font-medium">
+                            🎯 Progreso: 40%
+                          </span>
+                          <span className="inline-block bg-yellow-50 px-3 py-1 rounded-full text-xs text-yellow-700 font-medium ml-2">
+                            📅 ETA: Noviembre 2025
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Sistema de Notificaciones */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Nueva Funcionalidad
+                    </span>
+                    <h3 className="text-xl font-semibold">Sistema de Notificaciones Push</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">🔔</span>
+                      <div className="flex-1">
+                        <strong>Notificaciones en tiempo real para usuarios y administradores</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Sistema completo de notificaciones push web y móvil. Alertas para cambios de estatus en solicitudes,
+                          nuevos documentos requeridos, mensajes de asesores, vencimientos de ofertas, y actualizaciones
+                          importantes. Panel de notificaciones con historial y preferencias de usuario.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-blue-50 px-3 py-1 rounded-full text-xs text-blue-700 font-medium">
+                            🎯 Progreso: 25%
+                          </span>
+                          <span className="inline-block bg-yellow-50 px-3 py-1 rounded-full text-xs text-yellow-700 font-medium ml-2">
+                            📅 ETA: Diciembre 2025
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Google Ads & Tag Manager */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Marketing
+                    </span>
+                    <h3 className="text-xl font-semibold">Integración Google Ads y Tag Manager</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">📊</span>
+                      <div className="flex-1">
+                        <strong>Tracking avanzado de conversiones y atribución</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Implementación de Google Tag Manager para gestión centralizada de tags de marketing.
+                          Configuración de eventos de conversión para Google Ads (envío de solicitud, clic en WhatsApp,
+                          agendar visita). Enhanced conversions con datos de usuario. Remarketing dinámico basado en
+                          vehículos vistos y favoritos.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-blue-50 px-3 py-1 rounded-full text-xs text-blue-700 font-medium">
+                            🎯 Progreso: 60%
+                          </span>
+                          <span className="inline-block bg-green-50 px-3 py-1 rounded-full text-xs text-green-700 font-medium ml-2">
+                            📅 ETA: Noviembre 2025
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Planificado para Iniciar */}
+            <div className="border-l-4 border-indigo-500 pl-8">
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <h2 className="text-3xl font-bold text-gray-900">Planificado para Iniciar</h2>
+                <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-700 font-semibold">
+                  📋 Próximamente
+                </span>
+              </div>
+
+              <div className="space-y-8">
+                {/* MCP para Bot TREFA */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      IA & Automatización
+                    </span>
+                    <h3 className="text-xl font-semibold">MCP para Bot de Trefa</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-indigo-500 text-xl">🤖</span>
+                      <div className="flex-1">
+                        <strong>Model Context Protocol para asistente conversacional</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Implementación de MCP (Model Context Protocol) para conectar el bot de IA de Trefa directamente
+                          con la aplicación. El bot podrá acceder a inventario en tiempo real, crear solicitudes de financiamiento,
+                          agendar citas, actualizar perfiles de usuario, y realizar búsquedas avanzadas de vehículos.
+                          Integración con Claude AI para conversaciones naturales y contextuales.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-50 px-3 py-1 rounded-full text-xs text-gray-700 font-medium">
+                            🎯 Progreso: 0%
+                          </span>
+                          <span className="inline-block bg-purple-50 px-3 py-1 rounded-full text-xs text-purple-700 font-medium ml-2">
+                            📅 Inicio: Diciembre 2025
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Comparador de Financiamiento */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Nueva Funcionalidad
+                    </span>
+                    <h3 className="text-xl font-semibold">Comparador de Opciones de Financiamiento</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-indigo-500 text-xl">💰</span>
+                      <div className="flex-1">
+                        <strong>Comparación lado a lado de diferentes planes de financiamiento</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Herramienta interactiva para que los clientes comparen diferentes opciones de financiamiento:
+                          plazos, tasas de interés, enganches, mensualidades, costo total del crédito. Visualización
+                          gráfica de amortización, simulador de escenarios, y recomendaciones personalizadas según
+                          perfil crediticio del usuario.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-50 px-3 py-1 rounded-full text-xs text-gray-700 font-medium">
+                            🎯 Progreso: 0%
+                          </span>
+                          <span className="inline-block bg-purple-50 px-3 py-1 rounded-full text-xs text-purple-700 font-medium ml-2">
+                            📅 Inicio: Enero 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Programa de Referidos */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Crecimiento
+                    </span>
+                    <h3 className="text-xl font-semibold">Programa de Referidos</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-indigo-500 text-xl">🎁</span>
+                      <div className="flex-1">
+                        <strong>Sistema de incentivos por referencia de clientes</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Plataforma completa de referidos donde clientes pueden invitar amigos y familiares a Trefa.
+                          Dashboard de tracking de referidos, generación de códigos únicos, sistema de recompensas
+                          (bonos, descuentos en próxima compra, accesorios gratis), y gamificación con niveles y logros.
+                          Integración con redes sociales para compartir fácilmente.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-50 px-3 py-1 rounded-full text-xs text-gray-700 font-medium">
+                            🎯 Progreso: 0%
+                          </span>
+                          <span className="inline-block bg-purple-50 px-3 py-1 rounded-full text-xs text-purple-700 font-medium ml-2">
+                            📅 Inicio: Febrero 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* App Móvil Nativa */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Plataforma
+                    </span>
+                    <h3 className="text-xl font-semibold">Aplicación Móvil Nativa</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-indigo-500 text-xl">📱</span>
+                      <div className="flex-1">
+                        <strong>Apps nativas para iOS y Android</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Desarrollo de aplicaciones móviles nativas usando React Native para iOS y Android.
+                          Experiencia optimizada para móviles con navegación fluida, notificaciones push nativas,
+                          acceso sin conexión a favoritos y documentos, escaneo de documentos con cámara,
+                          y autenticación biométrica (Face ID / Touch ID). Publicación en App Store y Google Play.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-50 px-3 py-1 rounded-full text-xs text-gray-700 font-medium">
+                            🎯 Progreso: 0%
+                          </span>
+                          <span className="inline-block bg-purple-50 px-3 py-1 rounded-full text-xs text-purple-700 font-medium ml-2">
+                            📅 Inicio: Marzo 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Ideas en Evaluación */}
+            <div className="border-l-4 border-gray-400 pl-8">
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <h2 className="text-3xl font-bold text-gray-900">Ideas en Evaluación</h2>
+                <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600 font-semibold">
+                  💡 Fase de Análisis
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-700 font-medium">🎮 Gamificación del proceso de compra</p>
+                  <p className="text-gray-600 text-sm mt-1">Sistema de puntos y logros para engagementzar al usuario durante el proceso de financiamiento</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-700 font-medium">🔊 Tours virtuales con audio</p>
+                  <p className="text-gray-600 text-sm mt-1">Recorridos 360° de vehículos con narración de audio automática describiendo características</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-700 font-medium">🤝 Marketplace de servicios automotrices</p>
+                  <p className="text-gray-600 text-sm mt-1">Plataforma para conectar clientes con talleres, seguros, y servicios relacionados</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-gray-700 font-medium">🎨 Personalizador de auto virtual</p>
+                  <p className="text-gray-600 text-sm mt-1">Herramienta AR para visualizar modificaciones y accesorios antes de comprar</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Footer */}
+          <div className="bg-blue-50 px-8 py-6 text-center flex-shrink-0">
+            <p className="text-blue-600 text-sm font-semibold">
+              ¿Tienes una idea o sugerencia?
+            </p>
+            <p className="text-gray-600 text-xs mt-2">
+              Contáctanos en hola@trefa.mx
+            </p>
+          </div>
         </div>
+
       </div>
     </div>
   );

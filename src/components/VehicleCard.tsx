@@ -93,7 +93,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
           {toastMessage}
         </div>
       )}
-      <div className="flex flex-col md:flex-row bg-white">
+      <div className="flex flex-col md:flex-row">
         <div className="md:w-1/3 md:flex-shrink-0 relative">
           <ImageCarousel
             images={imagesForCarousel}

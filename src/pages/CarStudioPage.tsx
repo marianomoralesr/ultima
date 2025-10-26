@@ -342,14 +342,21 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                     `${img.errorCode || 'ERROR'}: ${img.errorMessage || 'Unknown error'}`
                 );
 
-                const errorMsg = `CarStudio AI no pudo procesar ${faultyImages.length} imagen(es):\n\n` +
+                const errorMsg = `⚠️ CarStudio AI no pudo procesar ${faultyImages.length} imagen(es):\n\n` +
                     faultyErrors.join('\n') +
-                    '\n\nPosibles causas:\n' +
+                    '\n\n🔍 Posibles causas:\n' +
                     '• La imagen no contiene un vehículo claramente visible\n' +
                     '• El fondo es demasiado complejo para el AI\n' +
-                    '• La calidad de la imagen es muy baja\n' +
-                    '• La imagen está muy borrosa o sobreexpuesta\n\n' +
-                    'Intenta con imágenes más claras del vehículo con fondos simples.';
+                    '• La calidad de la imagen es muy baja (< 800px)\n' +
+                    '• La imagen está muy borrosa, sobreexpuesta o mal iluminada\n' +
+                    '• El vehículo está parcialmente oculto o cortado\n' +
+                    '• La imagen tiene marca de agua o texto sobre el vehículo\n\n' +
+                    '✅ Recomendaciones:\n' +
+                    '• Usa imágenes con el vehículo completo y centrado\n' +
+                    '• Preferir fondos simples y uniformes\n' +
+                    '• Buena iluminación natural o de estudio\n' +
+                    '• Mínimo 1200x800px de resolución\n' +
+                    '• Formato JPG o PNG sin compresión excesiva';
 
                 setInterpretedError(errorMsg);
                 setApiResponse(JSON.stringify(response, null, 2));

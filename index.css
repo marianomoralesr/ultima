@@ -534,14 +534,14 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
   /* Popular Card - Animated Gradient Border (1000+ views) */
   .popular-card {
     position: relative;
+    isolation: isolate;
   }
 
   .popular-card::before {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: -1.5px;
     border-radius: 1rem;
-    padding: 1.5px;
     background: linear-gradient(
       90deg,
       #FF6801,
@@ -551,12 +551,16 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
       #FF6801
     );
     background-size: 300% 100%;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
     animation: popular-gradient-move 4s linear infinite;
     pointer-events: none;
-    z-index: 1;
+    z-index: -1;
+  }
+
+  .popular-card > div:first-child {
+    position: relative;
+    background: white;
+    border-radius: calc(1rem - 1.5px);
+    z-index: 0;
   }
 
   @keyframes popular-gradient-move {

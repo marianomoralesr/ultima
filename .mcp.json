@@ -25,6 +25,13 @@
         "-y",
         "@modelcontextprotocol/server-memory"
       ]
+    },
+    "executeautomation-playwright-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ]
     }
   }
 }

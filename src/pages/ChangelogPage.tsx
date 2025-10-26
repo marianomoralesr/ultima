@@ -19,13 +19,215 @@ const ChangelogPage: React.FC = () => {
           <p className="text-sm mt-2 opacity-90">trefa.mx</p>
           <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
             <p className="text-lg font-semibold">
-              ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">1,850+</span> horas
+              ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">1,900+</span> horas
             </p>
           </div>
         </div>
 
         {/* Content */}
         <div className="px-8 py-10 space-y-12">
+          {/* Version 1.4.0 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.4.0</h2>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                26 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* CRM Enhancements */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejora
+                  </span>
+                  <h3 className="text-xl font-semibold">Mejoras al CRM de Leads</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">✓</span>
+                    <div className="flex-1">
+                      <strong>Ordenamiento multi-columna con indicadores visuales</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se agregó funcionalidad de ordenamiento por nombre, email, fecha de creación, última actualización,
+                        último inicio de sesión, estatus y fuente. Los usuarios pueden hacer clic en los encabezados de las
+                        columnas para ordenar de forma ascendente o descendente, con indicadores de flechas visibles.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📅</span>
+                    <div className="flex-1">
+                      <strong>Nuevas columnas de fechas con formato relativo</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se añadieron tres columnas temporales: fecha de creación, última actualización y último inicio de sesión.
+                        Las fechas se muestran en formato relativo (ej: "Hace 5 min", "Hace 2h", "Hace 3d") para mejor
+                        comprensión de la actividad reciente de los leads.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Email Notification System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Característica
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Notificaciones por Email con Brevo</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📧</span>
+                    <div className="flex-1">
+                      <strong>Notificaciones automáticas al enviar solicitud de financiamiento</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Cuando un cliente envía una solicitud de financiamiento, el sistema ahora envía automáticamente
+                        tres tipos de notificaciones: (1) confirmación al cliente con enlace de seguimiento, (2) alerta
+                        a todos los administradores con detalles del cliente y enlace al perfil, y (3) notificación al
+                        asesor de ventas asignado con acceso directo al perfil del cliente.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔧</span>
+                    <div className="flex-1">
+                      <strong>Servicio centralizado BrevoEmailService</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se creó un servicio wrapper (BrevoEmailService.ts) que centraliza toda la lógica de envío de
+                        emails vía Brevo. Incluye métodos especializados para diferentes tipos de notificaciones y
+                        manejo de errores robusto. Lista de administradores incluye: marianomorales@outlook.com,
+                        mariano.morales@autostrefa.mx, genauservices@gmail.com, alejandro.trevino@autostrefa.mx,
+                        evelia.castillo@autostrefa.mx, fernando.trevino@autostrefa.mx.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📬</span>
+                    <div className="flex-1">
+                      <strong>Template HTML para notificaciones administrativas</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se añadió un nuevo template "admin_notification" en la Edge Function send-brevo-email con diseño
+                        responsive y branded de Trefa. El template incluye información del cliente, vehículo de interés,
+                        asesor asignado, próximas acciones recomendadas, y botón de acceso directo al perfil.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Edge Function Cleanup */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Optimización
+                  </span>
+                  <h3 className="text-xl font-semibold">Limpieza de Edge Functions Redundantes</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🗑️</span>
+                    <div className="flex-1">
+                      <strong>Eliminadas 7 funciones no utilizadas o redundantes</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se identificaron y eliminaron las siguientes Edge Functions que no están en uso o tienen
+                        funcionalidad redundante: swift-responder (usaba Supabase Storage en lugar de R2),
+                        rapid-vehicles-sync-ts (duplicada), cron-swift-responder-trigger (trigger de función eliminada),
+                        smooth-handler (redundante con rapid-processor), get-thumbnails (usaba tabla deprecada
+                        autos_normalizados_cache), facebook-catalogue-csv y api-facebook-catalogue-csv (tabla vacía sin uso).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">⚡</span>
+                    <div className="flex-1">
+                      <strong>Flujo simplificado: airtable-sync → rapid-processor → frontend</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El sistema ahora opera con un pipeline claro y optimizado: Airtable envía webhooks a airtable-sync,
+                        que sincroniza datos con inventario_cache, rapid-processor sirve la API pública de vehículos,
+                        y el frontend consume directamente esta API. Esto reduce complejidad y mejora mantenibilidad.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Cloudflare R2 Migration */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejora
+                  </span>
+                  <h3 className="text-xl font-semibold">Migración de Imágenes a Cloudflare R2</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">☁️</span>
+                    <div className="flex-1">
+                      <strong>Implementación de AWS Signature V4 para autenticación con R2</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se creó el helper r2-helper.ts que implementa el proceso completo de firma AWS Signature V4
+                        para uploads a Cloudflare R2. Incluye funciones de hashing SHA256, HMAC-SHA256, generación
+                        de llaves de firma, construcción de solicitudes canónicas, y cálculo de la firma de autorización.
+                        Todo implementado directamente en Deno sin dependencias externas de SDK.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📤</span>
+                    <div className="flex-1">
+                      <strong>Upload concurrente con rate limiting (max 3 simultáneos)</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La función uploadImagesToR2 procesa imágenes en batches de 3 uploads concurrentes para evitar
+                        sobrecargar la API de R2 mientras mantiene buen rendimiento. Las imágenes se organizan por
+                        categoría (feature, exterior, interior) en rutas como vehicles/ORDEN/categoria/archivo.jpg.
+                        Nombres de archivo se limpian automáticamente de caracteres especiales.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔄</span>
+                    <div className="flex-1">
+                      <strong>Integración en airtable-sync con descarga desde Airtable</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La Edge Function airtable-sync ahora descarga todas las imágenes de vehículos directamente
+                        desde Airtable y las sube a Cloudflare R2 en tiempo real durante la sincronización. Si alguna
+                        imagen falla al subirse, el proceso continúa sin interrumpir la sincronización completa. Los
+                        URLs de R2 se almacenan en la base de datos (feature_image, fotos_exterior, fotos_interior).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔙</span>
+                    <div className="flex-1">
+                      <strong>Retrocompatibilidad total con URLs existentes</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La función buildPublicUrl en rapid-processor ahora detecta si el path es una URL completa
+                        (inicia con http:// o https://) y la retorna tal cual. Esto garantiza que las imágenes antiguas
+                        de Airtable y Supabase Storage sigan funcionando mientras se migran gradualmente a R2. No hay
+                        breaking changes para vehículos existentes.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🌍</span>
+                    <div className="flex-1">
+                      <strong>CDN público configurado en r2.trefa.mx</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Las imágenes subidas a R2 se sirven vía el dominio público r2.trefa.mx configurado en Cloudflare.
+                        El bucket trefa-images está configurado para acceso público con caché de 1 año (max-age=31536000).
+                        Esto mejora significativamente la velocidad de carga y reduce costos de egreso comparado con
+                        Supabase Storage.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.3.0 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">

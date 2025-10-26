@@ -431,10 +431,26 @@ export default class AirtableDirectService {
             offset = data.offset;
         } while (offset);
 
-        return allRecords.map(record => ({
-            id: record.id,
-            ordenCompra: record.fields.OrdenCompra || record.fields.ordencompra || 'ID: ' + record.id,
-        }));
+        return allRecords.map(record => {
+            const ordenCompraField = record.fields.OrdenCompra || record.fields.ordencompra;
+            // Ensure ordenCompra is always a string (handle arrays, objects, etc.)
+            let ordenCompraStr: string;
+            if (typeof ordenCompraField === 'string') {
+                ordenCompraStr = ordenCompraField;
+            } else if (typeof ordenCompraField === 'number') {
+                ordenCompraStr = String(ordenCompraField);
+            } else if (Array.isArray(ordenCompraField)) {
+                ordenCompraStr = ordenCompraField.join(', ');
+            } else if (ordenCompraField && typeof ordenCompraField === 'object') {
+                ordenCompraStr = JSON.stringify(ordenCompraField);
+            } else {
+                ordenCompraStr = 'ID: ' + record.id;
+            }
+            return {
+                id: record.id,
+                ordenCompra: ordenCompraStr,
+            };
+        });
     }
 
     public static async updateVehicleImages(recordId: string, fieldName: string, imageUrls: string[]): Promise<{ success: boolean }> {

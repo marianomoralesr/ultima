@@ -103,7 +103,13 @@ export const ImageService = {
 
     if (error) {
       console.error('Error updating vehicle with Car Studio images:', error);
-      throw new Error('No se pudo guardar las nuevas imágenes en el registro del vehículo.');
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw new Error(`No se pudo guardar las nuevas imágenes: ${error.message}`);
     }
 
     // Step 2: Asynchronously back up all images to Supabase Storage.

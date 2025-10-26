@@ -486,7 +486,7 @@ const ChangelogPage: React.FC = () => {
                   <li className="flex gap-3">
                     <span className="text-green-500 text-xl">🔗</span>
                     <div className="flex-1">
-                      <strong">Generación de slugs con fallbacks</strong>
+                      <strong>Generación de slugs con fallbacks</strong>
                       <p className="text-gray-600 text-sm mt-1">
                         Slugs generados con cadena de prioridad: slug/ligawp → ordencompra → record_id → id.
                         Garantiza URLs únicas y amigables para SEO.

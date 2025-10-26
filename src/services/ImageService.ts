@@ -70,11 +70,11 @@ export const ImageService = {
 
   /**
    * A comprehensive function to save Car Studio images and back them up.
-   * @param vehicleId - The ID of the vehicle.
+   * @param vehicleId - The ID of the vehicle (can be either numeric or Airtable record ID string).
    * @param processedImages - An array of image URLs from Car Studio.
    * @param replaceFeatureImageUrl - Optional URL to replace the feature image (first processed image by default)
    */
-  async processAndSaveImages(vehicleId: number, processedImages: string[], replaceFeatureImageUrl?: string) {
+  async processAndSaveImages(vehicleId: number | string, processedImages: string[], replaceFeatureImageUrl?: string) {
     if (!processedImages || processedImages.length === 0) {
       throw new Error('No images to process.');
     }
@@ -96,10 +96,16 @@ export const ImageService = {
       updateData.car_studio_feature_image = replaceFeatureImageUrl;
     }
 
+    // Determine which column to use for matching based on the vehicleId type
+    // If it's a string starting with "rec", it's an Airtable ID
+    // If it's a number or numeric string, it's the database ID
+    const isAirtableId = typeof vehicleId === 'string' && vehicleId.startsWith('rec');
+    const matchColumn = isAirtableId ? 'airtable_id' : 'id';
+
     const { error } = await supabase
       .from('inventario_cache')
       .update(updateData)
-      .eq('id', vehicleId);
+      .eq(matchColumn, vehicleId);
 
     if (error) {
       console.error('Error updating vehicle with Car Studio images:', error);

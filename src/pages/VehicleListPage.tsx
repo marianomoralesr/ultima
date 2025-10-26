@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import type { VehicleFilters } from '../types/types';
 import { useVehicles } from '../context/VehicleContext';
 import { useFilters } from '../context/FilterContext';
 import VehicleService from '../services/VehicleService';
 import VehicleCard from '../components/VehicleCard';
+import VehicleCardSkeleton from '../components/VehicleCardSkeleton';
 import VehicleGridCard from '../components/VehicleGridCard';
 import RecentlyViewed from '../components/RecentlyViewed';
 import Pagination from '../components/Pagination';
@@ -39,20 +41,14 @@ const VehicleListPage: React.FC = () => {
   console.log('Vehicles:', vehicles);
   console.log('Vehicles Error:', vehiclesError);
 
-  const [filterOptions, setFilterOptions] = useState<any>({});
-
-  // Fetch filter options from database (not from paginated vehicles array)
-  useEffect(() => {
-    const fetchFilterOptions = async () => {
-      try {
-        const options = await VehicleService.getFilterOptions();
-        setFilterOptions(options);
-      } catch (error) {
-        console.error('Error fetching filter options:', error);
-      }
-    };
-    fetchFilterOptions();
-  }, []); // Only fetch once on mount
+  // Fetch filter options with React Query caching (30 min cache)
+  const { data: filterOptions = {}, isLoading: filterOptionsLoading } = useQuery({
+    queryKey: ['filterOptions'],
+    queryFn: () => VehicleService.getFilterOptions(),
+    staleTime: 30 * 60 * 1000, // 30 minutes - filter options rarely change
+    gcTime: 60 * 60 * 1000, // 1 hour garbage collection
+    retry: 2,
+  });
 
 const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     if (count === 0) return 'No se encontraron autos | TREFA';
@@ -438,6 +434,18 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
                 <h3 className="text-xl font-semibold text-gray-800">No se encontraron autos</h3>
                 <p className="text-gray-500 mt-2">Intente ajustar los filtros o ampliar su búsqueda.</p>
               </div>
+            ) : isLoading ? (
+              <>
+                {view === 'list' ? (
+                  <div className="space-y-6">
+                    {[...Array(6)].map((_, i) => <VehicleCardSkeleton key={i} />)}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(9)].map((_, i) => <VehicleCardSkeleton key={i} isGrid />)}
+                  </div>
+                )}
+              </>
             ) : (
               <>
                 {view === 'list' ? (

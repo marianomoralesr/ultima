@@ -62,7 +62,13 @@ export interface Vehicle {
   
   // ========== ESTADÍSTICAS ==========
   view_count: number;
-  
+
+  // ========== FECHAS ==========
+  ingreso_inventario: string | null;
+
+  // ========== REZAGO ==========
+  rezago: boolean;
+
   // ========== LEGACY & COMPATIBILITY (to be phased out) ==========
   // These are kept for now to avoid breaking other parts of the app
   // but the primary fields above are the source of truth.

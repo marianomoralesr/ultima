@@ -17,6 +17,8 @@ import { BankProfilingService } from '../services/BankProfilingService';
 import FileUpload from '../components/FileUpload';
 import { DocumentService, UploadedDocument } from '../services/documentService';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
+import { BrevoEmailService } from '../services/BrevoEmailService';
+import { supabase } from '../../supabaseClient';
 
 const VehicleSelector = lazy(() => import('../components/VehicleSelector'));
 
@@ -349,6 +351,60 @@ const Application: React.FC = () => {
             };
 
             await ApplicationService.updateApplication(applicationId, payload);
+
+            // Send email notifications (non-blocking)
+            const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+            const clientEmail = profile.email || '';
+            const vehicleTitle = vehicleInfo?._vehicleTitle || null;
+
+            // Send notification to client
+            if (clientEmail) {
+                BrevoEmailService.notifyApplicationSubmitted(
+                    clientEmail,
+                    clientName,
+                    vehicleTitle,
+                    applicationId
+                ).catch(err => console.error('[Application] Error sending client email:', err));
+            }
+
+            // Get advisor info if assigned
+            let advisorEmail: string | null = null;
+            let advisorName: string | null = null;
+            if (profile.asesor_asignado_id) {
+                const { data: advisor } = await supabase
+                    .from('profiles')
+                    .select('email, first_name, last_name')
+                    .eq('id', profile.asesor_asignado_id)
+                    .maybeSingle();
+
+                if (advisor) {
+                    advisorEmail = advisor.email;
+                    advisorName = `${advisor.first_name || ''} ${advisor.last_name || ''}`.trim();
+                }
+            }
+
+            // Send notification to admins
+            BrevoEmailService.notifyAdminsNewApplication(
+                clientName,
+                clientEmail,
+                profile.phone,
+                vehicleTitle,
+                user.id, // Using user.id for the client profile URL
+                advisorName
+            ).catch(err => console.error('[Application] Error sending admin emails:', err));
+
+            // Send notification to assigned advisor if exists
+            if (advisorEmail && advisorName) {
+                BrevoEmailService.notifySalesAdvisor(
+                    advisorEmail,
+                    advisorName,
+                    clientName,
+                    clientEmail,
+                    profile.phone,
+                    vehicleTitle,
+                    user.id
+                ).catch(err => console.error('[Application] Error sending advisor email:', err));
+            }
 
             setPageStatus('success');
 

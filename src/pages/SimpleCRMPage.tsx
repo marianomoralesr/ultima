@@ -2,13 +2,16 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../../supabaseClient';
-import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Ban, Check, X, Edit2, ExternalLink } from 'lucide-react';
+import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Ban, Check, X, Edit2, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ADMIN_EMAILS = [
     'marianomorales@outlook.com',
     'mariano.morales@autostrefa.mx',
-    'genauservices@gmail.com'
+    'genauservices@gmail.com',
+    'alejandro.trevino@autostrefa.mx',
+    'evelia.castillo@autostrefa.mx',
+    'fernando.trevino@autostrefa.mx'
 ];
 
 interface Lead {
@@ -22,7 +25,13 @@ interface Lead {
     latest_app_status: string | null;
     latest_app_car_title: string | null;
     lead_source: string | null;
+    created_at: string | null;
+    updated_at: string | null;
+    last_sign_in_at: string | null;
 }
+
+type SortColumn = 'name' | 'email' | 'created_at' | 'updated_at' | 'last_sign_in_at' | 'status' | 'source';
+type SortDirection = 'asc' | 'desc';
 
 interface Stats {
     total_leads: number;
@@ -45,6 +54,8 @@ const SimpleCRMPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [editingSource, setEditingSource] = useState<string | null>(null);
     const [tempSource, setTempSource] = useState<string>('');
+    const [sortColumn, setSortColumn] = useState<SortColumn>('created_at');
+    const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
     // Check if user is admin by email
     const isAdmin = useMemo(() => {
@@ -68,7 +79,10 @@ const SimpleCRMPage: React.FC = () => {
                     phone,
                     contactado,
                     asesor_asignado_id,
-                    lead_source
+                    lead_source,
+                    created_at,
+                    updated_at,
+                    last_sign_in_at
                 `)
                 .eq('role', 'user')
                 .order('created_at', { ascending: false });
@@ -118,7 +132,10 @@ const SimpleCRMPage: React.FC = () => {
                     asesor_nombre: asesorMap.get(profile.asesor_asignado_id) || null,
                     latest_app_status: latestApp?.status || null,
                     latest_app_car_title: latestApp?.car_info?._vehicleTitle || null,
-                    lead_source: profile.lead_source
+                    lead_source: profile.lead_source,
+                    created_at: profile.created_at,
+                    updated_at: profile.updated_at,
+                    last_sign_in_at: profile.last_sign_in_at
                 };
             });
 
@@ -224,16 +241,100 @@ const SimpleCRMPage: React.FC = () => {
         setTempSource('');
     };
 
-    const filteredLeads = useMemo(() => {
-        if (!searchTerm) return leads;
+    const handleSort = (column: SortColumn) => {
+        if (sortColumn === column) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortColumn(column);
+            setSortDirection('desc');
+        }
+    };
 
-        const lowercasedQuery = searchTerm.toLowerCase();
-        return leads.filter(lead =>
-            `${lead.first_name || ''} ${lead.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
-            lead.email?.toLowerCase().includes(lowercasedQuery) ||
-            lead.lead_source?.toLowerCase().includes(lowercasedQuery)
-        );
-    }, [leads, searchTerm]);
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const formatRelativeTime = (dateString: string | null) => {
+        if (!dateString) return 'Nunca';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 60) return `Hace ${diffMins} min`;
+        if (diffHours < 24) return `Hace ${diffHours}h`;
+        if (diffDays < 7) return `Hace ${diffDays}d`;
+        return formatDate(dateString);
+    };
+
+    const filteredAndSortedLeads = useMemo(() => {
+        let filtered = leads;
+
+        // Apply search filter
+        if (searchTerm) {
+            const lowercasedQuery = searchTerm.toLowerCase();
+            filtered = leads.filter(lead =>
+                `${lead.first_name || ''} ${lead.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
+                lead.email?.toLowerCase().includes(lowercasedQuery) ||
+                lead.lead_source?.toLowerCase().includes(lowercasedQuery)
+            );
+        }
+
+        // Apply sorting
+        const sorted = [...filtered].sort((a, b) => {
+            let aVal: any;
+            let bVal: any;
+
+            switch (sortColumn) {
+                case 'name':
+                    aVal = `${a.first_name || ''} ${a.last_name || ''}`.toLowerCase();
+                    bVal = `${b.first_name || ''} ${b.last_name || ''}`.toLowerCase();
+                    break;
+                case 'email':
+                    aVal = (a.email || '').toLowerCase();
+                    bVal = (b.email || '').toLowerCase();
+                    break;
+                case 'created_at':
+                    aVal = a.created_at ? new Date(a.created_at).getTime() : 0;
+                    bVal = b.created_at ? new Date(b.created_at).getTime() : 0;
+                    break;
+                case 'updated_at':
+                    aVal = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+                    bVal = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+                    break;
+                case 'last_sign_in_at':
+                    aVal = a.last_sign_in_at ? new Date(a.last_sign_in_at).getTime() : 0;
+                    bVal = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
+                    break;
+                case 'status':
+                    aVal = a.latest_app_status || '';
+                    bVal = b.latest_app_status || '';
+                    break;
+                case 'source':
+                    aVal = (a.lead_source || '').toLowerCase();
+                    bVal = (b.lead_source || '').toLowerCase();
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return sorted;
+    }, [leads, searchTerm, sortColumn, sortDirection]);
 
     if (!user) {
         return (
@@ -343,18 +444,80 @@ const SimpleCRMPage: React.FC = () => {
                     <table className="w-full text-sm text-left text-gray-500">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th scope="col" className="px-6 py-3">Nombre</th>
-                                <th scope="col" className="px-6 py-3">Email / Teléfono</th>
+                                <th scope="col" className="px-6 py-3">
+                                    <button
+                                        onClick={() => handleSort('name')}
+                                        className="flex items-center gap-1 hover:text-primary-600"
+                                    >
+                                        Nombre
+                                        {sortColumn === 'name' ? (
+                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                    </button>
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    <button
+                                        onClick={() => handleSort('email')}
+                                        className="flex items-center gap-1 hover:text-primary-600"
+                                    >
+                                        Email / Teléfono
+                                        {sortColumn === 'email' ? (
+                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                    </button>
+                                </th>
                                 <th scope="col" className="px-6 py-3">Último Auto de Interés</th>
-                                <th scope="col" className="px-6 py-3">Estado Solicitud</th>
-                                <th scope="col" className="px-6 py-3">Fuente</th>
+                                <th scope="col" className="px-6 py-3">
+                                    <button
+                                        onClick={() => handleSort('status')}
+                                        className="flex items-center gap-1 hover:text-primary-600"
+                                    >
+                                        Estado Solicitud
+                                        {sortColumn === 'status' ? (
+                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                    </button>
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    <button
+                                        onClick={() => handleSort('source')}
+                                        className="flex items-center gap-1 hover:text-primary-600"
+                                    >
+                                        Fuente
+                                        {sortColumn === 'source' ? (
+                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                    </button>
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    <button
+                                        onClick={() => handleSort('created_at')}
+                                        className="flex items-center gap-1 hover:text-primary-600"
+                                    >
+                                        Fecha Registro
+                                        {sortColumn === 'created_at' ? (
+                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                    </button>
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    <button
+                                        onClick={() => handleSort('last_sign_in_at')}
+                                        className="flex items-center gap-1 hover:text-primary-600"
+                                    >
+                                        Último Acceso
+                                        {sortColumn === 'last_sign_in_at' ? (
+                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                    </button>
+                                </th>
                                 <th scope="col" className="px-6 py-3">Contactado</th>
                                 <th scope="col" className="px-6 py-3">Asesor</th>
                                 <th scope="col" className="px-6 py-3">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredLeads.map(lead => (
+                            {filteredAndSortedLeads.map(lead => (
                                 <tr key={lead.id} className="bg-white border-b hover:bg-gray-50">
                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                         {`${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Sin Nombre'}
@@ -414,6 +577,16 @@ const SimpleCRMPage: React.FC = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
+                                        <div className="text-xs" title={formatDate(lead.created_at)}>
+                                            {formatRelativeTime(lead.created_at)}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className={`text-xs ${!lead.last_sign_in_at ? 'text-gray-400 italic' : ''}`} title={formatDate(lead.last_sign_in_at)}>
+                                            {formatRelativeTime(lead.last_sign_in_at)}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <button
                                             onClick={() => toggleContactado(lead.id, lead.contactado)}
                                             className={`px-2 py-1 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 ${
@@ -438,7 +611,7 @@ const SimpleCRMPage: React.FC = () => {
                         </tbody>
                     </table>
 
-                    {filteredLeads.length === 0 && (
+                    {filteredAndSortedLeads.length === 0 && (
                         <div className="text-center py-12 text-gray-500">
                             No se encontraron resultados
                         </div>

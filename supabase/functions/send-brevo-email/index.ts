@@ -10,7 +10,7 @@ interface EmailRequest {
   to: string;
   toName: string;
   subject: string;
-  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed';
+  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification';
   templateData: Record<string, any>;
 }
 
@@ -247,6 +247,56 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
             <div class="footer">
               <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Trefa Autos</p>
               <p class="footer-text">Financiamiento de vehículos confiable y transparente</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Trefa. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+    case 'admin_notification':
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8">${baseStyles}</head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="Trefa" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">🔔 Nueva Solicitud Recibida</h1>
+              <p class="subtitle">Se ha recibido una nueva solicitud de financiamiento que requiere tu atención.</p>
+
+              <div class="card">
+                <div class="card-title">Información del Cliente</div>
+                <div class="card-content">
+                  <p><strong>Nombre:</strong> ${data.clientName}</p>
+                  <p><strong>Email:</strong> ${data.clientEmail}</p>
+                  <p><strong>Teléfono:</strong> ${data.clientPhone}</p>
+                  ${data.vehicleTitle ? `<p><strong>Vehículo de Interés:</strong> ${data.vehicleTitle}</p>` : ''}
+                  ${data.asesorName ? `<p><strong>Asesor Asignado:</strong> ${data.asesorName}</p>` : ''}
+                  <p><strong>Fecha de Solicitud:</strong> ${new Date(data.submittedAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">Próximas Acciones</h2>
+              <ul>
+                <li><strong>Revisar Documentación:</strong> Verifica que toda la información esté completa</li>
+                <li><strong>Contactar al Cliente:</strong> Ponte en contacto dentro de las próximas 24 horas</li>
+                <li><strong>Evaluar Solicitud:</strong> Analiza el perfil crediticio y capacidad de pago</li>
+                <li><strong>Asignar Asesor:</strong> Si no está asignado, designa un asesor de ventas</li>
+              </ul>
+
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${data.adminProfileUrl}" class="button">Ver Perfil del Cliente</a>
+              </div>
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Trefa Autos - Panel Administrativo</p>
+              <p class="footer-text">Gestión de solicitudes y clientes</p>
               <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Trefa. Todos los derechos reservados.</p>
             </div>
           </div>

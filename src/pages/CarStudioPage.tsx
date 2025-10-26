@@ -110,17 +110,17 @@ const ImageComparison: React.FC<{
                 </div>
             </div>
 
-            <div className="max-h-80 overflow-y-auto space-y-4 pr-2">
+            <div className="max-h-[800px] overflow-y-auto space-y-4 pr-2">
                 {viewMode === 'grid' ? (
                     images.map((img, index) => (
-                        <div key={index} className="grid grid-cols-2 gap-2 p-2 border rounded-lg bg-gray-50">
+                        <div key={index} className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">
                             <div>
-                                <p className="text-xs text-center mb-1 font-medium text-gray-600">Original</p>
-                                <LazyImage src={img.original} alt="Original" className="w-full h-32 rounded object-cover" />
+                                <p className="text-sm text-center mb-2 font-medium text-gray-600">Original</p>
+                                <LazyImage src={img.original} alt="Original" className="w-full h-96 rounded object-cover" />
                             </div>
                             <div>
-                                <p className="text-xs text-center mb-1 font-medium text-gray-600">Procesada</p>
-                                <LazyImage src={img.processed} alt="Processed" className="w-full h-32 rounded object-cover" />
+                                <p className="text-sm text-center mb-2 font-medium text-gray-600">Procesada</p>
+                                <LazyImage src={img.processed} alt="Processed" className="w-full h-96 rounded object-cover" />
                             </div>
                         </div>
                     ))
@@ -245,7 +245,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
     const [availableImages, setAvailableImages] = useState<string[]>([]);
     const [selectedImageIndices, setSelectedImageIndices] = useState<Set<number>>(new Set());
     const [uploadImages, setUploadImages] = useState<{ fileUrl: string; position: string }[]>([]);
-    const [fileExtension, setFileExtension] = useState<'PNG' | 'JPG'>('PNG');
+    const [fileExtension, setFileExtension] = useState<'PNG' | 'JPG'>('JPG');
     const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(false);
 
     // Additional payload options

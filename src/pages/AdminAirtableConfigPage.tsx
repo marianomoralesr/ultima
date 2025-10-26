@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, Loader2, Database, AlertTriangle, CheckCircle } from 'lucide-react';
 import { config } from './config';
+import AirtableImageUploader from '../components/AirtableImageUploader';
 
 const InputField: React.FC<any> = ({ id, label, register, placeholder, type = "text", isSecret = false }) => (
     <div>
         <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
-        <input 
-            id={id} 
-            {...register(id)} 
-            type={type} 
-            className="mt-1 block w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 font-mono text-sm" 
+        <input
+            id={id}
+            {...register(id)}
+            type={type}
+            className="mt-1 block w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 font-mono text-sm"
             placeholder={placeholder}
         />
         {isSecret && <p className="text-xs text-gray-500 mt-1">Este valor es sensible y no se mostrará después de guardarlo.</p>}
@@ -27,8 +28,6 @@ const ConfigCard: React.FC<{ title: string, children: React.ReactNode }> = ({ ti
         </div>
     </div>
 );
-
-import AirtableImageUploader from '../components/AirtableImageUploader';
 
 const AdminAirtableConfigPage: React.FC = () => {
     const { register, handleSubmit, formState: { isSubmitting } } = useForm({

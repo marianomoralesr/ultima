@@ -68,15 +68,15 @@ const MarketingCategoryPage: React.FC = () => {
         const title = (type && value && staticTitles[type]?.[value]) || 'Nuestras Mejores Ofertas';
         const description = `Encuentra los mejores ${title.toLowerCase()} en TREFA. Inventario certificado, financiamiento a tu medida y compra 100% digital.`;
         const keywords = `${title.toLowerCase()}, seminuevos, venta de autos, trefa, ${filterValue || ''}`;
-        
+
         return { title, banner, description, keywords };
     });
 
-useSEO({
-    title: `${seoContent.title} | Autos Seminuevos en TREFA`,
-    description: seoContent.description,
-    keywords: seoContent.keywords
-  });
+    useSEO({
+        title: `${seoContent.title} | Autos Seminuevos en TREFA`,
+        description: seoContent.description,
+        keywords: seoContent.keywords
+    });
 
     if (isLoading) {
         return (

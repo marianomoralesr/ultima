@@ -59,10 +59,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
     return [...new Set(imageUrls.filter(Boolean))];
   }, [vehicle]);
 
+  const isRezago = vehicle.rezago === true;
+
   return (
-    <div 
+    <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group relative ${isSeparado ? 'opacity-70' : ''}`}
+      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group relative ${isSeparado ? 'opacity-70' : ''} ${isRezago ? 'rezago-border' : ''}`}
     >
       {showFavoriteToast && (
         <div className="absolute top-4 right-4 bg-gray-800 text-white text-xs px-3 py-1.5 rounded-full z-30 transition-all duration-300 animate-fade-in-out">

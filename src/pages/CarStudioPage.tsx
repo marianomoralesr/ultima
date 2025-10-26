@@ -283,21 +283,23 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
     const toggleImageSelection = (index: number) => {
         const newSelection = new Set(selectedImageIndices);
+        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
+
         if (newSelection.has(index)) {
+            // Remove from selection
             newSelection.delete(index);
+            // Remove from uploadImages
+            setUploadImages(prev => prev.filter(img => img.fileUrl !== availableImages[index]));
         } else {
+            // Add to selection
             newSelection.add(index);
+            // Find next available position that isn't already used
+            const usedPositions = new Set(uploadImages.map(img => img.position));
+            const availablePosition = positions.find(pos => !usedPositions.has(pos)) || positions[0];
+            // Add to uploadImages with default position
+            setUploadImages(prev => [...prev, { fileUrl: availableImages[index], position: availablePosition }]);
         }
         setSelectedImageIndices(newSelection);
-
-        // Update uploadImages based on selection
-        // CarStudio requires specific positions: FRONT, BACK, LEFT, RIGHT, FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT
-        // For exterior images, we'll cycle through these positions
-        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
-        const selectedImages = Array.from(newSelection)
-            .sort((a, b) => a - b)
-            .map((i, idx) => ({ fileUrl: availableImages[i], position: positions[idx % positions.length] }));
-        setUploadImages(selectedImages);
     };
 
     const selectAllImages = () => {
@@ -310,6 +312,12 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
     const deselectAllImages = () => {
         setSelectedImageIndices(new Set());
         setUploadImages([]);
+    };
+
+    const updateImagePosition = (imageUrl: string, newPosition: string) => {
+        setUploadImages(prev => prev.map(img =>
+            img.fileUrl === imageUrl ? { ...img, position: newPosition } : img
+        ));
     };
 
     const handleSendRequest = useCallback(async () => {
@@ -339,6 +347,8 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             const response = await CarStudioService.uploadImagesWithUrlV2(uploadImages, options);
 
             console.log('CarStudio API Response:', response);
+            console.log('Response structure check - has return?:', !!response.return);
+            console.log('Response structure check - return keys:', response.return ? Object.keys(response.return) : 'N/A');
 
             // Check for faulty images first (CarStudio AI failures)
             const faultyImages = response.return?.faultyImages || [];
@@ -383,13 +393,29 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                     ?.filter((img: any) => img.errorMessage)
                     .map((img: any) => img.errorMessage) || [];
 
-                const errorMsg = errors.length > 0
-                    ? `Error procesando imágenes: ${errors.join(', ')}. Verifica que las URLs sean accesibles públicamente y que las imágenes sean JPG o PNG.`
-                    : 'No se generaron imágenes procesadas. Verifica que las URLs sean accesibles públicamente.';
+                // Check if response.return exists at all
+                if (!response.return) {
+                    const errorMsg = '❌ NO RESPONSE: AI response parsing failed\n\n' +
+                        '🔍 La estructura de respuesta de CarStudio AI no es reconocida.\n\n' +
+                        '⚠️ Posibles causas:\n' +
+                        '• El API de CarStudio cambió su formato de respuesta\n' +
+                        '• Error de autenticación con el servicio\n' +
+                        '• Las imágenes no cumplen los requisitos del AI\n\n' +
+                        '📋 Detalles técnicos:\n' +
+                        `Response keys: ${Object.keys(response).join(', ')}\n\n` +
+                        '💡 Revisa la consola del navegador y la respuesta completa abajo para más detalles.';
+                    setInterpretedError(errorMsg);
+                    setApiResponse(JSON.stringify(response, null, 2));
+                    setRequestStatus('error');
+                } else {
+                    const errorMsg = errors.length > 0
+                        ? `Error procesando imágenes: ${errors.join(', ')}. Verifica que las URLs sean accesibles públicamente y que las imágenes sean JPG o PNG.`
+                        : 'No se generaron imágenes procesadas. Verifica que las URLs sean accesibles públicamente.';
 
-                setInterpretedError(errorMsg);
-                setApiResponse(JSON.stringify(response, null, 2));
-                setRequestStatus('error');
+                    setInterpretedError(errorMsg);
+                    setApiResponse(JSON.stringify(response, null, 2));
+                    setRequestStatus('error');
+                }
             }
         } catch (error: any) {
             setRequestStatus('error');
@@ -534,9 +560,31 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                                         <img
                                             src={imageUrl}
                                             alt={`Imagen ${index + 1}`}
-                                            className="w-full h-32 object-cover rounded"
+                                            className="w-full h-32 object-contain rounded bg-gray-50"
                                         />
-                                        <p className="text-xs text-center mt-1 text-gray-600">Imagen {index + 1}</p>
+                                        <div className="mt-2 space-y-1">
+                                            <p className="text-xs text-center text-gray-600">Imagen {index + 1}</p>
+                                            {selectedImageIndices.has(index) && (
+                                                <select
+                                                    value={uploadImages.find(img => img.fileUrl === imageUrl)?.position || 'FRONT'}
+                                                    onChange={(e) => {
+                                                        e.stopPropagation();
+                                                        updateImagePosition(imageUrl, e.target.value);
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="w-full text-xs px-2 py-1 border border-primary-300 rounded bg-white text-gray-700 focus:ring-1 focus:ring-primary-500"
+                                                >
+                                                    <option value="FRONT">FRONT</option>
+                                                    <option value="BACK">BACK</option>
+                                                    <option value="LEFT">LEFT</option>
+                                                    <option value="RIGHT">RIGHT</option>
+                                                    <option value="FRONT_LEFT">FRONT_LEFT</option>
+                                                    <option value="FRONT_RIGHT">FRONT_RIGHT</option>
+                                                    <option value="BACK_LEFT">BACK_LEFT</option>
+                                                    <option value="BACK_RIGHT">BACK_RIGHT</option>
+                                                </select>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

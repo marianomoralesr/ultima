@@ -76,7 +76,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
   return (
     <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group relative ${isSeparado ? 'opacity-70' : ''} ${isRezago ? 'rezago-border' : ''} ${isPopular ? 'popular-card' : ''}`}
+      className={`glass-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group relative ${isSeparado ? 'opacity-70' : ''} ${isRezago ? 'rezago-border' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
       {/* Recently Added Badge */}
       {isRecentlyAdded && (

@@ -291,7 +291,7 @@ serve(async (req: Request) => {
       fotos_interior_url: interiorImages,
       ordencompra: fields.OrdenCompra || '',
       ordenstatus: currentOrdenStatus,
-      separado: fields.separado === true || fields.Separado === true,
+      separado: !!(fields.separado || fields.Separado), // Convert any truthy value to boolean
       vendido: isVendido,
       clasificacionid: clasificacionValue,
       ubicacion: ubicacionValue,

@@ -575,6 +575,266 @@ const ChangelogPage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Version 1.0.0 - Platform Launch */}
+          <div className="border-l-4 border-purple-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.0.0</h2>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                15 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Platform Launch */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Lanzamiento Beta del Portal Digital TREFA</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-purple-500 text-xl">🚀</span>
+                    <div className="flex-1">
+                      <strong>Plataforma completa de compra-venta y financiamiento de autos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se lanzó la versión beta del Portal Digital TREFA, una plataforma revolucionaria que permite a los clientes
+                        comprar, vender y financiar autos seminuevos 100% en línea. Características principales:<br/><br/>
+                        • <strong>Catálogo interactivo:</strong> Más de 70 vehículos con filtros avanzados<br/>
+                        • <strong>Solicitud de crédito digital:</strong> Formulario multi-paso con validación en tiempo real<br/>
+                        • <strong>Valuación con IA:</strong> "Vende tu Auto" usando API de Intelimotor<br/>
+                        • <strong>Portal de usuario:</strong> Dashboard personalizado con favoritos y seguimiento<br/>
+                        • <strong>Sistema de documentos:</strong> Upload de INE, comprobantes, referencias<br/>
+                        • <strong>Perfilamiento bancario:</strong> Recomendaciones personalizadas de instituciones<br/>
+                        • <strong>Autenticación segura:</strong> OTP por email, Google y Facebook login<br/><br/>
+                        <strong>Horas invertidas:</strong> ~800 horas en desarrollo del MVP
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Microsoft Clarity */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Implementación de Microsoft Clarity</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-purple-500 text-xl">📊</span>
+                    <div className="flex-1">
+                      <strong>Herramienta de análisis de comportamiento de usuarios</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se integró Microsoft Clarity para monitorear cómo los usuarios realmente utilizan la plataforma.
+                        Incluye grabación de sesiones, heatmaps, detección de rage clicks, dead clicks y JavaScript errors.
+                        Configurado respetando privacidad (enmascara datos sensibles, cumple GDPR).<br/><br/>
+                        <strong>Horas invertidas:</strong> ~8 horas en setup e integración
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Lead Management */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Gestión de Leads</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-purple-500 text-xl">👥</span>
+                    <div className="flex-1">
+                      <strong>CRM completo para captura y seguimiento de leads</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Captura desde múltiples fuentes (landing pages, valuaciones, formularios de financiamiento).
+                        Sistema de tags, recordatorios, historial de interacciones y sincronización con Kommo CRM.<br/><br/>
+                        <strong>Horas invertidas:</strong> ~120 horas
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Initial Fixes */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Corrección
+                  </span>
+                  <h3 className="text-xl font-semibold">Correcciones Iniciales del Lanzamiento Beta</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-purple-500 text-xl">🐛</span>
+                    <div className="flex-1">
+                      <strong>Página de listado en blanco (FilterSidebar crash)</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        FilterSidebar tenía variables indefinidas causando crash. Se agregaron hooks useMemo para calcular
+                        todos los conteos de filtros.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-purple-500 text-xl">🖼️</span>
+                    <div className="flex-1">
+                      <strong>Normalización de imágenes de vehículos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Las fotos no se mostraban correctamente. Se arregló el procesamiento para manejar diferentes
+                        formatos de datos (Airtable, smooth-handler, inventario_cache).
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 0.9.5 - Infrastructure */}
+          <div className="border-l-4 border-indigo-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v0.9.5</h2>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                30 de Septiembre, 2024
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Airtable Sync */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Infraestructura
+                  </span>
+                  <h3 className="text-xl font-semibold">Sincronización Automática Airtable → Supabase</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-indigo-500 text-xl">🔄</span>
+                    <div className="flex-1">
+                      <strong>Sistema de caché inteligente con sincronización en tiempo real</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Webhooks de Airtable + Edge Function sync-inventory. Consultas ultra rápidas (~300ms vs ~3s).
+                        Cron job horario como respaldo. Resiliente si Airtable está caído.<br/><br/>
+                        <strong>Horas invertidas:</strong> ~45 horas
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Cloudflare R2 */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Infraestructura
+                  </span>
+                  <h3 className="text-xl font-semibold">Almacenamiento en Cloudflare R2</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-indigo-500 text-xl">☁️</span>
+                    <div className="flex-1">
+                      <strong>CDN global con cero costos de egreso</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Distribución global vía CDN (latencias menor50ms). URLs firmadas temporales para documentos privados.
+                        Buckets organizados (imágenes públicas, documentos privados). Reducción de costos ~60% vs Supabase Storage.<br/><br/>
+                        <strong>Horas invertidas:</strong> ~35 horas
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Email Automation */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Automatización
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Emails Automatizados (Brevo)</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-indigo-500 text-xl">📧</span>
+                    <div className="flex-1">
+                      <strong>Flujos de comunicación automatizados</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Emails transaccionales (confirmación, actualizaciones de estatus, OTP). Campañas de marketing
+                        (bienvenida, abandono de solicitud, promociones). Templates HTML responsive con tracking.<br/><br/>
+                        <strong>Horas invertidas:</strong> ~40 horas
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 0.9.0 - DevOps */}
+          <div className="border-l-4 border-pink-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v0.9.0</h2>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                18 de Septiembre, 2024
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* GitHub */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    DevOps
+                  </span>
+                  <h3 className="text-xl font-semibold">Control de Versiones con GitHub</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-pink-500 text-xl">🔧</span>
+                    <div className="flex-1">
+                      <strong>Sistema profesional de gestión del código fuente</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Repositorio privado en GitHub con branches (main, develop, feature/*). Commits semánticos y
+                        protección de main branch. Code review via pull requests.<br/><br/>
+                        <strong>Horas invertidas:</strong> ~15 horas en setup y documentación
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Cloud Run */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    DevOps
+                  </span>
+                  <h3 className="text-xl font-semibold">Deploy a Google Cloud Run</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-pink-500 text-xl">🚀</span>
+                    <div className="flex-1">
+                      <strong>Infraestructura serverless con auto-scaling</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Dockerfile multi-stage optimizado. Deploy script automatizado. Variables de entorno desde YAML.
+                        Auto-scaling de 0 a 100 instancias. SSL/HTTPS automático via Cloud Load Balancer.<br/><br/>
+                        <strong>Horas invertidas:</strong> ~50 horas en setup y optimización
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

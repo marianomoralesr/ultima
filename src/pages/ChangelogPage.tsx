@@ -116,6 +116,39 @@ const ChangelogPage: React.FC = () => {
                       </p>
                     </div>
                   </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔄</span>
+                    <div className="flex-1">
+                      <strong>Corrección de sincronización de campo "Separado" desde Airtable</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se mejoró la función de sincronización airtable-sync para manejar correctamente cualquier valor truthy
+                        del campo "Separado" (no solo booleanos estrictos). Esto resuelve el problema donde vehículos marcados
+                        como separados en Airtable no se reflejaban correctamente en la base de datos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Corrección de visibilidad de bordes animados en vehículos populares</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se corrigió el problema de z-index que impedía ver los bordes gradientes animados en vehículos con
+                        1000+ visitas. La solución utiliza negative z-index con isolation context para garantizar que el borde
+                        se muestre detrás del contenido pero por encima del fondo.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">💾</span>
+                    <div className="flex-1">
+                      <strong>Corrección de error al guardar imágenes en Car Studio</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se solucionó el error "No se pudo guardar las nuevas imágenes en el registro del vehículo" convirtiendo
+                        el array de URLs a formato comma-separated string para el campo fotos_exterior_url (tipo TEXT), mientras
+                        se mantiene el formato JSONB array para galeria_exterior.
+                      </p>
+                    </div>
+                  </li>
                 </ul>
               </div>
 
@@ -195,6 +228,132 @@ const ChangelogPage: React.FC = () => {
                         Se añadió un nuevo template "admin_notification" en la Edge Function send-brevo-email con diseño
                         responsive y branded de Trefa. El template incluye información del cliente, vehículo de interés,
                         asesor asignado, próximas acciones recomendadas, y botón de acceso directo al perfil.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Liquid Glass UI & Animated Blobs */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Característica
+                  </span>
+                  <h3 className="text-xl font-semibold">Interfaz Liquid Glass con Blobs Animados</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">✨</span>
+                    <div className="flex-1">
+                      <strong>Efecto de vidrio líquido en tarjetas de vehículos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Las tarjetas de vehículos ahora tienen un elegante efecto glassmorphism con fondo semi-transparente
+                        (85% opacidad), backdrop-filter blur de 20px, y bordes sutiles. El efecto mantiene excelente
+                        legibilidad del texto mientras añade profundidad visual y modernidad al diseño.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Blobs de gradiente animados en el fondo</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se añadieron tres blobs de gradiente de colores (naranja-rojo, azul-púrpura, verde-azul) que se
+                        mueven muy lentamente en el fondo (70-90 segundos por ciclo). Los blobs están estirados
+                        diagonalmente y usan transformaciones complejas (translate, rotate, scale) para crear movimiento
+                        orgánico y elegante que no distrae de los vehículos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🌟</span>
+                    <div className="flex-1">
+                      <strong>Badges para vehículos populares y recién llegados</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Los vehículos con 1000+ visitas ahora muestran un borde gradiente animado (popular-card class) que
+                        usa isolation context y negative z-index para visibilidad correcta. Los vehículos agregados en los
+                        últimos 3 días muestran un badge "¡Recién llegado!" en gradiente naranja-rojo con icono de estrella.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Car Studio Improvements */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejora
+                  </span>
+                  <h3 className="text-xl font-semibold">Mejoras a Car Studio API</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📸</span>
+                    <div className="flex-1">
+                      <strong>JPG como formato de imagen predeterminado</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se cambió el formato predeterminado de PNG a JPG en CarStudioPage para mejor rendimiento. Los
+                        archivos JPG son significativamente más pequeños y rápidos de procesar, mejorando los tiempos de
+                        carga y procesamiento sin sacrificar calidad visual apreciable.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔍</span>
+                    <div className="flex-1">
+                      <strong>Visor de comparación más grande</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se aumentó significativamente el tamaño del visor de comparación: las imágenes individuales pasaron
+                        de 128px (h-32) a 384px (h-96) de altura, y el contenedor principal de 320px (max-h-80) a 800px
+                        (max-h-[800px]). Esto permite una revisión de calidad mucho más detallada antes de guardar.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Sitemap Generation System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Característica
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Generación Automática de Sitemap</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🗺️</span>
+                    <div className="flex-1">
+                      <strong>Actualización diaria automática del sitemap</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El sistema genera automáticamente un sitemap.xml actualizado cada día consultando la Edge Function
+                        rapid-processor. El sitemap incluye todas las páginas estáticas de la plataforma y URLs dinámicas
+                        para cada vehículo activo en inventario, con prioridades y frecuencias de cambio optimizadas.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🚀</span>
+                    <div className="flex-1">
+                      <strong>Beneficios SEO y de rendimiento</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La generación automática de sitemap mejora significativamente el SEO al facilitar que los motores
+                        de búsqueda descubran e indexen todas las páginas de vehículos. El proceso usa datos cacheados de
+                        rapid-processor (inventario_cache) para generación rápida sin impactar la base de datos principal.
+                        Los vehículos nuevos aparecen en el sitemap automáticamente al día siguiente de ser agregados.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📋</span>
+                    <div className="flex-1">
+                      <strong>Integración con rapid-processor</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El sistema consulta rapid-processor/sitemap-data que retorna slugs y fechas de última modificación
+                        de todos los vehículos activos. Esto garantiza que el sitemap siempre refleje el estado actual del
+                        inventario, con URLs válidas y metadata precisa para mejorar la tasa de indexación.
                       </p>
                     </div>
                   </li>

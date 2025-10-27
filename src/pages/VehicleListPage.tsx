@@ -126,12 +126,14 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
 
   const [view, setView] = useState<'list' | 'grid'>('grid');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Animation for the filter sheet
   const [{ y, opacity }, api] = useSpring(() => ({ y: window.innerHeight, opacity: 0, config: { tension: 300, friction: 30 } }));
 
   const openSheet = useCallback(() => {
     setIsFilterSheetOpen(true);
+    setIsClosing(false);
     // Use a small timeout to ensure the component is mounted before animating
     setTimeout(() => {
       api.start({ y: 0, opacity: 1, immediate: false });
@@ -139,8 +141,12 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
   }, [api]);
 
   const closeSheet = useCallback(() => {
+    setIsClosing(true);
     api.start({ y: window.innerHeight, opacity: 0, immediate: false });
-    setTimeout(() => setIsFilterSheetOpen(false), 300); // Delay state update to allow animation to complete
+    setTimeout(() => {
+      setIsFilterSheetOpen(false);
+      setIsClosing(false);
+    }, 300); // Delay state update to allow animation to complete
   }, [api]);
 
   useEffect(() => {
@@ -472,10 +478,10 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
         <RecentlyViewed layout="carousel" />
       </main>
 
-      {isFilterSheetOpen && (
+      {(isFilterSheetOpen || isClosing) && (
         <div className="fixed inset-0 bg-black/50 z-[90] lg:hidden" onClick={closeSheet}></div>
       )}
-      {isFilterSheetOpen && (
+      {(isFilterSheetOpen || isClosing) && (
         <animated.div
           className="fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden overflow-hidden"
           style={{ y, opacity }}

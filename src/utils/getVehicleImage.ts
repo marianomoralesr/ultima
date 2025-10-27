@@ -12,35 +12,49 @@ export function getVehicleImage(vehicle: Partial<Vehicle & WordPressVehicle>): s
   // Check if we should use Car Studio images
   const useCarStudioImages = (vehicle as any).use_car_studio_images === true;
 
-  const potentialImages = [
+  // Build potential images array, handling both strings and arrays
+  const buildImagesList = () => {
+    const images = [];
+
     // 0. HIGHEST PRIORITY: Car Studio images if flag is enabled
-    ...(useCarStudioImages ? [
-      (vehicle as any).car_studio_feature_image,
-      ...parseStringOrArray((vehicle as any).car_studio_gallery),
-    ] : []),
+    if (useCarStudioImages) {
+      const carStudioFeature = (vehicle as any).car_studio_feature_image;
+      if (carStudioFeature) images.push(carStudioFeature);
+      images.push(...parseStringOrArray((vehicle as any).car_studio_gallery));
+    }
+
     // 1. Prioritize explicit feature images and their variants
-    vehicle.feature_image,
-    vehicle.feature_image_url,
-    vehicle.thumbnail_webp,
-    vehicle.thumbnail,
-    vehicle.feature_image_webp,
+    // Handle both string and array formats
+    const addImage = (img: any) => {
+      if (Array.isArray(img)) {
+        images.push(...img);
+      } else if (img) {
+        images.push(img);
+      }
+    };
+
+    addImage(vehicle.feature_image);
+    addImage(vehicle.feature_image_url);
+    addImage(vehicle.thumbnail_webp);
+    addImage(vehicle.thumbnail);
+    addImage(vehicle.feature_image_webp);
+
     // 2. Fallback to the first image from any gallery
-    ...parseStringOrArray(vehicle.galeria_exterior),
-    ...parseStringOrArray(vehicle.fotos_exterior_url),
-    ...parseStringOrArray(vehicle.galeria_interior),
-    ...parseStringOrArray(vehicle.fotos_interior_url),
-  ];
+    images.push(...parseStringOrArray(vehicle.galeria_exterior));
+    images.push(...parseStringOrArray(vehicle.fotos_exterior_url));
+    images.push(...parseStringOrArray(vehicle.galeria_interior));
+    images.push(...parseStringOrArray(vehicle.fotos_interior_url));
+
+    return images;
+  };
+
+  const potentialImages = buildImagesList();
 
   // Find the first valid, non-empty URL from the prioritized list
   for (const imageSource of potentialImages) {
     if (imageSource && typeof imageSource === 'string' && imageSource.trim() !== '' && imageSource.trim() !== '#ERROR!') {
       // Convert Supabase URL to CDN URL
       return getCdnUrl(imageSource.trim());
-    }
-    // Handle cases where a field might be an array with one item
-    if (Array.isArray(imageSource) && imageSource.length > 0 && imageSource[0] && typeof imageSource[0] === 'string' && imageSource[0].trim() !== '') {
-        // Convert Supabase URL to CDN URL
-        return getCdnUrl(imageSource[0].trim());
     }
   }
 

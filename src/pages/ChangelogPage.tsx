@@ -50,6 +50,62 @@ const ChangelogPage: React.FC = () => {
                 </div>
                 <ul className="space-y-3">
                   <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🖼️</span>
+                    <div className="flex-1">
+                      <strong>Visualización de imágenes de Car Studio en tarjetas de vehículos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se corrigió el problema donde las imágenes procesadas por Car Studio AI no se mostraban en las
+                        tarjetas de vehículos. El getVehicleImage utility ahora prioriza car_studio_feature_image y
+                        car_studio_gallery cuando la bandera use_car_studio_images está activada, afectando tanto la
+                        vista de lista como la vista de cuadrícula.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Mejora visual del borde de tarjetas populares</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se mejoró el efecto de borde gradiente animado para vehículos con 1000+ visitas. Ahora utiliza
+                        colores más pronunciados (naranja, ámbar oscuro, rojo-naranja) con animación de pulso y brillo
+                        para mayor visibilidad, similar al efecto de la barra de búsqueda.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔐</span>
+                    <div className="flex-1">
+                      <strong>Autenticación requerida para vender vehículos en línea</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se implementó validación de autenticación antes de continuar con el proceso de venta en línea.
+                        Los datos de valuación se preservan durante el flujo de inicio de sesión usando localStorage,
+                        con redirección automática después de autenticación exitosa.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">✅</span>
+                    <div className="flex-1">
+                      <strong>Validación amigable de kilometraje en formulario de valuación</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se agregó límite de 99,999 km en el formulario de valuación con mensaje informativo cuando se
+                        excede. El mensaje incluye explicación sobre el límite de 90,000 km para compra, alternativas
+                        como Kavak.com, y descarga del Manual de Venta TREFA 2025.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">💾</span>
+                    <div className="flex-1">
+                      <strong>Manejo de IDs de Airtable en Car Studio</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se solucionó el error de casting bigint al guardar imágenes de Car Studio. ImageService ahora
+                        detecta si vehicleId es un ID de Airtable (string que inicia con "rec") y usa la columna
+                        airtable_id en lugar de id (bigint) para evitar errores de tipo.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
                     <span className="text-orange-500 text-xl">🔧</span>
                     <div className="flex-1">
                       <strong>Corrección de error en página de Vacantes</strong>

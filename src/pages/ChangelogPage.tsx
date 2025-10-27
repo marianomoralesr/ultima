@@ -40,6 +40,53 @@ const ChangelogPage: React.FC = () => {
             </div>
 
             <div className="space-y-8">
+              {/* New Features */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Visualización Completa de Solicitudes</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📋</span>
+                    <div className="flex-1">
+                      <strong>Vista previa completa de solicitudes en perfil de leads</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La página de perfil de clientes (/escritorio/admin/cliente/:id) ahora muestra toda la información
+                        de la solicitud directamente en la página sin necesidad de abrir un modal. Incluye información
+                        personal completa (CURP, lugar de nacimiento, nacionalidad), direcciones actual y anterior,
+                        detalles laborales con formato de moneda, referencias personales, banco recomendado, y notas
+                        adicionales. Todo en un diseño profesional compacto que cabe en una sola página.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📥</span>
+                    <div className="flex-1">
+                      <strong>Botones prominentes de descarga e impresión</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se agregaron botones destacados con estilos de gradiente para "Descargar Solicitud (PDF)" y
+                        "Imprimir". El botón de descarga utiliza html2canvas y jspdf para generar PDFs de alta calidad
+                        de forma dinámica. Ambos botones son totalmente responsivos y cuentan con efectos hover
+                        atractivos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔄</span>
+                    <div className="flex-1">
+                      <strong>Soporte para múltiples solicitudes</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Si un usuario tiene múltiples solicitudes, se puede seleccionar cuál ver mediante un dropdown
+                        selector. El estado de la solicitud también es editable directamente desde la vista previa.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
               {/* Bug Fixes */}
               <div>
                 <div className="flex items-center gap-3 mb-4">

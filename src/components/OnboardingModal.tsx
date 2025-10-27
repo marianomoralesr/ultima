@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Heart, FileText, Phone } from 'lucide-react';
+import { ArrowRight, Heart, FileText, Phone, Image } from 'lucide-react';
 
 const steps = [
   {
@@ -12,6 +12,12 @@ const steps = [
     icon: <Heart className="w-12 h-12 text-red-500" />,
     title: 'Guarda tus Favoritos',
     content: 'Explora nuestro inventario y guarda los autos que más te gusten. ¡Nunca los perderás de vista!'
+  },
+  {
+    icon: '📸',
+    title: 'Navega las Fotos',
+    content: 'Desliza hacia la izquierda o derecha sobre las fotos de los vehículos para ver todas las imágenes. También puedes tocar los puntos en la parte inferior para cambiar de foto.',
+    animation: true
   },
   {
     icon: <FileText className="w-12 h-12 text-blue-500" />,
@@ -66,6 +72,29 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ onClose }) => {
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mt-4">{steps[step].title}</h2>
               <p className="text-gray-600 mt-2">{steps[step].content}</p>
+
+              {steps[step].animation && (
+                <div className="mt-6 relative bg-gray-100 rounded-lg overflow-hidden h-32 flex items-center justify-center">
+                  <motion.div
+                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    animate={{
+                      x: [0, -40, 40, 0],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <div className="text-4xl">👆</div>
+                  </motion.div>
+                  <div className="absolute bottom-2 flex gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

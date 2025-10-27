@@ -491,17 +491,6 @@ const SimpleCRMPage: React.FC = () => {
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     <button
-                                        onClick={() => handleSort('created_at')}
-                                        className="flex items-center gap-1 hover:text-primary-600"
-                                    >
-                                        Fecha Registro
-                                        {sortColumn === 'created_at' ? (
-                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
-                                    </button>
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    <button
                                         onClick={() => handleSort('last_sign_in_at')}
                                         className="flex items-center gap-1 hover:text-primary-600"
                                     >
@@ -529,15 +518,31 @@ const SimpleCRMPage: React.FC = () => {
                                     <td className="px-6 py-4">{lead.latest_app_car_title || '-'}</td>
                                     <td className="px-6 py-4">
                                         {lead.latest_app_status ? (
-                                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                                                lead.latest_app_status === 'submitted' ? 'bg-blue-100 text-blue-800' :
-                                                lead.latest_app_status === 'reviewing' ? 'bg-purple-100 text-purple-800' :
-                                                lead.latest_app_status === 'pending_docs' ? 'bg-yellow-100 text-yellow-800' :
-                                                lead.latest_app_status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                                                'bg-gray-100 text-gray-800'
-                                            }`}>
-                                                {lead.latest_app_status}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`w-3 h-3 rounded-full animate-pulse ${
+                                                    lead.latest_app_status === 'submitted' ? 'bg-blue-500' :
+                                                    lead.latest_app_status === 'reviewing' ? 'bg-purple-500' :
+                                                    lead.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
+                                                    lead.latest_app_status === 'approved' ? 'bg-green-500' :
+                                                    lead.latest_app_status === 'draft' ? 'bg-gray-400' :
+                                                    'bg-gray-400'
+                                                }`}></span>
+                                                <span className={`font-bold text-sm ${
+                                                    lead.latest_app_status === 'submitted' ? 'text-blue-700' :
+                                                    lead.latest_app_status === 'reviewing' ? 'text-purple-700' :
+                                                    lead.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
+                                                    lead.latest_app_status === 'approved' ? 'text-green-700' :
+                                                    lead.latest_app_status === 'draft' ? 'text-gray-600' :
+                                                    'text-gray-600'
+                                                }`}>
+                                                    {lead.latest_app_status === 'submitted' ? 'Enviada' :
+                                                    lead.latest_app_status === 'reviewing' ? 'En Revisión' :
+                                                    lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
+                                                    lead.latest_app_status === 'approved' ? 'Aprobada' :
+                                                    lead.latest_app_status === 'draft' ? 'Borrador' :
+                                                    lead.latest_app_status}
+                                                </span>
+                                            </div>
                                         ) : '-'}
                                     </td>
                                     <td className="px-6 py-4">
@@ -577,24 +582,17 @@ const SimpleCRMPage: React.FC = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="text-xs" title={formatDate(lead.created_at)}>
-                                            {formatRelativeTime(lead.created_at)}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
                                         <div className={`text-xs ${!lead.last_sign_in_at ? 'text-gray-400 italic' : ''}`} title={formatDate(lead.last_sign_in_at)}>
                                             {formatRelativeTime(lead.last_sign_in_at)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button
-                                            onClick={() => toggleContactado(lead.id, lead.contactado)}
-                                            className={`px-2 py-1 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 ${
-                                                lead.contactado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                            }`}
-                                        >
-                                            {lead.contactado ? 'Sí' : 'No'}
-                                        </button>
+                                        <input
+                                            type="checkbox"
+                                            checked={lead.contactado}
+                                            onChange={() => toggleContactado(lead.id, lead.contactado)}
+                                            className="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer"
+                                        />
                                     </td>
                                     <td className="px-6 py-4">{lead.asesor_nombre || 'Sin asignar'}</td>
                                     <td className="px-6 py-4">

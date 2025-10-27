@@ -95,13 +95,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
       </motion.div>
 
       {allImages.length > 1 && (
-        <div className="absolute bottom-3 right-0 flex justify-end gap-1 z-30 pr-4">
+        <div className="absolute bottom-3 right-0 flex justify-end gap-2 z-30 pr-4">
           {allImages.slice(0, 5).map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`h-2 w-2 rounded-full transition-colors duration-200 ${
-                index === currentIndex ? 'bg-white' : 'bg-white/50'
+              className={`h-3 w-3 md:h-2.5 md:w-2.5 rounded-full transition-all duration-200 ${
+                index === currentIndex ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/75'
               }`}
               aria-label={`View image ${index + 1}`}
             />

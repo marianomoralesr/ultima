@@ -76,7 +76,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
   return (
     <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group relative ${isSeparado ? 'opacity-70' : ''} ${isRezago ? 'rezago-border' : ''} ${isPopular ? 'popular-card' : ''}`}
+      className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 ${!isPopular ? 'overflow-hidden' : ''} group relative ${isSeparado ? 'opacity-70' : ''} ${isRezago ? 'rezago-border' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
       {/* Recently Added Badge */}
       {isRecentlyAdded && (
@@ -94,7 +94,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         </div>
       )}
       <div className="flex flex-col md:flex-row bg-white">
-        <div className="md:w-1/3 md:flex-shrink-0 relative">
+        <div className={`md:w-1/3 md:flex-shrink-0 relative ${isPopular ? 'overflow-hidden rounded-tl-2xl rounded-bl-2xl' : ''}`}>
           <ImageCarousel
             images={imagesForCarousel}
             alt={vehicle.title}

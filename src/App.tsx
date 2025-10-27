@@ -61,6 +61,8 @@ const MarketingHubPage = lazy(() => import('./pages/MarketingHubPage'));
 const AdminComprasDashboardPage = lazy(() => import('./pages/AdminComprasDashboardPage'));
 const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
 const SimpleCRMPage = lazy(() => import('./pages/SimpleCRMPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 import ConfigService from './services/ConfigService';
 
@@ -107,6 +109,8 @@ function App(): React.JSX.Element {
               <Route path="marcas/:marca" element={<MarketingCategoryPage />} />
               <Route path="carroceria/:carroceria" element={<MarketingCategoryPage />} />
               <Route path="changelog" element={<ChangelogPage />} />
+              <Route path="conocenos" element={<AboutPage />} />
+              <Route path="contacto" element={<ContactPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
 

@@ -242,6 +242,65 @@ const ChangelogPage: React.FC = () => {
                 </ul>
               </div>
 
+              {/* New Pages and SEO */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Página
+                  </span>
+                  <h3 className="text-xl font-semibold">Nuevas Páginas Institucionales y Mejoras SEO</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🏢</span>
+                    <div className="flex-1">
+                      <strong>Página "Conócenos" (/conocenos)</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se creó una página institucional completa con la misión, valores (Transparencia, Calidad Certificada,
+                        Servicio Personalizado, Financiamiento Ágil), historia de la empresa (2020-2023) con timeline visual,
+                        y sección de equipo. Incluye CTAs a inventario y venta de autos. Diseño responsive con gradientes
+                        naranja-ámbar característicos de TREFA y optimización SEO completa.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📞</span>
+                    <div className="flex-1">
+                      <strong>Página "Contacto" (/contacto)</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se desarrolló una página de contacto con múltiples métodos de comunicación (WhatsApp, teléfono, email)
+                        con botones de acción directa. Incluye información de ubicación, horarios de atención (Lun-Dom),
+                        sección de FAQ con preguntas frecuentes, e imagen del equipo de atención. Totalmente responsive con
+                        optimización SEO y meta tags Open Graph para compartir en redes sociales.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔗</span>
+                    <div className="flex-1">
+                      <strong>Redirects SEO para URLs heredadas</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se agregaron cuatro redirects 301 en RedirectService: /vende-tu-auto → /vender-mi-auto,
+                        /inventario-trefa → /autos, /trefa-inventario → /autos, /inventario → /autos. Estos redirects
+                        preservan el SEO de URLs antiguas y mejoran la experiencia del usuario.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎯</span>
+                    <div className="flex-1">
+                      <strong>SEO mejorado para página /vender-mi-auto</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se optimizó completamente el SEO de GetAQuotePage con título localizado ("Vende tu Auto Usado en
+                        Monterrey | Recibe una Oferta en 24 Horas"), descripción extendida de 200+ caracteres con keywords
+                        locales, canonical URL, y meta tags Open Graph. Incluye keywords optimizados para búsquedas locales
+                        en Monterrey.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
               {/* Email Notification System */}
               <div>
                 <div className="flex items-center gap-3 mb-4">

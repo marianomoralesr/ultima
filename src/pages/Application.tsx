@@ -13,6 +13,7 @@ import {
 import StepIndicator from '../components/StepIndicator';
 import { ApplicationService } from '../services/ApplicationService';
 import { BankProfilingService } from '../services/BankProfilingService';
+import { ProfileService } from '../services/profileService';
 
 import FileUpload from '../components/FileUpload';
 import { DocumentService, UploadedDocument } from '../services/documentService';
@@ -323,12 +324,13 @@ const Application: React.FC = () => {
             return;
         }
 
-        const docValidationError = validateDocuments();
-        if (docValidationError) {
-            setSubmissionError(docValidationError);
-            setCurrentStep(3); // Go back to documents step
-            return;
-        }
+        // Documents are optional - users can upload later from dashboard
+        // const docValidationError = validateDocuments();
+        // if (docValidationError) {
+        //     setSubmissionError(docValidationError);
+        //     setCurrentStep(3); // Go back to documents step
+        //     return;
+        // }
 
         try {
             // Re-check for active applications right before submission to prevent race conditions
@@ -342,6 +344,16 @@ const Application: React.FC = () => {
                     return;
                 }
             }
+
+            // Update profile with address information from application form
+            await ProfileService.updateProfile({
+                id: user.id,
+                address: data.current_address,
+                colony: data.current_colony,
+                city: data.current_city,
+                state: data.current_state,
+                zip_code: data.current_zip_code,
+            });
 
             const payload = {
                 personal_info_snapshot: profile,
@@ -948,6 +960,11 @@ const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDo
     return (
         <div className="space-y-6">
             <h2 className="text-lg font-semibold">Carga de Documentos</h2>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 font-semibold">
+                    Los documentos son opcionales en este paso. Puedes continuar y subir tus documentos después de enviar tu solicitud a través del dashboard, o puedes subirlos ahora para agilizar tu solicitud.
+                </p>
+            </div>
             <p className="text-sm text-gray-600">Sube tus documentos para agilizar tu solicitud. Puedes tomar una foto o subir un archivo. Comprobantes de ingresos (debes cargar 3 PDFs)* No se aceptan imágenes o capturas. Por favor adjunta 3 archivos distintos en formato PDF (o un folder comprimido.zip) que descargas desde la aplicación de tu banca móvil.</p>
             <div className="grid md:grid-cols-2 gap-6">
                 {requiredDocuments.map(doc => (

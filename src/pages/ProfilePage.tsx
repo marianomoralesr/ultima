@@ -25,11 +25,6 @@ const profileSchema = z.object({
   civil_status: z.string().min(1, 'Estado civil es requerido'),
   gender: z.string().optional().or(z.literal('')),
   how_did_you_know: z.string().optional().or(z.literal('')),
-  address: z.string().min(5, 'La dirección es requerida'),
-  colony: z.string().min(3, 'La colonia es requerida'),
-  city: z.string().min(2, 'La ciudad es requerida'),
-  state: z.string().min(2, 'El estado es requerido'),
-  zip_code: z.string().min(5, 'El código postal debe tener 5 dígitos'),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -89,11 +84,6 @@ const ProfilePage: React.FC = () => {
         civil_status: profile.civil_status || '',
         gender: profile.gender || '',
         how_did_you_know: profile.how_did_you_know || '',
-        address: profile.address || '',
-        colony: profile.colony || '',
-        city: profile.city || '',
-        state: profile.state || '',
-        zip_code: profile.zip_code || '',
       });
       setCalculatedRfc(profile.rfc || '');
       setAsesorAutorizadoAcceso(profile.asesor_autorizado_acceso || false);
@@ -322,27 +312,6 @@ const ProfilePage: React.FC = () => {
                   <option value="Masculino">Masculino</option>
                   <option value="Femenino">Femenino</option>
                 </select>
-              </FormField>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField label="Calle y Número" error={profileForm.formState.errors.address?.message as React.ReactNode}>
-                <input {...profileForm.register('address')} className={inputClassName} />
-              </FormField>
-              <FormField label="Colonia" error={profileForm.formState.errors.colony?.message as React.ReactNode}>
-                <input {...profileForm.register('colony')} className={inputClassName} />
-              </FormField>
-              <FormField label="Ciudad" error={profileForm.formState.errors.city?.message as React.ReactNode}>
-                <input {...profileForm.register('city')} className={inputClassName} />
-              </FormField>
-              <FormField label="Estado" error={profileForm.formState.errors.state?.message as React.ReactNode}>
-                <select {...profileForm.register('state')} className={inputClassName}>
-                  <option value="">Seleccionar...</option>
-                  {MEXICAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </FormField>
-              <FormField label="Código Postal" error={profileForm.formState.errors.zip_code?.message as React.ReactNode}>
-                <input {...profileForm.register('zip_code')} className={inputClassName} />
               </FormField>
             </div>
 

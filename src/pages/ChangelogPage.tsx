@@ -30,6 +30,74 @@ const ChangelogPage: React.FC = () => {
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+          {/* Version 1.4.1 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.4.1</h2>
+              <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold">
+                Mejoras CRM & Solicitudes
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                28 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejoras CRM
+                  </span>
+                  <h3 className="text-xl font-semibold">Página de Perfil de Cliente Mejorada</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">💳</span>
+                    <div className="flex-1">
+                      <strong>Perfilación Bancaria</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Nuevo resumen de perfilación bancaria debajo de la tarjeta de contacto, mostrando el banco recomendado en negrita,
+                        banco principal, cuentas de ahorro, tarjetas de crédito e institución de crédito.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📧</span>
+                    <div className="flex-1">
+                      <strong>Historial de Notificaciones</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Nuevo componente que muestra todas las notificaciones por email enviadas al lead históricamente,
+                        incluyendo tipo de notificación, asunto, fecha y estado (enviado/fallido).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎯</span>
+                    <div className="flex-1">
+                      <strong>Fuente del Lead Mejorada</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La sección "Fuente del Lead" ahora muestra información detallada: origen del registro, referencia (rfdm),
+                        vehículo de interés (ordencompra), Facebook Click ID (fbclid), y todos los parámetros UTM (source, medium, campaign, etc).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📋</span>
+                    <div className="flex-1">
+                      <strong>Solicitud Imprimible Mejorada</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Correcciones en campos que no se poblaban: Número de Dependientes, Nivel de Estudios, Ingreso Neto (ya no muestra NaN).
+                        Se removieron campos: CURP, Lugar de Nacimiento, Nacionalidad, Renta Mensual, Extensión, Otros Ingresos Mensuales.
+                        Se agregaron: Nombre del Cónyugue, Perfilación Bancaria completa, Asesor Asignado en el header.
+                        La dirección actual ahora se obtiene correctamente del perfil. Nombres y estado civil normalizados.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.4.0 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">

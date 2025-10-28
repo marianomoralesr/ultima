@@ -54,7 +54,8 @@ const checkProfileCompleteness = (p: Profile | undefined): boolean => {
 
 const ProfilePage: React.FC = () => {
   const { user, profile, loading, reloadProfile } = useAuth();
-  
+  const navigate = useNavigate();
+
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
@@ -155,14 +156,13 @@ const ProfilePage: React.FC = () => {
 
       await ProfileService.updateProfile(payload);
       await reloadProfile();
-      
+
       setSaveState('saved');
-      toast.success('¡Perfil guardado!');
+      toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');
 
       setTimeout(() => {
-        setSaveState('idle');
-        // Navigation logic can be placed here if needed, for now, we just reset the button
-      }, 2500);
+        navigate('/escritorio/perfilacion-bancaria');
+      }, 4000);
 
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Ocurrió un error desconocido');

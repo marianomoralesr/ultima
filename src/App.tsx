@@ -63,6 +63,8 @@ const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
 const SimpleCRMPage = lazy(() => import('./pages/SimpleCRMPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
+const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
 
 import ConfigService from './services/ConfigService';
 
@@ -111,6 +113,8 @@ function App(): React.JSX.Element {
               <Route path="changelog" element={<ChangelogPage />} />
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
+              {/* Dynamic landing pages - must be before the * route */}
+              <Route path=":slug" element={<DynamicLandingPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
 
@@ -148,6 +152,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/config" element={<AdminConfigPage />} />
                   <Route path="admin/marketing" element={<MarketingHubPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />
+                  <Route path="marketing/constructor" element={<ConstructorPage />} />
                   <Route path="car-studio" element={<CarStudioPage />} />
                 </Route>
 

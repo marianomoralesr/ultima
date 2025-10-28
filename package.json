@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.916.0",
+    "@google/genai": "^1.27.0",
     "@hookform/resolvers": "^3.3.4",
     "@microsoft/clarity": "^1.0.0",
     "@netlify/functions": "^5.0.0",

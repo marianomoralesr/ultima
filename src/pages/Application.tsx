@@ -124,7 +124,8 @@ const Application: React.FC = () => {
 
             setPageStatus('checking_profile');
             try {
-                const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'address', 'city', 'state', 'zip_code', 'rfc'];
+                // Address fields (address, city, state, zip_code) are now part of the application form, not profile requirements
+                const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
                 const isProfileComplete = requiredFields.every(field => profile[field] && String(profile[field]).trim() !== '');
                 
                 if (!isProfileComplete) {

@@ -18,8 +18,65 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
 
     // Format currency
     const formatCurrency = (amount: any) => {
-        if (!amount) return 'N/A';
-        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
+        if (!amount || isNaN(Number(amount))) return 'N/A';
+        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(amount));
+    };
+
+    // Capitalize names properly
+    const capitalizeName = (name: string | undefined) => {
+        if (!name) return 'N/A';
+        return name
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
+    // Normalize civil status to Spanish
+    const normalizeCivilStatus = (status: string | undefined) => {
+        if (!status) return 'N/A';
+        const statusMap: { [key: string]: string } = {
+            'married': 'Casado',
+            'single': 'Soltero',
+            'divorced': 'Divorciado',
+            'widowed': 'Viudo',
+            'domestic_partnership': 'Unión Libre',
+            'free_union': 'Unión Libre',
+            'casado': 'Casado',
+            'soltero': 'Soltero',
+            'divorciado': 'Divorciado',
+            'viudo': 'Viudo',
+            'union_libre': 'Unión Libre',
+        };
+        return statusMap[status.toLowerCase()] || status;
+    };
+
+    // Get application status in Spanish
+    const getStatusLabel = (status: string | undefined) => {
+        const statusMap: { [key: string]: string } = {
+            'draft': 'Borrador',
+            'submitted': 'Enviada',
+            'reviewing': 'En Revisión',
+            'pending_docs': 'Documentos Pendientes',
+            'approved': 'Aprobada',
+            'rejected': 'Rechazada',
+            'incomplete': 'Incompleta',
+        };
+        return statusMap[status || 'submitted'] || 'Enviada';
+    };
+
+    // Get spouse name (only if married)
+    const getSpouseName = () => {
+        const civilStatus = normalizeCivilStatus(profile.civil_status);
+        if (civilStatus === 'Casado') {
+            return appData.spouse_name || profile.spouse_name || 'N/A';
+        }
+        return 'N/A';
+    };
+
+    // Get address from profile or appData
+    const getCurrentAddress = () => {
+        return profile.address || appData.current_address || 'N/A';
     };
 
     return (
@@ -29,7 +86,10 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <h1 className="text-xl font-bold text-gray-900">Solicitud de Financiamiento</h1>
                     <p className="text-xs text-gray-500 font-mono">ID: {application.id?.slice(0, 8)}</p>
                     <p className="text-xs text-gray-500">Fecha: {new Date(application.created_at).toLocaleDateString('es-MX')}</p>
-                    <p className="text-xs font-semibold text-primary-600 mt-1">Estado: {application.status || 'Enviada'}</p>
+                    <p className="text-xs font-semibold text-primary-600 mt-1">Status: {getStatusLabel(application.status)}</p>
+                    {profile.asesor_asignado_id && (
+                        <p className="text-xs text-gray-600 mt-1">Asesor Asignado: {profile.asesor_asignado_id}</p>
+                    )}
                 </div>
                 <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-10" />
             </header>
@@ -55,33 +115,30 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 {/* Personal Information */}
                 <SectionHeader title="Información Personal Completa" />
                 <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
-                    <DataRow label="Nombre(s)" value={profile.first_name} />
-                    <DataRow label="Apellido Paterno" value={profile.last_name} />
-                    <DataRow label="Apellido Materno" value={profile.mother_last_name} />
+                    <DataRow label="Nombre(s)" value={capitalizeName(profile.first_name)} />
+                    <DataRow label="Apellido Paterno" value={capitalizeName(profile.last_name)} />
+                    <DataRow label="Apellido Materno" value={capitalizeName(profile.mother_last_name)} />
                     <DataRow label="Email" value={profile.email} />
                     <DataRow label="Teléfono" value={profile.phone} />
                     <DataRow label="RFC" value={profile.rfc} />
-                    <DataRow label="CURP" value={profile.curp} />
                     <DataRow label="Fecha de Nacimiento" value={profile.birth_date} />
-                    <DataRow label="Lugar de Nacimiento" value={profile.birth_place} />
-                    <DataRow label="Nacionalidad" value={profile.nationality} />
-                    <DataRow label="Estado Civil" value={profile.civil_status} />
+                    <DataRow label="Estado Civil" value={normalizeCivilStatus(profile.civil_status)} />
+                    <DataRow label="Nombre del Cónyugue" value={getSpouseName()} />
                     <DataRow label="Género" value={profile.gender} />
-                    <DataRow label="Nivel de Estudios" value={profile.education_level} />
-                    <DataRow label="Número de Dependientes" value={profile.dependents} />
+                    <DataRow label="Nivel de Estudios" value={profile.education_level || appData.education_level || 'N/A'} />
+                    <DataRow label="Número de Dependientes" value={profile.dependents || appData.dependents || appData.number_of_dependents || 'N/A'} />
                 </div>
 
                 {/* Current Address */}
                 <SectionHeader title="Dirección Actual" />
                 <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
-                    <DataRow label="Calle y Número" value={appData.current_address} />
-                    <DataRow label="Colonia" value={appData.current_neighborhood} />
-                    <DataRow label="Ciudad" value={appData.current_city} />
-                    <DataRow label="Estado" value={appData.current_state} />
-                    <DataRow label="Código Postal" value={appData.current_zip_code} />
+                    <DataRow label="Calle y Número" value={getCurrentAddress()} />
+                    <DataRow label="Colonia" value={profile.neighborhood || appData.current_neighborhood} />
+                    <DataRow label="Ciudad" value={profile.city || appData.current_city} />
+                    <DataRow label="Estado" value={profile.state || appData.current_state} />
+                    <DataRow label="Código Postal" value={profile.zip_code || appData.current_zip_code} />
                     <DataRow label="Tipo de Vivienda" value={appData.housing_type} />
                     <DataRow label="Tiempo en Domicilio" value={appData.time_at_address} />
-                    <DataRow label="Renta Mensual" value={formatCurrency(appData.monthly_rent)} />
                 </div>
 
                 {/* Previous Address (if different) */}
@@ -108,11 +165,24 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="Antigüedad en el Puesto" value={appData.job_seniority} />
                     <DataRow label="Dirección de la Empresa" value={appData.company_address} />
                     <DataRow label="Teléfono (Empresa)" value={appData.company_phone} />
-                    <DataRow label="Extensión" value={appData.company_extension} />
                     <DataRow label="Ingreso Mensual Neto" value={formatCurrency(appData.net_monthly_income)} />
-                    <DataRow label="Otros Ingresos Mensuales" value={formatCurrency(appData.other_monthly_income)} />
                     <DataRow label="Fuente de Otros Ingresos" value={appData.other_income_source} />
                 </div>
+
+                {/* Banking Profile */}
+                {(appData.bank_name || appData.account_type || appData.has_savings_account || appData.has_credit_card) && (
+                    <>
+                        <SectionHeader title="Perfilación Bancaria" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
+                            <DataRow label="Banco Principal" value={appData.bank_name} />
+                            <DataRow label="Tipo de Cuenta" value={appData.account_type} />
+                            <DataRow label="Cuenta de Ahorro" value={appData.has_savings_account ? 'Sí' : 'No'} />
+                            <DataRow label="Tarjeta de Crédito" value={appData.has_credit_card ? 'Sí' : 'No'} />
+                            <DataRow label="Institución de Crédito" value={appData.credit_card_bank} />
+                            <DataRow label="Límite de Crédito" value={formatCurrency(appData.credit_limit)} />
+                        </div>
+                    </>
+                )}
 
                 {/* References */}
                 <SectionHeader title="Referencias Personales" />

@@ -17,11 +17,11 @@ export const CarouselBuilder: React.FC = () => {
         headline: 'Explora Nuestra Gama Familiar',
         paragraph: 'Desde SUVs espaciosas hasta hatchbacks eficientes, cada vehículo está diseñado pensando en la seguridad y comodidad de tu familia.',
         images: [
-            { id: 1, src: 'https://images.unsplash.com/photo-1554223090-7e482851df45?q=80&w=2070&auto=format&fit=crop' },
-            { id: 2, src: 'https://images.unsplash.com/photo-1617469723732-9333a8e34a7a?q=80&w=2070&auto=format&fit=crop' },
-            { id: 3, src: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop' },
-            { id: 4, src: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2070&auto=format&fit=crop' },
-            { id: 5, src: 'https://images.unsplash.com/photo-1599912027806-cfec9f5944b6?q=80&w=2070&auto=format&fit=crop' },
+            { id: 1, src: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070&auto=format&fit=crop' },
+            { id: 2, src: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2070&auto=format&fit=crop' },
+            { id: 3, src: 'https://images.unsplash.com/photo-1552519507-95ec734c9f3f?q=80&w=1964&auto=format&fit=crop' },
+            { id: 4, src: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=2070&auto=format&fit=crop' },
+            { id: 5, src: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?q=80&w=2070&auto=format&fit=crop' },
         ],
         color: '#ffffff',
     });

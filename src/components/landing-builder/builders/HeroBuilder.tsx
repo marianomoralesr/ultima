@@ -18,7 +18,7 @@ export const HeroBuilder: React.FC = () => {
         headline: 'Aventura, Espacio y Comodidad',
         paragraph: 'Descubre la SUV perfecta para tu familia. Con la última tecnología en seguridad y un interior espacioso, cada viaje es una nueva oportunidad para crear recuerdos.',
         ctaText: 'Explorar SUVs',
-        image: 'https://images.unsplash.com/photo-1554223090-7e482851df45?q=80&w=2070&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070&auto=format&fit=crop',
         color: '#ffffff',
         ctaLink: '#',
         ctaType: 'button',

@@ -20,7 +20,7 @@ export const SectionsBuilder: React.FC = () => {
   const [content, setContent] = useState<BlockProps>({
     headline: 'Diseñado para tu Familia, Hecho para el Futuro',
     paragraph: 'Descubre un sedán que combina elegancia, seguridad y tecnología avanzada. Espacio para todos, eficiencia para tu día a día y un diseño que no pasa desapercibido.',
-    image: `https://images.unsplash.com/photo-1617469723732-9333a8e34a7a?q=80&w=2070&auto=format&fit=crop`,
+    image: `https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2070&auto=format&fit=crop`,
     color: '#ffffff',
     video: null,
     ctaText: 'Ver Modelos',

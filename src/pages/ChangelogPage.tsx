@@ -67,8 +67,8 @@ const ChangelogPage: React.FC = () => {
                     <div className="flex-1">
                       <strong>Atribución de Fuente con Prioridad</strong>
                       <p className="text-gray-600 text-sm mt-1">
-                        Implementación de lógica de prioridad para determinar la fuente principal: fbclid > utm_source > rfdm >
-                        source > ordencompra. La fuente principal se guarda en el campo 'source' del perfil para análisis rápido.
+                        Implementación de lógica de prioridad para determinar la fuente principal: fbclid &gt; utm_source &gt; rfdm &gt;
+                        source &gt; ordencompra. La fuente principal se guarda en el campo 'source' del perfil para análisis rápido.
                       </p>
                     </div>
                   </li>

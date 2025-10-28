@@ -50,16 +50,16 @@ export const HeroMinimalist: React.FC<HeroProps> = (props) => {
   const { headline, paragraph, image, color, imageRoundness } = props;
   const imageRoundnessClass = getRoundnessClass(imageRoundness);
   return (
-    <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ backgroundColor: color }}>
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <section className="py-12 sm:py-16 md:py-20 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ backgroundColor: color }}>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
         <div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-slate-900">
             {headline}
           </h1>
-          <p className="mt-6 text-lg text-slate-600 max-w-lg">
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-slate-600 max-w-lg">
             {paragraph}
           </p>
-          <div className="mt-10">
+          <div className="mt-6 sm:mt-8 md:mt-10">
             <CTA {...props} />
           </div>
         </div>

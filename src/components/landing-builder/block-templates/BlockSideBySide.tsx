@@ -75,19 +75,19 @@ export const BlockSideBySide: React.FC<BlockProps> = (props) => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-12 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ backgroundColor: color }}>
+    <section ref={sectionRef} className="py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ backgroundColor: color }}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
           <div className="md:order-2">
             <div className={`aspect-w-4 aspect-h-3 ${imageRoundnessClass} overflow-hidden transform transition-all duration-1000 ease-in-out ${isAnimated ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
                 {image && <img className="object-cover w-full h-full max-h-[500px]" src={image} alt="Feature" />}
             </div>
           </div>
           <div className="md:order-1">
-            <h2 className={`text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4 transition-all duration-700 ease-out ${isAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 sm:mb-4 transition-all duration-700 ease-out ${isAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               {headline}
             </h2>
-            <p className={`text-lg text-slate-600 transition-all duration-700 ease-out delay-200 ${isAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+            <p className={`text-base sm:text-lg text-slate-600 transition-all duration-700 ease-out delay-200 ${isAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
               {paragraph}
             </p>
             <div className={`transition-all duration-700 ease-out delay-300 ${isAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>

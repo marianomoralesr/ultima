@@ -55,14 +55,14 @@ export const HeroCentered: React.FC<HeroProps> = (props) => {
         {image && <img className="w-full h-full object-cover" src={image} alt="Background" />}
         <div className="absolute inset-0 bg-slate-800 mix-blend-multiply" aria-hidden="true"></div>
       </div>
-      <div className="relative max-w-4xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
+      <div className="relative max-w-4xl mx-auto py-16 sm:py-20 md:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 text-center">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
           {headline}
         </h1>
-        <p className="mt-6 max-w-2xl mx-auto text-xl text-slate-200">
+        <p className="mt-4 sm:mt-6 max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-slate-200">
           {paragraph}
         </p>
-        <div className="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
+        <div className="mt-8 sm:mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
           <CTA {...props} />
         </div>
       </div>

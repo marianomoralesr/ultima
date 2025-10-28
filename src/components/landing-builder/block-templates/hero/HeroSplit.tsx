@@ -53,20 +53,20 @@ export const HeroSplit: React.FC<HeroProps> = (props) => {
     <section className="overflow-hidden" style={{ backgroundColor: color }}>
       <div className="max-w-none">
         <div className="grid grid-cols-1 lg:grid-cols-2">
-          <div className="py-12 px-4 sm:px-6 lg:py-24 lg:px-8 flex items-center">
+          <div className="py-8 sm:py-10 md:py-12 lg:py-24 px-4 sm:px-6 lg:px-8 flex items-center">
             <div className="max-w-lg mx-auto lg:mx-0 lg:ml-auto lg:pl-8">
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
                 {headline}
               </h1>
-              <p className="mt-6 text-lg text-slate-600">
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg text-slate-600">
                 {paragraph}
               </p>
-              <div className="mt-10">
+              <div className="mt-6 sm:mt-8 md:mt-10">
                 <CTA {...props} />
               </div>
             </div>
           </div>
-          <div className={`relative h-64 lg:h-auto min-h-[400px] lg:max-h-[640px] ${imageRoundnessClass} overflow-hidden`}>
+          <div className={`relative h-64 sm:h-80 lg:h-auto min-h-[300px] sm:min-h-[400px] lg:max-h-[640px] ${imageRoundnessClass} overflow-hidden`}>
             {image && <img
               className="absolute inset-0 w-full h-full object-cover"
               src={image}

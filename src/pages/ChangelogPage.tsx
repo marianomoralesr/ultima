@@ -30,6 +30,107 @@ const ChangelogPage: React.FC = () => {
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+          {/* Version 1.4.2 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.4.2</h2>
+              <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold">
+                Seguimiento & Acceso
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                28 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Marketing
+                  </span>
+                  <h3 className="text-xl font-semibold">Seguimiento Comprensivo de Referencias</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎯</span>
+                    <div className="flex-1">
+                      <strong>Captura Completa de Parámetros UTM</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El sistema ahora captura todos los parámetros de seguimiento al momento del registro: utm_source, utm_medium,
+                        utm_campaign, utm_term, utm_content, fbclid (Facebook Click ID), rfdm, source, y ordencompra. Los datos se
+                        almacenan en el campo metadata del perfil en formato JSONB.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📊</span>
+                    <div className="flex-1">
+                      <strong>Atribución de Fuente con Prioridad</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Implementación de lógica de prioridad para determinar la fuente principal: fbclid > utm_source > rfdm >
+                        source > ordencompra. La fuente principal se guarda en el campo 'source' del perfil para análisis rápido.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">💾</span>
+                    <div className="flex-1">
+                      <strong>Persistencia en Múltiples Puntos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Los datos de seguimiento se capturan en tres puntos: LeadSourceHandler (parámetros URL), AuthPage
+                        (página de registro), y AuthContext (creación de perfil). Se usa sessionStorage para persistir
+                        temporalmente antes de guardar permanentemente en la base de datos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📈</span>
+                    <div className="flex-1">
+                      <strong>Visualización en CRM</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El CRM ahora muestra la fuente de cada lead y permite ordenar/filtrar por fuente. Los datos completos
+                        de seguimiento están disponibles en el campo metadata para análisis detallado de campañas.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Corrección Crítica
+                  </span>
+                  <h3 className="text-xl font-semibold">Corrección de Acceso a Solicitudes</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🚪</span>
+                    <div className="flex-1">
+                      <strong>Eliminación de Requisitos de Dirección</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        CRÍTICO: Los usuarios no podían acceder a la página de solicitud después de que los campos de dirección
+                        (address, city, state, zip_code) se movieron del perfil al formulario de aplicación. La validación de
+                        completitud del perfil aún requería estos campos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">✅</span>
+                    <div className="flex-1">
+                      <strong>Validación Actualizada</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se actualizó checkApplicationProfileCompleteness() en AuthHandler.tsx para solo requerir campos
+                        de identidad: first_name, last_name, mother_last_name, phone, birth_date, homoclave, fiscal_situation,
+                        civil_status, y rfc. Los campos de dirección ahora se completan dentro del formulario de aplicación.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.4.1 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -1831,31 +1932,39 @@ const ChangelogPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Ideas en Evaluación */}
-            <div className="border-l-4 border-gray-400 pl-8">
+            {/* En Planeación */}
+            <div className="border-l-4 border-purple-500 pl-8">
               <div className="flex flex-wrap items-center gap-3 mb-6">
-                <h2 className="text-3xl font-bold text-gray-900">Ideas en Evaluación</h2>
-                <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600 font-semibold">
-                  💡 Fase de Análisis
+                <h2 className="text-3xl font-bold text-gray-900">En Planeación...</h2>
+                <span className="bg-purple-100 px-4 py-1 rounded-full text-sm text-purple-700 font-semibold">
+                  🚀 Próximas Funcionalidades
                 </span>
               </div>
 
               <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700 font-medium">🎮 Gamificación del proceso de compra</p>
-                  <p className="text-gray-600 text-sm mt-1">Sistema de puntos y logros para engagementzar al usuario durante el proceso de financiamiento</p>
+                <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                  <p className="text-purple-900 font-bold text-lg">💳 Separación en línea tras financiamiento aprobado con Stripe</p>
+                  <p className="text-purple-800 text-sm mt-2">
+                    Integración completa con Stripe para permitir que los clientes aprobados realicen el pago de separación
+                    directamente en línea. Sistema seguro de pagos con confirmación automática y actualización del estado
+                    de la solicitud en tiempo real.
+                  </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700 font-medium">🔊 Tours virtuales con audio</p>
-                  <p className="text-gray-600 text-sm mt-1">Recorridos 360° de vehículos con narración de audio automática describiendo características</p>
+                <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                  <p className="text-purple-900 font-bold text-lg">🤖 Desarrollo del MCP para conectarse con Mariana (Bot de TREFA)</p>
+                  <p className="text-purple-800 text-sm mt-2">
+                    Implementación de un Model Context Protocol (MCP) personalizado para integrar a Mariana, el asistente
+                    virtual de TREFA. Esto permitirá consultas automatizadas al inventario, seguimiento de solicitudes,
+                    y atención al cliente 24/7 con contexto completo de la plataforma.
+                  </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700 font-medium">🤝 Marketplace de servicios automotrices</p>
-                  <p className="text-gray-600 text-sm mt-1">Plataforma para conectar clientes con talleres, seguros, y servicios relacionados</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700 font-medium">🎨 Personalizador de auto virtual</p>
-                  <p className="text-gray-600 text-sm mt-1">Herramienta AR para visualizar modificaciones y accesorios antes de comprar</p>
+                <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                  <p className="text-purple-900 font-bold text-lg">⚡ Migración completa a Next.js</p>
+                  <p className="text-purple-800 text-sm mt-2">
+                    Migración de la arquitectura actual de React (Vite) a Next.js para obtener beneficios de Server-Side
+                    Rendering (SSR), Static Site Generation (SSG), mejor SEO, optimización automática de imágenes, y
+                    mejoras significativas en el tiempo de carga inicial. Incluye API Routes para endpoints del backend.
+                  </p>
                 </div>
               </div>
             </div>

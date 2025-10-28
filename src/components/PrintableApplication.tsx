@@ -99,7 +99,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 <SectionHeader title="Vehículo de Interés" />
                 <div className="rounded-b-md overflow-hidden">
                     <DataRow label="Auto" value={carInfo._vehicleTitle} />
-                    <DataRow label="Orden de Compra" value={carInfo._ordenCompra} />
+                    <DataRow label="ID del Auto" value={carInfo._ordenCompra} />
                 </div>
 
                 {/* Recommended Bank */}

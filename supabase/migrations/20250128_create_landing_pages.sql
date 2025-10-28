@@ -130,7 +130,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 GRANT EXECUTE ON FUNCTION increment_landing_page_views(TEXT) TO anon, authenticated;
 
 -- Function to get a landing page with all its components
-CREATE OR REPLACE FUNCTION get_landing_page_with_components(page_slug TEXT)
+CREATE OR REPLACE FUNCTION get_landing_page_with_components(p_slug TEXT)
 RETURNS TABLE (
   page_id UUID,
   page_title TEXT,
@@ -164,7 +164,7 @@ BEGIN
     ) as components
   FROM public.landing_pages lp
   LEFT JOIN public.landing_page_components lpc ON lpc.id = ANY(lp.component_ids)
-  WHERE lp.slug = page_slug
+  WHERE lp.slug = p_slug
   GROUP BY lp.id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

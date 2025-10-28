@@ -24,7 +24,8 @@ interface Lead {
     asesor_nombre: string | null;
     latest_app_status: string | null;
     latest_app_car_title: string | null;
-    lead_source: string | null;
+    source: string | null;
+    metadata: any | null;
     created_at: string | null;
     updated_at: string | null;
     last_sign_in_at: string | null;
@@ -79,7 +80,8 @@ const SimpleCRMPage: React.FC = () => {
                     phone,
                     contactado,
                     asesor_asignado_id,
-                    lead_source,
+                    source,
+                    metadata,
                     created_at,
                     updated_at,
                     last_sign_in_at
@@ -132,7 +134,8 @@ const SimpleCRMPage: React.FC = () => {
                     asesor_nombre: asesorMap.get(profile.asesor_asignado_id) || null,
                     latest_app_status: latestApp?.status || null,
                     latest_app_car_title: latestApp?.car_info?._vehicleTitle || null,
-                    lead_source: profile.lead_source,
+                    source: profile.source,
+                    metadata: profile.metadata,
                     created_at: profile.created_at,
                     updated_at: profile.updated_at,
                     last_sign_in_at: profile.last_sign_in_at
@@ -220,13 +223,13 @@ const SimpleCRMPage: React.FC = () => {
         try {
             const { error } = await supabase
                 .from('profiles')
-                .update({ lead_source: tempSource || null })
+                .update({ source: tempSource || null })
                 .eq('id', leadId);
 
             if (error) throw error;
 
             setLeads(prev => prev.map(l =>
-                l.id === leadId ? { ...l, lead_source: tempSource || null } : l
+                l.id === leadId ? { ...l, source: tempSource || null } : l
             ));
 
             setEditingSource(null);
@@ -286,7 +289,7 @@ const SimpleCRMPage: React.FC = () => {
             filtered = leads.filter(lead =>
                 `${lead.first_name || ''} ${lead.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
                 lead.email?.toLowerCase().includes(lowercasedQuery) ||
-                lead.lead_source?.toLowerCase().includes(lowercasedQuery)
+                lead.source?.toLowerCase().includes(lowercasedQuery)
             );
         }
 
@@ -321,8 +324,8 @@ const SimpleCRMPage: React.FC = () => {
                     bVal = b.latest_app_status || '';
                     break;
                 case 'source':
-                    aVal = (a.lead_source || '').toLowerCase();
-                    bVal = (b.lead_source || '').toLowerCase();
+                    aVal = (a.source || '').toLowerCase();
+                    bVal = (b.source || '').toLowerCase();
                     break;
                 default:
                     return 0;
@@ -571,9 +574,11 @@ const SimpleCRMPage: React.FC = () => {
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2">
-                                                <span>{lead.lead_source || '-'}</span>
+                                                <span className="truncate" title={lead.source || '-'}>
+                                                    {lead.source || '-'}
+                                                </span>
                                                 <button
-                                                    onClick={() => startEditingSource(lead.id, lead.lead_source)}
+                                                    onClick={() => startEditingSource(lead.id, lead.source)}
                                                     className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                                                 >
                                                     <Edit2 className="w-3 h-3" />

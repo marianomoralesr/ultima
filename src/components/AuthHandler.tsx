@@ -5,7 +5,8 @@ import type { Profile } from '../types/types';
 
 export const checkApplicationProfileCompleteness = (p: Profile | null): boolean => {
     if (!p) return false;
-    const requiredApplicationFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'address', 'city', 'state', 'zip_code', 'rfc'];
+    // Address fields (address, city, state, zip_code) are now part of the application form, not profile requirements
+    const requiredApplicationFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
     return requiredApplicationFields.every(field => {
         const value = p[field];
         return value !== null && value !== undefined && String(value).trim() !== '';

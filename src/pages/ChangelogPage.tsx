@@ -95,6 +95,51 @@ const ChangelogPage: React.FC = () => {
                   </li>
                 </ul>
               </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejoras de Flujo de Usuario
+                  </span>
+                  <h3 className="text-xl font-semibold">Optimización del Proceso de Solicitud</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📍</span>
+                    <div className="flex-1">
+                      <strong>Campos de Dirección Movidos a Solicitud</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Los campos de dirección (Calle y Número, Colonia, Ciudad, Estado, Código Postal) fueron removidos del
+                        formulario "Mi Perfil" y ahora se encuentran únicamente en el formulario de Solicitud. Los datos de dirección
+                        se guardan automáticamente en el perfil al enviar la solicitud, permitiendo su reutilización en futuras solicitudes
+                        con la opción "Utilizar una dirección distinta".
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📄</span>
+                    <div className="flex-1">
+                      <strong>Carga de Documentos Ahora es Opcional</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        La sección de "Subir Documentos" en la solicitud ya no es obligatoria. Los usuarios pueden enviar su solicitud
+                        sin documentos y cargarlos posteriormente desde el dashboard a través del widget "Upload Documents". Se agregó
+                        un mensaje informativo azul explicando que los documentos son opcionales y pueden subirse después.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🏦</span>
+                    <div className="flex-1">
+                      <strong>Corrección en Validación de Perfilación Bancaria</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Se corrigió el error que impedía acceder a la perfilación bancaria después de completar el perfil personal.
+                        La validación ahora solo verifica los campos esenciales del perfil (nombre, apellidos, teléfono, fecha de nacimiento,
+                        RFC, situación fiscal, estado civil) sin requerir los campos de dirección que fueron movidos al formulario de solicitud.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 

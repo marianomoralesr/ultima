@@ -30,6 +30,120 @@ const ChangelogPage: React.FC = () => {
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+          {/* Version 1.5.0 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.5.0</h2>
+              <span className="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-sm font-bold">
+                Constructor de Landing Pages
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                28 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Generador de Landing Pages con IA</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Constructor Visual de Componentes</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema completo de construcción de landing pages con 5 tipos de componentes reutilizables:
+                        Heroes, Secciones, Features, Carruseles y Comparaciones. Cada tipo ofrece múltiples layouts
+                        (16 variaciones en total) para crear páginas únicas y profesionales.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🤖</span>
+                    <div className="flex-1">
+                      <strong>Generación de Contenido con Google Gemini AI</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Integración con Google Generative AI (Gemini) para generar automáticamente textos e imágenes.
+                        Los usuarios pueden describir su campaña y el sistema genera headlines, párrafos, CTAs e imágenes
+                        optimizadas con IA. También incluye generación de videos con Veo 3.1.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📱</span>
+                    <div className="flex-1">
+                      <strong>Diseño 100% Responsivo</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Todos los 16 templates optimizados para móviles, tablets y desktop. Tipografía escalable,
+                        layouts adaptables que se apilan verticalmente en móvil, y espaciado progresivo según el
+                        tamaño de pantalla. Las páginas se ven perfectas en cualquier dispositivo.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔗</span>
+                    <div className="flex-1">
+                      <strong>Publicación con Slugs Personalizados</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Publica landing pages en URLs personalizadas (ej: /promo-especial, /oferta-navidad).
+                        Sistema de validación de slugs, meta tags para SEO, y seguimiento de vistas. Las páginas
+                        se renderizan con el MainLayout completo de TREFA (navbar y footer).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">💾</span>
+                    <div className="flex-1">
+                      <strong>Persistencia en Supabase</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de base de datos completo con tablas landing_pages y landing_page_components.
+                        RLS policies para control de acceso admin-only, funciones PostgreSQL para operaciones optimizadas,
+                        y gestión completa de CRUD (crear, leer, actualizar, duplicar, archivar, eliminar).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎯</span>
+                    <div className="flex-1">
+                      <strong>Imágenes Orientadas a Familias</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Todas las imágenes placeholder reemplazadas con vehículos familiares (SUVs y sedanes)
+                        de Unsplash, alineadas con los valores de marca de TREFA: familia, seguridad y accesibilidad.
+                        Sin asociación con vehículos de lujo, deportivos o carreras.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Acceso
+                  </span>
+                  <h3 className="text-xl font-semibold">Integración con Marketing Hub</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🚀</span>
+                    <div className="flex-1">
+                      <strong>Acceso desde el Hub de Marketing</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Nueva sección "Generador de Landing Pages" en el Marketing Hub (/escritorio/marketing)
+                        reemplazando el bloque de Analytics. Constructor accesible en /escritorio/marketing/constructor
+                        con permisos de admin únicamente.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.4.2 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -1678,7 +1792,7 @@ const ChangelogPage: React.FC = () => {
             <p className="text-sm mt-2 opacity-90">Innovación Continua</p>
             <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
               <p className="text-lg font-semibold">
-                📊 Proyectos en Desarrollo: <span className="text-2xl">6+</span>
+                📊 Proyectos en Desarrollo: <span className="text-2xl">8+</span>
               </p>
             </div>
           </div>
@@ -1942,6 +2056,65 @@ const ChangelogPage: React.FC = () => {
               </div>
 
               <div className="space-y-4">
+                {/* Publicador de Redes Sociales */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Marketing Digital
+                    </span>
+                    <h3 className="text-xl font-semibold">Publicador y Administrador de Redes Sociales</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">📱</span>
+                      <div className="flex-1">
+                        <strong>Gestión Centralizada de Redes Sociales</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Plataforma integrada para publicar, programar y gestionar contenido en múltiples redes sociales
+                          (Facebook, Instagram, Twitter, LinkedIn) desde un solo lugar. Incluye calendario de publicaciones,
+                          biblioteca de contenido multimedia, plantillas reutilizables, y programación automática. Dashboard
+                          con métricas de engagement, alcance y conversiones por red social.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-100 px-3 py-1 rounded-full text-xs text-gray-600 font-medium">
+                            🎯 Planeado para Q1 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Suite SEO */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      SEO & Analytics
+                    </span>
+                    <h3 className="text-xl font-semibold">Suite SEO y Monitoreo de Ranking</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">📈</span>
+                      <div className="flex-1">
+                        <strong>Optimización y Seguimiento SEO Avanzado</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Suite completa de herramientas SEO: auditoría técnica automatizada, análisis de palabras clave,
+                          seguimiento de rankings en Google por palabra clave y ubicación, monitoreo de backlinks,
+                          optimización de meta tags, análisis de competencia, y recomendaciones de contenido basadas en IA.
+                          Dashboard con métricas de visibilidad orgánica, tráfico SEO, y oportunidades de mejora. Alertas
+                          automáticas para cambios significativos en rankings.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-100 px-3 py-1 rounded-full text-xs text-gray-600 font-medium">
+                            🎯 Planeado para Q2 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
                 <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
                   <p className="text-purple-900 font-bold text-lg">💳 Separación en línea tras financiamiento aprobado con Stripe</p>
                   <p className="text-purple-800 text-sm mt-2">

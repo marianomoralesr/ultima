@@ -17,13 +17,13 @@ export const ComparisonPricingBoxes: React.FC<ComparisonProps> = ({ headline, pa
     };
 
     return (
-        <section className="py-8 sm:py-12 md:py-16 lg:py-20" style={{ backgroundColor: color }}>
+        <section className="py-4 sm:py-8 md:py-12 lg:py-16" style={{ backgroundColor: color }}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-12">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">{headline}</h2>
-                    <p className="mt-3 sm:mt-4 text-base sm:text-lg text-slate-600">{paragraph}</p>
+                    <h2 className="text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">{headline}</h2>
+                    <p className="mt-2 sm:mt-3 text-base sm:text-lg text-slate-600">{paragraph}</p>
                 </div>
-                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 items-start ${gridColsClass[items.length as keyof typeof gridColsClass] || 'lg:grid-cols-4'}`}>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 items-start ${gridColsClass[items.length as keyof typeof gridColsClass] || 'lg:grid-cols-4'}`}>
                     {items.map((item, index) => (
                         <div key={item.id} className={`relative flex flex-col h-full p-6 sm:p-8 rounded-2xl bg-white shadow-xl border ${index === 1 && items.length > 1 ? 'border-[#FF6801]' : 'border-slate-200'}`}>
                             {index === 1 && items.length > 1 && <div className="absolute top-0 -translate-y-1/2 px-3 py-1 text-xs sm:text-sm font-semibold tracking-wide text-white uppercase bg-[#FF6801] rounded-full">Popular</div>}

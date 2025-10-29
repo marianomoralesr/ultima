@@ -53,7 +53,7 @@ export const HeroSplit: React.FC<HeroProps> = (props) => {
     <section className="overflow-hidden" style={{ backgroundColor: color }}>
       <div className="max-w-none">
         <div className="grid grid-cols-1 lg:grid-cols-2">
-          <div className="py-8 sm:py-10 md:py-12 lg:py-24 px-4 sm:px-6 lg:px-8 flex items-center">
+          <div className="py-4 sm:py-6 md:py-10 lg:py-24 px-4 sm:px-6 lg:px-8 flex items-center">
             <div className="max-w-lg mx-auto lg:mx-0 lg:ml-auto lg:pl-8">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
                 {headline}

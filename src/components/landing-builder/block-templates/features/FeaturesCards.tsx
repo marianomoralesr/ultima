@@ -10,17 +10,17 @@ const PlaceholderIcon = () => (
 
 export const FeaturesCards: React.FC<FeaturesProps> = ({ headline, paragraph, features, color }) => {
   return (
-    <section className="py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: color }}>
+    <section className="py-4 sm:py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: color }}>
         <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
                     {headline}
                 </h2>
-                <p className="mt-3 sm:mt-4 text-base sm:text-lg text-slate-600">
+                <p className="mt-2 sm:mt-3 text-base sm:text-lg text-slate-600">
                     {paragraph}
                 </p>
             </div>
-            <div className="mt-8 sm:mt-10 md:mt-12 grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-4 sm:mt-6 md:mt-10 grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {features.map((feature) => (
                     <div key={feature.id} className="pt-6">
                         <div className="flow-root bg-white/50 backdrop-blur-sm rounded-lg px-6 pb-8 shadow-md h-full">

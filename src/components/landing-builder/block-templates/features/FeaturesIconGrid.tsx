@@ -9,13 +9,13 @@ const PlaceholderIcon = () => (
   
 export const FeaturesIconGrid: React.FC<FeaturesProps> = ({ headline, paragraph, features, color }) => {
     return (
-        <section className="py-8 sm:py-12 md:py-16 lg:py-20" style={{ backgroundColor: color }}>
+        <section className="py-4 sm:py-8 md:py-12 lg:py-16" style={{ backgroundColor: color }}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center lg:text-center">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+                    <h2 className="text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
                         {headline}
                     </h2>
-                    <p className="mt-3 sm:mt-4 max-w-2xl text-base sm:text-lg md:text-xl text-slate-600 mx-auto lg:mx-auto">
+                    <p className="mt-2 sm:mt-3 max-w-2xl text-sm sm:text-base md:text-lg text-slate-600 mx-auto lg:mx-auto">
                         {paragraph}
                     </p>
                 </div>

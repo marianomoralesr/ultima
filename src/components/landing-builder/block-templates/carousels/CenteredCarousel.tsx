@@ -19,7 +19,7 @@ export const CenteredCarousel: React.FC<CarouselProps> = ({ headline, paragraph,
 
   if (images.length === 0) {
     return (
-       <section className="py-8 sm:py-12 md:py-16 lg:py-20" style={{ backgroundColor: color }}>
+       <section className="py-4 sm:py-8 md:py-12 lg:py-16" style={{ backgroundColor: color }}>
            <div className="text-center text-slate-500">Añade imágenes para ver el carrusel.</div>
        </section>
     )
@@ -27,13 +27,13 @@ export const CenteredCarousel: React.FC<CarouselProps> = ({ headline, paragraph,
 
 
   return (
-    <section className="py-8 sm:py-12 md:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: color }}>
+    <section className="py-4 sm:py-8 md:py-12 lg:py-16 overflow-hidden" style={{ backgroundColor: color }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">{headline}</h2>
-          <p className="mt-3 sm:mt-4 text-base sm:text-lg text-slate-600">{paragraph}</p>
+          <h2 className="text-lg sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">{headline}</h2>
+          <p className="mt-2 sm:mt-3 text-base sm:text-lg text-slate-600">{paragraph}</p>
         </div>
-        <div className="mt-8 sm:mt-10 md:mt-12 relative flex items-center justify-center h-64 sm:h-80 md:h-96">
+        <div className="mt-4 sm:mt-6 md:mt-10 relative flex items-center justify-center h-64 sm:h-80 md:h-96">
           <button onClick={goToPrevious} className="absolute left-0 md:-left-4 z-20 bg-white/70 p-1.5 sm:p-2 rounded-full shadow-lg hover:bg-white transition focus:outline-none focus:ring-2 focus:ring-[#FF6801]">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>

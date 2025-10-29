@@ -25,7 +25,7 @@ export const FeaturesAlternating: React.FC<FeaturesProps> = ({ features, color }
     }, [features]);
 
   return (
-    <section ref={sectionRef} className="py-8 sm:py-12 md:py-16 lg:py-20 overflow-hidden" style={{ backgroundColor: color }}>
+    <section ref={sectionRef} className="py-4 sm:py-8 md:py-12 lg:py-16 overflow-hidden" style={{ backgroundColor: color }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24">
         {features.map((feature, index) => {
             const isVisible = visibleItems.includes(feature.id);

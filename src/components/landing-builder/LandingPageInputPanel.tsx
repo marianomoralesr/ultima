@@ -11,7 +11,7 @@ interface LandingPageInputPanelProps {
     savedComparisons: SavedComparisonProps[];
     selectedIds: string[];
     onSelectionChange: (id: string, isSelected: boolean) => void;
-    onPublish: (slug: string) => void;
+    onPublish: (slug: string, title: string) => void;
     isPublishing: boolean;
     setIsPublishing: (isPublishing: boolean) => void;
     hasSelectedSections: boolean;
@@ -57,16 +57,18 @@ export const LandingPageInputPanel: React.FC<LandingPageInputPanelProps> = (prop
     const { savedHeros, savedSections, savedFeatures, savedCarousels, savedComparisons, selectedIds, onSelectionChange, onPublish, isPublishing, setIsPublishing, hasSelectedSections } = props;
     const { publishedPages } = useBuilderContext();
     const [slug, setSlug] = useState('');
+    const [title, setTitle] = useState('');
 
     const hasSavedItems = savedHeros.length > 0 || savedSections.length > 0 || savedFeatures.length > 0 || savedCarousels.length > 0 || savedComparisons.length > 0;
 
     const handlePublishClick = () => {
         const sanitizedSlug = slug.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        if (sanitizedSlug) {
-            onPublish(sanitizedSlug);
+        if (sanitizedSlug && title.trim()) {
+            onPublish(sanitizedSlug, title.trim());
             setSlug('');
+            setTitle('');
         } else {
-            alert('Por favor, introduce un nombre de URL válido.');
+            alert('Por favor, introduce un título y nombre de URL válidos.');
         }
     };
 
@@ -99,15 +101,28 @@ export const LandingPageInputPanel: React.FC<LandingPageInputPanelProps> = (prop
                     
                     {isPublishing ? (
                         <div className="space-y-3">
-                            <label htmlFor="slug" className="block text-sm font-medium text-slate-700">Nombre de la URL (slug)</label>
-                            <input
-                                type="text"
-                                id="slug"
-                                value={slug}
-                                onChange={(e) => setSlug(e.target.value)}
-                                placeholder="ej: campana-de-verano"
-                                className="w-full bg-slate-50 border border-slate-300 rounded-md shadow-sm py-2 px-3"
-                            />
+                            <div>
+                                <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-1">Título de la Página</label>
+                                <input
+                                    type="text"
+                                    id="title"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="ej: Campaña de Verano 2025"
+                                    className="w-full bg-slate-50 border border-slate-300 rounded-md shadow-sm py-2 px-3"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="slug" className="block text-sm font-medium text-slate-700 mb-1">Nombre de la URL (slug)</label>
+                                <input
+                                    type="text"
+                                    id="slug"
+                                    value={slug}
+                                    onChange={(e) => setSlug(e.target.value)}
+                                    placeholder="ej: campana-de-verano"
+                                    className="w-full bg-slate-50 border border-slate-300 rounded-md shadow-sm py-2 px-3"
+                                />
+                            </div>
                             <div className="flex space-x-2">
                                 <button onClick={handlePublishClick} className="w-full px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-slate-800 hover:bg-slate-900">
                                     Confirmar

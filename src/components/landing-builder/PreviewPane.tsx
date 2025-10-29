@@ -42,7 +42,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ title, description, on
                 </div>
             </div>
             <div className="p-4 sm:p-6 bg-slate-200 flex justify-center items-start">
-                <div className={`${widthClasses[device]} mx-auto transition-all duration-300 ease-in-out`}>
+                <div className={`${widthClasses[device]} mx-auto transition-all duration-300 ease-in-out @container`}>
                     <div className="shadow-lg">
                         {children}
                     </div>

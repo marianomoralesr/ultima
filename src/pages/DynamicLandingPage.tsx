@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LandingPageService, { type LandingPageWithComponents } from '../services/LandingPageService';
+import { generateSEOFromSections } from '../utils/landing-builder/seoGenerator';
 import type {
   SavedHeroProps,
   SavedBlockProps,
@@ -110,19 +111,44 @@ const DynamicLandingPage: React.FC = () => {
         // Increment view count
         await LandingPageService.incrementViews(slug);
 
-        // Update page title and meta tags if provided
-        if (pageData.meta_title) {
-          document.title = pageData.meta_title;
-        } else if (pageData.title) {
-          document.title = pageData.title;
-        }
+        // Generate SEO from page content
+        const sections = pageData.components.map(comp => ({
+          ...comp.data,
+          id: comp.id,
+          layout: comp.layout
+        })) as any[];
 
-        if (pageData.meta_description) {
-          const metaDescription = document.querySelector('meta[name="description"]');
-          if (metaDescription) {
-            metaDescription.setAttribute('content', pageData.meta_description);
-          }
+        const generatedSEO = generateSEOFromSections(sections, pageData.title);
+
+        // Update page title - prioritize meta_title > generated title > page title
+        const pageTitle = pageData.meta_title || generatedSEO.title;
+        document.title = pageTitle;
+
+        // Update meta description - prioritize meta_description > generated description
+        const metaDescriptionContent = pageData.meta_description || generatedSEO.description;
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+          metaDescription = document.createElement('meta');
+          metaDescription.setAttribute('name', 'description');
+          document.head.appendChild(metaDescription);
         }
+        metaDescription.setAttribute('content', metaDescriptionContent);
+
+        // Add Open Graph meta tags for social sharing
+        const updateOrCreateMeta = (property: string, content: string) => {
+          let meta = document.querySelector(`meta[property="${property}"]`);
+          if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute('property', property);
+            document.head.appendChild(meta);
+          }
+          meta.setAttribute('content', content);
+        };
+
+        updateOrCreateMeta('og:title', pageTitle);
+        updateOrCreateMeta('og:description', metaDescriptionContent);
+        updateOrCreateMeta('og:type', 'website');
+        updateOrCreateMeta('og:url', window.location.href);
       } catch (err) {
         console.error('Error loading landing page:', err);
         setError('Error loading landing page');

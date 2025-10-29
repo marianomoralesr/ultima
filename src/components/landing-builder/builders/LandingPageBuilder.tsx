@@ -30,13 +30,13 @@ export const LandingPageBuilder: React.FC = () => {
         });
 
 
-    const handlePublish = (slug: string) => {
-        if (!slug || selectedSections.length === 0) return;
-        const newPage: PublishedPage = {
-            slug,
-            sections: selectedSections,
-        };
-        addPublishedPage(newPage);
+    const handlePublish = async (slug: string, title: string) => {
+        if (!slug || !title || selectedSections.length === 0) return;
+        const componentIds = selectedSections.map(s => s.id);
+        const success = await addPublishedPage(slug, title, componentIds);
+        if (success) {
+            setSelectedIds([]);
+        }
         setIsPublishing(false);
     };
 

@@ -65,6 +65,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
 const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 
 import ConfigService from './services/ConfigService';
 
@@ -113,6 +114,7 @@ function App(): React.JSX.Element {
               <Route path="changelog" element={<ChangelogPage />} />
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
+              <Route path="landing" element={<LandingPage />} />
               {/* Dynamic landing pages - must be before the * route */}
               <Route path=":slug" element={<DynamicLandingPage />} />
               <Route path="*" element={<NotFoundPage />} />

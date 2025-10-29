@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LandingPageService, { type LandingPageWithComponents } from '../services/LandingPageService';
-import { generateSEOFromSections } from '../utils/landing-builder/seoGenerator';
+import { generateSEOFromSections } from '../utils/seoGenerator';
 import type {
   SavedHeroProps,
   SavedBlockProps,

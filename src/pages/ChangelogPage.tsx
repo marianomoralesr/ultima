@@ -141,6 +141,49 @@ const ChangelogPage: React.FC = () => {
                   </li>
                 </ul>
               </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejoras y Correcciones
+                  </span>
+                  <h3 className="text-xl font-semibold">Constructor Mejorado</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">✅</span>
+                    <div className="flex-1">
+                      <strong>Campo de Título Añadido</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Corregido error de base de datos "null value of title violates not-null constraint". Ahora se requiere
+                        un título al publicar landing pages, eliminando el error de validación de la base de datos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📱</span>
+                    <div className="flex-1">
+                      <strong>Vista Previa Móvil con Container Queries</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Implementados CSS Container Queries en los 16 templates para que respondan correctamente a la vista
+                        previa móvil de 375px. Ya no es necesario usar la emulación de dispositivo del navegador - la vista
+                        previa ahora funciona perfectamente desde escritorio.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔍</span>
+                    <div className="flex-1">
+                      <strong>Generación Automática de SEO</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de generación automática de meta tags SEO a partir del contenido de la página. Extrae el título
+                        del primer headline, la descripción del primer párrafo (truncado a 160 caracteres), e incluye tags
+                        Open Graph (og:title, og:description, og:type, og:url) para compartir en redes sociales.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 

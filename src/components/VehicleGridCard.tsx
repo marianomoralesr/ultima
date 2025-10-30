@@ -121,12 +121,12 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
 
             <div className="mt-auto">
                 <div className="flex items-baseline justify-between mb-2">
-                    <p className="text-xl font-bold text-gray-900">
+                    <p className="text-lg font-bold text-gray-900">
                         {formatPrice(vehicle.precio)}
                     </p>
-                    {vehicle.enganchemin > 0 && (
+                    {vehicle.mensualidad_minima > 0 && (
                         <p className="text-xs text-gray-500">
-                            Desde {formatPrice(vehicle.enganchemin)}
+                            desde <span className="text-orange-600 font-bold">{formatPrice(vehicle.mensualidad_minima)}</span> al mes
                         </p>
                     )}
                 </div>

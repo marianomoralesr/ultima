@@ -122,7 +122,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             <div className="flex-grow">
               <VehicleCardPrice
                 precio={vehicle.precio}
-                engancheMinimo={vehicle.enganchemin}
+                mensualidadMinima={vehicle.mensualidad_minima}
               />
               <PriceDropNotificationToggle vehicleId={vehicle.id} />
             </div>

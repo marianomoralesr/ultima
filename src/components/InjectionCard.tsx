@@ -5,7 +5,7 @@ const FinanciamientoCard = () => {
   return (
     <Link
       to="/acceder"
-      className="block w-[300px] h-[400px] relative rounded-[20px] overflow-hidden transition-transform duration-200 hover:scale-[1.02] no-underline"
+      className="block w-full h-full relative rounded-2xl overflow-hidden transition-transform duration-200 hover:scale-[1.02] no-underline"
     >
       <img
         src="https://res.cloudinary.com/drznoiotp/image/upload/v1761702104/Frame_40_2_yagqiu.png"

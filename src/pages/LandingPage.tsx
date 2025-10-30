@@ -122,9 +122,9 @@ const MasonryVehicleCard: React.FC<{ vehicle: Vehicle }> = ({ vehicle }) => {
   const imageSrc = getVehicleImage(vehicle);
   const isPopular = vehicle.view_count >= 1000;
   return (
-    <Link to={`/autos/${vehicle.slug}`} className="group block">
+    <Link to={`/autos/${vehicle.slug}`} className="group block relative z-10">
       <div className={`relative ${!isPopular ? 'overflow-hidden' : ''} rounded-lg shadow-md hover:shadow-xl transition-shadow ${isPopular ? 'popular-card' : ''}`}>
-        <div className="aspect-[4/3] bg-gray-100">
+        <div className={`aspect-[4/3] bg-gray-100 ${isPopular ? 'overflow-hidden rounded-t-lg' : ''}`}>
           <LazyImage
             src={imageSrc}
             alt={vehicle.titulo}

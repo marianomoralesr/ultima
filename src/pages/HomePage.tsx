@@ -364,7 +364,7 @@ const YouTubeVSLSection: React.FC = () => {
 /* ---------- Landing Page Hero Section ---------- */
 const LandingPageHero: React.FC = () => {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden bg-white">
       {/* Desktop background vehicles */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute right-0 xl:right-16 bottom-0">
@@ -402,9 +402,9 @@ const LandingPageHero: React.FC = () => {
           </p>
 
           {/* Mobile image - shown only on mobile */}
-          <div className="lg:hidden w-full max-w-md mx-auto my-6">
+          <div className="lg:hidden w-full max-w-xs mx-auto my-6">
             <img
-              src="https://r2.trefa.mx/Frame%2040%20(1).png"
+              src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
               alt="TREFA Vehicle Showcase"
               className="w-full h-auto object-contain"
             />

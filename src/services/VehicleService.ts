@@ -317,14 +317,19 @@ class VehicleService {
         query = query.range(from, to);
         
         if (filters.orderby) {
-            const [field, direction] = filters.orderby.split('-');
-            const fieldMap: Record<string, string> = {
-                price: 'precio',
-                year: 'autoano',
-                mileage: 'kilometraje'
-            };
-            const mappedField = fieldMap[field] || field;
-            query = query.order(mappedField, { ascending: direction === 'asc' });
+            // Handle "relevance" (Más Populares) - sort by view_count descending
+            if (filters.orderby === 'relevance') {
+                query = query.order('view_count', { ascending: false, nullsFirst: false });
+            } else {
+                const [field, direction] = filters.orderby.split('-');
+                const fieldMap: Record<string, string> = {
+                    price: 'precio',
+                    year: 'autoano',
+                    mileage: 'kilometraje'
+                };
+                const mappedField = fieldMap[field] || field;
+                query = query.order(mappedField, { ascending: direction === 'asc' });
+            }
         } else if (!filters.search) { // Don't re-order if search is active, as it's already ordered by relevance
             query = query.order('updated_at', { ascending: false });
         }

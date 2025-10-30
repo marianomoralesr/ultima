@@ -6,7 +6,7 @@ const animate = keyframes`
   0% {
     transform: rotateY(270deg);
   }
-  25% {
+  12.5% {
     transform: rotateY(90deg);
   }
   100% {
@@ -61,7 +61,7 @@ const SlideImage = styled.img`
 const SlideTitle = styled.h2`
   position: relative;
   z-index: 1000;
-  color: #000000;
+  color: #FF6801;
   font-size: 1.5em;
   line-height: 1.2em;
   margin: 15px 0 10px 0 !important;

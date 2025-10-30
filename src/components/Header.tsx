@@ -73,11 +73,10 @@ const Header: React.FC = () => {
             </div>
 
             {/* Center Section (Search) */}
-            {!isListPage && (
-             <div className="flex-1 flex justify-center min-w-0 px-2 lg:px-2">
-                    <HeaderSearchBar />
-                </div>
-            )}
+            {/* Show on all pages on mobile, hide on listings page on desktop (desktop has filter search) */}
+            <div className={`flex-1 flex justify-center min-w-0 px-2 lg:px-2 ${isListPage ? 'lg:hidden' : ''}`}>
+                <HeaderSearchBar />
+            </div>
 
             {/* Right Section */}
             <div className={`flex justify-end items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>

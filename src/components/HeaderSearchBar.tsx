@@ -91,8 +91,8 @@ const HeaderSearchBar: React.FC = () => {
       <form onSubmit={handleSubmit} className="relative">
         <div className="header-search-container">
           <div className="relative flex items-center w-full bg-white rounded-full">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-              {isSearching ? <Loader2 className="h-5 w-5 text-gray-400 animate-spin" /> : <SearchIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4">
+              {isSearching ? <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 animate-spin" /> : <SearchIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" aria-hidden="true" />}
             </div>
             <input
               type="search"
@@ -101,7 +101,7 @@ const HeaderSearchBar: React.FC = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Busca por marca, modelo o año..."
-              className="block w-full rounded-full border-0 bg-transparent py-3 sm:py-2.5 pl-11 pr-4 text-base sm:text-sm text-gray-900 placeholder:text-gray-500 focus:ring-0"
+              className="block w-full rounded-full border-0 bg-transparent py-2 sm:py-2.5 pl-10 sm:pl-11 pr-3 sm:pr-4 text-sm leading-tight text-gray-900 placeholder:text-gray-500 focus:ring-0"
               autoComplete="off"
             />
           </div>

@@ -716,9 +716,10 @@ const VehicleDetailPage: React.FC = () => {
         fetchVehicleData();
     }, [slug]);
 
-    // Scroll to top when vehicle changes
+    // Scroll to top instantly when vehicle changes
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Use instant scroll for better mobile performance
+        window.scrollTo(0, 0);
     }, [slug]);
 
     const closeLightbox = () => setIsLightboxOpen(false);

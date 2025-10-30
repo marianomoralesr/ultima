@@ -201,6 +201,74 @@ const HorizontalSlider: React.FC<{ vehicles: Vehicle[] }> = ({ vehicles }) => {
   );
 };
 
+/* ---------- Single Card Slider ---------- */
+const SingleCardSlider: React.FC<{ vehicles: Vehicle[] }> = ({ vehicles }) => {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? vehicles.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === vehicles.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  if (vehicles.length === 0) return null;
+
+  const currentVehicle = vehicles[currentIndex];
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <MasonryVehicleCard vehicle={currentVehicle} />
+      </div>
+
+      {vehicles.length > 1 && (
+        <>
+          <button
+            onClick={goToPrevious}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
+            aria-label="Previous vehicle"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
+            aria-label="Next vehicle"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Dots indicator */}
+          <div className="flex justify-center gap-2 mt-4">
+            {vehicles.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentIndex
+                    ? 'bg-primary w-4'
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to vehicle ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 const LandingPage: React.FC = () => {
   useSEO({
     title: 'TREFA Auto Inventory - Autos Seminuevos Certificados',
@@ -246,7 +314,7 @@ const LandingPage: React.FC = () => {
     displayVehicles.filter(v => {
       const type = v.carroceria?.toLowerCase() || '';
       return type.includes('suv');
-    }).slice(0, 5),
+    }).slice(0, 10),
     [displayVehicles]
   );
 
@@ -270,7 +338,7 @@ const LandingPage: React.FC = () => {
     displayVehicles.filter(v => {
       const type = v.carroceria?.toLowerCase() || '';
       return type.includes('pick') || type.includes('pickup') || type.includes('camioneta');
-    }),
+    }).slice(0, 6),
     [displayVehicles]
   );
 
@@ -449,7 +517,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* SUVs Premium - Masonry Grid */}
+            {/* SUVs Premium - Single Card Slider */}
             <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg md:col-span-3">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
@@ -462,63 +530,62 @@ const LandingPage: React.FC = () => {
                   </div>
                 </div>
                 <Link to="/autos?carroceria=SUV" className="bg-primary text-white hover:bg-primary/90 px-4 py-2 rounded-lg text-sm font-semibold">
-                  Ver Todos
+                  Ver todos →
                 </Link>
               </div>
               {suvVehicles.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {suvVehicles.map((vehicle) => (
-                    <MasonryVehicleCard key={vehicle.id} vehicle={vehicle} />
-                  ))}
-                </div>
+                <SingleCardSlider vehicles={suvVehicles} />
               ) : (
                 <p className="text-muted-foreground text-center py-8">Actualizando selección de SUVs...</p>
               )}
             </div>
 
-            {/* Sedanes - Horizontal Slider */}
-            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Star className="w-6 h-6 text-primary" />
+            {/* Merged Hatchbacks and Sedanes - Horizontal Sliders */}
+            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg md:col-span-2 space-y-8">
+              {/* Hatchbacks Section */}
+              <div>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Car className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold text-xl">Hatchbacks</h3>
+                    <p className="text-muted-foreground text-sm">Perfectos para la ciudad</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading font-semibold text-xl">Sedanes</h3>
-                  <p className="text-muted-foreground text-sm">Elegancia y confort certificados</p>
-                </div>
+                {hatchbackVehicles.length > 0 ? (
+                  <HorizontalSlider vehicles={hatchbackVehicles} />
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">Actualizando selección de Hatchbacks...</p>
+                )}
+                <Link to="/autos?carroceria=Hatchback" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm">
+                  Ver todos →
+                </Link>
               </div>
-              {sedanVehicles.length > 0 ? (
-                <HorizontalSlider vehicles={sedanVehicles} />
-              ) : (
-                <p className="text-muted-foreground text-center py-8">Actualizando selección de Sedanes...</p>
-              )}
-              <Link to="/autos?carroceria=Sedan" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm">
-                Ver todos →
-              </Link>
+
+              {/* Sedanes Section */}
+              <div>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Star className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold text-xl">Sedanes</h3>
+                    <p className="text-muted-foreground text-sm">Elegancia y confort certificados</p>
+                  </div>
+                </div>
+                {sedanVehicles.length > 0 ? (
+                  <HorizontalSlider vehicles={sedanVehicles} />
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">Actualizando selección de Sedanes...</p>
+                )}
+                <Link to="/autos?carroceria=Sedan" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm">
+                  Ver todos →
+                </Link>
+              </div>
             </div>
 
-            {/* Hatchbacks - Horizontal Slider */}
-            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Car className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-heading font-semibold text-xl">Hatchbacks</h3>
-                  <p className="text-muted-foreground text-sm">Perfectos para la ciudad</p>
-                </div>
-              </div>
-              {hatchbackVehicles.length > 0 ? (
-                <HorizontalSlider vehicles={hatchbackVehicles} />
-              ) : (
-                <p className="text-muted-foreground text-center py-8">Actualizando selección de Hatchbacks...</p>
-              )}
-              <Link to="/autos?carroceria=Hatchback" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm">
-                Ver todos →
-              </Link>
-            </div>
-
-            {/* Pick Ups - Vertical Display */}
+            {/* Pick Ups - Single Card Slider */}
             <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg md:row-span-1">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -530,11 +597,7 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
               {pickupVehicles.length > 0 ? (
-                <div className="space-y-3">
-                  {pickupVehicles.slice(0, 2).map((vehicle) => (
-                    <MasonryVehicleCard key={vehicle.id} vehicle={vehicle} />
-                  ))}
-                </div>
+                <SingleCardSlider vehicles={pickupVehicles} />
               ) : (
                 <p className="text-muted-foreground text-center py-8">Actualizando selección de Pick Ups...</p>
               )}

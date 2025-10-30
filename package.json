@@ -37,6 +37,7 @@
     "react-spring": "^10.0.3",
     "serverless-http": "^4.0.0",
     "sonner": "^1.4.41",
+    "styled-components": "^6.1.19",
     "zod": "^3.23.8"
   },
   "devDependencies": {

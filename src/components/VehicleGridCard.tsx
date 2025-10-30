@@ -28,6 +28,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   const { isFavorite, toggleFavorite, isToggling } = useFavorites();
   const favorite = isFavorite(vehicle.id);
   const isSeparado = vehicle.separado === true;
+  const isPopular = vehicle.view_count >= 1000;
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,9 +57,9 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   }, [vehicle]);
 
   const CardContent = (
-    <div 
+    <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group flex flex-col relative ${isSeparado ? 'opacity-70' : ''}`}
+      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
         <div className="block relative">
             <ImageCarousel

@@ -1,91 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../hooks/useSEO';
+import { useVehicles } from '../context/VehicleContext';
+import type { Vehicle } from '../types/types';
+import { getVehicleImage } from '../utils/getVehicleImage';
+import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
+import LazyImage from '../components/LazyImage';
 import {
   Car,
   ShieldCheck,
   Award,
-  DollarSign,
   FileText,
-  Wrench,
   TrendingUp,
   Check,
   X,
   Star,
-  Calculator,
   Calendar,
   ChevronDown,
   ArrowRight,
   PlayCircle
 } from 'lucide-react';
-
-const benefitsData = [
-  {
-    icon: Award,
-    title: 'Compromiso de Calidad TREFA',
-    description: 'Nuestro compromiso con la calidad es total. Si tu auto presenta una falla mecánica en los primeros 30 días o 500 km, te devolvemos el 100% de tu dinero o lo reparamos sin costo.',
-    value: 'Tranquilidad Absoluta'
-  },
-  {
-    icon: FileText,
-    title: 'Certificado de Procedencia Segura',
-    description: 'Garantizamos el pasado de tu auto. Validación en REPUVE, SAT, Totalcheck y TransUnion, inspección física forense, auditoría documental.',
-    value: '$3,500 MXN'
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Garantía Blindada de $100,000',
-    description: 'Protección contra las reparaciones más catastróficas. Motor y transmisión cubiertos con hasta $100,000 pesos durante un año completo.',
-    value: '$100,000 MXN'
-  },
-  {
-    icon: TrendingUp,
-    title: 'Programa de Recompra Garantizada',
-    description: 'Te garantizamos por escrito la recompra de tu auto por el 80% de su valor el primer año y el 70% el segundo.',
-    value: 'Protección Invaluable'
-  },
-  {
-    icon: Wrench,
-    title: 'Check-up de Confianza TREFA',
-    description: 'A los 6 meses o 10,000 km, inspección multipunto gratuita: frenos, suspensión, niveles, neumáticos y componentes de seguridad.',
-    value: '$4,000 MXN'
-  },
-  {
-    icon: Car,
-    title: 'Bono de Movilidad Garantizada',
-    description: 'Si tu auto ingresa a nuestro taller por garantía, te damos $250 pesos diarios para tus traslados.',
-    value: '$7,500 MXN'
-  },
-  {
-    icon: DollarSign,
-    title: 'Bono de Tranquilidad Financiera',
-    description: 'Si tu auto está financiado y está en nuestro taller por garantía, cubrimos el equivalente a tu mensualidad promedio.',
-    value: '$8,500 MXN'
-  }
-];
-
-const comparisonData = [
-  { feature: 'Compromiso de Calidad (30 días)', trefa: true, agencia: false, particular: false },
-  { feature: 'Certificado de Procedencia Segura', trefa: true, agencia: 'parcial', particular: false },
-  { feature: 'Garantía Blindada en Motor y Transmisión', trefa: true, agencia: 'limitada', particular: false },
-  { feature: 'Recompra Garantizada por Contrato', trefa: true, agencia: false, particular: false },
-  { feature: 'Check-up de Confianza a los 6 meses', trefa: true, agencia: false, particular: false },
-  { feature: 'Apoyo para Movilidad durante Garantía', trefa: true, agencia: false, particular: false },
-  { feature: 'Apoyo en Mensualidad durante Garantía', trefa: true, agencia: false, particular: false },
-  { feature: 'Riesgo de Fraude o Vicios Ocultos', trefa: 'nulo', agencia: 'bajo', particular: 'alto' }
-];
-
-const Checkmark: React.FC<{ status: boolean | string }> = ({ status }) => {
-  if (status === true) return <Check className="w-6 h-6 text-green-500 mx-auto" />;
-  if (status === false) return <X className="w-6 h-6 text-red-500 mx-auto" />;
-  if (status === 'parcial') return <span className="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full">Parcial</span>;
-  if (status === 'limitada') return <span className="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full">Limitada</span>;
-  if (status === 'nulo') return <span className="text-xs font-bold text-green-800 bg-green-100 px-2 py-1 rounded-full">NULO</span>;
-  if (status === 'bajo') return <span className="text-xs font-bold text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full">Bajo</span>;
-  if (status === 'alto') return <span className="text-xs font-bold text-red-800 bg-red-100 px-2 py-1 rounded-full">ALTO</span>;
-  return null;
-};
+import { formatPrice } from '../utils/formatters';
 
 const faqData = [
   {
@@ -114,6 +50,157 @@ const faqData = [
   }
 ];
 
+/* ---------- Hero Vehicle Card ---------- */
+const HeroVehicleCard: React.FC<{ vehicle: Vehicle }> = React.memo(({ vehicle }) => {
+  const imageSrc = getVehicleImage(vehicle);
+
+  return (
+    <div className="relative h-full group">
+      <div className="h-full rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+        <div className="relative aspect-[4/3] bg-gray-100">
+          <LazyImage
+            src={imageSrc}
+            alt={vehicle.titulo}
+            className="w-full h-full"
+            objectFit="cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-3">
+            <h3
+              className="text-white font-bold text-sm truncate drop-shadow-md"
+              title={vehicle.titulo}
+            >
+              {vehicle.titulo}
+            </h3>
+            <p className="text-primary-400 font-semibold text-base drop-shadow-md">
+              {formatPrice(vehicle.precio)}
+            </p>
+          </div>
+        </div>
+      </div>
+      <Link to={`/autos/${vehicle.slug}`} className="absolute inset-0 z-10">
+        <span className="sr-only">Ver detalles de {vehicle.titulo}</span>
+      </Link>
+    </div>
+  );
+});
+
+/* ---------- Scroller Row ---------- */
+const ScrollerRow: React.FC<{ vehicles: Vehicle[]; reverse?: boolean; speed?: number }> = ({
+  vehicles,
+  reverse = false,
+  speed = 40,
+}) => {
+  const extendedVehicles = [...vehicles];
+
+  const ScrollerContent = () => (
+    <>
+      {extendedVehicles.map((v, i) => (
+        <div key={`${v.id}-${i}`} className="flex-shrink-0 w-44 sm:w-60 h-auto">
+          <HeroVehicleCard vehicle={v} />
+        </div>
+      ))}
+    </>
+  );
+
+  return (
+    <div
+      className={`flex gap-4 ${reverse ? 'animate-scroll-right' : 'animate-scroll-left'}`}
+      style={{ animationDuration: `${speed}s` }}
+    >
+      <div className="flex flex-shrink-0 gap-4 min-w-full">
+        <ScrollerContent />
+      </div>
+      <div className="flex flex-shrink-0 gap-4 min-w-full">
+        <ScrollerContent />
+      </div>
+    </div>
+  );
+};
+
+/* ---------- Masonry Grid for SUVs ---------- */
+const MasonryVehicleCard: React.FC<{ vehicle: Vehicle }> = ({ vehicle }) => {
+  const imageSrc = getVehicleImage(vehicle);
+  return (
+    <Link to={`/autos/${vehicle.slug}`} className="group block">
+      <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+        <div className="aspect-[4/3] bg-gray-100">
+          <LazyImage
+            src={imageSrc}
+            alt={vehicle.titulo}
+            className="w-full h-full"
+            objectFit="cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-3">
+          <h4 className="text-white font-semibold text-sm truncate drop-shadow-md" title={vehicle.titulo}>
+            {vehicle.titulo}
+          </h4>
+          <p className="text-white font-bold text-base drop-shadow-md">
+            {formatPrice(vehicle.precio)}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+/* ---------- Horizontal Slider ---------- */
+const HorizontalSlider: React.FC<{ vehicles: Vehicle[] }> = ({ vehicles }) => {
+  const [scrollPosition, setScrollPosition] = React.useState(0);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = 300;
+      const newPosition = direction === 'left'
+        ? scrollPosition - scrollAmount
+        : scrollPosition + scrollAmount;
+      containerRef.current.scrollTo({ left: newPosition, behavior: 'smooth' });
+      setScrollPosition(newPosition);
+    }
+  };
+
+  if (vehicles.length === 0) return null;
+
+  return (
+    <div className="relative">
+      {vehicles.length > 2 && (
+        <>
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg"
+            aria-label="Scroll left"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg"
+            aria-label="Scroll right"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+      <div
+        ref={containerRef}
+        className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {vehicles.map((vehicle) => (
+          <div key={vehicle.id} className="flex-shrink-0 w-48 snap-start">
+            <MasonryVehicleCard vehicle={vehicle} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const LandingPage: React.FC = () => {
   useSEO({
     title: 'TREFA Auto Inventory - Autos Seminuevos Certificados',
@@ -121,39 +208,113 @@ const LandingPage: React.FC = () => {
     keywords: 'autos seminuevos, vehículos certificados, garantía blindada, financiamiento automotriz, autos trefa'
   });
 
+  const { vehicles: allVehicles, isLoading } = useVehicles();
+  const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
+
+  useEffect(() => {
+    if (allVehicles && allVehicles.length > 0) {
+      const available = allVehicles.filter(v =>
+        !v.separado &&
+        !v.vendido &&
+        getVehicleImage(v) !== DEFAULT_PLACEHOLDER_IMAGE
+      );
+      const shuffled = [...available].sort(() => 0.5 - Math.random());
+      setDisplayVehicles(shuffled);
+    }
+  }, [allVehicles]);
+
+  const rows = useMemo(() => {
+    if (displayVehicles.length === 0) {
+      return { row1: [], row2: [] };
+    }
+    let vehiclesForHero = [...displayVehicles];
+    while (vehiclesForHero.length < 14) {
+      vehiclesForHero.push(...displayVehicles);
+    }
+    vehiclesForHero = vehiclesForHero.slice(0, 14);
+
+    const midPoint = Math.ceil(vehiclesForHero.length / 2);
+    return {
+      row1: vehiclesForHero.slice(0, midPoint),
+      row2: vehiclesForHero.slice(midPoint),
+    };
+  }, [displayVehicles]);
+
+  // Filter vehicles by body type for inventory section
+  const suvVehicles = useMemo(() =>
+    displayVehicles.filter(v => {
+      const type = v.carroceria?.toLowerCase() || '';
+      return type.includes('suv');
+    }).slice(0, 5),
+    [displayVehicles]
+  );
+
+  const sedanVehicles = useMemo(() =>
+    displayVehicles.filter(v => {
+      const type = v.carroceria?.toLowerCase() || '';
+      return type.includes('sedan') || type.includes('sedán');
+    }),
+    [displayVehicles]
+  );
+
+  const hatchbackVehicles = useMemo(() =>
+    displayVehicles.filter(v => {
+      const type = v.carroceria?.toLowerCase() || '';
+      return type.includes('hatch') || type.includes('compacto') || type.includes('compact');
+    }),
+    [displayVehicles]
+  );
+
+  const pickupVehicles = useMemo(() =>
+    displayVehicles.filter(v => {
+      const type = v.carroceria?.toLowerCase() || '';
+      return type.includes('pick') || type.includes('pickup') || type.includes('camioneta');
+    }),
+    [displayVehicles]
+  );
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
+      {/* Original Hero Section */}
+      <section className="relative overflow-hidden flex items-center" style={{ minHeight: '88dvh' }}>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -right-32 top-1/2 transform -translate-y-1/2 opacity-20 scale-150">
+          {/* Right vehicle - visible on desktop */}
+          <div className="hidden lg:block absolute right-0 xl:right-16 bottom-0">
             <img
-              src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/square.png"
-              alt="Modern SUV"
-              className="w-96 h-64 object-contain"
+              src="https://r2.trefa.mx/Frame%2040%20(1).png"
+              alt="TREFA Vehicle"
+              className="w-[425px] xl:w-[510px] h-auto object-contain opacity-40"
             />
           </div>
-          <div className="absolute -left-32 top-1/2 transform -translate-y-1/2 opacity-20 scale-150">
+          {/* Left vehicle - visible on desktop */}
+          <div className="hidden lg:block absolute left-0 xl:left-16 bottom-0">
             <img
-              src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/square.png"
-              alt="Modern SUV"
-              className="w-96 h-64 object-contain scale-x-[-1]"
+              src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
+              alt="TREFA Vehicle"
+              className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1] opacity-40"
+            />
+          </div>
+          {/* Mobile: Single vehicle as subtle background */}
+          <div className="lg:hidden absolute right-0 bottom-0">
+            <img
+              src="https://r2.trefa.mx/Frame%2040%20(1).png"
+              alt="TREFA Vehicle"
+              className="w-[218px] h-auto object-contain opacity-20"
             />
           </div>
         </div>
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-primary/20 translate-y-1/2 w-[80%] h-96" />
 
-        <div className="container mx-auto px-4 lg:px-6 relative z-10">
-          <div className="flex flex-col items-center text-center space-y-8">
+        <div className="container mx-auto px-4 lg:px-6 relative z-10 pb-20 pt-0 -mt-8">
+          <div className="flex flex-col items-center text-center space-y-6">
             <span className="px-4 py-1 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2">
               <ShieldCheck className="w-3 h-3 text-primary" />
               <span className="text-sm font-medium">Autos Seminuevos Certificados</span>
             </span>
 
             <motion.h1 className="font-heading text-4xl md:text-6xl font-bold tracking-tight max-w-4xl">
-              Tu Próximo Auto Seminuevo Te Está Esperando
+              Tu próximo auto seminuevo te está esperando
             </motion.h1>
 
             <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
@@ -163,11 +324,11 @@ const LandingPage: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 rounded-lg font-semibold shadow-lg transition-all">
+              <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-background text-foreground border-2 border-input hover:bg-accent hover:text-accent-foreground px-8 py-3 rounded-lg font-semibold transition-all">
                 Ver Inventario
                 <Car className="w-4 h-4" />
               </Link>
-              <a href="#kit-seguridad" className="inline-flex items-center justify-center gap-2 bg-background border-2 border-input hover:bg-accent hover:text-accent-foreground px-8 py-3 rounded-lg font-semibold transition-all">
+              <a href="#comparacion" className="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-3 rounded-lg font-semibold shadow-lg transition-all">
                 Conoce el Kit de Seguridad
                 <ArrowRight className="w-4 h-4" />
               </a>
@@ -177,30 +338,75 @@ const LandingPage: React.FC = () => {
               <p className="text-sm text-muted-foreground">
                 Más de 500 autos vendidos y clientes satisfechos
               </p>
-              <div className="flex items-center space-x-8 opacity-60 flex-wrap justify-center gap-y-4 gap-x-[10px] mt-4">
+              <div className="flex items-center space-x-6 opacity-60 flex-wrap justify-center gap-y-4 gap-x-4 mt-4">
                 <div className="flex items-center space-x-2">
-                  <img src="/images/Honda.png" alt="Honda" className="h-8 w-auto opacity-70" />
-                  <span className="text-lg font-semibold">Honda</span>
+                  <img src="/images/Honda.png" alt="Honda" className="h-7 w-auto opacity-70" />
+                  <span className="text-base font-semibold hidden sm:inline">Honda</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <img src="/images/Toyota.png" alt="Toyota" className="h-8 w-auto opacity-70" />
-                  <span className="text-lg font-semibold">Toyota</span>
+                  <img src="/images/Toyota.png" alt="Toyota" className="h-7 w-auto opacity-70" />
+                  <span className="text-base font-semibold hidden sm:inline">Toyota</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <img src="/images/Nissan.png" alt="Nissan" className="h-8 w-auto opacity-70" />
-                  <span className="text-lg font-semibold">Nissan</span>
+                  <img src="/images/Nissan.png" alt="Nissan" className="h-7 w-auto opacity-70" />
+                  <span className="text-base font-semibold hidden sm:inline">Nissan</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <img src="/images/Mazda.png" alt="Mazda" className="h-8 w-auto opacity-70" />
-                  <span className="text-lg font-semibold">Mazda</span>
+                  <img src="/images/Mazda.png" alt="Mazda" className="h-7 w-auto opacity-70" />
+                  <span className="text-base font-semibold hidden sm:inline">Mazda</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <img src="/images/Hyundai.png" alt="Hyundai" className="h-8 w-auto opacity-70" />
-                  <span className="text-lg font-semibold">Hyundai</span>
+                  <img src="/images/Hyundai.png" alt="Hyundai" className="h-7 w-auto opacity-70" />
+                  <span className="text-base font-semibold hidden sm:inline">Hyundai</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <img src="/images/Kia.png" alt="Kia" className="h-7 w-auto opacity-70" />
+                  <span className="text-base font-semibold hidden sm:inline">Kia</span>
                 </div>
               </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                y 15 de las mejores marcas más...
+              </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Scrolling Vehicles Section */}
+      <section className="relative overflow-hidden py-12 md:py-16 bg-muted/30">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute top-1/4 -left-24 w-72 h-72 bg-blue-500/10 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob"></div>
+          <div className="absolute top-1/2 -right-24 w-72 h-72 bg-orange-500/10 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-primary/10 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob animation-delay-4000"></div>
+        </div>
+
+        <div className="container mx-auto px-4 lg:px-6 relative z-10 text-center my-16">
+          <motion.h2 className="font-heading text-4xl md:text-6xl font-bold tracking-tight">
+            Encuentra tu próximo auto
+          </motion.h2>
+        </div>
+
+        {/* Scrolling Vehicle Display */}
+        {displayVehicles.length >= 1 ? (
+          <div className="h-[280px] md:h-[380px] relative flex justify-start items-start mask-gradient mb-8">
+            <div className="absolute top-0 left-0 w-full flex flex-col justify-center gap-2 h-full">
+              <ScrollerRow vehicles={rows.row1} speed={25} />
+              <ScrollerRow vehicles={rows.row2} reverse speed={35} />
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mt-6">
+            <p className="text-gray-400">
+              {isLoading ? 'Cargando inventario...' : 'Actualizando lo más nuevo de nuestro inventario...'}
+            </p>
+          </div>
+        )}
+
+        <div className="container mx-auto px-4 lg:px-6 relative z-10 text-center">
+          <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-3 rounded-lg font-semibold shadow-lg transition-all text-lg">
+            Ver el inventario completo
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </section>
 
@@ -222,7 +428,7 @@ const LandingPage: React.FC = () => {
                   <p className="text-muted-foreground">
                     Conoce nuestras instalaciones y proceso de venta
                   </p>
-                  <button className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded-lg font-semibold">
+                  <button className="mt-4 bg-primary text-white hover:bg-primary/90 px-6 py-2 rounded-lg font-semibold">
                     Reproducir Video
                   </button>
                 </div>
@@ -236,176 +442,406 @@ const LandingPage: React.FC = () => {
       <section id="inventario" className="border-t bg-muted/50 py-20 md:py-32">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">Nuestro Inventario</h2>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold">Nuestro Inventario TREFA</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Vehículos seminuevos 2019 en adelante, inspeccionados y con garantía
+              Vehículos seminuevos 2019 en adelante con inspección de 150 puntos, garantía blindada y el Kit de Seguridad TREFA incluido
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {/* SUVs Premium */}
-            <Link to="/autos?carroceria=SUV" className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 md:col-span-2 lg:col-span-3 md:row-span-2 rounded-xl overflow-hidden hover:shadow-2xl transition-shadow">
-              <img
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/photos/commercial-listings/landscape/4.webp"
-                alt="SUVs Premium"
-                className="w-full h-96 object-cover"
-              />
-              <div className="p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                  <Car className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-heading font-semibold text-xl mb-3">SUVs Premium</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Amplia selección de SUVs seminuevos con tecnología avanzada, espacios amplios y
-                  máxima seguridad para toda la familia. Modelos 2019-2024 disponibles.
-                </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-lg font-bold text-primary">Desde $350,000</span>
-                  <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg text-sm font-semibold">
-                    Ver Modelos
-                  </button>
-                </div>
-              </div>
-            </Link>
 
-            {/* Sedanes */}
-            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 md:col-span-2 lg:col-span-3 rounded-xl overflow-hidden">
-              <img
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/photos/commercial-listings/landscape/2.webp"
-                alt="Sedanes Ejecutivos"
-                className="w-full h-32 object-cover"
-              />
-              <div className="p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* SUVs Premium - Masonry Grid */}
+            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg md:col-span-3">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Car className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold text-2xl">SUVs Premium Certificados</h3>
+                    <p className="text-muted-foreground">Amplia selección con inspección de 150 puntos</p>
+                  </div>
+                </div>
+                <Link to="/autos?carroceria=SUV" className="bg-primary text-white hover:bg-primary/90 px-4 py-2 rounded-lg text-sm font-semibold">
+                  Ver Todos
+                </Link>
+              </div>
+              {suvVehicles.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {suvVehicles.map((vehicle) => (
+                    <MasonryVehicleCard key={vehicle.id} vehicle={vehicle} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-8">Actualizando selección de SUVs...</p>
+              )}
+            </div>
+
+            {/* Sedanes - Horizontal Slider */}
+            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                   <Star className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-heading font-semibold text-xl mb-2">Sedanes Ejecutivos</h3>
-                <p className="text-muted-foreground">
-                  Elegancia y confort en cada viaje con nuestros sedanes premium.
-                </p>
+                <div>
+                  <h3 className="font-heading font-semibold text-xl">Sedanes</h3>
+                  <p className="text-muted-foreground text-sm">Elegancia y confort certificados</p>
+                </div>
               </div>
+              {sedanVehicles.length > 0 ? (
+                <HorizontalSlider vehicles={sedanVehicles} />
+              ) : (
+                <p className="text-muted-foreground text-center py-8">Actualizando selección de Sedanes...</p>
+              )}
+              <Link to="/autos?carroceria=Sedan" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm">
+                Ver todos →
+              </Link>
             </div>
 
-            {/* Hatchbacks */}
-            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 md:col-span-2 lg:col-span-3 rounded-xl overflow-hidden">
-              <img
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/photos/commercial-listings/landscape/5.webp"
-                alt="Hatchbacks Urbanos"
-                className="w-full h-32 object-cover"
-              />
-              <div className="p-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+            {/* Hatchbacks - Horizontal Slider */}
+            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                   <Car className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-heading font-semibold text-lg mb-2">Hatchbacks Urbanos</h3>
-                <p className="text-muted-foreground text-sm">
-                  Perfectos para la ciudad con excelente rendimiento de combustible y fácil
-                  estacionamiento.
-                </p>
+                <div>
+                  <h3 className="font-heading font-semibold text-xl">Hatchbacks</h3>
+                  <p className="text-muted-foreground text-sm">Perfectos para la ciudad</p>
+                </div>
               </div>
+              {hatchbackVehicles.length > 0 ? (
+                <HorizontalSlider vehicles={hatchbackVehicles} />
+              ) : (
+                <p className="text-muted-foreground text-center py-8">Actualizando selección de Hatchbacks...</p>
+              )}
+              <Link to="/autos?carroceria=Hatchback" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm">
+                Ver todos →
+              </Link>
             </div>
 
-            {/* Pick Ups */}
-            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 md:col-span-2 lg:col-span-2 rounded-xl p-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Car className="w-6 h-6 text-primary" />
+            {/* Pick Ups - Vertical Display */}
+            <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 shadow-lg md:row-span-1">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Car className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-semibold text-xl">Pick Ups</h3>
+                  <p className="text-muted-foreground text-sm">Potencia y capacidad</p>
+                </div>
               </div>
-              <h3 className="font-heading font-semibold text-xl mb-2">Pick Ups de Trabajo</h3>
-              <p className="text-muted-foreground">
-                Resistencia y capacidad para tus proyectos más exigentes.
-              </p>
-            </div>
-
-            {/* Garantía */}
-            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 md:col-span-2 rounded-xl p-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <ShieldCheck className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-heading font-semibold text-xl mb-2">Garantía Extendida</h3>
-              <p className="text-muted-foreground">
-                Todos nuestros vehículos incluyen garantía de 6 meses o 10,000 km.
-              </p>
-            </div>
-
-            {/* Historial */}
-            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 md:col-span-2 rounded-xl p-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-heading font-semibold text-xl mb-2">Historial Verificado</h3>
-              <p className="text-muted-foreground">
-                Cada auto cuenta con historial vehicular completo y verificado.
-              </p>
+              {pickupVehicles.length > 0 ? (
+                <div className="space-y-3">
+                  {pickupVehicles.slice(0, 2).map((vehicle) => (
+                    <MasonryVehicleCard key={vehicle.id} vehicle={vehicle} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-8">Actualizando selección de Pick Ups...</p>
+              )}
+              <Link to="/autos?carroceria=Pick Up" className="mt-4 inline-block text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-semibold text-sm w-full text-center">
+                Ver todos →
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Kit de Seguridad Section */}
-      <section id="kit-seguridad" className="py-20 md:py-32">
+      {/* Garantía TREFA Section */}
+      <section className="py-20 md:py-32 bg-background">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">
-              El Kit de Seguridad TREFA
-            </h2>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold">Kit de Seguridad TREFA</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Incluido en cada auto sin costo adicional. Protección y tranquilidad garantizadas.
+              Cada auto incluye sin costo adicional nuestro Kit de Seguridad valorado en $123,500 MXN
             </p>
           </div>
 
-          {/* Comparison Table */}
-          <div className="mb-16 overflow-x-auto">
-            <div className="bg-card shadow-xl rounded-xl border overflow-hidden">
-              <table className="w-full text-sm sm:text-base">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="p-4 text-lg font-semibold text-left">Beneficio / Riesgo</th>
-                    <th className="p-4 text-lg font-semibold text-center">TREFA</th>
-                    <th className="p-4 text-lg font-semibold text-center">Otra Agencia</th>
-                    <th className="p-4 text-lg font-semibold text-center">Vendedor Particular</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {comparisonData.map((item) => (
-                    <tr key={item.feature} className="hover:bg-muted/50">
-                      <td className="p-4 font-medium">{item.feature}</td>
-                      <td className="p-4 text-center"><Checkmark status={item.trefa} /></td>
-                      <td className="p-4 text-center"><Checkmark status={item.agencia} /></td>
-                      <td className="p-4 text-center"><Checkmark status={item.particular} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
+            {/* Garantía Blindada */}
+            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <ShieldCheck className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-heading font-semibold text-xl mb-2">Garantía Blindada $100K</h3>
+              <p className="text-muted-foreground">
+                Motor y transmisión cubiertos con hasta $100,000 pesos durante un año completo. Incluido sin costo.
+              </p>
+            </div>
+
+            {/* Certificado de Procedencia */}
+            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-heading font-semibold text-xl mb-2">Procedencia Segura</h3>
+              <p className="text-muted-foreground">
+                Validación en REPUVE, SAT, Totalcheck y TransUnion. Historial 100% verificado.
+              </p>
+            </div>
+
+            {/* Check-up de Confianza */}
+            <div className="shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                <Award className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-heading font-semibold text-xl mb-2">Check-up a los 6 Meses</h3>
+              <p className="text-muted-foreground">
+                Inspección multipunto gratuita: frenos, suspensión, niveles y componentes de seguridad.
+              </p>
             </div>
           </div>
 
-          {/* Benefits Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {benefitsData.map((benefit, index) => (
-              <div key={index} className="bg-gradient-to-br from-primary/5 to-secondary/5 shadow-lg rounded-xl p-6 border">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <benefit.icon className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="font-heading font-semibold text-xl mb-3">{benefit.title}</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">{benefit.description}</p>
-                <p className="text-sm font-semibold">
-                  Valor: <span className="text-primary">{benefit.value}</span>
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Value Summary */}
-          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border shadow-lg rounded-xl p-8 text-center">
+          {/* Kit TREFA Summary */}
+          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 rounded-2xl p-8 text-center">
             <h3 className="font-heading text-2xl font-bold text-primary mb-4">
-              Valor Total: $123,500 MXN
+              Todo Esto Incluido en Cada Auto
             </h3>
-            <p className="text-lg text-muted-foreground mb-6">
-              Un paquete de beneficios tangibles incluido sin costo en cada auto TREFA
+            <p className="text-lg text-muted-foreground mb-6 max-w-3xl mx-auto">
+              Garantía Blindada, Certificado de Procedencia, Programa de Recompra, Check-up de Confianza, Bono de Movilidad, Bono de Tranquilidad Financiera y más beneficios exclusivos
             </p>
-            <Link to="/kit-trefa" className="inline-flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-semibold">
-              Ver Detalles Completos
+            <Link to="/kit-trefa" className="inline-flex items-center gap-2 bg-primary text-white hover:bg-primary/90 px-6 py-3 rounded-lg font-semibold">
+              Conocer el Kit de Seguridad Completo
               <ArrowRight className="w-5 h-5" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison Section */}
+      <section id="comparacion" className="py-20 md:py-32">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold">
+              ¿Por Qué Elegir Autos TREFA?
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Comparamos las opciones para que tomes la mejor decisión al comprar tu auto seminuevo
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
+            {/* Loteros Tradicionales Card */}
+            <div className="relative border-2 bg-gradient-to-br from-red-50 to-red-100 border-red-300 rounded-xl p-6">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-xl text-left text-red-700">
+                  Loteros Tradicionales
+                </h3>
+                <p className="text-red-600 text-left">Riesgos y limitaciones</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-6">
+                <div className="text-4xl font-bold text-left text-red-700">❌</div>
+                <div className="text-red-600 text-left">Múltiples riesgos</div>
+              </div>
+              <div className="mt-8 mb-6">
+                <button
+                  className="w-full border-red-400 text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg font-semibold border-2"
+                  disabled
+                >
+                  No Recomendado
+                </button>
+              </div>
+              <div className="border-t border-red-300 my-6"></div>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Sin garantía real</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Historial dudoso</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Precios inflados</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Comisiones ocultas</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Financiamiento limitado</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Autos en mal estado</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Documentación irregular</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Sin servicio post-venta</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Presión de venta</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Autos TREFA Card */}
+            <div className="relative border-4 border-primary shadow-2xl scale-105 bg-white z-10 rounded-xl p-6">
+              <span className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-2 text-sm font-bold rounded-full inline-flex items-center gap-1">
+                <Award className="w-4 h-4" />
+                LA MEJOR OPCIÓN
+              </span>
+              <div className="space-y-1 mt-4">
+                <h3 className="font-semibold text-xl text-left text-primary">Autos TREFA</h3>
+                <p className="text-muted-foreground text-left">Confianza y profesionalismo</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-6">
+                <div className="text-4xl font-bold text-left text-primary">✅</div>
+                <div className="text-muted-foreground text-left">Máxima seguridad</div>
+              </div>
+              <div className="mt-8 mb-6">
+                <Link to="/autos" className="w-full bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-semibold block text-center">
+                  ¡Elige TREFA!
+                </Link>
+              </div>
+              <div className="border-t border-border my-6"></div>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Garantía de 6 meses</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Historial 100% verificado</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Precios justos y transparentes</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">0% comisiones ocultas</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Financiamiento desde 8.9%</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Inspección de 150 puntos</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Servicio post-venta</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Intercambios aceptados</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Documentación legal</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Asesoría personalizada</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground font-medium">Seguros incluidos</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Particulares Card */}
+            <div className="relative border-2 bg-gradient-to-br from-red-50 to-red-100 border-red-300 rounded-xl p-6">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-xl text-left text-red-700">
+                  Particulares/Desconocidos
+                </h3>
+                <p className="text-red-600 text-left">Riesgos considerables</p>
+              </div>
+              <div className="flex items-baseline gap-2 mt-6">
+                <div className="text-4xl font-bold text-left text-red-700">⚠️</div>
+                <div className="text-red-600 text-left">Alto riesgo</div>
+              </div>
+              <div className="mt-8 mb-6">
+                <button
+                  className="w-full border-red-400 text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg font-semibold border-2"
+                  disabled
+                >
+                  Riesgoso
+                </button>
+              </div>
+              <div className="border-t border-red-300 my-6"></div>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Sin garantía alguna</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Historial desconocido</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Posibles fraudes</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Sin financiamiento</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Trámites complicados</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Autos robados/chocados</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Problemas legales</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Sin respaldo</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <span className="text-red-700">Pérdida de dinero</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary Box */}
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 rounded-2xl p-8 text-center">
+            <h3 className="font-heading text-2xl font-bold text-primary mb-4">
+              La Diferencia TREFA es Clara
+            </h3>
+            <p className="text-lg text-muted-foreground mb-6">
+              Mientras otros te exponen a riesgos, nosotros te brindamos seguridad, garantía y el
+              mejor servicio del mercado
+            </p>
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="bg-white border border-primary/20 rounded-lg p-6 shadow-md">
+                <ShieldCheck className="w-12 h-12 text-primary mx-auto mb-3" />
+                <h4 className="font-semibold text-lg mb-2 text-primary">Protección Total</h4>
+                <p className="text-muted-foreground text-sm">
+                  Garantía, seguro y respaldo legal en cada compra
+                </p>
+              </div>
+              <div className="bg-white border border-primary/20 rounded-lg p-6 shadow-md">
+                <TrendingUp className="w-12 h-12 text-primary mx-auto mb-3" />
+                <h4 className="font-semibold text-lg mb-2 text-primary">Servicio Personalizado</h4>
+                <p className="text-muted-foreground text-sm">
+                  Te acompañamos desde la elección hasta después de la compra
+                </p>
+              </div>
+              <div className="bg-white border border-primary/20 rounded-lg p-6 shadow-md">
+                <Award className="w-12 h-12 text-primary mx-auto mb-3" />
+                <h4 className="font-semibold text-lg mb-2 text-primary">Calidad Garantizada</h4>
+                <p className="text-muted-foreground text-sm">
+                  Solo vehículos 2019+ con inspección de 150 puntos
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

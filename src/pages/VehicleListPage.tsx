@@ -8,6 +8,7 @@ import VehicleService from '../services/VehicleService';
 import VehicleCard from '../components/VehicleCard';
 import VehicleCardSkeleton from '../components/VehicleCardSkeleton';
 import VehicleGridCard from '../components/VehicleGridCard';
+import InjectionCard from '../components/InjectionCard';
 import RecentlyViewed from '../components/RecentlyViewed';
 import Pagination from '../components/Pagination';
 import FilterSidebar from '../components/FilterSidebar';
@@ -460,7 +461,17 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {vehicles.map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
+                    {vehicles.slice(0, 3).map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
+                    {/* Mobile injection at position 4 (index 3) */}
+                    <div className="block lg:hidden">
+                      <InjectionCard />
+                    </div>
+                    {vehicles.slice(3, 5).map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
+                    {/* Desktop injection at position 6 (index 5) - second row, last column */}
+                    <div className="hidden lg:block">
+                      <InjectionCard />
+                    </div>
+                    {vehicles.slice(5).map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
                   </div>
                 )}
 

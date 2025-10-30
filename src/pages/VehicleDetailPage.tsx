@@ -292,7 +292,7 @@ const CharacteristicsSection: React.FC<{ vehicle: WordPressVehicle; inspectionDa
 
     return (
         <div>
-            <h3 className="text-2xl font-black text-gray-900 mb-6 pt-2.5">Características</h3>
+            <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-6 pt-2.5">Características</h3>
             <div className="grid grid-cols-1 gap-4">
                 {features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
@@ -380,7 +380,7 @@ const DescriptionSection: React.FC<{ content: string }> = React.memo(({ content 
     if (!content) return null;
     return (
         <div className={cardStyle}>
-            <h2 className="text-2xl font-black text-gray-900 mb-4">Descripción del Auto</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-4">Descripción del Auto</h2>
             <div className="prose prose-custom max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: content }} />
         </div>
     );
@@ -416,7 +416,7 @@ const SimilarVehicles: React.FC<{ vehicle: WordPressVehicle; allVehicles: WordPr
             {/* Desktop Grid */}
             <div className="hidden lg:block bg-gray-50 py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-3xl font-black text-gray-900 mb-8">También te puede interesar...</h2>
+                    <h2 className="text-2xl lg:text-3xl font-black text-gray-900 mb-8">También te puede interesar...</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {similarVehicles.slice(0, 4).map(v => (
                             <SimpleVehicleCard key={v.id} vehicle={v} />
@@ -714,6 +714,11 @@ const VehicleDetailPage: React.FC = () => {
         };
 
         fetchVehicleData();
+    }, [slug]);
+
+    // Scroll to top when vehicle changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [slug]);
 
     const closeLightbox = () => setIsLightboxOpen(false);

@@ -60,10 +60,10 @@ const Lightbox: React.FC<LightboxProps> = ({ media, currentIndex, onClose, onPre
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-8 right-6 text-white/70 hover:text-white transition-colors z-[1000] p-2 bg-black/20 rounded-full"
+                    className="absolute top-4 sm:top-8 right-4 sm:right-6 text-white hover:text-gray-200 transition-all z-[1000] p-2 sm:p-3 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg border border-white/20"
                     aria-label="Cerrar"
                 >
-                    <XIcon className="w-10 h-10" />
+                    <XIcon className="w-8 h-8 sm:w-10 sm:h-10" />
                 </button>
 
                 {/* Prev button */}

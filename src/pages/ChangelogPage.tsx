@@ -187,6 +187,118 @@ const ChangelogPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Version 1.5.1 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.5.1</h2>
+              <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-bold">
+                Mejoras de UX Móvil
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                30 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejoras Móviles
+                  </span>
+                  <h3 className="text-xl font-semibold">Optimización de Experiencia Móvil</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📱</span>
+                    <div className="flex-1">
+                      <strong>Navegación Inferior Inteligente</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Implementado auto-ocultamiento del bottom navigation cuando aparece el teclado móvil.
+                        El sistema detecta focus en inputs/textarea/select y oculta automáticamente la barra inferior
+                        para evitar que bloquee los campos del formulario. Incluye scroll automático al elemento enfocado.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔍</span>
+                    <div className="flex-1">
+                      <strong>Barra de Búsqueda Ampliada</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Optimizado el header móvil con logo más pequeño (h-3.5 vs h-5) para dar más espacio a la barra
+                        de búsqueda. Input ampliado con padding py-3 y texto text-base, resultados con thumbnails más
+                        grandes (w-20 h-16), texto más legible, y mejor feedback visual con estados active.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">⚡</span>
+                    <div className="flex-1">
+                      <strong>Scroll Instantáneo en Detalle de Vehículo</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Corregido el comportamiento de scroll to top en VehicleDetailPage. Cambiado de smooth scroll
+                        a instant scroll (window.scrollTo(0, 0)) para mejor rendimiento móvil. Elimina el problema de
+                        scroll lento e incompleto en dispositivos móviles.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🖼️</span>
+                    <div className="flex-1">
+                      <strong>Botón de Cerrar Lightbox Visible</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Mejorado el botón de cerrar en el visor de imágenes (Lightbox) con fondo más oscuro
+                        (bg-black/60), borde, sombra y backdrop-blur para mejor contraste. Tamaño responsivo
+                        (w-8 h-8 móvil, w-10 h-10 desktop) y posicionamiento optimizado (top-4 right-4 móvil).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📐</span>
+                    <div className="flex-1">
+                      <strong>Títulos de Sección Responsivos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Ajustados todos los títulos de sección en VehicleDetailPage a tamaños responsivos apropiados.
+                        "Características" y "Descripción" ahora usan text-xl sm:text-2xl, "También te puede interesar"
+                        usa text-2xl lg:text-3xl, y carruseles tienen text-xl sm:text-2xl lg:text-3xl.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Landing Page y CRM</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Nueva Landing Page Disponible en /landing</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Nueva landing page adaptable disponible en /landing para personalización y campañas.
+                        Landing page original preservada como LandingPageOriginal.tsx.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">👥</span>
+                    <div className="flex-1">
+                      <strong>Página de CRM Actualizada con Estatus de Aplicaciones</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        SimpleCRMPage mejorada con visualización clara del estatus de aplicaciones.
+                        Navegación actualizada para mejor acceso a funciones de gestión de leads.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.4.2 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">

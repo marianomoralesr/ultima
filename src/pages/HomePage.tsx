@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useVehicles } from '../context/VehicleContext';
 import type { Vehicle } from '../types/types';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
-import { 
+import {
     CarIcon as Car,
-    FileTextIcon as FileText, 
-    CheckIcon as Check, 
-    ArrowRightIcon as ArrowRight    
+    FileTextIcon as FileText,
+    CheckIcon as Check,
+    ArrowRightIcon as ArrowRight
 } from '../components/icons';
+import { ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import WallOfLove from '../components/WallOfLove';
 import { formatPrice } from '../utils/formatters';
 import { getVehicleImage } from '../utils/getVehicleImage';
@@ -359,6 +361,106 @@ const YouTubeVSLSection: React.FC = () => {
   );
 };
 
+/* ---------- Landing Page Hero Section ---------- */
+const LandingPageHero: React.FC = () => {
+  return (
+    <section className="relative overflow-hidden flex items-center" style={{ minHeight: '88dvh' }}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Right vehicle - visible on desktop */}
+        <div className="hidden lg:block absolute right-0 xl:right-16 bottom-0">
+          <img
+            src="https://r2.trefa.mx/Frame%2040%20(1).png"
+            alt="TREFA Vehicle"
+            className="w-[425px] xl:w-[510px] h-auto object-contain opacity-40"
+          />
+        </div>
+        {/* Left vehicle - visible on desktop */}
+        <div className="hidden lg:block absolute left-0 xl:left-16 bottom-0">
+          <img
+            src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
+            alt="TREFA Vehicle"
+            className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1] opacity-40"
+          />
+        </div>
+        {/* Mobile: Single vehicle as subtle background */}
+        <div className="lg:hidden absolute right-0 bottom-0">
+          <img
+            src="https://r2.trefa.mx/Frame%2040%20(1).png"
+            alt="TREFA Vehicle"
+            className="w-[218px] h-auto object-contain opacity-20"
+          />
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-primary/20 translate-y-1/2 w-[80%] h-96" />
+
+      <div className="container mx-auto px-4 lg:px-6 relative z-10 pb-20 pt-0 -mt-8">
+        <div className="flex flex-col items-center text-center space-y-6">
+          <span className="px-4 py-1 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2">
+            <ShieldCheck className="w-3 h-3 text-primary" />
+            <span className="text-sm font-medium">Autos Seminuevos Certificados</span>
+          </span>
+
+          <motion.h1 className="font-heading text-4xl md:text-6xl font-bold tracking-tight max-w-4xl">
+            Tu próximo auto seminuevo te está esperando
+          </motion.h1>
+
+          <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            Encuentra el auto perfecto en nuestra selección de vehículos seminuevos 2019 en
+            adelante. SUVs, Sedanes, Hatchbacks y Pick Ups con garantía y financiamiento
+            disponible.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-background text-foreground border-2 border-input hover:bg-accent hover:text-accent-foreground px-8 py-3 rounded-lg font-semibold transition-all">
+              Ver Inventario
+              <Car className="w-4 h-4" />
+            </Link>
+            <Link to="/kit-trefa" className="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-3 rounded-lg font-semibold shadow-lg transition-all">
+              Conoce el Kit de Seguridad
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 mt-10">
+            <p className="text-sm text-muted-foreground">
+              Más de 5,000 autos vendidos y clientes satisfechos
+            </p>
+            <div className="flex items-center space-x-6 opacity-60 flex-wrap justify-center gap-y-4 gap-x-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <img src="/images/Honda.png" alt="Honda" className="h-7 w-auto opacity-70" />
+                <span className="text-base font-semibold hidden sm:inline">Honda</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Toyota.png" alt="Toyota" className="h-7 w-auto opacity-70" />
+                <span className="text-base font-semibold hidden sm:inline">Toyota</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Nissan.png" alt="Nissan" className="h-7 w-auto opacity-70" />
+                <span className="text-base font-semibold hidden sm:inline">Nissan</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Mazda.png" alt="Mazda" className="h-7 w-auto opacity-70" />
+                <span className="text-base font-semibold hidden sm:inline">Mazda</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Jeep.png" alt="Jeep" className="h-7 w-auto opacity-70" />
+                <span className="text-base font-semibold hidden sm:inline">Jeep</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Kia.png" alt="Kia" className="h-7 w-auto opacity-70" />
+                <span className="text-base font-semibold hidden sm:inline">Kia</span>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              y 15 de las mejores marcas más...
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ---------- Testimonio Separator ---------- */
 const TestimonioSeparator: React.FC = () => {
   return (
@@ -523,6 +625,7 @@ const HomePage: React.FC = () => {
 
   return (
     <main className="relative z-10">
+      <LandingPageHero />
       <NewHeroSection />
       <CTACardsSection />
       <YouTubeVSLSection />

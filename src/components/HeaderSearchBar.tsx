@@ -101,27 +101,27 @@ const HeaderSearchBar: React.FC = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Busca por marca, modelo o año..."
-              className="block w-full rounded-full border-0 bg-transparent py-2.5 pl-11 pr-4 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm"
+              className="block w-full rounded-full border-0 bg-transparent py-3 sm:py-2.5 pl-11 pr-4 text-base sm:text-sm text-gray-900 placeholder:text-gray-500 focus:ring-0"
               autoComplete="off"
             />
           </div>
         </div>
       </form>
       {isDropdownVisible && results.length > 0 && (
-        <ul className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-lg z-50 overflow-hidden border border-gray-200">
+        <ul className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-xl z-50 overflow-hidden border border-gray-200">
           {results.map(vehicle => (
             <li key={vehicle.id}>
-              <button onClick={() => handleResultClick(vehicle.slug)} className="w-full text-left flex items-center gap-3 p-3 hover:bg-gray-100 transition-colors">
-                <img src={vehicle.feature_image} alt={vehicle.titulo} className="w-16 h-12 object-cover rounded-md flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-semibold text-sm text-gray-800 truncate">{vehicle.titulo}</p>
-                  <p className="text-sm text-primary-600 font-medium">{formatPrice(vehicle.precio)}</p>
+              <button onClick={() => handleResultClick(vehicle.slug)} className="w-full text-left flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-gray-100 active:bg-gray-200 transition-colors">
+                <img src={vehicle.feature_image} alt={vehicle.titulo} className="w-20 h-16 sm:w-24 sm:h-18 object-cover rounded-md flex-shrink-0 shadow-sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-base sm:text-sm text-gray-900 line-clamp-2">{vehicle.titulo}</p>
+                  <p className="text-base sm:text-sm text-primary-600 font-bold mt-0.5">{formatPrice(vehicle.precio)}</p>
                 </div>
               </button>
             </li>
           ))}
-           <li className="p-2 bg-gray-50">
-                <button onClick={() => handleSubmit(new Event('submit') as any)} className="w-full text-center text-sm font-semibold text-primary-600 hover:text-primary-700">
+           <li className="p-3 sm:p-2 bg-gray-50 border-t border-gray-200">
+                <button onClick={() => handleSubmit(new Event('submit') as any)} className="w-full text-center text-base sm:text-sm font-semibold text-primary-600 hover:text-primary-700 active:text-primary-800 py-1">
                     Ver todos los resultados para "{query}"
                 </button>
             </li>

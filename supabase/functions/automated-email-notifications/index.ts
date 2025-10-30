@@ -357,6 +357,16 @@ serve(async (req) => {
               'Notificaciones | TREFA - Completa tu solicitud de financiamiento',
               htmlContent
             );
+
+            // Log email to database
+            await supabase.from('user_email_notifications').insert({
+              user_id: profile.id,
+              email_type: 'incomplete_application',
+              subject: 'Notificaciones | TREFA - Completa tu solicitud de financiamiento',
+              sent_at: new Date().toISOString(),
+              status: 'sent'
+            });
+
             results.incompleteApplications++;
           }
         } catch (err: any) {
@@ -390,6 +400,16 @@ serve(async (req) => {
               'Notificaciones | TREFA - Completa tu perfil',
               htmlContent
             );
+
+            // Log email to database
+            await supabase.from('user_email_notifications').insert({
+              user_id: profile.id,
+              email_type: 'incomplete_profile',
+              subject: 'Notificaciones | TREFA - Completa tu perfil',
+              sent_at: new Date().toISOString(),
+              status: 'sent'
+            });
+
             results.incompleteProfiles++;
           }
         } catch (err: any) {

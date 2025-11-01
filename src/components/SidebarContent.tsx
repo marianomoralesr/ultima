@@ -29,7 +29,8 @@ import {
     CalendarIcon,
     FileEdit,
     Loader2,
-    BookOpen
+    BookOpen,
+    ShoppingCart
 } from 'lucide-react';
 
 // @ts-ignore
@@ -79,6 +80,10 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon },
         { to: '/escritorio/autos', label: 'Inventario', icon: Car },
         { to: '/escritorio/vende-tu-auto', label: 'Vender mi Auto', icon: Car },
+        // Sales and Admin role specific links
+        ...((isSales || isAdmin) ? [
+            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart },
+        ] : []),
         // Sales role specific link
         ...((isSales) ? [{ to: '/escritorio/admin/leads', label: 'Mis Leads', icon: Users }] : []),
         // Admin role specific links

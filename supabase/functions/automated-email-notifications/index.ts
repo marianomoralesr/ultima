@@ -180,6 +180,147 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
         </html>
       `;
 
+    case 'purchase_lead_followup':
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8">${baseStyles}</head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">¡Queremos Comprar tu ${data.vehicleInfo}!</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, recibimos tu solicitud para vender tu vehículo y estamos muy interesados.</p>
+
+              <div class="card">
+                <div class="card-title">Detalles de tu Vehículo</div>
+                <div class="card-content">
+                  <p><strong>Vehículo:</strong> ${data.vehicleInfo}</p>
+                  ${data.suggestedOffer ? `<p><strong>Oferta Inicial:</strong> ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(data.suggestedOffer)}</p>` : ''}
+                  <p><strong>Solicitud Enviada:</strong> ${new Date(data.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">Próximos Pasos para Vender tu Auto</h2>
+              <ul>
+                <li><strong>Inspección Gratuita:</strong> Agenda una cita para inspeccionar tu vehículo</li>
+                <li><strong>Oferta Personalizada:</strong> Te daremos una oferta competitiva basada en el estado real</li>
+                <li><strong>Pago Inmediato:</strong> Si aceptas, te pagamos al instante</li>
+                <li><strong>Sin Complicaciones:</strong> Nos encargamos de todos los trámites</li>
+              </ul>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/admin/compras/${data.leadId}" class="button">Contactar a mi Asesor</a>
+              </div>
+
+              <p style="font-size: 14px; color: #556675; background: #FEF3C7; padding: 16px; border-radius: 8px; border-left: 4px solid #F59E0B;">
+                💡 <strong>¿Tienes preguntas?</strong><br>
+                Contáctanos al WhatsApp o responde este correo. Estamos listos para ayudarte.
+              </p>
+
+              ${data.vehicles && data.vehicles.length > 0 ? `
+              <div class="divider"></div>
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">O Intercambia tu Auto por uno de Estos</h2>
+              ${data.vehicles.map((v: any) => `
+                <div class="vehicle-card">
+                  ${v.image ? `<img src="${v.image}" alt="${v.title}" class="vehicle-img" />` : ''}
+                  <div class="vehicle-title">${v.title}</div>
+                  <div class="vehicle-price">Desde ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v.price)} MXN</div>
+                  <p style="font-size: 13px; color: #64748B; margin-top: 8px;">Con hasta 60 meses de financiamiento</p>
+                </div>
+              `).join('')}
+              ` : ''}
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
+              <p class="footer-text">Agencia Automotriz de Servicio Personalizado</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Autos TREFA. Todos los derechos reservados.</p>
+              <div class="unsubscribe">
+                <a href="${unsubscribeLink}">Cancelar suscripción</a>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+    case 'valuation_followup':
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8">${baseStyles}</head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">¿Listo para Vender tu ${data.vehicleInfo}?</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, hace poco valuaste tu vehículo con nosotros.</p>
+
+              <div class="card">
+                <div class="card-title">Resumen de tu Valuación</div>
+                <div class="card-content">
+                  <p><strong>Vehículo:</strong> ${data.vehicleInfo}</p>
+                  ${data.suggestedOffer ? `<p><strong>Valuación Estimada:</strong> ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(data.suggestedOffer)}</p>` : ''}
+                  ${data.mileage ? `<p><strong>Kilometraje:</strong> ${new Intl.NumberFormat('es-MX').format(data.mileage)} km</p>` : ''}
+                  <p><strong>Valuación Realizada:</strong> ${new Date(data.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <p style="font-size: 16px; color: #0B2540; text-align: center; margin: 24px 0;">
+                <strong>¿Por qué vender con Autos TREFA?</strong>
+              </p>
+
+              <ul>
+                <li><strong>Proceso Rápido y Fácil:</strong> Sin complicaciones ni trámites largos</li>
+                <li><strong>Pago Inmediato:</strong> Te pagamos el mismo día</li>
+                <li><strong>Mejor Precio:</strong> Oferta justa basada en el mercado</li>
+                <li><strong>Nos Encargamos de Todo:</strong> Trámites, papeles y más</li>
+              </ul>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${SUPABASE_URL.replace('.supabase.co', '')}/vende-tu-auto" class="button">Continuar con la Venta</a>
+              </div>
+
+              <p style="font-size: 14px; color: #556675; background: #DBEAFE; padding: 16px; border-radius: 8px; border-left: 4px solid #3B82F6;">
+                💡 <strong>Tu valuación sigue vigente</strong><br>
+                Puedes continuar con el proceso de venta en cualquier momento.
+              </p>
+
+              ${data.vehicles && data.vehicles.length > 0 ? `
+              <div class="divider"></div>
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">¿Buscas Cambiar de Auto?</h2>
+              <p style="text-align: center; color: #64748B; margin-bottom: 16px;">Aprovecha tu auto como anticipo</p>
+              ${data.vehicles.map((v: any) => `
+                <div class="vehicle-card">
+                  ${v.image ? `<img src="${v.image}" alt="${v.title}" class="vehicle-img" />` : ''}
+                  <div class="vehicle-title">${v.title}</div>
+                  <div class="vehicle-price">Desde ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v.price)} MXN</div>
+                  <p style="font-size: 13px; color: #64748B; margin-top: 8px;">Con hasta 60 meses de financiamiento</p>
+                </div>
+              `).join('')}
+              ` : ''}
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
+              <p class="footer-text">Agencia Automotriz de Servicio Personalizado</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Autos TREFA. Todos los derechos reservados.</p>
+              <div class="unsubscribe">
+                <a href="${unsubscribeLink}">Cancelar suscripción</a>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
     case 'sales_agent_digest':
       return `
         <!DOCTYPE html>
@@ -309,6 +450,8 @@ serve(async (req) => {
     const results = {
       incompleteApplications: 0,
       incompleteProfiles: 0,
+      purchaseLeads: 0,
+      valuationLeads: 0,
       salesAgentEmails: 0,
       errors: [] as string[]
     };
@@ -418,7 +561,68 @@ serve(async (req) => {
       }
     }
 
-    // 3. Send daily digest to sales agents
+    // 3. Find purchase leads (user_vehicles_for_sale) created > 24 hours ago and not contacted
+    const { data: purchaseLeadsData, error: purchaseLeadsError } = await supabase
+      .from('user_vehicles_for_sale')
+      .select(`
+        id,
+        user_id,
+        valuation_data,
+        created_at,
+        contacted,
+        profiles:user_id (
+          id,
+          first_name,
+          last_name,
+          email
+        )
+      `)
+      .eq('contacted', false)
+      .lt('created_at', yesterday.toISOString());
+
+    if (!purchaseLeadsError && purchaseLeadsData) {
+      for (const lead of purchaseLeadsData) {
+        try {
+          const profile = Array.isArray(lead.profiles) ? lead.profiles[0] : lead.profiles;
+          if (profile?.email) {
+            const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Cliente';
+            const vehicleInfo = lead.valuation_data?.vehicle?.label || 'tu vehículo';
+            const suggestedOffer = lead.valuation_data?.valuation?.suggestedOffer || null;
+
+            const htmlContent = getEmailTemplate('purchase_lead_followup', {
+              clientName,
+              vehicleInfo,
+              suggestedOffer,
+              createdAt: lead.created_at,
+              leadId: lead.id,
+              vehicles
+            });
+
+            await sendBrevoEmail(
+              profile.email,
+              clientName,
+              `Notificaciones | TREFA - Queremos Comprar tu ${vehicleInfo}`,
+              htmlContent
+            );
+
+            // Log email to database
+            await supabase.from('user_email_notifications').insert({
+              user_id: profile.id,
+              email_type: 'purchase_lead_followup',
+              subject: `Notificaciones | TREFA - Queremos Comprar tu ${vehicleInfo}`,
+              sent_at: new Date().toISOString(),
+              status: 'sent'
+            });
+
+            results.purchaseLeads++;
+          }
+        } catch (err: any) {
+          results.errors.push(`Error sending purchase lead email to ${lead.profiles?.email}: ${err.message}`);
+        }
+      }
+    }
+
+    // 4. Send daily digest to sales agents
     const { data: pendingLeads, error: leadsError } = await supabase
       .from('profiles')
       .select(`
@@ -492,7 +696,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         results,
-        message: `Sent ${results.incompleteApplications} incomplete app emails, ${results.incompleteProfiles} incomplete profile emails, and ${results.salesAgentEmails} sales agent digests.`
+        message: `Sent ${results.incompleteApplications} incomplete app emails, ${results.incompleteProfiles} incomplete profile emails, ${results.purchaseLeads} purchase lead emails, and ${results.salesAgentEmails} sales agent digests.`
       }),
       {
         headers: {

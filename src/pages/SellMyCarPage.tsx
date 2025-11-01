@@ -13,8 +13,6 @@ const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California S
 const BRANCHES = ['Monterrey', 'Guadalupe', 'Reynosa', 'Saltillo'];
 
 const sellCarSchema = z.object({
-  first_name: z.string().min(1, "Tu nombre es requerido."),
-  last_name: z.string().min(1, "Tu apellido es requerido."),
   owner_count: z.string().min(1, "El número de dueños es requerido."),
   key_info: z.string().min(1, "La información de las llaves es requerida."),
   invoice_status: z.enum(['liberada', 'financiada'], { message: "El estado de la factura es requerido." }),
@@ -166,15 +164,6 @@ const SellMyCarPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-8 rounded-xl shadow-lg border">
-                <div className="grid md:grid-cols-2 gap-4">
-                    <FormField label="Nombre(s)" error={errors.first_name?.message}>
-                        <input {...register('first_name')} className={inputClass} placeholder="Ej: Juan"/>
-                    </FormField>
-                    <FormField label="Apellido(s)" error={errors.last_name?.message}>
-                        <input {...register('last_name')} className={inputClass} placeholder="Ej: Pérez García"/>
-                    </FormField>
-                </div>
-
                 <FormField label="Número de dueños anteriores" error={errors.owner_count?.message}>
                     <select {...register('owner_count')} className={inputClass}>
                         <option value="">Seleccionar...</option>

@@ -123,7 +123,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="RFC" value={profile.rfc} />
                     <DataRow label="Fecha de Nacimiento" value={profile.birth_date} />
                     <DataRow label="Estado Civil" value={normalizeCivilStatus(profile.civil_status)} />
-                    <DataRow label="Nombre del Cónyugue" value={getSpouseName()} />
+                    <DataRow label="Nombre del Cónyuge" value={getSpouseName()} />
                     <DataRow label="Género" value={profile.gender} />
                     <DataRow label="Nivel de Estudios" value={profile.education_level || appData.education_level || 'N/A'} />
                     <DataRow label="Número de Dependientes" value={profile.dependents || appData.dependents || appData.number_of_dependents || 'N/A'} />
@@ -166,7 +166,6 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="Dirección de la Empresa" value={appData.company_address} />
                     <DataRow label="Teléfono (Empresa)" value={appData.company_phone} />
                     <DataRow label="Ingreso Mensual Neto" value={formatCurrency(appData.net_monthly_income)} />
-                    <DataRow label="Fuente de Otros Ingresos" value={appData.other_income_source} />
                 </div>
 
                 {/* Banking Profile */}
@@ -209,8 +208,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
             </main>
 
             <footer className="mt-6 pt-3 border-t text-center text-xs text-gray-500">
-                <p className="font-bold text-gray-600">Este documento es una copia de la solicitud enviada y no constituye un contrato ni un documento oficial. La aprobación está sujeta a la validación de la institución financiera.</p>
-                <p className="mt-2">TREFA AUTOS | {new Date().getFullYear()}</p>
+                <p className="font-semibold text-gray-600">Exclusivamente para uso interno | Autos TREFA | 2025</p>
             </footer>
         </div>
     );

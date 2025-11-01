@@ -622,7 +622,97 @@ serve(async (req) => {
       }
     }
 
-    // 4. Send daily digest to sales agents
+    // 4. Find valuation-only leads from Airtable (created > 24 hours ago)
+    const AIRTABLE_API_KEY = Deno.env.get('AIRTABLE_VALUATION_API_KEY') || 'patTNLaky9mzf4QVH.565b7cebe5070e4fa09eadd888d3187f5afc38aa537873abd6175c1e21ff6535';
+    const AIRTABLE_BASE_ID = Deno.env.get('AIRTABLE_VALUATION_BASE_ID') || 'appbOPKYqQRW2HgyB';
+    const AIRTABLE_STORAGE_TABLE_ID = Deno.env.get('AIRTABLE_VALUATIONS_STORAGE_TABLE_ID') || 'tbl66UyGNcOfOxQUm';
+
+    try {
+      const airtableResponse = await fetch(
+        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_STORAGE_TABLE_ID}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+          }
+        }
+      );
+
+      if (airtableResponse.ok) {
+        const airtableData = await airtableResponse.json();
+        const valuations = airtableData.records || [];
+
+        for (const record of valuations) {
+          try {
+            const fields = record.fields;
+            const createdTime = new Date(record.createdTime);
+            const clientEmail = fields['Client Email'];
+            const clientName = fields['Client Name'] || 'Cliente';
+            const vehicleInfo = Array.isArray(fields['Inventario']) ? fields['Inventario'][0] : fields['Inventario'] || 'tu vehículo';
+            const suggestedOffer = fields['Oferta Sugerida'] || null;
+            const mileage = fields['Kilometraje'] || null;
+
+            // Only send if created > 24 hours ago and has email
+            if (clientEmail && createdTime < yesterday) {
+              // Check if we've already sent this email (check by email in the last 30 days to avoid duplicates)
+              const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+              const { data: existingEmails } = await supabase
+                .from('user_email_notifications')
+                .select('id')
+                .eq('email_type', 'valuation_followup')
+                .eq('recipient_email', clientEmail)
+                .gte('sent_at', thirtyDaysAgo.toISOString())
+                .limit(1);
+
+              // Skip if we've already sent an email to this address recently
+              if (existingEmails && existingEmails.length > 0) {
+                continue;
+              }
+
+              // Try to find user by email to get user_id
+              const { data: userProfile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('email', clientEmail)
+                .single();
+
+              const htmlContent = getEmailTemplate('valuation_followup', {
+                clientName,
+                vehicleInfo,
+                suggestedOffer,
+                mileage,
+                createdAt: record.createdTime,
+                vehicles
+              });
+
+              await sendBrevoEmail(
+                clientEmail,
+                clientName,
+                `Notificaciones | TREFA - ¿Listo para Vender tu ${vehicleInfo}?`,
+                htmlContent
+              );
+
+              // Log email to database (with or without user_id)
+              await supabase.from('user_email_notifications').insert({
+                user_id: userProfile?.id || null,
+                recipient_email: clientEmail,
+                email_type: 'valuation_followup',
+                subject: `Notificaciones | TREFA - ¿Listo para Vender tu ${vehicleInfo}?`,
+                sent_at: new Date().toISOString(),
+                status: 'sent'
+              });
+
+              results.valuationLeads++;
+            }
+          } catch (err: any) {
+            results.errors.push(`Error sending valuation email to ${record.fields?.['Client Email']}: ${err.message}`);
+          }
+        }
+      }
+    } catch (err: any) {
+      results.errors.push(`Error fetching Airtable valuations: ${err.message}`);
+    }
+
+    // 5. Send daily digest to sales agents
     const { data: pendingLeads, error: leadsError } = await supabase
       .from('profiles')
       .select(`
@@ -696,7 +786,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         results,
-        message: `Sent ${results.incompleteApplications} incomplete app emails, ${results.incompleteProfiles} incomplete profile emails, ${results.purchaseLeads} purchase lead emails, and ${results.salesAgentEmails} sales agent digests.`
+        message: `Sent ${results.incompleteApplications} incomplete app emails, ${results.incompleteProfiles} incomplete profile emails, ${results.purchaseLeads} purchase lead emails, ${results.valuationLeads} valuation followup emails, and ${results.salesAgentEmails} sales agent digests.`
       }),
       {
         headers: {

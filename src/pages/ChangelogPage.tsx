@@ -30,6 +30,82 @@ const ChangelogPage: React.FC = () => {
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+          {/* Version 1.6.0 */}
+          <div className="border-l-4 border-green-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.6.0</h2>
+              <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold">
+                Dashboard de Compras
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                1 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad Principal
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Dashboard de Compras de Vehículos</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Sistema completo de gestión de vehículos que usuarios desean vender a la empresa</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Lista de leads con filtrado, búsqueda y asignación de asesores</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Página de detalles con información completa del vehículo y propietario</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Extracción y visualización de metadatos EXIF de fotos (fecha, cámara, ubicación GPS)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Seguimiento de ofertas sugeridas y finales con estados de aceptación</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Botones de acción para contactar vendedores por email o teléfono</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Íconos descriptivos para todos los campos de información del vehículo</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Formulario de venta mejorado con campos de nombre completo del vendedor</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Base de Datos
+                  </span>
+                </div>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🗄️</span>
+                    <span>Funciones RPC de Supabase con seguridad SECURITY DEFINER para control de roles</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🗄️</span>
+                    <span>Campos adicionales: contacted, asesor_asignado_id, tags en tabla user_vehicles_for_sale</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.5.0 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">

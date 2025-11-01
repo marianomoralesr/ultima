@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SellCarService } from '../services/SellCarService';
 import { supabase } from '../../supabaseClient';
-import { Loader2, AlertTriangle, ArrowLeft, Car, User, MapPin, FileText, Calendar, CheckCircle2, XCircle, MessageSquare, DollarSign, Camera, Clock } from 'lucide-react';
+import { Loader2, AlertTriangle, ArrowLeft, Car, User, MapPin, FileText, Calendar, CheckCircle2, XCircle, MessageSquare, DollarSign, Camera, Clock, Key, FileCheck, Building2, Shield, AlertCircle, HelpCircle } from 'lucide-react';
 import exifr from 'exifr';
 
 interface PhotoWithMetadata {
@@ -149,37 +149,61 @@ const VehicleForSaleDetailPage: React.FC = () => {
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="text-sm text-gray-600">Número de Dueños</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <User className="w-4 h-4" />
+                                    Número de Dueños
+                                </p>
                                 <p className="font-semibold">{listing.owner_count || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Llaves</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <Key className="w-4 h-4" />
+                                    Llaves
+                                </p>
                                 <p className="font-semibold">{listing.key_info || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Estado de Factura</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <FileCheck className="w-4 h-4" />
+                                    Estado de Factura
+                                </p>
                                 <p className="font-semibold capitalize">{listing.invoice_status || 'N/A'}</p>
                             </div>
                             {listing.financing_entity_name && (
                                 <div>
-                                    <p className="text-sm text-gray-600">Entidad Financiera</p>
+                                    <p className="text-sm text-gray-600 flex items-center gap-1">
+                                        <Building2 className="w-4 h-4" />
+                                        Entidad Financiera
+                                    </p>
                                     <p className="font-semibold">{listing.financing_entity_name} ({listing.financing_entity_type})</p>
                                 </div>
                             )}
                             <div>
-                                <p className="text-sm text-gray-600">Estado del Vehículo</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <MapPin className="w-4 h-4" />
+                                    Estado del Vehículo
+                                </p>
                                 <p className="font-semibold">{listing.vehicle_state || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Estado de Placas</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <Shield className="w-4 h-4" />
+                                    Estado de Placas
+                                </p>
                                 <p className="font-semibold">{listing.plate_registration_state || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Historial de Accidentes</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <AlertCircle className="w-4 h-4" />
+                                    Historial de Accidentes
+                                </p>
                                 <p className="font-semibold">{listing.accident_history || 'N/A'}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-600">Motivo de Venta</p>
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                    <HelpCircle className="w-4 h-4" />
+                                    Motivo de Venta
+                                </p>
                                 <p className="font-semibold">{listing.reason_for_selling || 'N/A'}</p>
                             </div>
                             <div className="col-span-2">

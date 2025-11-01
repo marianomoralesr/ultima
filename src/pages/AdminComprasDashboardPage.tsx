@@ -6,6 +6,7 @@ import { Loader2, AlertTriangle, Car, ShoppingCart, Clock, CheckCircle, Search, 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import StatsCard from '../components/StatsCard';
 import { config } from './config';
+import { toast } from 'react-hot-toast';
 
 type TabType = 'generated' | 'accepted';
 
@@ -13,6 +14,7 @@ const AdminComprasDashboardPage: React.FC = () => {
     const { user, isSales } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<TabType>('accepted');
+    const queryClient = useQueryClient();
 
     const { data: purchaseLeads = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
         queryKey: ['purchaseLeads'],
@@ -45,6 +47,56 @@ const AdminComprasDashboardPage: React.FC = () => {
             }));
         }
     });
+
+    // Delete purchase lead mutation
+    const deletePurchaseLeadMutation = useMutation({
+        mutationFn: (leadId: string) => SellCarService.deletePurchaseLead(leadId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['purchaseLeads'] });
+            queryClient.invalidateQueries({ queryKey: ['comprasDashboardStats'] });
+            toast.success('Lead de compra eliminado exitosamente');
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || 'Error al eliminar el lead de compra');
+        }
+    });
+
+    // Delete Airtable valuation mutation
+    const deleteAirtableValuationMutation = useMutation({
+        mutationFn: async (recordId: string) => {
+            const response = await fetch(
+                `https://api.airtable.com/v0/${config.airtable.valuation.baseId}/${config.airtable.valuation.storageTableId}/${recordId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${config.airtable.valuation.apiKey}`
+                    }
+                }
+            );
+            if (!response.ok) throw new Error('Failed to delete valuation from Airtable');
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['airtableValuations'] });
+            toast.success('Valuación eliminada exitosamente');
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || 'Error al eliminar la valuación');
+        }
+    });
+
+    // Delete handlers with confirmation
+    const handleDeletePurchaseLead = (leadId: string, clientName: string) => {
+        if (window.confirm(`¿Estás seguro de que deseas eliminar el lead de compra de ${clientName}?`)) {
+            deletePurchaseLeadMutation.mutate(leadId);
+        }
+    };
+
+    const handleDeleteAirtableValuation = (recordId: string, clientName: string) => {
+        if (window.confirm(`¿Estás seguro de que deseas eliminar la valuación de ${clientName}?`)) {
+            deleteAirtableValuationMutation.mutate(recordId);
+        }
+    };
 
     const filteredData = useMemo(() => {
         // Choose data source based on active tab
@@ -184,9 +236,13 @@ const AdminComprasDashboardPage: React.FC = () => {
                                         <td className="px-6 py-4">{lead.asesor_asignado || '-'}</td>
                                         <td className="px-6 py-4">
                                             <button
-                                                onClick={() => {/* Delete handler placeholder */}}
-                                                className="text-red-600 hover:text-red-800 transition-colors"
+                                                onClick={() => handleDeletePurchaseLead(
+                                                    lead.id,
+                                                    `${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'este cliente'
+                                                )}
+                                                className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
                                                 title="Eliminar"
+                                                disabled={deletePurchaseLeadMutation.isPending}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -235,9 +291,13 @@ const AdminComprasDashboardPage: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <button
-                                                onClick={() => {/* Delete handler placeholder */}}
-                                                className="text-red-600 hover:text-red-800 transition-colors"
+                                                onClick={() => handleDeleteAirtableValuation(
+                                                    valuation.id,
+                                                    valuation['Client Name'] || 'este cliente'
+                                                )}
+                                                className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
                                                 title="Eliminar"
+                                                disabled={deleteAirtableValuationMutation.isPending}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

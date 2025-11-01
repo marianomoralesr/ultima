@@ -3,21 +3,36 @@ import { Mail, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 
 interface EmailNotificationsHistoryProps {
-    userId: string;
+    userId?: string;
+    recipientEmail?: string;
 }
 
-const EmailNotificationsHistory: React.FC<EmailNotificationsHistoryProps> = ({ userId }) => {
+const EmailNotificationsHistory: React.FC<EmailNotificationsHistoryProps> = ({ userId, recipientEmail }) => {
     const [emails, setEmails] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchEmails = async () => {
             try {
-                const { data, error } = await supabase
+                let query = supabase
                     .from('user_email_notifications')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('sent_at', { ascending: false });
+                    .select('*');
+
+                // Support both user_id and recipient_email lookups
+                if (userId) {
+                    query = query.eq('user_id', userId);
+                } else if (recipientEmail) {
+                    query = query.eq('recipient_email', recipientEmail);
+                } else {
+                    // No identifier provided, return empty
+                    setEmails([]);
+                    setLoading(false);
+                    return;
+                }
+
+                query = query.order('sent_at', { ascending: false });
+
+                const { data, error } = await query;
 
                 if (error) throw error;
                 setEmails(data || []);
@@ -29,7 +44,7 @@ const EmailNotificationsHistory: React.FC<EmailNotificationsHistoryProps> = ({ u
         };
 
         fetchEmails();
-    }, [userId]);
+    }, [userId, recipientEmail]);
 
     const getStatusIcon = (status: string) => {
         switch (status) {

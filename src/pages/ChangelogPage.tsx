@@ -23,13 +23,187 @@ const ChangelogPage: React.FC = () => {
             <p className="text-sm mt-2 opacity-90">trefa.mx</p>
             <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
               <p className="text-lg font-semibold">
-                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">550+</span> horas
+                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">565+</span> horas
               </p>
             </div>
           </div>
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+
+          {/* Version 1.7.0 */}
+          <div className="border-l-4 border-blue-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.7.0</h2>
+              <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-bold">
+                Mejoras Críticas y SEO
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                2 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Valuation Form Critical Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🚨 Corrección Crítica
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Formulario de Valuación - Seguridad de Ofertas</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">⚠️</span>
+                    <span><strong>PROBLEMA CRÍTICO RESUELTO:</strong> Se detectó que el sistema generaba ofertas arbitrarias cuando Intelimotor no retornaba valores, poniendo en riesgo dinero real de la empresa.</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Eliminados +50 líneas de cálculos de respaldo que generaban ofertas sin autorización de Intelimotor</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Ahora SOLO se usa <code className="bg-gray-100 px-2 py-0.5 rounded">suggestedOffer</code> de la respuesta oficial de Intelimotor API</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Agregado parámetro obligatorio <code className="bg-gray-100 px-2 py-0.5 rounded">lite=true</code> en todas las llamadas a la API</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Corregido bug crítico: solicitudes GET enviaban body (inválido en HTTP), causando fallos de red</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Actualizada ruta de extracción: <code className="bg-gray-100 px-2 py-0.5 rounded">data.regions[0].stats.suggestedOffer</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Logging mejorado en todo el flujo de valuación para debugging</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos modificados:</strong> src/Valuation/services/valuationService.ts (líneas 356, 394-447), server/server.js, supabase/functions/valuation-proxy/index.ts</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* SEO Improvements */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🚀 SEO y Marketing
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Sitemap XML - Optimización Total para Google</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🗺️</span>
+                    <span>Agregados tags <code className="bg-gray-100 px-2 py-0.5 rounded">&lt;lastmod&gt;</code> con timestamps reales de actualización de cada vehículo</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🗺️</span>
+                    <span>Agregados tags <code className="bg-gray-100 px-2 py-0.5 rounded">&lt;changefreq&gt;</code> estratégicos (daily, weekly, monthly, yearly) según tipo de página</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🗺️</span>
+                    <span>Prioridades dinámicas basadas en estado: Disponible (0.85), Vendido (0.6)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🖼️</span>
+                    <span><strong>Image Sitemap implementado:</strong> Cada vehículo incluye hasta 6 imágenes con títulos y captions optimizados para Google Images</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🖼️</span>
+                    <span>Agregados namespaces XML: <code className="bg-gray-100 px-2 py-0.5 rounded">xmlns:image</code> y <code className="bg-gray-100 px-2 py-0.5 rounded">xmlns:xhtml</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Función <code className="bg-gray-100 px-2 py-0.5 rounded">escapeXml()</code> para prevenir errores de parsing en títulos con caracteres especiales</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Actualizada toda terminología: "Auto" en lugar de "Vehículo" + branding TREFA consistente</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> generate-sitemap.js</span>
+                  </li>
+                </ul>
+                <div className="mt-3 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                  <p className="text-sm text-green-800">
+                    <strong>Impacto esperado:</strong> Mayor visibilidad en Google Images, mejores rankings orgánicos,
+                    crawling más eficiente. Ventaja competitiva ya que la mayoría de agencias no optimizan image sitemaps.
+                  </p>
+                </div>
+              </div>
+
+              {/* Email Notifications */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    📧 Comunicación
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Sistema de Emails Automatizados</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Edge Function <code className="bg-gray-100 px-2 py-0.5 rounded">automated-email-notifications</code> desplegada y funcionando</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📧</span>
+                    <span>Emails diarios automatizados: 93 recordatorios de perfil incompleto, 68 seguimientos de valuación, 5 resúmenes para asesores</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📧</span>
+                    <span>Confirmación inmediata al enviar solicitud de financiamiento</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📊</span>
+                    <span>Historial de emails ahora consulta directamente Brevo API (sin dependencias de base de datos)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">⏰</span>
+                    <span>Cron job programado: Ejecución diaria a las 4:00 AM CST (10:00 AM UTC)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos modificados:</strong> supabase/functions/automated-email-notifications/index.ts, src/components/EmailNotificationsHistory.tsx</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* UI/UX Improvements */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🎨 Interfaz
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Homepage - Uniformidad de Tipografía</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Heading principal mantiene <code className="bg-gray-100 px-2 py-0.5 rounded">font-black</code> (más destacado)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Todos los headings secundarios estandarizados a <code className="bg-gray-100 px-2 py-0.5 rounded">font-bold</code> para consistencia visual</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Afecta secciones: "¿Cómo funciona?", "Conoce nuestro inventario", "¿Quieres vender tu auto?", "Hablar con un asesor", "Tramita tu crédito"</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> src/pages/HomePage.tsx (líneas 213, 516, 542, 564, 590)</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.6.0 */}
           <div className="border-l-4 border-green-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -1184,6 +1358,138 @@ const ChangelogPage: React.FC = () => {
                         Esto mejora significativamente la velocidad de carga y reduce costos de egreso comparado con
                         Supabase Storage.
                       </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.3.1 - CRITICAL FIX */}
+          <div className="border-l-4 border-red-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.3.1</h2>
+              <span className="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-bold">
+                🚨 CORRECCIÓN CRÍTICA
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                2 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Critical Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Corrección Crítica
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Valuación con Intelimotor</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-red-500 text-xl">💰</span>
+                    <div className="flex-1">
+                      <strong>CRÍTICO: Corregidas ofertas incorrectas en valuaciones de vehículos</strong>
+                      <p className="text-gray-700 text-sm mt-2 font-semibold">
+                        ⚠️ PROBLEMA IDENTIFICADO:
+                      </p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El sistema estaba generando ofertas INCORRECTAS que no provenían de la API de Intelimotor,
+                        causando pérdidas económicas reales a la empresa. Se detectaron los siguientes problemas críticos:
+                      </p>
+
+                      <div className="mt-3 space-y-2">
+                        <p className="text-gray-700 text-sm font-semibold">1. Faltaba el parámetro lite=true (REQUERIDO):</p>
+                        <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                          <li>• La API de Intelimotor requiere el parámetro lite=true en todas las solicitudes</li>
+                          <li>• Este parámetro NO estaba siendo enviado en ninguna llamada a la API</li>
+                          <li>• Sin lite=true, la API puede devolver datos incompletos o incorrectos</li>
+                        </ul>
+
+                        <p className="text-gray-700 text-sm font-semibold mt-3">2. Cálculos arbitrarios generaban ofertas falsas:</p>
+                        <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                          <li>• Si no se recibía suggestedOffer, el sistema calculaba ofertas con fórmulas arbitrarias:</li>
+                          <li className="ml-4">- avgMarketValue - $5,000</li>
+                          <li className="ml-4">- (lowMarketValue + highMarketValue) / 2 - $5,000</li>
+                          <li className="ml-4">- lowMarketValue - $7,500</li>
+                          <li className="ml-4">- highMarketValue - $15,000</li>
+                          <li>• Estas ofertas NO venían de Intelimotor y eran INVENTADAS por el código</li>
+                          <li>• Esto causaba ofertas incorrectas que afectaban el negocio directamente</li>
+                        </ul>
+
+                        <p className="text-gray-700 text-sm font-semibold mt-3">3. Se usaba ofertaAutomatica como respaldo:</p>
+                        <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                          <li>• El sistema intentaba usar ofertaAutomatica cuando no había suggestedOffer</li>
+                          <li>• Según instrucciones, SOLO debemos usar suggestedOffer</li>
+                        </ul>
+                      </div>
+
+                      <p className="text-gray-700 text-sm mt-4 font-semibold">
+                        ✅ SOLUCIONES IMPLEMENTADAS:
+                      </p>
+
+                      <div className="mt-3 space-y-3">
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">A. Agregado lite=true a todas las llamadas API:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• Se agregó el parámetro "lite: true" al request body del POST a /valuations</li>
+                            <li>• Esto asegura que Intelimotor procese la solicitud correctamente</li>
+                            <li>• Archivo: src/Valuation/services/valuationService.ts línea 324</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">B. Eliminados TODOS los cálculos arbitrarios:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• Se removieron completamente las 50+ líneas de código que calculaban ofertas falsas</li>
+                            <li>• Ahora el sistema SOLO acepta suggestedOffer directamente de Intelimotor</li>
+                            <li>• Si no hay suggestedOffer, se falla la valuación en lugar de inventar una oferta</li>
+                            <li>• Archivo: src/Valuation/services/valuationService.ts líneas 394-412</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">C. Proceso de valuación simplificado y correcto:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• Paso 1: POST a /valuations con lite=true</li>
+                            <li>• Paso 2: Si suggestedOffer está en la respuesta → usar ese valor ✓</li>
+                            <li>• Paso 3: Si no, hacer polling con GET /valuations/:id</li>
+                            <li>• Paso 4: Cuando suggestedOffer {'>'} 0 → usar ese valor ✓</li>
+                            <li>• Paso 5: Si después de 6 intentos no hay suggestedOffer → ERROR (no inventar oferta)</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">D. Validaciones mejoradas:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• El código ahora verifica explícitamente que suggestedOffer {'>'} 0</li>
+                            <li>• Si no se recibe suggestedOffer válido, se muestra mensaje sugiriendo versiones alternativas</li>
+                            <li>• Se loguea toda la respuesta de la API para debugging si hay problemas</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700 text-sm mt-4 font-semibold">
+                        📊 IMPACTO:
+                      </p>
+                      <ul className="ml-4 space-y-1 text-sm text-gray-600 mt-2">
+                        <li>✅ Todas las ofertas ahora provienen EXCLUSIVAMENTE de Intelimotor</li>
+                        <li>✅ Se eliminó el riesgo de hacer ofertas incorrectas que cuestan dinero real</li>
+                        <li>✅ Mayor precisión en valuaciones (datos de mercado reales)</li>
+                        <li>✅ Cumplimiento total con especificaciones de API de Intelimotor</li>
+                        <li>✅ Transparencia: El usuario sabe si su vehículo no puede ser valuado</li>
+                      </ul>
+
+                      <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <p className="text-red-800 text-sm font-semibold">
+                          ⚠️ ACCIÓN REQUERIDA:
+                        </p>
+                        <p className="text-red-700 text-sm mt-1">
+                          Este fix debe desplegarse INMEDIATAMENTE a producción dado que afecta ofertas reales con dinero real.
+                          Después del despliegue, se recomienda revisar valuaciones recientes en Airtable para validar que las ofertas sean consistentes con el mercado.
+                        </p>
+                      </div>
                     </div>
                   </li>
                 </ul>

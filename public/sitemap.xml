@@ -1,367 +1,989 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://trefa.mx/</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://trefa.mx/autos</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://trefa.mx/vender-mi-auto</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://trefa.mx/promociones</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://trefa.mx/faq</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://trefa.mx/kit-trefa</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://trefa.mx/politica-de-privacidad</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://trefa.mx/vacantes</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://trefa.mx/acceder</loc>
+    <lastmod>2025-11-02T17:51:48.625Z</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/ram-700-longhorn-cvt-2023</loc>
+    <loc>https://trefa.mx/autos/kia-forte-ex-ta-2023-1</loc>
+    <lastmod>2025-11-02T16:20:22.791532+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec8lxUbndq32ztSN/feature_image/attyshl2qm7BZlSqu.jpg</image:loc>
+      <image:title>Kia Forte EX TA en Venta</image:title>
+      <image:caption>Kia Forte EX TA - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://trefa.mx/autos/mazda-cx-5-i-sport-2024-1</loc>
+    <lastmod>2025-11-02T01:01:46.948804+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recMkla85sxdOqVhE%2Ffeature_image%2F-Mazda%20CX-5%20i%20Sport%202024%20(ID002117)-0566.jpg</image:loc>
+      <image:title>Mazda CX-5 i Sport en Venta</image:title>
+      <image:caption>Mazda CX-5 i Sport - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/chevrolet-captiva-lt-2022-9</loc>
+    <loc>https://trefa.mx/autos/honda-br-v-uniq-15l-cvt-2022-1</loc>
+    <lastmod>2025-11-02T07:19:37.617687+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recNWBhXMj623Yi8S%2Ffeature_image%2F-Honda%20BR-V%20Uniq%201.5l%20CVT%202022%20(ID002136)-4138.jpg</image:loc>
+      <image:title>Honda BR-V Uniq 1.5l CVT en Venta</image:title>
+      <image:caption>Honda BR-V Uniq 1.5l CVT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/peugeot-3008-gt-2025</loc>
+    <loc>https://trefa.mx/autos/volkswagen-tiguan-comfortline-2023-3</loc>
+    <lastmod>2025-11-01T23:11:37.007551+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recebWckJhxbKxJ5t%2Ffeature_image%2F-Volkswagen%20Tiguan%20comfortline%202023%20(ID002148)-4384.jpg</image:loc>
+      <image:title>Volkswagen Tiguan comfortline en Venta</image:title>
+      <image:caption>Volkswagen Tiguan comfortline - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/chevrolet-aveo-lt-aut-2024-3</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/peugeot-3008-gt-2024-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/jeep-renegade-latitude-2023-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-civic-i-style-cvt-20t-2018</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/volkswagen-tiguan-r-line-2022-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-sportage-ex-2020-3</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-3-hb-i-grand-touring-2021-6</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-cx-5-signature-2023-4</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/chevrolet-captiva-premier-2022-5</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/nissan-sentra-advance-cvt-2023-21</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mercedes-benz-clase-a-a200-progressive-2020-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-civic-sport-2022-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-sportage-sxl-2021-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/volkswagen-teramont-cross-sport-r-line-2024-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/peugeot-3008-allure-pack-2023</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/jeep-compass-limited-premium-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-civic-touring-cvt-2022-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mg-rx5-excite-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/peugeot-2008-gt-2024-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-city-touring-15l-2022-4</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/jeep-cherokee-overland-2019</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/nissan-sentra-advance-tm6-2023-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-cr-v-touring-15t-cvt-2021-14</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-cx-5-i-grand-touring-2025</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/land-rover-defender-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/hyundai-santa-fe-gls-premium-2018</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/volkswagen-taigun-trendline-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-civic-i-style-cvt-2019</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-hr-v-touring-20l-cvt-2021-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-3-signature-2024-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-rio-ex-2023-5</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/nissan-kicks-advance-2024-3</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/peugeot-2008-gt-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-seltos-gt-line-2023-5</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/jeep-wrangler-unlimited-sahara-2024-4</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-br-v-prime-15l-cvt-2021-6</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-3-isport-mhev-2023</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/ducati-panigale-2023</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/jeep-jt-mojave-2023-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/ram-700-laramie-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/suzuki-grand-vitara-boostergreen-glx-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-3-i-sport-2024-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-sedona-ex-2019</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-forte-ex-ta-2023-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-seltos-ex-ta-2023-5</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-rio-ex-2023-6</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/toyota-sienna-le-hibrida-2022</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/chevrolet-cheyenne-high-country-crew-cab-2023-5</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/chevrolet-aveo-ls-tm-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/honda-br-v-touring-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/nissan-frontier-se-tm-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/nissan-kicks-advance-2025</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/toyota-prius-c-2021-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/dodge-journey-gt-plus-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-cx-30-i-grand-touring-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mazda-cx-30-i-sport-2024-2</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/kia-seltos-sx-2024-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/chevrolet-suburban-lt-2019</loc>
+    <loc>https://trefa.mx/autos/suzuki-swift-glx-boosterjet-2024</loc>
+    <lastmod>2025-10-31T22:10:00.282201+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://trefa.mx/autos/suzuki-swift-glx-2022-2</loc>
+    <lastmod>2025-11-02T17:31:49.462635+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recaqCBbGpzyornSA/feature_image/attNHshWsmocqfkBL.jpg</image:loc>
+      <image:title>Suzuki Swift GLX en Venta</image:title>
+      <image:caption>Suzuki Swift GLX - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/volkswagen-taigun-trendline-2024</loc>
+    <lastmod>2025-11-02T05:43:39.211443+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recCMw07B0m7X2fVg/feature_image/attQrJz2axvtIydj0.jpg</image:loc>
+      <image:title>Volkswagen Taigun Trendline en Venta</image:title>
+      <image:caption>Volkswagen Taigun Trendline - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/recgskjaugumct6i8</loc>
+    <lastmod>2025-11-02T15:54:21.640442+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-cx-5-signature-2023-4</loc>
+    <lastmod>2025-11-02T17:15:52.891493+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recDn4WhHrJiMSbz5/feature_image/-Mazda_CX-5_Signature_2023_ID001953_-2.jpg</image:loc>
+      <image:title>Mazda CX-5 Signature en Venta</image:title>
+      <image:caption>Mazda CX-5 Signature - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-kicks-advance-2024-3</loc>
+    <lastmod>2025-11-02T17:19:29.174255+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recMa5dkJtoGje9Nb%2Ffeature_image%2F-Nissan%20Kicks%20Advance%202024%20(ID002137)-4291.jpg</image:loc>
+      <image:title>Nissan Kicks Advance en Venta</image:title>
+      <image:caption>Nissan Kicks Advance - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-versa-exclusive-cvt-2020-3</loc>
+    <lastmod>2025-11-02T17:45:07.132867+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/reca3LJdj1gA4kQA5%2Ffeature_image%2F-Nissan%20Versa%20Exclusive%20CVT%202020%20(ID002129)-0791.jpg</image:loc>
+      <image:title>Nissan Versa Exclusive CVT en Venta</image:title>
+      <image:caption>Nissan Versa Exclusive CVT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-city-touring-15l-2022-4</loc>
+    <lastmod>2025-11-02T17:24:05.345133+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recnUlbl2t7SBs5dH%2Ffeature_image%2FHonda%20City%20Touring%201.5l%202022AA-0763.jpg</image:loc>
+      <image:title>Honda City Touring 1.5l en Venta</image:title>
+      <image:caption>Honda City Touring 1.5l - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-cx-5-i-grand-touring-2025</loc>
+    <lastmod>2025-11-02T04:06:38.247119+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-cx-3-i-grand-touring-2019</loc>
+    <lastmod>2025-11-01T19:14:35.459605+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-3-signature-2024-1</loc>
+    <lastmod>2025-11-02T14:41:40.359528+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recBolkAHJ5RYrAyI/feature_image/-Mazda_Mazda_3_Signature_2024_ID001962_-2.jpg</image:loc>
+      <image:title>Mazda Mazda 3 Signature en Venta</image:title>
+      <image:caption>Mazda Mazda 3 Signature - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/chevrolet-aveo-lt-aut-2024-3</loc>
+    <lastmod>2025-11-02T17:37:08.011375+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recZrirc91kYKjrCQ/feature_image/attvECbepaz2MPUym.jpg</image:loc>
+      <image:title>Chevrolet Aveo LT Aut en Venta</image:title>
+      <image:caption>Chevrolet Aveo LT Aut - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-city-lx-mt-2019</loc>
+    <lastmod>2025-11-02T17:25:06.127838+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/peugeot-3008-gt-2024-1</loc>
+    <lastmod>2025-10-31T19:20:08.700633+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec5Y2Hc1d7D7xD7D/feature_image/-Peugeot%203008%20GT%202024%20(ID002081)-0811.jpg</image:loc>
+      <image:title>Peugeot 3008 GT en Venta</image:title>
+      <image:caption>Peugeot 3008 GT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-3-hb-i-sport-2023</loc>
+    <lastmod>2025-11-01T00:32:40.228407+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-np-300-chasis-cabina-2024</loc>
+    <lastmod>2025-11-02T16:20:08.008251+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-seltos-sx-2024-1</loc>
+    <lastmod>2025-11-01T23:17:23.6055+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/reccDP22bQcMa0jEi%2Ffeature_image%2FKia%20Seltos%20SX%202024%20(ID002149)-4519.jpg</image:loc>
+      <image:title>Kia Seltos SX en Venta</image:title>
+      <image:caption>Kia Seltos SX - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-seltos-gt-line-2023-5</loc>
+    <lastmod>2025-11-02T15:51:42.980496+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recTLAWf0ShlyzIWn/feature_image/att9G0ddnCWOfdrA2.jpg</image:loc>
+      <image:title>Kia Seltos GT line en Venta</image:title>
+      <image:caption>Kia Seltos GT line - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/toyota-prius-c-2021-2</loc>
+    <lastmod>2025-11-01T21:48:54.198296+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/hyundai-grand-i10-hb-gl-mid-2024</loc>
+    <lastmod>2025-11-02T15:50:37.741877+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-civic-i-style-cvt-20t-2018</loc>
+    <lastmod>2025-11-02T14:48:34.288149+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/reczdMUw4kiB12aSw/feature_image/-Honda%20Civic%20%20I%20Style%20CVT%202.0T%202018%20(ID002140)-0892.jpg</image:loc>
+      <image:title>Honda Civic  I Style CVT 2.0T en Venta</image:title>
+      <image:caption>Honda Civic  I Style CVT 2.0T - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/reciy1wrfjn5ktvlf</loc>
+    <lastmod>2025-10-31T20:47:42.29591+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/ducati-panigale-2023</loc>
+    <lastmod>2025-11-02T16:20:16.975123+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec461jVqFtGmqSAu/feature_image/attfKoFjRCVW3w655.jpg</image:loc>
+      <image:title>Ducati Panigale en Venta</image:title>
+      <image:caption>Ducati Panigale - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/chevrolet-captiva-premier-2022-5</loc>
+    <lastmod>2025-11-02T02:54:03.117332+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mercedes-benz-clase-a-a200-progressive-2020-2</loc>
+    <lastmod>2025-11-02T16:29:12.04018+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recoqBD6c3t9ltFCm%2Ffeature_image%2FMercedes%20Benz%20Clase%20A%20A200%20Progressive%202020%20(ID002025)-4607.jpg</image:loc>
+      <image:title>Mercedes Benz Clase A A200 Progressive en Venta</image:title>
+      <image:caption>Mercedes Benz Clase A A200 Progressive - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/land-rover-defender-2024</loc>
+    <lastmod>2025-11-02T16:27:57.557915+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec2WPNkEdtE2RFOc/feature_image/Land_Rover_Defender_X-90_2024_ID001397</image:loc>
+      <image:title>Land Rover Defender X-90 en Venta</image:title>
+      <image:caption>Land Rover Defender X-90 - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mg-rx5-excite-2024</loc>
+    <lastmod>2025-11-01T23:40:39.55508+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec0QJdc3Mv5rBK33/feature_image/MG_RX5_Excite_2024_ID001939_-_Consignacion-2.jpg</image:loc>
+      <image:title>MG RX5 Excite en Venta</image:title>
+      <image:caption>MG RX5 Excite - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-cx-30-i-sport-2024-2</loc>
+    <lastmod>2025-11-02T06:47:54.072141+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recWTIjqauzUSvf4D%2Ffeature_image%2FMazda%20CX-30%20i%20Sport%202024%20(ID002151)-4539.jpg</image:loc>
+      <image:title>Mazda CX-30 i Sport en Venta</image:title>
+      <image:caption>Mazda CX-30 i Sport - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/toyota-tacoma-edicin-especial-2021</loc>
+    <lastmod>2025-11-02T17:32:28.370303+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recpJLyVX3hrKtHnM/feature_image/-Toyota_Tacoma_Edicion_especial_2021_ID002156_-4658.jpg</image:loc>
+      <image:title>Toyota Tacoma Edición especial en Venta</image:title>
+      <image:caption>Toyota Tacoma Edición especial - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/renault-oroch-outsider-ta-2024</loc>
+    <lastmod>2025-11-02T00:53:21.35455+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recdYZPKdpfycEiA3/feature_image/attdwmtvcIDtdTAc8.jpg</image:loc>
+      <image:title>Renault Oroch Outsider TA en Venta</image:title>
+      <image:caption>Renault Oroch Outsider TA - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/seat-tarraco-fr-2021-2</loc>
+    <lastmod>2025-11-01T23:39:29.893172+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recRY5xpa8RN4nAtn/feature_image/attDWBSbzj2hwMvzN.jpg</image:loc>
+      <image:title>Seat Tarraco FR en Venta</image:title>
+      <image:caption>Seat Tarraco FR - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/suzuki-grand-vitara-boostergreen-glx-2024</loc>
+    <lastmod>2025-11-02T17:14:14.039634+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rectHmj10IQ0vlDco%2Ffeature_image%2FSuzuki%20Grand%20Vitara%20Boostergreen%20GLX%202024%20(ID002130)--0728.jpg</image:loc>
+      <image:title>Suzuki  Grand Vitara Boostergreen GLX en Venta</image:title>
+      <image:caption>Suzuki  Grand Vitara Boostergreen GLX - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/toyota-camry-se-2022-1</loc>
+    <lastmod>2025-11-02T17:12:40.615123+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recHhDcFCwGPHZib8/feature_image/-Honda%20Civic%20Sport%202022%20(ID002133)SS-4072.jpg-4234.jpg</image:loc>
+      <image:title>Toyota Camry SE en Venta</image:title>
+      <image:caption>Toyota Camry SE - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/peugeot-3008-allure-pack-2023</loc>
+    <lastmod>2025-11-02T16:22:25.879727+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recRSf79fzeisN4yn/feature_image/attirf6GqfYOCdEfk.jpg</image:loc>
+      <image:title>Peugeot 3008 Allure Pack en Venta</image:title>
+      <image:caption>Peugeot 3008 Allure Pack - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-3-isport-mhev-2023</loc>
+    <lastmod>2025-11-02T17:48:24.658425+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recxFs46jvkJshugb/feature_image/atte1Uae7DrOZzoSs.jpg</image:loc>
+      <image:title>Mazda 3i Sport en Venta</image:title>
+      <image:caption>Mazda 3i Sport - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-kicks-platinum-2023-1</loc>
+    <lastmod>2025-11-02T17:18:10.994407+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recwNvqxeOl6TzfgR%2Ffeature_image%2F-Nissan%20Kicks%20Platinum%202023%20(ID002158)-2.jpg</image:loc>
+      <image:title>Nissan Kicks Platinum en Venta</image:title>
+      <image:caption>Nissan Kicks Platinum - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/volkswagen-tiguan-comfortline-2023-4</loc>
+    <lastmod>2025-11-01T20:26:40.251684+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recRH6hluADrSRFS8/feature_image/-Volkswagen_Taigun_Highline_2023_ID002161_-1216.jpg</image:loc>
+      <image:title>Volkswagen Tiguan comfortline en Venta</image:title>
+      <image:caption>Volkswagen Tiguan comfortline - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mercedes-benz-clase-gle43-amg-coup-2019-1</loc>
+    <lastmod>2025-11-02T03:58:49.944691+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recWFHh8Y5t4Ksbcy/feature_image/Mercedes_Benz_Clase_GLE43_AMG_Coupe_2019_ID001638_-20.jpg</image:loc>
+      <image:title>Mercedes Benz Clase GLE43 AMG Coupé en Venta</image:title>
+      <image:caption>Mercedes Benz Clase GLE43 AMG Coupé - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/jeep-compass-limited-premium-2024</loc>
+    <lastmod>2025-11-02T16:01:09.033611+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/reckoDciscOUKGaVZ/feature_image/atttrDiddLd6Xjjh7.jpg</image:loc>
+      <image:title>Jeep Compass Limited Premium en Venta</image:title>
+      <image:caption>Jeep Compass Limited Premium - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-cx-9-signature-2023-2</loc>
+    <lastmod>2025-11-02T14:03:40.880732+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recrAk0ELM9CdPQkZ%2Ffeature_image%2F-Mazda%20CX-9%20Signature%202023%20(ID002124)-2.jpg</image:loc>
+      <image:title>Mazda CX-9 Signature en Venta</image:title>
+      <image:caption>Mazda CX-9 Signature - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-sportage-sxl-2021-1</loc>
+    <lastmod>2025-11-02T04:06:58.085203+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recUY5KCqYrD0AhWb/feature_image/-Kia%20Sportage%20SXL%202021%20(ID002141)-4126.jpg</image:loc>
+      <image:title>Kia Sportage SXL en Venta</image:title>
+      <image:caption>Kia Sportage SXL - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-sorento-lx-2019</loc>
+    <lastmod>2025-11-02T16:54:11.019505+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec01cf61g9g6SkrQ/feature_image/-Kia_Sorento_LX_2019_ID002163_-4679.jpg</image:loc>
+      <image:title>Kia Sorento LX en Venta</image:title>
+      <image:caption>Kia Sorento LX - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-forte-lx-at-2022</loc>
+    <lastmod>2025-11-01T20:02:39.117382+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec9eKQJ5LCq6olCY/feature_image/-Kia%20Forte%20LX%20AT%202022%20(ID002154)-4363.jpg</image:loc>
+      <image:title>Kia Forte LX AT en Venta</image:title>
+      <image:caption>Kia Forte LX AT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-seltos-ex-ta-2023-5</loc>
+    <lastmod>2025-11-02T17:18:02.895765+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec3XOf1mVWGpvS7W/feature_image/att5f8603WJMnVbCD.jpg</image:loc>
+      <image:title>Kia Seltos EX T/A en Venta</image:title>
+      <image:caption>Kia Seltos EX T/A - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-city-prime-15l-2024</loc>
+    <lastmod>2025-11-02T15:51:22.141471+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/toyota-sienna-le-hibrida-2022</loc>
+    <lastmod>2025-11-02T17:03:25.229642+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recqpBdcIvtyaaA1x/feature_image/attIMgYkUpORfgNg0.jpg</image:loc>
+      <image:title>Toyota Sienna LE hibrida en Venta</image:title>
+      <image:caption>Toyota Sienna LE hibrida - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-civic-sport-2022-2</loc>
+    <lastmod>2025-11-02T17:46:53.591441+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recKufVoV88YwEVly/feature_image/-Honda%20Civic%20Sport%202022%20(ID002133)SS-4072.jpg</image:loc>
+      <image:title>Honda Civic Sport en Venta</image:title>
+      <image:caption>Honda Civic Sport - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/volkswagen-taigun-highline-2023-3</loc>
+    <lastmod>2025-11-02T14:15:39.794087+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recjH5N9UniWov1bq/feature_image/-Volkswagen_Taigun_Highline_2023_ID002161_-1216.jpg</image:loc>
+      <image:title>Volkswagen Taigun Highline en Venta</image:title>
+      <image:caption>Volkswagen Taigun Highline - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/volkswagen-taigun-highline-2023-2</loc>
+    <lastmod>2025-11-02T16:48:40.165129+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rectOBMQ0btoASBjf%2Ffeature_image/attjAY1SrRo5S0IrF.jpg</image:loc>
+      <image:title>Volkswagen Taigun Highline en Venta</image:title>
+      <image:caption>Volkswagen Taigun Highline - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/ram-700-laramie-2024</loc>
+    <lastmod>2025-11-02T17:08:16.482724+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recvyBNSLeUWpe8An/feature_image/RAM%20700%20Laramie%202024%20(ID002080)-2-5.jpg</image:loc>
+      <image:title>RAM 700 Laramie en Venta</image:title>
+      <image:caption>RAM 700 Laramie - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-sentra-advance-cvt-2023-21</loc>
+    <lastmod>2025-11-02T16:19:38.600975+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recLwhITfkTBncScp/feature_image/Nissan%20Sentra%20Advance%20CVT%202023%20-4153.jpg</image:loc>
+      <image:title>Nissan Sentra Advance CVT en Venta</image:title>
+      <image:caption>Nissan Sentra Advance CVT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/peugeot-3008-gt-2025</loc>
+    <lastmod>2025-11-02T04:03:16.290654+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rechygKZaurVT2q40/feature_image/Peugeot%203008%20GT%202025%20(ID002134)-4194.jpg</image:loc>
+      <image:title>Peugeot 3008 GT en Venta</image:title>
+      <image:caption>Peugeot 3008 GT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-cx-30-i-grand-touring-2024</loc>
+    <lastmod>2025-11-02T17:14:23.314735+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec36FxaY4y3viIaB%2Ffeature_image%2FMazda%20CX-30%20i%20Grand%20Touring%202024%20(ID002147)-ww-4442.jpg</image:loc>
+      <image:title>Mazda CX-30 i Grand Touring en Venta</image:title>
+      <image:caption>Mazda CX-30 i Grand Touring - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-rio-ex-2023-5</loc>
+    <lastmod>2025-11-02T15:51:12.149536+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://trefa.mx/autos/bmw-x6-40i-m-sport-2021</loc>
+    <lastmod>2025-11-01T19:00:13.243227+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recg2RsbJxK9kEWIX/feature_image/attbhHYCxuIXGnFoq.jpg</image:loc>
+      <image:title>BMW X6 40i M Sport en Venta</image:title>
+      <image:caption>BMW X6 40i M Sport - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/chevrolet-cheyenne-high-country-crew-cab-2023-5</loc>
+    <lastmod>2025-11-02T16:22:21.765681+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recQv6WDlPvt81dQi/feature_image/atteXnKnoHQ9yDY8w.jpg</image:loc>
+      <image:title>Chevrolet Cheyenne High Country Crew Cab en Venta</image:title>
+      <image:caption>Chevrolet Cheyenne High Country Crew Cab - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/dodge-journey-gt-plus-2024</loc>
+    <lastmod>2025-11-02T17:23:52.748314+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recFAjVbNYkWQaktf/feature_image/Dodge_Journey_GT_Plus_2024_ID001815_.jpg</image:loc>
+      <image:title>Dodge Journey GT Plus en Venta</image:title>
+      <image:caption>Dodge Journey GT Plus - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-forte-gt-line-2024-1</loc>
+    <lastmod>2025-11-02T16:20:40.438354+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/volkswagen-tiguan-comfortline-2023-3</loc>
+    <loc>https://trefa.mx/autos/nissan-x-trail-sense-2-filas-2020-2</loc>
+    <lastmod>2025-11-02T17:45:02.900365+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/volkswagen-teramont-cross-sport-r-line-2024-1</loc>
+    <lastmod>2025-11-01T19:43:21.473438+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recuy14wmcrZesRJC/feature_image/attUqlQBQYuj5vTps.jpg</image:loc>
+      <image:title>Volkswagen Teramont Cross Sport R-Line en Venta</image:title>
+      <image:caption>Volkswagen Teramont Cross Sport R-Line - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-x-trail-advance-2-filas-2020-2</loc>
+    <lastmod>2025-11-02T00:47:53.565869+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/peugeot-2008-gt-2024</loc>
+    <lastmod>2025-11-02T02:51:12.10304+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec9zbIBqzKf4rTPj/feature_image/attJHbN2fApXnLwsV.jpg</image:loc>
+      <image:title>Peugeot 2008 GT en Venta</image:title>
+      <image:caption>Peugeot 2008 GT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-br-v-touring-2024</loc>
+    <lastmod>2025-11-02T04:03:13.900842+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec0JJni3MFfixrF0/feature_image/attHBJOAq5FvVrUkV.jpg</image:loc>
+      <image:title>Honda  BR-V Touring en Venta</image:title>
+      <image:caption>Honda  BR-V Touring - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-sportage-ex-2020-3</loc>
+    <lastmod>2025-11-02T09:55:24.341092+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recvWOWItP7InvYZj%2Ffeature_image%2F-Kia%20Sportage%20EX%202020%20(ID002139)-4319.jpg</image:loc>
+      <image:title>Kia Sportage EX en Venta</image:title>
+      <image:caption>Kia Sportage EX - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/chevrolet-aveo-ls-tm-2022</loc>
+    <lastmod>2025-11-01T20:34:26.367234+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/kia-seltos-ex-pack-ta-2022</loc>
+    <lastmod>2025-11-02T16:55:03.061228+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recYkQzpNjVP1NTnx%2Ffeature_image%2FKia%20Seltos%20EX%20Pack%20T-A%202022%20(ID002159)--4628.jpg</image:loc>
+      <image:title>Kia Seltos EX Pack T/A en Venta</image:title>
+      <image:caption>Kia Seltos EX Pack T/A - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mitsubishi-xpander-cross-2023</loc>
+    <lastmod>2025-11-02T00:38:44.096356+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recBzY6zo8yMEYth0%2Ffeature_image%2FMitsubishi%20Xpander%20Cross%202023%20(ID002157)-4498.jpg</image:loc>
+      <image:title>Mitsubishi Xpander Cross en Venta</image:title>
+      <image:caption>Mitsubishi Xpander Cross - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/audi-q5-select-2020</loc>
+    <lastmod>2025-11-02T17:09:46.264327+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recJOeGgcKT3jTwcF/feature_image/Audi_Q5_Select_2020_ID001843_-_Consignacion-1.jpg</image:loc>
+      <image:title>Audi Q5 Select en Venta</image:title>
+      <image:caption>Audi Q5 Select - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-3-i-sport-2024-2</loc>
+    <lastmod>2025-11-02T14:38:23.695295+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recIri2UX1xRt70IU/feature_image/attcs3j4lQIvUybFR.jpg</image:loc>
+      <image:title>Mazda 3i Sport en Venta</image:title>
+      <image:caption>Mazda 3i Sport - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/toyota-sienna-xle-8-pasajeros-2024</loc>
+    <lastmod>2025-11-02T02:02:24.416597+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recyk2MZbyX5ILwGq/feature_image/attqlDnOzMf3RJn9r.jpg</image:loc>
+      <image:title>Toyota Sienna XLE 8 Pasajeros en Venta</image:title>
+      <image:caption>Toyota Sienna XLE 8 Pasajeros - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/chevrolet-tracker-lt-2023</loc>
+    <lastmod>2025-11-02T17:31:03.159661+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/jeep-jt-mojave-2023-2</loc>
+    <lastmod>2025-11-02T16:33:56.427415+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recHiGnDU0v36ioCJ/feature_image/Jeep_JT_Mojave_2023_ID001947_-2.jpg</image:loc>
+      <image:title>Jeep JT Mojave en Venta</image:title>
+      <image:caption>Jeep JT Mojave - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/mazda-3-hb-i-grand-touring-2021-6</loc>
+    <lastmod>2025-11-02T17:23:02.230248+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recvcuDdxBBSfFqmF/feature_image/attbPgxMZPbWX4oxK.jpg</image:loc>
+      <image:title>Mazda Mazda 3 HB i Grand Touring en Venta</image:title>
+      <image:caption>Mazda Mazda 3 HB i Grand Touring - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-accord-touring-2022</loc>
+    <lastmod>2025-11-01T23:53:56.869078+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec9gHhJv1ig85OyJ/feature_image/-Honda_Accord_Touring_2022_ID002160_-4587.jpg</image:loc>
+      <image:title>Honda Accord Touring en Venta</image:title>
+      <image:caption>Honda Accord Touring - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://trefa.mx/autos/kia-rio-l-at-2023-3</loc>
+    <lastmod>2025-11-02T16:54:03.251378+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recBmq7xszIqfndJ0/feature_image/-Kia%20Rio%20L%20A-T%202023%20(ID002132)-4177.jpg</image:loc>
+      <image:title>Kia Rio L A/T en Venta</image:title>
+      <image:caption>Kia Rio L A/T - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-sentra-advance-cvt-2022-1</loc>
+    <lastmod>2025-11-01T22:07:25.515206+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/honda-city-prime-15l-2024</loc>
+    <loc>https://trefa.mx/autos/jeep-renegade-latitude-2023-2</loc>
+    <lastmod>2025-11-02T01:47:30.768218+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recLtWRxCm2OZzE5d/feature_image/-Jeep%20Renegade%20Latitude%202023%20(ID002135)-0911.jpg</image:loc>
+      <image:title>Jeep Renegade Latitude en Venta</image:title>
+      <image:caption>Jeep Renegade Latitude - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/ram-700-longhorn-cvt-2023</loc>
+    <lastmod>2025-11-02T04:48:00.818149+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recaJbw9Ug0v57kd0/feature_image/RAM%20Longhorn%20CVT%202023%20ees22(ID002138)ww-2000.jpg</image:loc>
+      <image:title>RAM 700 Longhorn CVT en Venta</image:title>
+      <image:caption>RAM 700 Longhorn CVT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-hr-v-touring-20l-cvt-2021-2</loc>
+    <lastmod>2025-11-02T07:26:25.170856+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recVOOY9ykqlepl9E%2Ffeature_image%2FHonda%20HR-V%20Touring%2C%202.0l%20CVT%202021%20(ID002144)-4404.jpg</image:loc>
+      <image:title>Honda HR-V Touring, 2.0l CVT en Venta</image:title>
+      <image:caption>Honda HR-V Touring, 2.0l CVT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-kicks-advance-2025</loc>
+    <lastmod>2025-11-02T17:16:29.433686+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/rec3eKemHT0e67ve4/feature_image/attbL9ps7jmkrVvK8.jpg</image:loc>
+      <image:title>Nissan Kicks Advance en Venta</image:title>
+      <image:caption>Nissan Kicks Advance - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/nissan-x-trail-platinum-plus-cvt-2023</loc>
+    <lastmod>2025-11-02T17:33:49.527998+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/mazda-cx-9-signature-2023-2</loc>
+    <loc>https://trefa.mx/autos/jeep-wrangler-unlimited-sahara-2024-4</loc>
+    <lastmod>2025-11-02T02:07:17.539716+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recGg1feqFi1JUrnC/feature_image/attSmpO7ywn7ID9Be.jpg</image:loc>
+      <image:title>Jeep Wrangler Unlimited Sahara en Venta</image:title>
+      <image:caption>Jeep Wrangler Unlimited Sahara - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/honda-br-v-uniq-15l-cvt-2022-1</loc>
+    <loc>https://trefa.mx/autos/hyundai-santa-fe-gls-premium-2018</loc>
+    <lastmod>2025-11-02T17:30:10.506318+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recSlSY0CVhguBlT4/feature_image/Hyundai_Santa_Fe_GLS_Premium_2018_ID001674_--1.jpg</image:loc>
+      <image:title>Hyundai Santa Fe GLS Premium en Venta</image:title>
+      <image:caption>Hyundai Santa Fe GLS Premium - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/honda-civic-i-style-cvt-20t-2022</loc>
+    <lastmod>2025-11-02T15:05:33.506901+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://trefa.mx/autos/mitsubishi-l200-glx-cabina-doble-tm-2023-7</loc>
+    <lastmod>2025-11-02T16:16:06.594411+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recdpzOtZG0U7vo9g%2Ffeature_image%2FMitsubishi%20L200%20GLX%20Cabina%20Doble%20TM%202023%20(ID002127)-4160.jpg</image:loc>
+      <image:title>Mitsubishi L200 GLX Cabina Doble TM en Venta</image:title>
+      <image:caption>Mitsubishi L200 GLX Cabina Doble TM - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://trefa.mx/autos/recousy2moaszgxsu</loc>
+    <lastmod>2025-11-02T06:35:22.709237+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/mazda-cx-5-i-grand-touring-2021-16</loc>
+    <loc>https://trefa.mx/autos/nissan-versa-sense-tm5-2024</loc>
+    <lastmod>2025-11-02T08:35:48.500624+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/nissan-versa-exclusive-cvt-2020-3</loc>
+    <loc>https://trefa.mx/autos/peugeot-2008-gt-2024-1</loc>
+    <lastmod>2025-11-02T06:43:33.632905+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recyodxwe24Ae6WSX/feature_image/attXSm0zt1EbBSkDp.jpg</image:loc>
+      <image:title>Peugeot 2008 GT en Venta</image:title>
+      <image:caption>Peugeot 2008 GT - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/honda-br-v-prime-15l-cvt-2019-4</loc>
+    <loc>https://trefa.mx/autos/jeep-cherokee-overland-2019</loc>
+    <lastmod>2025-11-02T17:48:18.639014+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recUFoFe6ezAJyR2N/feature_image/att5mXovPWQzrDXpQ.jpg</image:loc>
+      <image:title>Jeep Cherokee Overland en Venta</image:title>
+      <image:caption>Jeep Cherokee Overland - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/suzuki-vitara-gle-2022-1</loc>
+    <loc>https://trefa.mx/autos/kia-forte-lx-tm-2022-2</loc>
+    <lastmod>2025-11-02T17:43:07.422619+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recjTWQkmilHJixS4/feature_image/-Kia_Forte_LX_TM_2022_ID002169_-1238.jpg</image:loc>
+      <image:title>Kia Forte LX TM en Venta</image:title>
+      <image:caption>Kia Forte LX TM - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://trefa.mx/autos/seat-tarraco-fr-2021-2</loc>
+    <loc>https://trefa.mx/autos/toyota-yaris-s-tm-2020-1</loc>
+    <lastmod>2025-11-02T17:25:18.249383+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/nissan-kicks-exclusive-2019</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/toyota-camry-se-2022-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/renault-oroch-outsider-ta-2024</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/jeep-renegade-latitude-2023-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/mercedes-benz-clase-gle43-amg-coup-2019-1</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/renault-koleos-iconic-2024-3</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://trefa.mx/autos/toyota-sienna-xle-8-pasajeros-2024</loc>
-    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/recXcO41j179c8u9g%2Ffeature_image%2F-Toyota%20Yaris%20S%20TM%202020%20(ID002152)-4423.jpg</image:loc>
+      <image:title>Toyota Yaris S TM en Venta</image:title>
+      <image:caption>Toyota Yaris S TM - TREFA | Agencia de Autos Seminuevos</image:caption>
+    </image:image>
   </url>
 </urlset>

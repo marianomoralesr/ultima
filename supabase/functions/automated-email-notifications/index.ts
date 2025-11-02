@@ -321,6 +321,68 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
         </html>
       `;
 
+    case 'application_submitted':
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8">${baseStyles}</head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">¡Recibimos tu Solicitud de Financiamiento!</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, gracias por confiar en Autos TREFA para financiar tu próximo vehículo.</p>
+
+              <div class="card">
+                <div class="card-title">Detalles de tu Solicitud</div>
+                <div class="card-content">
+                  ${data.vehicleTitle ? `<p><strong>Vehículo de Interés:</strong> ${data.vehicleTitle}</p>` : ''}
+                  <p><strong>Fecha de Solicitud:</strong> ${new Date(data.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <p><strong>Estado:</strong> En Revisión</p>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">¿Qué Sigue?</h2>
+              <ul>
+                <li><strong>Revisión de Documentos:</strong> Nuestro equipo revisará tu solicitud en las próximas 24-48 horas</li>
+                <li><strong>Contacto Personalizado:</strong> Un asesor se pondrá en contacto contigo para cualquier aclaración</li>
+                <li><strong>Aprobación:</strong> Te notificaremos el resultado de tu solicitud</li>
+                <li><strong>Cierre del Trato:</strong> Una vez aprobado, coordinaremos la entrega de tu vehículo</li>
+              </ul>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${data.applicationUrl}" class="button">Ver mi Solicitud</a>
+              </div>
+
+              <p style="font-size: 14px; color: #556675; background: #DCFCE7; padding: 16px; border-radius: 8px; border-left: 4px solid #16A34A;">
+                ✅ <strong>Tu solicitud está en proceso</strong><br>
+                Recibirás una respuesta en un máximo de 48 horas hábiles.
+              </p>
+
+              <div class="divider"></div>
+
+              <p style="font-size: 14px; color: #556675; text-align: center;">
+                <strong>¿Tienes preguntas?</strong><br>
+                Contáctanos por WhatsApp o responde este correo. Estamos para servirte.
+              </p>
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
+              <p class="footer-text">Agencia Automotriz de Servicio Personalizado</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Autos TREFA. Todos los derechos reservados.</p>
+              <div class="unsubscribe">
+                <a href="${unsubscribeLink}">Cancelar suscripción</a>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
     case 'sales_agent_digest':
       return `
         <!DOCTYPE html>
@@ -502,13 +564,18 @@ serve(async (req) => {
             );
 
             // Log email to database
-            await supabase.from('user_email_notifications').insert({
+            const { error: logError } = await supabase.from('user_email_notifications').insert({
               user_id: profile.id,
               email_type: 'incomplete_application',
               subject: 'Notificaciones | TREFA - Completa tu solicitud de financiamiento',
               sent_at: new Date().toISOString(),
               status: 'sent'
             });
+
+            if (logError) {
+              console.error('Failed to log email notification:', logError);
+              results.errors.push(`Failed to log email to ${profile.email}: ${logError.message}`);
+            }
 
             results.incompleteApplications++;
           }
@@ -518,7 +585,82 @@ serve(async (req) => {
       }
     }
 
-    // 2. Find users with incomplete profiles (signed up > 24 hours ago, no name)
+    // 2. Send confirmation emails for recently submitted applications (last 24 hours, not yet notified)
+    const { data: submittedApps, error: submittedError } = await supabase
+      .from('financing_applications')
+      .select(`
+        id,
+        user_id,
+        car_info,
+        created_at,
+        profiles:user_id (
+          id,
+          first_name,
+          last_name,
+          email
+        )
+      `)
+      .eq('status', 'submitted')
+      .gte('created_at', yesterday.toISOString());
+
+    if (!submittedError && submittedApps) {
+      for (const app of submittedApps) {
+        try {
+          const profile = Array.isArray(app.profiles) ? app.profiles[0] : app.profiles;
+          if (profile?.email) {
+            // Check if we've already sent confirmation email for this application
+            const { data: existingEmail } = await supabase
+              .from('user_email_notifications')
+              .select('id')
+              .eq('user_id', profile.id)
+              .eq('email_type', 'application_submitted')
+              .eq('metadata->>application_id', app.id)
+              .single();
+
+            // Skip if already sent
+            if (existingEmail) {
+              continue;
+            }
+
+            const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Cliente';
+            const htmlContent = getEmailTemplate('application_submitted', {
+              clientName,
+              vehicleTitle: app.car_info?._vehicleTitle || null,
+              createdAt: app.created_at,
+              applicationUrl: `${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/mis-solicitudes`
+            });
+
+            await sendBrevoEmail(
+              profile.email,
+              clientName,
+              'Confirmación | TREFA - Recibimos tu Solicitud de Financiamiento',
+              htmlContent
+            );
+
+            // Log email to database
+            const { error: logError } = await supabase.from('user_email_notifications').insert({
+              user_id: profile.id,
+              email_type: 'application_submitted',
+              subject: 'Confirmación | TREFA - Recibimos tu Solicitud de Financiamiento',
+              sent_at: new Date().toISOString(),
+              status: 'sent',
+              metadata: { application_id: app.id }
+            });
+
+            if (logError) {
+              console.error('Failed to log email notification:', logError);
+              results.errors.push(`Failed to log email to ${profile.email}: ${logError.message}`);
+            }
+
+            results.incompleteApplications++; // Using same counter for now
+          }
+        } catch (err: any) {
+          results.errors.push(`Error sending submitted app confirmation to ${app.profiles?.email}: ${err.message}`);
+        }
+      }
+    }
+
+    // 3. Find users with incomplete profiles (signed up > 24 hours ago, no name)
     const { data: incompleteProfiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, email, first_name, last_name, created_at')
@@ -545,13 +687,18 @@ serve(async (req) => {
             );
 
             // Log email to database
-            await supabase.from('user_email_notifications').insert({
+            const { error: logError } = await supabase.from('user_email_notifications').insert({
               user_id: profile.id,
               email_type: 'incomplete_profile',
               subject: 'Notificaciones | TREFA - Completa tu perfil',
               sent_at: new Date().toISOString(),
               status: 'sent'
             });
+
+            if (logError) {
+              console.error('Failed to log email notification:', logError);
+              results.errors.push(`Failed to log incomplete profile email to ${profile.email}: ${logError.message}`);
+            }
 
             results.incompleteProfiles++;
           }
@@ -606,13 +753,18 @@ serve(async (req) => {
             );
 
             // Log email to database
-            await supabase.from('user_email_notifications').insert({
+            const { error: logError } = await supabase.from('user_email_notifications').insert({
               user_id: profile.id,
               email_type: 'purchase_lead_followup',
               subject: `Notificaciones | TREFA - Queremos Comprar tu ${vehicleInfo}`,
               sent_at: new Date().toISOString(),
               status: 'sent'
             });
+
+            if (logError) {
+              console.error('Failed to log email notification:', logError);
+              results.errors.push(`Failed to log purchase lead email to ${profile.email}: ${logError.message}`);
+            }
 
             results.purchaseLeads++;
           }
@@ -691,15 +843,21 @@ serve(async (req) => {
                 htmlContent
               );
 
-              // Log email to database (with or without user_id)
-              await supabase.from('user_email_notifications').insert({
-                user_id: userProfile?.id || null,
-                recipient_email: clientEmail,
-                email_type: 'valuation_followup',
-                subject: `Notificaciones | TREFA - ¿Listo para Vender tu ${vehicleInfo}?`,
-                sent_at: new Date().toISOString(),
-                status: 'sent'
-              });
+              // Log email to database (only if user_id exists - table requires NOT NULL user_id)
+              if (userProfile?.id) {
+                const { error: logError } = await supabase.from('user_email_notifications').insert({
+                  user_id: userProfile.id,
+                  email_type: 'valuation_followup',
+                  subject: `Notificaciones | TREFA - ¿Listo para Vender tu ${vehicleInfo}?`,
+                  sent_at: new Date().toISOString(),
+                  status: 'sent'
+                });
+
+                if (logError) {
+                  console.error('Failed to log email notification:', logError);
+                  results.errors.push(`Failed to log valuation email to ${clientEmail}: ${logError.message}`);
+                }
+              }
 
               results.valuationLeads++;
             }

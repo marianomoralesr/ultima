@@ -210,7 +210,7 @@ const AnimatedHeader: React.FC<{ title: React.ReactNode; subtitle: string }> = (
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
-      <h2 className="text-5xl lg:text-6xl font-black tracking-tight text-gray-900 leading-snug lg:leading-tight">
+      <h2 className="text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-snug lg:leading-tight">
         {title}
       </h2>
       <p className="mt-4 text-lg max-w-3xl mx-auto leading-relaxed">{subtitle}</p>
@@ -513,7 +513,7 @@ const CTACardsSection: React.FC = () => {
         <div className="bg-trefa-bgradient-down text-white rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
           <div className="p-4 md:p-12 flex flex-col md:flex-row md:items-center justify-between">
             <div className="relative z-10 text-center md:text-left md:w-1/2 lg:w-3/5">
-              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-black">Conoce nuestro inventario</AnimatedHeading>
+              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-bold">Conoce nuestro inventario</AnimatedHeading>
               <p className="mt-4 text-lg text-gray-300">
                 Autos seminuevos seleccionados cuidadosamente para ti.
               </p>
@@ -539,7 +539,7 @@ const CTACardsSection: React.FC = () => {
           {/* Sell Car Card */}
           <div className="bg-trefa-bgradient-right text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[20rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <div className="relative z-10">
-              <AnimatedHeading as="h3" className="text-4xl font-black">¿Quieres vender tu auto?</AnimatedHeading>
+              <AnimatedHeading as="h3" className="text-4xl font-bold">¿Quieres vender tu auto?</AnimatedHeading>
               <p className="mt-2 text-gray-300">
                 Recibe una oferta por tu auto en un proceso rápido y transparente.
               </p>
@@ -561,7 +561,7 @@ const CTACardsSection: React.FC = () => {
           {/* Contact Advisor Card */}
           <div className="bg-trefa-bgradient-left text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[20rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <div className="relative z-10">
-              <AnimatedHeading as="h3" className="text-4xl font-black">Hablar con un asesor</AnimatedHeading>
+              <AnimatedHeading as="h3" className="text-4xl font-bold">Hablar con un asesor</AnimatedHeading>
               <p className="mt-2 text-gray-300">
                 Obtén una asesoría personalizada de un experto de nuestro equipo.
               </p>
@@ -587,7 +587,7 @@ const CTACardsSection: React.FC = () => {
         <div className="bg-trefa-bgradient-up text-white border-xl rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
           <div className="p-6 md:p-14 flex flex-col md:flex-row md:items-center justify-between">
             <div className="relative z-10 text-center md:text-left md:w-1/2 lg:w-3/5">
-              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-black">Tramita tu crédito en línea</AnimatedHeading>
+              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-bold">Tramita tu crédito en línea</AnimatedHeading>
               <p className="mt-4 text-lg text-gray-100">
                 Nuevo portal de financiamiento con respuesta en 24 horas o menos.
               </p>

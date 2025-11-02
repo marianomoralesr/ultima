@@ -6,7 +6,8 @@ interface EmailNotificationsHistoryProps {
     recipientEmail?: string;
 }
 
-const BREVO_API_KEY = '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';
+// Brevo API key should be stored in environment variables in production
+const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY || '';
 
 const EmailNotificationsHistory: React.FC<EmailNotificationsHistoryProps> = ({ userId, recipientEmail }) => {
     const [emails, setEmails] = useState<any[]>([]);

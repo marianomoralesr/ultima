@@ -218,6 +218,91 @@
         </div>
 
         <div class="content">
+            <!-- Version 1.3.1 - CRITICAL FIX -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.3.1</span>
+                    <span class="version-date">2 de Noviembre, 2025</span>
+                    <span class="badge badge-fix" style="margin-left: 10px;">🚨 CORRECCIÓN CRÍTICA</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección Crítica</span>
+                        <span>Sistema de Valuación con Intelimotor</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <div class="change-icon">💰</div>
+                            <div class="change-text">
+                                <strong>CRÍTICO: Corregidas ofertas incorrectas en valuaciones de vehículos</strong>
+                                <p class="change-description">
+                                    <strong>⚠️ PROBLEMA IDENTIFICADO:</strong><br>
+                                    El sistema estaba generando ofertas INCORRECTAS que no provenían de la API de Intelimotor, causando pérdidas económicas reales a la empresa. Se detectaron los siguientes problemas críticos:<br><br>
+
+                                    <strong>1. Faltaba el parámetro lite=true (REQUERIDO):</strong><br>
+                                    • La API de Intelimotor requiere el parámetro lite=true en todas las solicitudes de valuación<br>
+                                    • Este parámetro NO estaba siendo enviado en ninguna llamada a la API<br>
+                                    • Sin lite=true, la API puede devolver datos incompletos o incorrectos<br><br>
+
+                                    <strong>2. Cálculos arbitrarios generaban ofertas falsas:</strong><br>
+                                    • Si no se recibía suggestedOffer de Intelimotor, el sistema calculaba ofertas usando fórmulas arbitrarias:<br>
+                                    &nbsp;&nbsp;- avgMarketValue - $5,000<br>
+                                    &nbsp;&nbsp;- (lowMarketValue + highMarketValue) / 2 - $5,000<br>
+                                    &nbsp;&nbsp;- lowMarketValue - $7,500<br>
+                                    &nbsp;&nbsp;- highMarketValue - $15,000<br>
+                                    • Estas ofertas NO venían de Intelimotor y eran INVENTADAS por el código<br>
+                                    • Esto causaba ofertas incorrectas que afectaban el negocio directamente<br><br>
+
+                                    <strong>3. Se usaba ofertaAutomatica como respaldo:</strong><br>
+                                    • El sistema intentaba usar ofertaAutomatica cuando no había suggestedOffer<br>
+                                    • Según instrucciones, SOLO debemos usar suggestedOffer<br><br>
+
+                                    <strong>✅ SOLUCIONES IMPLEMENTADAS:</strong><br><br>
+
+                                    <strong>A. Agregado lite=true a todas las llamadas API:</strong><br>
+                                    • Se agregó el parámetro "lite: true" al request body del POST a /valuations<br>
+                                    • Esto asegura que Intelimotor procese la solicitud correctamente<br>
+                                    • Archivo: src/Valuation/services/valuationService.ts línea 324<br><br>
+
+                                    <strong>B. Eliminados TODOS los cálculos arbitrarios:</strong><br>
+                                    • Se removieron completamente las 50+ líneas de código que calculaban ofertas falsas<br>
+                                    • Ahora el sistema SOLO acepta suggestedOffer directamente de Intelimotor<br>
+                                    • Si no hay suggestedOffer, se falla la valuación en lugar de inventar una oferta<br>
+                                    • Archivo: src/Valuation/services/valuationService.ts líneas 394-412<br><br>
+
+                                    <strong>C. Proceso de valuación simplificado y correcto:</strong><br>
+                                    • Paso 1: POST a /valuations con lite=true<br>
+                                    • Paso 2: Si suggestedOffer está en la respuesta → usar ese valor ✓<br>
+                                    • Paso 3: Si no, hacer polling con GET /valuations/:id<br>
+                                    • Paso 4: Cuando suggestedOffer > 0 → usar ese valor ✓<br>
+                                    • Paso 5: Si después de 6 intentos no hay suggestedOffer → ERROR (no inventar oferta)<br><br>
+
+                                    <strong>D. Validaciones mejoradas:</strong><br>
+                                    • El código ahora verifica explícitamente que suggestedOffer > 0<br>
+                                    • Si no se recibe suggestedOffer válido, se muestra mensaje al usuario sugiriendo versiones alternativas<br>
+                                    • Se loguea toda la respuesta de la API para debugging si hay problemas<br><br>
+
+                                    <strong>📊 IMPACTO:</strong><br>
+                                    • ✅ Todas las ofertas ahora provienen EXCLUSIVAMENTE de Intelimotor<br>
+                                    • ✅ Se eliminó el riesgo de hacer ofertas incorrectas que cuestan dinero real<br>
+                                    • ✅ Mayor precisión en valuaciones (datos de mercado reales)<br>
+                                    • ✅ Cumplimiento total con especificaciones de API de Intelimotor<br>
+                                    • ✅ Transparencia: El usuario sabe si su vehículo no puede ser valuado<br><br>
+
+                                    <strong>🔍 ARCHIVOS MODIFICADOS:</strong><br>
+                                    • src/Valuation/services/valuationService.ts (líneas 324, 336-352, 375-381, 394-412, 415)<br><br>
+
+                                    <strong>⚠️ ACCIÓN REQUERIDA:</strong><br>
+                                    Este fix debe desplegarse INMEDIATAMENTE a producción dado que afecta ofertas reales con dinero real.<br>
+                                    Después del despliegue, se recomienda revisar valuaciones recientes en Airtable para validar que las ofertas sean consistentes con el mercado.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Version 1.3.0 - Current -->
             <div class="version">
                 <div class="version-header">

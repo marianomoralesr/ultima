@@ -149,8 +149,8 @@ const NewHeroSection: React.FC = () => {
         <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-trefa-blue/10 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8 mt-9 lg:mb-10">
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-gray-900 leading-none sm:leading-tight animate-fade-in-down">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10 mt-12 lg:mb-12">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight sm:leading-tight animate-fade-in-down">
           Encuentra tu próximo auto
         </h1>
       </div>

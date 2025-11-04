@@ -231,7 +231,7 @@ const Application: React.FC = () => {
     };
 
     const steps = [
-        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios', ...(isMarried ? ['spouse_full_name'] : [])] },
+        { title: 'Personal', icon: User, fields: ['civil_status', 'current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios', ...(isMarried ? ['spouse_full_name'] : [])] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },
@@ -717,6 +717,13 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
         }
     }, [profile, setValue, useDifferentAddress, trigger]);
 
+    useEffect(() => {
+        // Pre-populate civil_status from profile if not already set
+        if (profile?.civil_status) {
+            setValue('civil_status', profile.civil_status, { shouldValidate: true });
+        }
+    }, [profile, setValue]);
+
     return (
     <div className="space-y-6">
         <h2 className="text-lg font-semibold">Paso 1: Confirma tus Datos y Domicilio</h2>
@@ -726,6 +733,8 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
                 Tu RFC calculado es: <strong className="font-mono">{profile?.rfc || 'N/A'}</strong>
             </p>
         </div>
+
+        <FormRadio control={control} name="civil_status" label="Estado Civil" options={['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión Libre']} error={errors.civil_status?.message} />
         
         <div className="space-y-4 p-4 border rounded-lg">
              <div className="flex items-start">

@@ -67,9 +67,9 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
 
     // Get spouse name (only if married)
     const getSpouseName = () => {
-        const civilStatus = normalizeCivilStatus(profile.civil_status);
+        const civilStatus = normalizeCivilStatus(profile.civil_status || appData.civil_status);
         if (civilStatus === 'Casado') {
-            return appData.spouse_name || profile.spouse_name || 'N/A';
+            return appData.spouse_full_name || appData.spouse_name || profile.spouse_name || 'N/A';
         }
         return 'N/A';
     };

@@ -20,22 +20,19 @@ RETURNS TABLE(
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = 'public'
+SET search_path = public
 AS $$
 DECLARE
     user_role text;
 BEGIN
-    -- Get the current user's role from profiles
     SELECT p.role INTO user_role
     FROM public.profiles p
     WHERE p.id = auth.uid();
 
-    -- Check if the current user has admin or sales role
-    IF user_role NOT IN ('admin', 'sales') THEN
+    IF user_role IS NULL OR user_role NOT IN ('admin', 'sales') THEN
         RAISE EXCEPTION 'Permission denied. Admin or sales role required.';
     END IF;
 
-    -- Return query with asesor email from profiles table (not auth.users)
     RETURN QUERY
     SELECT
         p.id,

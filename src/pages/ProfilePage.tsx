@@ -23,8 +23,17 @@ const profileSchema = z.object({
   homoclave: z.string().length(3, 'Homoclave debe tener 3 caracteres'),
   fiscal_situation: z.string().min(1, 'Situación fiscal es requerida'),
   civil_status: z.string().min(1, 'Estado civil es requerido'),
+  spouse_name: z.string().optional().or(z.literal('')),
   gender: z.string().optional().or(z.literal('')),
   how_did_you_know: z.string().optional().or(z.literal('')),
+}).refine(data => {
+  if (data.civil_status?.toLowerCase() === 'casado') {
+    return data.spouse_name && data.spouse_name.length >= 2;
+  }
+  return true;
+}, {
+  message: 'El nombre del cónyuge es obligatorio para personas casadas.',
+  path: ['spouse_name'],
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -65,6 +74,8 @@ const ProfilePage: React.FC = () => {
   });
   
   const { watch: watchProfileFields, reset: resetProfileForm } = profileForm;
+  const civilStatus = watchProfileFields('civil_status');
+  const isMarried = civilStatus?.toLowerCase() === 'casado';
 
   useEffect(() => {
     if (profile) {
@@ -82,6 +93,7 @@ const ProfilePage: React.FC = () => {
         homoclave: profile.homoclave || '',
         fiscal_situation: profile.fiscal_situation || '',
         civil_status: profile.civil_status || '',
+        spouse_name: profile.spouse_name || '',
         gender: profile.gender || '',
         how_did_you_know: profile.how_did_you_know || '',
       });
@@ -314,6 +326,14 @@ const ProfilePage: React.FC = () => {
                 </select>
               </FormField>
             </div>
+
+            {isMarried && (
+              <div>
+                <label htmlFor="spouse_name" className="block text-sm font-medium text-gray-700">Nombre Completo del Cónyuge</label>
+                <input id="spouse_name" {...profileForm.register('spouse_name')} className={inputClassName} placeholder="Nombre completo" />
+                {profileForm.formState.errors.spouse_name && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.spouse_name.message as React.ReactNode}</p>}
+              </div>
+            )}
 
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <label className="flex items-start cursor-pointer">

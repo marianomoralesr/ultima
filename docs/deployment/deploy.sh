@@ -259,6 +259,21 @@ if [ $? -eq 0 ]; then
         echo ""
     fi
 
+    # === Ensure 100% Traffic to Latest Revision ===
+    echo -e "${YELLOW}Ensuring 100% traffic to latest revision...${NC}"
+    LATEST_REVISION=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.latestReadyRevisionName)')
+
+    if [ ! -z "$LATEST_REVISION" ]; then
+        gcloud run services update-traffic $SERVICE_NAME \
+            --region=$REGION \
+            --to-latest \
+            --quiet
+        echo -e "${GREEN}✓ Traffic redirected to: $LATEST_REVISION${NC}"
+    else
+        echo -e "${YELLOW}⚠ Could not determine latest revision, traffic might not be updated${NC}"
+    fi
+    echo ""
+
     # Environment-specific next steps
     if [ "$ENVIRONMENT" = "staging" ]; then
         echo "✨ STAGING DEPLOYMENT COMPLETE"

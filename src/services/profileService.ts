@@ -17,9 +17,48 @@ export const ProfileService = {
       throw new Error('Usuario no autenticado');
     }
 
+    // Check for source tracking data and include it if available (only on first save)
+    let finalProfileData = { ...profileData };
+
+    try {
+      const sourceDataStr = sessionStorage.getItem('leadSourceData');
+      if (sourceDataStr) {
+        const sourceData = JSON.parse(sourceDataStr);
+
+        // Check if this profile already has source tracking data
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('utm_source, first_visit_at')
+          .eq('id', user.id)
+          .single();
+
+        // Only add source tracking if it hasn't been set yet
+        if (!existingProfile || !existingProfile.first_visit_at) {
+          finalProfileData = {
+            ...finalProfileData,
+            utm_source: sourceData.utm_source || null,
+            utm_medium: sourceData.utm_medium || null,
+            utm_campaign: sourceData.utm_campaign || null,
+            utm_term: sourceData.utm_term || null,
+            utm_content: sourceData.utm_content || null,
+            rfdm: sourceData.rfdm || null,
+            referrer: sourceData.referrer || null,
+            landing_page: sourceData.landing_page || null,
+            first_visit_at: sourceData.first_visit_at || new Date().toISOString(),
+          };
+
+          // Clear the session storage after successfully including it
+          sessionStorage.removeItem('leadSourceData');
+        }
+      }
+    } catch (e) {
+      // If there's any error reading source tracking, just continue without it
+      console.log('Could not retrieve source tracking data:', e);
+    }
+
     const { data: updatedProfile, error: upsertError } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, ...profileData }, { onConflict: 'id' })
+      .upsert({ id: user.id, ...finalProfileData }, { onConflict: 'id' })
       .select()
       .single();
 

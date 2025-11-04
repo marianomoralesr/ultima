@@ -53,18 +53,19 @@ const Lightbox: React.FC<LightboxProps> = ({ media, currentIndex, onClose, onPre
     return (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
             <div className="absolute inset-0" onClick={onClose}></div>
-            
+
             <h2 id="lightbox-title" className="sr-only">Visor de imágenes y videos</h2>
 
-            <div className="relative w-full h-full flex items-center justify-center p-4">
-                {/* Close button */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 sm:top-8 right-4 sm:right-6 text-white hover:text-gray-200 transition-all z-[1000] p-2 sm:p-3 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg border border-white/20"
-                    aria-label="Cerrar"
-                >
-                    <XIcon className="w-8 h-8 sm:w-10 sm:h-10" />
-                </button>
+            {/* Close button - positioned below header to avoid overlap */}
+            <button
+                onClick={onClose}
+                className="fixed top-20 lg:top-36 right-4 sm:right-6 text-white hover:text-gray-200 transition-all z-[1001] p-2 sm:p-3 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full shadow-lg border border-white/20"
+                aria-label="Cerrar"
+            >
+                <XIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+            </button>
+
+            <div className="relative w-full h-full flex items-center justify-center p-4 pt-24 lg:pt-40">
 
                 {/* Prev button */}
                 {media.length > 1 && (

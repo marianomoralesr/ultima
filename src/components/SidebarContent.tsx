@@ -30,7 +30,8 @@ import {
     FileEdit,
     Loader2,
     BookOpen,
-    ShoppingCart
+    ShoppingCart,
+    UserCog
 } from 'lucide-react';
 
 // @ts-ignore
@@ -90,6 +91,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         ...((isAdmin) ? [
             { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon },
             { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
+            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog },
             { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
             { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera },
             { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText },

@@ -66,6 +66,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
 const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
 
 import ConfigService from './services/ConfigService';
 
@@ -151,6 +152,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/inspections/:id" element={<AdminInspectionPage />} />
                   <Route path="admin/vacantes" element={<AdminVacanciesPage />} />
                   <Route path="admin/vacantes/:id/candidatos" element={<AdminCandidatesPage />} />
+                  <Route path="admin/usuarios" element={<AdminUserManagementPage />} />
                   <Route path="admin/config" element={<AdminConfigPage />} />
                   <Route path="admin/marketing" element={<MarketingHubPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />

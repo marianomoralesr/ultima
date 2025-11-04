@@ -20,15 +20,18 @@ RETURNS TABLE(
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO 'public'
+SET search_path = 'public'
 AS $$
+DECLARE
+    user_role text;
 BEGIN
+    -- Get the current user's role from profiles
+    SELECT p.role INTO user_role
+    FROM public.profiles p
+    WHERE p.id = auth.uid();
+
     -- Check if the current user has admin or sales role
-    IF NOT EXISTS (
-        SELECT 1 FROM profiles
-        WHERE profiles.id = auth.uid()
-        AND profiles.role IN ('admin', 'sales')
-    ) THEN
+    IF user_role NOT IN ('admin', 'sales') THEN
         RAISE EXCEPTION 'Permission denied. Admin or sales role required.';
     END IF;
 
@@ -42,7 +45,7 @@ BEGIN
         p.phone,
         p.source,
         p.contactado,
-        COALESCE(asesor.email, '')::text as asesor_asignado,  -- Cast to TEXT to match return type
+        COALESCE(asesor.email, '')::text as asesor_asignado,
         latest_app.status as latest_app_status,
         latest_app.car_info as latest_app_car_info,
         p.asesor_asignado_id
@@ -56,7 +59,7 @@ BEGIN
         ORDER BY fa.created_at DESC
         LIMIT 1
     ) latest_app ON true
-    WHERE p.role = 'user'  -- Only show actual user leads, not admin/sales accounts
+    WHERE p.role = 'user'
     ORDER BY p.updated_at DESC NULLS LAST;
 END;
 $$;

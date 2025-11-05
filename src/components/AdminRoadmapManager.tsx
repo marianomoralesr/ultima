@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
-import { supabase } from '../supabase/supabaseClient';
+import { supabase } from '../../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 
 interface RoadmapItem {

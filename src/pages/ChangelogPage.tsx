@@ -2344,7 +2344,7 @@ const ChangelogPage: React.FC = () => {
 
             {/* Dynamic Roadmap Content */}
             <DynamicRoadmapDisplay />
-
+          </div>
 
           {/* Footer */}
           <div className="bg-blue-50 px-8 py-6 text-center flex-shrink-0">

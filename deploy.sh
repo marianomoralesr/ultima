@@ -59,11 +59,49 @@ if [ "$ENVIRONMENT" = "production" ]; then
         echo "Deployment cancelled."
         exit 0
     fi
+
+    # === Database Backup Before Production Deployment ===
+    echo ""
+    echo -e "${YELLOW}📦 Creating pre-deployment database backup...${NC}"
+    if [ -f "./scripts/backup-database.sh" ]; then
+        ./scripts/backup-database.sh
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✓ Database backup completed${NC}"
+        else
+            echo -e "${RED}✗ Database backup failed!${NC}"
+            read -p "Continue deployment anyway? (yes/no): " -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]es$ ]]; then
+                echo "Deployment cancelled for safety."
+                exit 1
+            fi
+        fi
+    else
+        echo -e "${YELLOW}⚠️  Backup script not found. Skipping backup.${NC}"
+    fi
+fi
+echo ""
+
+# === Step 0: Git Safety Check ===
+echo -e "${YELLOW}[0/6] Verificando seguridad de Git...${NC}"
+if [ -f "./scripts/git-safety-check.sh" ]; then
+    ./scripts/git-safety-check.sh
+    GIT_CHECK_EXIT=$?
+
+    if [ $GIT_CHECK_EXIT -ne 0 ]; then
+        echo ""
+        echo -e "${RED}✗ Git safety check falló${NC}"
+        echo -e "${RED}  Resuelve los problemas antes de continuar con el deployment${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Git safety check completado${NC}"
+else
+    echo -e "${YELLOW}⚠️  Git safety check script no encontrado. Continuando...${NC}"
 fi
 echo ""
 
 # === Step 1: Verify Prerequisites ===
-echo -e "${YELLOW}[1/5] Verifying prerequisites...${NC}"
+echo -e "${YELLOW}[1/6] Verifying prerequisites...${NC}"
 
 if ! command -v gcloud &> /dev/null; then
     echo -e "${RED}✗ gcloud CLI not found. Please install it first.${NC}"
@@ -79,13 +117,13 @@ echo -e "${GREEN}✓ Prerequisites verified${NC}"
 echo ""
 
 # === Step 2: Set GCloud Project ===
-echo -e "${YELLOW}[2/5] Setting GCloud project...${NC}"
+echo -e "${YELLOW}[2/6] Setting GCloud project...${NC}"
 gcloud config set project $PROJECT_ID
 echo -e "${GREEN}✓ Project set to: $PROJECT_ID${NC}"
 echo ""
 
 # === Step 3: Build Docker Image ===
-echo -e "${YELLOW}[3/5] Building Docker image...${NC}"
+echo -e "${YELLOW}[3/6] Building Docker image...${NC}"
 
 # Read build-time credentials from cloud-build-vars.yaml
 VITE_SUPABASE_URL=$(grep "VITE_SUPABASE_URL:" cloud-build-vars.yaml | cut -d'"' -f2)
@@ -148,7 +186,7 @@ fi
 echo ""
 
 # === Step 4: Push to Artifact Registry ===
-echo -e "${YELLOW}[4/5] Pushing image to Artifact Registry...${NC}"
+echo -e "${YELLOW}[4/6] Pushing image to Artifact Registry...${NC}"
 
 # Configure Docker auth for Artifact Registry
 gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
@@ -165,7 +203,7 @@ fi
 echo ""
 
 # === Step 5: Deploy to Cloud Run ===
-echo -e "${YELLOW}[5/5] Deploying to Cloud Run...${NC}"
+echo -e "${YELLOW}[5/6] Deploying to Cloud Run...${NC}"
 
 # Read all environment variables from cloud-build-vars.yaml
 ENV_VARS=""

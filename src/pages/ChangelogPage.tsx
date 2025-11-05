@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpen, Rocket } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
+import AdminRoadmapManager from '../components/AdminRoadmapManager';
 
 const ChangelogPage: React.FC = () => {
   useSEO({
@@ -2336,6 +2337,9 @@ const ChangelogPage: React.FC = () => {
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+
+            {/* Admin Roadmap Manager */}
+            <AdminRoadmapManager />
 
             {/* En Desarrollo Activo */}
             <div className="border-l-4 border-blue-500 pl-8">

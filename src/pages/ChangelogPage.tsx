@@ -33,6 +33,188 @@ const ChangelogPage: React.FC = () => {
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
 
+          {/* Version 1.8.0 */}
+          <div className="border-l-4 border-green-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.8.0</h2>
+              <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold">
+                🛡️ Seguridad y Respaldos
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                5 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Git Safety System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🛡️ Sistema de Seguridad Git
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Protección Total Contra Pérdida de Código</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>git-safety-check.sh:</strong> Sistema de verificación con 8 puntos de control antes de cualquier operación</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>Detecta cambios sin commit:</strong> Previene pérdida de trabajo no guardado</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>Verifica sincronización remota:</strong> Alerta si estás atrás del repositorio remoto</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>Identifica ramas divergentes:</strong> Detecta conflictos potenciales antes de que ocurran</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>safe-commit-push.sh:</strong> Proceso interactivo guiado para commit y push seguro con pull automático</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>Integrado en deployment:</strong> Paso 0 de deploy.sh ahora verifica Git automáticamente</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🚫</span>
+                    <span><strong>Imposible deployar código desactualizado:</strong> El sistema bloquea deployment si hay problemas de Git</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos:</strong> scripts/git-safety-check.sh (7.1K), scripts/safe-commit-push.sh (6.3K)</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Database Backup System */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    📦 Sistema de Respaldos de BD
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Respaldos Automáticos de Base de Datos</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>backup-database.sh:</strong> Respaldo completo de base de datos (~17MB) en segundos</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>restore-database.sh:</strong> Restauración segura con confirmación y respaldo automático previo</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>pre-migration-backup.sh:</strong> Respaldo especializado antes de aplicar migraciones</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>cleanup-old-backups.sh:</strong> Limpieza inteligente con retención estratégica (7 días: todos, 30 días: semanales, +30: mensuales)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>Integrado en deployment:</strong> Respaldo automático antes de cada deployment a producción</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>Conexión IPv4 segura:</strong> Usa pooler de Supabase (aws-0-us-east-2.pooler.supabase.com)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🔒</span>
+                    <span><strong>Protegidos en .gitignore:</strong> Los respaldos no se suben a GitHub (datos sensibles)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos:</strong> scripts/backup-database.sh (2.2K), scripts/restore-database.sh (2.5K), scripts/pre-migration-backup.sh (1.1K), scripts/cleanup-old-backups.sh (5.6K)</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Documentation */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    📚 Documentación Completa
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Guías en Español y Referencias Rápidas</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">📖</span>
+                    <span><strong>docs/GIT_SAFETY_WORKFLOW.md:</strong> Guía completa de flujo de trabajo seguro con Git (casos de uso, troubleshooting, buenas prácticas)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📖</span>
+                    <span><strong>docs/GUIA_RESPALDOS_BD.md:</strong> Guía completa de respaldos de base de datos en español</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📖</span>
+                    <span><strong>docs/ESTRATEGIA_RESPALDOS.md:</strong> Estrategia de retención, análisis de almacenamiento, y mejores prácticas</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📖</span>
+                    <span><strong>scripts/README.md:</strong> Referencia rápida de todos los scripts disponibles</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📖</span>
+                    <span><strong>backups/README.md:</strong> Información sobre la carpeta de respaldos</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Protection Summary */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🎯 Protección Implementada
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Sistema de Múltiples Capas de Seguridad</h3>
+                <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start">
+                      <span className="mr-2">🛡️</span>
+                      <span><strong>Imposible deployar código desactualizado:</strong> Verificación automática en Step 0</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">🛡️</span>
+                      <span><strong>Imposible sobrescribir cambios remotos:</strong> Pull automático antes de push</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">🛡️</span>
+                      <span><strong>Respaldo automático en producción:</strong> Siempre hay punto de restauración</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">🛡️</span>
+                      <span><strong>Commit y push verificado:</strong> Proceso interactivo con seguridad integrada</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">🛡️</span>
+                      <span><strong>Documentación completa:</strong> Guías detalladas para cada escenario</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Development Time */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <strong>Tiempo de desarrollo:</strong> 8 horas
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Archivos creados:</strong> 10 scripts + 5 documentos
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Líneas de código:</strong> +2,120 líneas
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.7.0 */}
           <div className="border-l-4 border-blue-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">

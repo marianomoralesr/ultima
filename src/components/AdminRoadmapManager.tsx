@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Sparkles } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import GeminiService from '../services/GeminiService';
 
 interface RoadmapItem {
   id?: string;
@@ -214,10 +215,43 @@ const RoadmapItemForm: React.FC<{
   onCancel: () => void;
 }> = ({ item, onSave, onCancel }) => {
   const [formData, setFormData] = useState<RoadmapItem>(item);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
+  };
+
+  const handleEnhanceWithAI = async () => {
+    if (!formData.description.trim()) {
+      alert('Por favor ingresa una descripción básica primero');
+      return;
+    }
+
+    setIsEnhancing(true);
+    try {
+      const enhanced = await GeminiService.enhanceRoadmapFeature(formData.description);
+
+      // Parse the enhanced response
+      const titleMatch = enhanced.match(/TÍTULO:\s*(.+?)(?:\n|$)/);
+      const descMatch = enhanced.match(/DESCRIPCIÓN:\s*([\s\S]+?)(?=CASOS DE USO:|$)/);
+
+      if (titleMatch && titleMatch[1].trim()) {
+        setFormData(prev => ({ ...prev, title: titleMatch[1].trim() }));
+      }
+
+      if (descMatch && descMatch[1].trim()) {
+        // Keep the full enhanced response as description
+        setFormData(prev => ({ ...prev, description: enhanced }));
+      }
+
+      alert('✨ Descripción mejorada con IA!');
+    } catch (error) {
+      console.error('Error enhancing with AI:', error);
+      alert('Error al mejorar con IA. Verifica que VITE_GEMINI_API_KEY esté configurado.');
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   return (
@@ -241,16 +275,31 @@ const RoadmapItemForm: React.FC<{
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Descripción *
-          </label>
+          <div className="flex justify-between items-center mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Descripción *
+            </label>
+            <button
+              type="button"
+              onClick={handleEnhanceWithAI}
+              disabled={isEnhancing || !formData.description.trim()}
+              className="flex items-center gap-2 px-3 py-1 text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Sparkles className="w-4 h-4" />
+              {isEnhancing ? 'Mejorando con IA...' : 'Mejorar con IA'}
+            </button>
+          </div>
           <textarea
             required
-            rows={4}
+            rows={8}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            placeholder="Escribe una descripción básica y luego haz clic en 'Mejorar con IA' para que Gemini la expanda automáticamente..."
           />
+          <p className="text-xs text-gray-500 mt-1">
+            💡 Tip: Escribe una idea básica (ej: "Sistema de chat en vivo") y la IA la expandirá con casos de uso, impacto esperado y consideraciones técnicas
+          </p>
         </div>
 
         <div>

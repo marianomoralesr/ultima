@@ -48,3 +48,4 @@ coverage/
 # Database backups (sensitive data, large files)
 backups/
 *.sql
+supabase/.temp/

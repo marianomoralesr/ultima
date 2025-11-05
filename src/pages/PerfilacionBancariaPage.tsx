@@ -176,7 +176,7 @@ const PerfilacionBancariaPage: React.FC = () => {
             return;
         }
 
-        const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'address', 'city', 'state', 'zip_code', 'rfc'];
+        const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
         const isProfileComplete = requiredFields.every(field => profile[field] && String(profile[field]).trim() !== '');
         
         if (!isProfileComplete) {

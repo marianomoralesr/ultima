@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import type { VehicleFilters } from '../types/types';
 import { useVehicles } from '../context/VehicleContext';
 import { useFilters } from '../context/FilterContext';
-import { getFilterOptions } from '../utils/formatters';
+import VehicleService from '../services/VehicleService';
 import VehicleCard from '../components/VehicleCard';
+import VehicleCardSkeleton from '../components/VehicleCardSkeleton';
 import VehicleGridCard from '../components/VehicleGridCard';
+import InjectionCard from '../components/InjectionCard';
 import RecentlyViewed from '../components/RecentlyViewed';
 import Pagination from '../components/Pagination';
 import FilterSidebar from '../components/FilterSidebar';
@@ -39,17 +42,14 @@ const VehicleListPage: React.FC = () => {
   console.log('Vehicles:', vehicles);
   console.log('Vehicles Error:', vehiclesError);
 
-  const [filterOptions, setFilterOptions] = useState<any>({});
-
-  useEffect(() => {
-    if (vehicles.length > 0) {
-      try {
-        setFilterOptions(getFilterOptions(vehicles, vehicles));
-      } catch (error) {
-        console.error('Error in getFilterOptions:', error);
-      }
-    }
-  }, [vehicles]);
+  // Fetch filter options with React Query caching (30 min cache)
+  const { data: filterOptions = {}, isLoading: filterOptionsLoading } = useQuery({
+    queryKey: ['filterOptions'],
+    queryFn: () => VehicleService.getFilterOptions(),
+    staleTime: 30 * 60 * 1000, // 30 minutes - filter options rarely change
+    gcTime: 60 * 60 * 1000, // 1 hour garbage collection
+    retry: 2,
+  });
 
 const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     if (count === 0) return 'No se encontraron autos | TREFA';
@@ -127,12 +127,14 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
 
   const [view, setView] = useState<'list' | 'grid'>('grid');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Animation for the filter sheet
   const [{ y, opacity }, api] = useSpring(() => ({ y: window.innerHeight, opacity: 0, config: { tension: 300, friction: 30 } }));
 
   const openSheet = useCallback(() => {
     setIsFilterSheetOpen(true);
+    setIsClosing(false);
     // Use a small timeout to ensure the component is mounted before animating
     setTimeout(() => {
       api.start({ y: 0, opacity: 1, immediate: false });
@@ -140,8 +142,12 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
   }, [api]);
 
   const closeSheet = useCallback(() => {
+    setIsClosing(true);
     api.start({ y: window.innerHeight, opacity: 0, immediate: false });
-    setTimeout(() => setIsFilterSheetOpen(false), 300); // Delay state update to allow animation to complete
+    setTimeout(() => {
+      setIsFilterSheetOpen(false);
+      setIsClosing(false);
+    }, 300); // Delay state update to allow animation to complete
   }, [api]);
 
   useEffect(() => {
@@ -293,7 +299,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
   if (isLoading && vehicles.length === 0) {
     return (
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start relative z-10">
           <div className="hidden lg:block">
             <div className="bg-white p-6 rounded-2xl shadow-sm animate-pulse">
               <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
@@ -435,6 +441,18 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
                 <h3 className="text-xl font-semibold text-gray-800">No se encontraron autos</h3>
                 <p className="text-gray-500 mt-2">Intente ajustar los filtros o ampliar su búsqueda.</p>
               </div>
+            ) : isLoading ? (
+              <>
+                {view === 'list' ? (
+                  <div className="space-y-6">
+                    {[...Array(6)].map((_, i) => <VehicleCardSkeleton key={i} />)}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(9)].map((_, i) => <VehicleCardSkeleton key={i} isGrid />)}
+                  </div>
+                )}
+              </>
             ) : (
               <>
                 {view === 'list' ? (
@@ -443,7 +461,17 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {vehicles.map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
+                    {vehicles.slice(0, 3).map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
+                    {/* Mobile injection at position 4 (index 3) */}
+                    <div className="block lg:hidden">
+                      <InjectionCard />
+                    </div>
+                    {vehicles.slice(3, 5).map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
+                    {/* Desktop injection at position 6 (index 5) - second row, last column */}
+                    <div className="hidden lg:block">
+                      <InjectionCard />
+                    </div>
+                    {vehicles.slice(5).map(vehicle => <VehicleGridCard key={vehicle.id} vehicle={vehicle} />)}
                   </div>
                 )}
 
@@ -461,10 +489,10 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
         <RecentlyViewed layout="carousel" />
       </main>
 
-      {isFilterSheetOpen && (
+      {(isFilterSheetOpen || isClosing) && (
         <div className="fixed inset-0 bg-black/50 z-[90] lg:hidden" onClick={closeSheet}></div>
       )}
-      {isFilterSheetOpen && (
+      {(isFilterSheetOpen || isClosing) && (
         <animated.div
           className="fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden overflow-hidden"
           style={{ y, opacity }}

@@ -25,6 +25,8 @@ const UserApplicationsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionStatus, setActionStatus] = useState<'idle' | 'loading' | 'success'>('idle');
     const [actionError, setActionError] = useState('');
+    const [deletingApp, setDeletingApp] = useState<any | null>(null);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
     useEffect(() => {
         if (!user) return;
@@ -64,6 +66,28 @@ const UserApplicationsPage: React.FC = () => {
          setTimeout(() => setActionStatus('idle'), 3000);
     };
 
+    const handleDeleteApplication = async () => {
+        if (!user || !deletingApp) return;
+        if (deleteConfirmText !== 'ELIMINAR SOLICITUD') {
+            setActionError('Debes escribir exactamente "ELIMINAR SOLICITUD" para confirmar.');
+            return;
+        }
+
+        setActionStatus('loading');
+        setActionError('');
+        try {
+            await ApplicationService.deleteApplication(deletingApp.id, user.id);
+            setApplications(prev => prev.filter(app => app.id !== deletingApp.id));
+            setActionStatus('success');
+            setDeletingApp(null);
+            setDeleteConfirmText('');
+            setTimeout(() => setActionStatus('idle'), 3000);
+        } catch(e: any) {
+            setActionStatus('idle');
+            setActionError(e.message || 'Error al eliminar la solicitud.');
+        }
+    };
+
     if (loading) return <div className="flex justify-center items-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary-600" /></div>;
     if (error) return <div className="p-4 bg-red-100 text-red-800 rounded-md"><AlertTriangle className="inline w-5 h-5 mr-2"/>{error}</div>;
 
@@ -89,9 +113,22 @@ const UserApplicationsPage: React.FC = () => {
                                         {status.text}
                                     </span>
                                 </div>
-                                <button onClick={() => setViewingApp(app)} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700">
-                                    <Eye className="w-4 h-4"/> Ver Detalles
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setViewingApp(app)} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                                        <Eye className="w-4 h-4"/> Ver Detalles
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setDeletingApp(app);
+                                            setDeleteConfirmText('');
+                                            setActionError('');
+                                        }}
+                                        className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                        title="Eliminar solicitud"
+                                    >
+                                        <Trash2 className="w-4 h-4"/>
+                                    </button>
+                                </div>
                             </div>
                         );
                     }) : <p className="text-sm text-gray-500 text-center py-8">Aún no has enviado ninguna solicitud.</p>}
@@ -146,6 +183,53 @@ const UserApplicationsPage: React.FC = () => {
                             <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 rounded-lg bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300">Cancelar</button>
                             <button onClick={handleDeleteData} disabled={actionStatus==='loading'} className="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-60">
                                 {actionStatus==='loading' ? <Loader2 className="w-5 h-5 animate-spin"/> : 'Sí, eliminar mis datos'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {deletingApp && (
+                <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+                    <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+                        <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4"/>
+                        <h2 className="text-xl font-bold text-gray-900 text-center">Eliminar Solicitud</h2>
+                        <p className="text-gray-600 mt-2 text-sm text-center">
+                            Estás a punto de eliminar la solicitud para <strong>{deletingApp.car_info?._vehicleTitle || 'este vehículo'}</strong>.
+                        </p>
+                        <p className="text-gray-600 mt-2 text-sm text-center">
+                            Esta acción no se puede deshacer. Para confirmar, escribe exactamente:
+                        </p>
+                        <p className="text-center font-mono font-bold text-red-600 mt-2 bg-red-50 py-2 rounded">
+                            ELIMINAR SOLICITUD
+                        </p>
+                        <input
+                            type="text"
+                            value={deleteConfirmText}
+                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                            className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            placeholder="Escribe aquí..."
+                        />
+                        {actionError && (
+                            <p className="mt-3 text-sm text-red-600 text-center">{actionError}</p>
+                        )}
+                        <div className="mt-6 flex justify-center gap-4">
+                            <button
+                                onClick={() => {
+                                    setDeletingApp(null);
+                                    setDeleteConfirmText('');
+                                    setActionError('');
+                                }}
+                                className="px-6 py-2 rounded-lg bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDeleteApplication}
+                                disabled={actionStatus==='loading' || deleteConfirmText !== 'ELIMINAR SOLICITUD'}
+                                className="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {actionStatus==='loading' ? <Loader2 className="w-5 h-5 animate-spin mx-auto"/> : 'Eliminar'}
                             </button>
                         </div>
                     </div>

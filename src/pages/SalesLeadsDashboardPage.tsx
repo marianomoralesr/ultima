@@ -226,9 +226,34 @@ const SalesLeadsDashboardPage: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             {lead.latest_app_status ? (
-                                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                    {lead.latest_app_status}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`w-3 h-3 rounded-full animate-pulse ${
+                                                        lead.latest_app_status === 'submitted' ? 'bg-blue-500' :
+                                                        lead.latest_app_status === 'reviewing' ? 'bg-purple-500' :
+                                                        lead.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
+                                                        lead.latest_app_status === 'approved' ? 'bg-green-500' :
+                                                        lead.latest_app_status === 'rejected' ? 'bg-red-500' :
+                                                        lead.latest_app_status === 'draft' ? 'bg-gray-400' :
+                                                        'bg-gray-400'
+                                                    }`}></span>
+                                                    <span className={`font-bold text-sm ${
+                                                        lead.latest_app_status === 'submitted' ? 'text-blue-700' :
+                                                        lead.latest_app_status === 'reviewing' ? 'text-purple-700' :
+                                                        lead.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
+                                                        lead.latest_app_status === 'approved' ? 'text-green-700' :
+                                                        lead.latest_app_status === 'rejected' ? 'text-red-700' :
+                                                        lead.latest_app_status === 'draft' ? 'text-gray-600' :
+                                                        'text-gray-600'
+                                                    }`}>
+                                                        {lead.latest_app_status === 'submitted' ? 'Enviada' :
+                                                        lead.latest_app_status === 'reviewing' ? 'En Revisión' :
+                                                        lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
+                                                        lead.latest_app_status === 'approved' ? 'Aprobada' :
+                                                        lead.latest_app_status === 'rejected' ? 'Rechazada' :
+                                                        lead.latest_app_status === 'draft' ? 'Borrador' :
+                                                        lead.latest_app_status}
+                                                    </span>
+                                                </div>
                                             ) : (
                                                 <span className="text-gray-400">-</span>
                                             )}

@@ -140,8 +140,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             // Determine role based on email
-            const adminEmails = ['marianomorales@outlook.com', 'mariano.morales@autostrefa.mx', 'genauservices@gmail.com'];
+            const adminEmails = [
+                'marianomorales@outlook.com',
+                'mariano.morales@autostrefa.mx',
+                'genauservices@gmail.com',
+                'alejandro.trevino@autostrefa.mx',
+                'evelia.castillo@autostrefa.mx',
+                'fernando.trevino@autostrefa.mx'
+            ];
             const role = adminEmails.includes(user.email || '') ? 'admin' : 'user';
+
+            // Retrieve tracking data from sessionStorage
+            const leadSourceDataStr = sessionStorage.getItem('leadSourceData');
+            const leadSourceData = leadSourceDataStr ? JSON.parse(leadSourceDataStr) : {};
+
+            // Merge user metadata with tracking data
+            const combinedMetadata = {
+                ...user.user_metadata,
+                ...leadSourceData,
+                captured_at: new Date().toISOString(),
+            };
+
+            // Determine primary source (priority: fbclid > utm_source > rfdm > source > ordencompra)
+            let primarySource = null;
+            if (leadSourceData.fbclid) {
+                primarySource = `facebook_${leadSourceData.fbclid.substring(0, 10)}`;
+            } else if (leadSourceData.utm_source) {
+                primarySource = leadSourceData.utm_source;
+            } else if (leadSourceData.rfdm) {
+                primarySource = `rfdm_${leadSourceData.rfdm}`;
+            } else if (leadSourceData.source) {
+                primarySource = leadSourceData.source;
+            } else if (leadSourceData.ordencompra) {
+                primarySource = `ordencompra_${leadSourceData.ordencompra}`;
+            }
 
             const newProfile = {
                 id: userId,
@@ -150,7 +182,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 last_name: user.user_metadata?.last_name || user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || null,
                 phone: user.phone || null,
                 role: role,
-                metadata: user.user_metadata || {},
+                metadata: combinedMetadata,
+                source: primarySource,
             };
 
             const { data: createdProfile, error: createError } = await supabase

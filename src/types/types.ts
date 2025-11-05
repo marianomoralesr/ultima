@@ -62,7 +62,13 @@ export interface Vehicle {
   
   // ========== ESTADÍSTICAS ==========
   view_count: number;
-  
+
+  // ========== FECHAS ==========
+  ingreso_inventario: string | null;
+
+  // ========== REZAGO ==========
+  rezago: boolean;
+
   // ========== LEGACY & COMPATIBILITY (to be phased out) ==========
   // These are kept for now to avoid breaking other parts of the app
   // but the primary fields above are the source of truth.
@@ -138,6 +144,8 @@ export interface Profile {
     last_name?: string;
     phone?: string;
     role: 'user' | 'admin' | 'sales';
+    asesor_asignado_id?: string;
+    asesor_asignado_name?: string;
     [key: string]: any;
 }
 

@@ -90,6 +90,14 @@ echo -e "${YELLOW}[3/5] Building Docker image...${NC}"
 # Read build-time environment variables from cloud-build-vars.yaml
 VITE_SUPABASE_URL=$(grep "VITE_SUPABASE_URL:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_SUPABASE_ANON_KEY=$(grep "VITE_SUPABASE_ANON_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_VALUATION_API_KEY=$(grep "VITE_AIRTABLE_VALUATION_API_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_VALUATION_BASE_ID=$(grep "VITE_AIRTABLE_VALUATION_BASE_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_VALUATION_TABLE_ID=$(grep "VITE_AIRTABLE_VALUATION_TABLE_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_VALUATION_VIEW=$(grep "VITE_AIRTABLE_VALUATION_VIEW:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_VALUATIONS_STORAGE_TABLE_ID=$(grep "VITE_AIRTABLE_VALUATIONS_STORAGE_TABLE_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_LEAD_CAPTURE_API_KEY=$(grep "VITE_AIRTABLE_LEAD_CAPTURE_API_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID=$(grep "VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID=$(grep "VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_INTELIMOTOR_BUSINESS_UNIT_ID=$(grep "VITE_INTELIMOTOR_BUSINESS_UNIT_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_INTELIMOTOR_API_KEY=$(grep "VITE_INTELIMOTOR_API_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_INTELIMOTOR_API_SECRET=$(grep "VITE_INTELIMOTOR_API_SECRET:" cloud-build-vars.yaml | cut -d'"' -f2)
@@ -114,6 +122,14 @@ docker build \
   --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" \
   --build-arg VITE_SUPABASE_ANON_KEY="$VITE_SUPABASE_ANON_KEY" \
   --build-arg VITE_APP_VERSION="$VITE_APP_VERSION" \
+  --build-arg VITE_AIRTABLE_VALUATION_API_KEY="$VITE_AIRTABLE_VALUATION_API_KEY" \
+  --build-arg VITE_AIRTABLE_VALUATION_BASE_ID="$VITE_AIRTABLE_VALUATION_BASE_ID" \
+  --build-arg VITE_AIRTABLE_VALUATION_TABLE_ID="$VITE_AIRTABLE_VALUATION_TABLE_ID" \
+  --build-arg VITE_AIRTABLE_VALUATION_VIEW="$VITE_AIRTABLE_VALUATION_VIEW" \
+  --build-arg VITE_AIRTABLE_VALUATIONS_STORAGE_TABLE_ID="$VITE_AIRTABLE_VALUATIONS_STORAGE_TABLE_ID" \
+  --build-arg VITE_AIRTABLE_LEAD_CAPTURE_API_KEY="$VITE_AIRTABLE_LEAD_CAPTURE_API_KEY" \
+  --build-arg VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID="$VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID" \
+  --build-arg VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID="$VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID" \
   --build-arg VITE_INTELIMOTOR_BUSINESS_UNIT_ID="$VITE_INTELIMOTOR_BUSINESS_UNIT_ID" \
   --build-arg VITE_INTELIMOTOR_API_KEY="$VITE_INTELIMOTOR_API_KEY" \
   --build-arg VITE_INTELIMOTOR_API_SECRET="$VITE_INTELIMOTOR_API_SECRET" \
@@ -242,6 +258,21 @@ if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ FRONTEND_URL updated${NC}"
         echo ""
     fi
+
+    # === Ensure 100% Traffic to Latest Revision ===
+    echo -e "${YELLOW}Ensuring 100% traffic to latest revision...${NC}"
+    LATEST_REVISION=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format='value(status.latestReadyRevisionName)')
+
+    if [ ! -z "$LATEST_REVISION" ]; then
+        gcloud run services update-traffic $SERVICE_NAME \
+            --region=$REGION \
+            --to-latest \
+            --quiet
+        echo -e "${GREEN}✓ Traffic redirected to: $LATEST_REVISION${NC}"
+    else
+        echo -e "${YELLOW}⚠ Could not determine latest revision, traffic might not be updated${NC}"
+    fi
+    echo ""
 
     # Environment-specific next steps
     if [ "$ENVIRONMENT" = "staging" ]; then

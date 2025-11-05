@@ -1,5 +1,7 @@
 // Supabase Edge Function: Airtable Webhook → inventario_cache Sync
 // This function receives a single record update from Airtable webhooks
+// and syncs all vehicle data to Supabase inventario_cache table.
+// Image URLs are read from Airtable text fields (populated by airtable-image-upload-optimized.js)
 // Deploy with: supabase functions deploy airtable-sync
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
@@ -221,14 +223,26 @@ serve(async (req: Request) => {
       ? `${fields.AutoMarca} ${fields.AutoSubmarcaVersion}`.trim()
       : fields.Auto || 'Auto sin título';
 
-    // Extract images - save as comma-separated text
-    const exteriorImagesArray = getImageUrls(fields.fotos_exterior_url);
-    const interiorImagesArray = getImageUrls(fields.fotos_interior_url);
+    const ordenCompra = fields.OrdenCompra || record.id;
+
+    // Read R2 image URLs directly from Airtable text fields
+    // These URLs are populated by the airtable-image-upload-optimized.js automation
+    // which handles uploading attachments to R2 and saving URLs back to Airtable
+    console.log(`🖼️  Reading image URLs for ${ordenCompra}...`);
+
+    const exteriorImages = getImageUrls(fields.fotos_exterior_url).join(', ') || '';
+    const interiorImages = getImageUrls(fields.fotos_interior_url).join(', ') || '';
     const featureImageArray = getImageUrls(fields.feature_image);
 
-    const exteriorImages = exteriorImagesArray.length > 0 ? exteriorImagesArray.join(', ') : '';
-    const interiorImages = interiorImagesArray.length > 0 ? interiorImagesArray.join(', ') : '';
-    const featureImage = featureImageArray[0] || exteriorImagesArray[0] || null;
+    // Use feature_image if available, otherwise use first exterior image as fallback
+    let featureImage = featureImageArray.length > 0 ? featureImageArray[0] : null;
+
+    if (!featureImage && exteriorImages) {
+      const exteriorArray = exteriorImages.split(',').map(url => url.trim()).filter(Boolean);
+      featureImage = exteriorArray[0] || null;
+    }
+
+    console.log(`✅ Found ${exteriorImages.split(',').filter(Boolean).length} exterior, ${interiorImages.split(',').filter(Boolean).length} interior, ${featureImage ? 1 : 0} feature image URLs`);
 
     // Normalize combustible field - convert to plain text (first element)
     const combustibleArray = getArrayField(fields.autocombustible || fields.combustible);
@@ -277,7 +291,7 @@ serve(async (req: Request) => {
       fotos_interior_url: interiorImages,
       ordencompra: fields.OrdenCompra || '',
       ordenstatus: currentOrdenStatus,
-      separado: fields.separado === true || fields.Separado === true,
+      separado: !!(fields.separado || fields.Separado), // Convert any truthy value to boolean
       vendido: isVendido,
       clasificacionid: clasificacionValue,
       ubicacion: ubicacionValue,

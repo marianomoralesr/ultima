@@ -84,7 +84,7 @@ const AuthPage: React.FC = () => {
         const sourceData: Record<string, string> = {};
 
         params.forEach((value, key) => {
-            if (key.startsWith('utm_') || key === 'rfdm' || key === 'ordencompra') {
+            if (key.startsWith('utm_') || key === 'rfdm' || key === 'ordencompra' || key === 'fbclid' || key === 'source') {
                 sourceData[key] = value;
             }
         });

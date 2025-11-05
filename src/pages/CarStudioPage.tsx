@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import VehicleService from '../services/VehicleService';
 import CarStudioService, { CarStudioApiError } from '../services/CarStudioService';
 import type { WordPressVehicle } from '../types/types';
@@ -110,17 +110,17 @@ const ImageComparison: React.FC<{
                 </div>
             </div>
 
-            <div className="max-h-80 overflow-y-auto space-y-4 pr-2">
+            <div className="max-h-[800px] overflow-y-auto space-y-4 pr-2">
                 {viewMode === 'grid' ? (
                     images.map((img, index) => (
-                        <div key={index} className="grid grid-cols-2 gap-2 p-2 border rounded-lg bg-gray-50">
+                        <div key={index} className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">
                             <div>
-                                <p className="text-xs text-center mb-1 font-medium text-gray-600">Original</p>
-                                <LazyImage src={img.original} alt="Original" className="w-full h-32 rounded object-cover" />
+                                <p className="text-sm text-center mb-2 font-medium text-gray-600">Original</p>
+                                <LazyImage src={img.original} alt="Original" className="w-full h-96 rounded object-cover" />
                             </div>
                             <div>
-                                <p className="text-xs text-center mb-1 font-medium text-gray-600">Procesada</p>
-                                <LazyImage src={img.processed} alt="Processed" className="w-full h-32 rounded object-cover" />
+                                <p className="text-sm text-center mb-2 font-medium text-gray-600">Procesada</p>
+                                <LazyImage src={img.processed} alt="Processed" className="w-full h-96 rounded object-cover" />
                             </div>
                         </div>
                     ))
@@ -138,7 +138,7 @@ const ImageComparison: React.FC<{
                     className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                 />
                 <label htmlFor="replaceFeatureImage" className="text-sm text-gray-700 cursor-pointer">
-                    Reemplazar imagen destacada con la primera imagen procesada
+                    Reemplazar imagen destacada con la imagen RIGHT_FRONT (o FRONT si no está disponible)
                 </label>
             </div>
 
@@ -232,6 +232,8 @@ interface ImageGeneratorTabProps {
 }
 
 const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoading, globalError }) => {
+    const queryClient = useQueryClient();
+
     // Filter vehicles to show only those with galleries (exterior photos)
     const vehiclesWithGalleries = vehicles.filter(v => {
         const exteriorImages = (v.galeria_exterior || v.fotos_exterior_url || []).filter((url): url is string =>
@@ -245,12 +247,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
     const [availableImages, setAvailableImages] = useState<string[]>([]);
     const [selectedImageIndices, setSelectedImageIndices] = useState<Set<number>>(new Set());
     const [uploadImages, setUploadImages] = useState<{ fileUrl: string; position: string }[]>([]);
-    const [fileExtension, setFileExtension] = useState<'PNG' | 'JPG'>('PNG');
-    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(false);
-
-    // Additional payload options
-    const [chassisNumber, setChassisNumber] = useState('');
-    const [platformUrl, setPlatformUrl] = useState('');
+    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(true); // Default to true (checked)
 
     const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [apiResponse, setApiResponse] = useState<string | null>(null);
@@ -267,11 +264,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveStatus('idle');
         setSaveError(null);
         setComparisonImages([]);
-        setReplaceFeatureImage(false);
-
-        // Reset/pre-populate additional fields
-        setChassisNumber(vehicle.ordencompra || '');
-        setPlatformUrl('https://trefa.mx');
+        setReplaceFeatureImage(true); // Default to checked
 
         const exteriorImages = (vehicle.galeria_exterior || vehicle.fotos_exterior_url || []).filter((url): url is string => !!url && url !== DEFAULT_PLACEHOLDER_IMAGE);
 
@@ -283,33 +276,41 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
     const toggleImageSelection = (index: number) => {
         const newSelection = new Set(selectedImageIndices);
+        const positions = ['FRONT', 'RIGHT_FRONT', 'RIGHT_SIDE', 'RIGHT_BACK', 'BACK', 'LEFT_BACK', 'LEFT_SIDE', 'LEFT_FRONT', 'CENTRAL_DASH', 'STEERING_WHEEL', 'LEFT_DRIVER_DOOR_OPEN', 'LEFT_REAR_DOOR_OPEN', 'RIGHT_PASSENGER_DOOR_OPEN', 'CEELING_FEATURES', 'OTHER'];
+
         if (newSelection.has(index)) {
+            // Remove from selection
             newSelection.delete(index);
+            // Remove from uploadImages
+            setUploadImages(prev => prev.filter(img => img.fileUrl !== availableImages[index]));
         } else {
+            // Add to selection
             newSelection.add(index);
+            // Find next available position that isn't already used
+            const usedPositions = new Set(uploadImages.map(img => img.position));
+            const availablePosition = positions.find(pos => !usedPositions.has(pos)) || positions[0];
+            // Add to uploadImages with default position
+            setUploadImages(prev => [...prev, { fileUrl: availableImages[index], position: availablePosition }]);
         }
         setSelectedImageIndices(newSelection);
-
-        // Update uploadImages based on selection
-        // CarStudio requires specific positions: FRONT, BACK, LEFT, RIGHT, FRONT_LEFT, FRONT_RIGHT, BACK_LEFT, BACK_RIGHT
-        // For exterior images, we'll cycle through these positions
-        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
-        const selectedImages = Array.from(newSelection)
-            .sort((a, b) => a - b)
-            .map((i, idx) => ({ fileUrl: availableImages[i], position: positions[idx % positions.length] }));
-        setUploadImages(selectedImages);
     };
 
     const selectAllImages = () => {
         const allIndices = new Set(availableImages.map((_, i) => i));
         setSelectedImageIndices(allIndices);
-        const positions = ['FRONT', 'BACK', 'LEFT', 'RIGHT', 'FRONT_LEFT', 'FRONT_RIGHT', 'BACK_LEFT', 'BACK_RIGHT'];
+        const positions = ['FRONT', 'RIGHT_FRONT', 'RIGHT_SIDE', 'RIGHT_BACK', 'BACK', 'LEFT_BACK', 'LEFT_SIDE', 'LEFT_FRONT', 'CENTRAL_DASH', 'STEERING_WHEEL', 'LEFT_DRIVER_DOOR_OPEN', 'LEFT_REAR_DOOR_OPEN', 'RIGHT_PASSENGER_DOOR_OPEN', 'CEELING_FEATURES', 'OTHER'];
         setUploadImages(availableImages.map((url, idx) => ({ fileUrl: url, position: positions[idx % positions.length] })));
     };
 
     const deselectAllImages = () => {
         setSelectedImageIndices(new Set());
         setUploadImages([]);
+    };
+
+    const updateImagePosition = (imageUrl: string, newPosition: string) => {
+        setUploadImages(prev => prev.map(img =>
+            img.fileUrl === imageUrl ? { ...img, position: newPosition } : img
+        ));
     };
 
     const handleSendRequest = useCallback(async () => {
@@ -323,11 +324,10 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 
         try {
             const options: any = {
-                fileExtension,
-                blurBackground: false, // Explicitly disable blur as requested
+                fileExtension: 'JPG',
+                blurBackground: false,
+                traceId: `vehicle_${selectedVehicle.id}`, // Track vehicle ID for history
             };
-            if (chassisNumber) options.chassisNumber = chassisNumber;
-            if (platformUrl) options.platformUrl = platformUrl;
 
             console.log('Sending images to CarStudio:');
             console.log('- Total images:', uploadImages.length);
@@ -339,6 +339,8 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             const response = await CarStudioService.uploadImagesWithUrlV2(uploadImages, options);
 
             console.log('CarStudio API Response:', response);
+            console.log('Response structure check - has return?:', !!response.return);
+            console.log('Response structure check - return keys:', response.return ? Object.keys(response.return) : 'N/A');
 
             // Check for faulty images first (CarStudio AI failures)
             const faultyImages = response.return?.faultyImages || [];
@@ -383,13 +385,29 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                     ?.filter((img: any) => img.errorMessage)
                     .map((img: any) => img.errorMessage) || [];
 
-                const errorMsg = errors.length > 0
-                    ? `Error procesando imágenes: ${errors.join(', ')}. Verifica que las URLs sean accesibles públicamente y que las imágenes sean JPG o PNG.`
-                    : 'No se generaron imágenes procesadas. Verifica que las URLs sean accesibles públicamente.';
+                // Check if response.return exists at all
+                if (!response.return) {
+                    const errorMsg = '❌ NO RESPONSE: AI response parsing failed\n\n' +
+                        '🔍 La estructura de respuesta de CarStudio AI no es reconocida.\n\n' +
+                        '⚠️ Posibles causas:\n' +
+                        '• El API de CarStudio cambió su formato de respuesta\n' +
+                        '• Error de autenticación con el servicio\n' +
+                        '• Las imágenes no cumplen los requisitos del AI\n\n' +
+                        '📋 Detalles técnicos:\n' +
+                        `Response keys: ${Object.keys(response).join(', ')}\n\n` +
+                        '💡 Revisa la consola del navegador y la respuesta completa abajo para más detalles.';
+                    setInterpretedError(errorMsg);
+                    setApiResponse(JSON.stringify(response, null, 2));
+                    setRequestStatus('error');
+                } else {
+                    const errorMsg = errors.length > 0
+                        ? `Error procesando imágenes: ${errors.join(', ')}. Verifica que las URLs sean accesibles públicamente y que las imágenes sean JPG o PNG.`
+                        : 'No se generaron imágenes procesadas. Verifica que las URLs sean accesibles públicamente.';
 
-                setInterpretedError(errorMsg);
-                setApiResponse(JSON.stringify(response, null, 2));
-                setRequestStatus('error');
+                    setInterpretedError(errorMsg);
+                    setApiResponse(JSON.stringify(response, null, 2));
+                    setRequestStatus('error');
+                }
             }
         } catch (error: any) {
             setRequestStatus('error');
@@ -401,7 +419,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                 setApiResponse(JSON.stringify({ status: 'client_error', message: error.message }, null, 2));
             }
         }
-    }, [selectedVehicle, uploadImages, fileExtension, chassisNumber, platformUrl, selectedImageIndices]);
+    }, [selectedVehicle, uploadImages]);
 
     const handleSaveImages = useCallback(async () => {
         if (!selectedVehicle || comparisonImages.length === 0) return;
@@ -409,22 +427,47 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveError(null);
         try {
             const processedUrls = comparisonImages.map(img => img.processed);
+
+            // Find the feature image to use (prefer RIGHT_FRONT, then FRONT, then first image)
+            let featureImageUrl: string | undefined;
+            if (replaceFeatureImage) {
+                // Find the index of RIGHT_FRONT in uploadImages
+                const rightFrontIndex = uploadImages.findIndex(img => img.position === 'RIGHT_FRONT');
+                const frontIndex = uploadImages.findIndex(img => img.position === 'FRONT');
+
+                if (rightFrontIndex !== -1 && rightFrontIndex < processedUrls.length) {
+                    featureImageUrl = processedUrls[rightFrontIndex];
+                    console.log(`Using RIGHT_FRONT as feature image (index ${rightFrontIndex})`);
+                } else if (frontIndex !== -1 && frontIndex < processedUrls.length) {
+                    featureImageUrl = processedUrls[frontIndex];
+                    console.log(`RIGHT_FRONT not found, using FRONT as feature image (index ${frontIndex})`);
+                } else {
+                    featureImageUrl = processedUrls[0];
+                    console.log('RIGHT_FRONT and FRONT not found, using first image as feature image');
+                }
+            }
+
             await ImageService.processAndSaveImages(
                 selectedVehicle.id,
                 processedUrls,
-                replaceFeatureImage ? processedUrls[0] : undefined
+                featureImageUrl
             );
+
+            // Invalidate React Query cache to force refetch updated vehicle data
+            queryClient.invalidateQueries({ queryKey: ['vehicles-car-studio'] });
+            queryClient.invalidateQueries({ queryKey: ['all-vehicles-car-studio-unpaginated'] });
+
             setSaveStatus('success');
             setTimeout(() => {
                 setComparisonImages([]);
                 setRequestStatus('idle');
-                setReplaceFeatureImage(false);
+                setReplaceFeatureImage(true); // Keep it checked for next time
             }, 2000);
         } catch (error: any) {
             setSaveStatus('error');
             setSaveError(error.message || 'An unknown error occurred.');
         }
-    }, [selectedVehicle, comparisonImages, replaceFeatureImage]);
+    }, [selectedVehicle, comparisonImages, replaceFeatureImage, uploadImages, queryClient]);
 
     const handleDiscardImages = () => {
         setComparisonImages([]);
@@ -452,17 +495,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                                 <h2 className="font-bold text-gray-800 truncate">{vehicle.titulo}</h2>
                                 <p className="text-sm text-gray-500 mb-2">ID: {vehicle.id}</p>
                             </button>
-                            {selectedVehicle?.id === vehicle.id && comparisonImages.length > 0 && (
-                                <ImageComparison
-                                    images={comparisonImages}
-                                    onSave={handleSaveImages}
-                                    onDiscard={handleDiscardImages}
-                                    saveStatus={saveStatus}
-                                    saveError={saveError}
-                                    replaceFeatureImage={replaceFeatureImage}
-                                    onToggleFeatureImage={setReplaceFeatureImage}
-                                />
-                            )}
                         </div>
                     ))
                 )}
@@ -470,21 +502,6 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             <div className="lg:col-span-2 sticky top-24">
                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
                     <h2 className="text-xl font-bold text-gray-800">2. Configura y Envía</h2>
-                    {/* Form Fields */}
-                    <div className="space-y-4">
-                        <div>
-                            <label htmlFor="fileExtension" className="text-sm font-medium text-gray-700">Extensión de Archivo</label>
-                            <select id="fileExtension" value={fileExtension} onChange={e => setFileExtension(e.target.value as 'PNG'|'JPG')} className="mt-1 w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300">
-                                <option value="PNG">PNG</option>
-                                <option value="JPG">JPG</option>
-                            </select>
-                        </div>
-                        
-                        <InputField id="chassisNumber" label="ID del Auto (Chassis Number)" value={chassisNumber} onChange={e => setChassisNumber(e.target.value)} placeholder="VIN" />
-                        <InputField id="platformUrl" label="URL de Plataforma" value={platformUrl} onChange={e => setPlatformUrl(e.target.value)} placeholder="https://trefa.mx" />
-
-
-                    </div>
 
                     <div className="space-y-4 pt-4 border-t">
                         <div className="flex items-center justify-between">
@@ -534,9 +551,38 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                                         <img
                                             src={imageUrl}
                                             alt={`Imagen ${index + 1}`}
-                                            className="w-full h-32 object-cover rounded"
+                                            className="w-full h-32 object-contain rounded bg-gray-50"
                                         />
-                                        <p className="text-xs text-center mt-1 text-gray-600">Imagen {index + 1}</p>
+                                        <div className="mt-2 space-y-1">
+                                            <p className="text-xs text-center text-gray-600">Imagen {index + 1}</p>
+                                            {selectedImageIndices.has(index) && (
+                                                <select
+                                                    value={uploadImages.find(img => img.fileUrl === imageUrl)?.position || 'FRONT'}
+                                                    onChange={(e) => {
+                                                        e.stopPropagation();
+                                                        updateImagePosition(imageUrl, e.target.value);
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="w-full text-xs px-2 py-1 border border-primary-300 rounded bg-white text-gray-700 focus:ring-1 focus:ring-primary-500"
+                                                >
+                                                    <option value="FRONT">FRONT</option>
+                                                    <option value="RIGHT_FRONT">RIGHT_FRONT</option>
+                                                    <option value="RIGHT_SIDE">RIGHT_SIDE</option>
+                                                    <option value="RIGHT_BACK">RIGHT_BACK</option>
+                                                    <option value="BACK">BACK</option>
+                                                    <option value="LEFT_BACK">LEFT_BACK</option>
+                                                    <option value="LEFT_SIDE">LEFT_SIDE</option>
+                                                    <option value="LEFT_FRONT">LEFT_FRONT</option>
+                                                    <option value="CENTRAL_DASH">CENTRAL_DASH</option>
+                                                    <option value="STEERING_WHEEL">STEERING_WHEEL</option>
+                                                    <option value="LEFT_DRIVER_DOOR_OPEN">LEFT_DRIVER_DOOR_OPEN</option>
+                                                    <option value="LEFT_REAR_DOOR_OPEN">LEFT_REAR_DOOR_OPEN</option>
+                                                    <option value="RIGHT_PASSENGER_DOOR_OPEN">RIGHT_PASSENGER_DOOR_OPEN</option>
+                                                    <option value="CEELING_FEATURES">CEELING_FEATURES</option>
+                                                    <option value="OTHER">OTHER</option>
+                                                </select>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -549,6 +595,18 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                     </button>
                     {interpretedError && <ErrorDisplay title="Error de API" message={interpretedError} />}
                     {apiResponse && <ApiResponseViewer response={apiResponse} />}
+
+                    {comparisonImages.length > 0 && selectedVehicle && (
+                        <ImageComparison
+                            images={comparisonImages}
+                            onSave={handleSaveImages}
+                            onDiscard={handleDiscardImages}
+                            saveStatus={saveStatus}
+                            saveError={saveError}
+                            replaceFeatureImage={replaceFeatureImage}
+                            onToggleFeatureImage={setReplaceFeatureImage}
+                        />
+                    )}
                  </div>
             </div>
         </div>
@@ -556,10 +614,47 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 };
 
 const WebEditorHistoryTab: React.FC = () => {
+    const queryClient = useQueryClient();
     const [history, setHistory] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [params] = useState({ pageNumber: 0, limit: 10, sortBy: 'createdDate', direction: 'DESC' as 'ASC' | 'DESC' });
+
+    const [saveStatus, setSaveStatus] = useState<{[key: string]: 'idle' | 'saving' | 'success' | 'error'}>({});
+    const [saveError, setSaveError] = useState<{[key: string]: string}>({});
+    const [selectedVehicleId, setSelectedVehicleId] = useState<{[key: string]: number | null}>({});
+
+    // Extract vehicle ID from traceId (format: "vehicle_123")
+    const extractVehicleId = (traceId?: string): number | null => {
+        if (!traceId) return null;
+        const match = traceId.match(/^vehicle_(\d+)$/);
+        return match ? parseInt(match[1], 10) : null;
+    };
+
+    // Fetch ALL vehicles by requesting multiple pages (21 vehicles per page)
+    // Fetching 10 pages = up to 210 vehicles to ensure comprehensive coverage
+    const { data: vehiclesData } = useQuery({
+        queryKey: ['all-vehicles-car-studio-unpaginated'],
+        queryFn: async () => {
+            const pagePromises = Array.from({ length: 10 }, (_, i) =>
+                VehicleService.getAllVehicles({}, i + 1)
+            );
+            const results = await Promise.all(pagePromises);
+
+            // Combine all vehicles from all pages and deduplicate by ID
+            const allVehicles = results.flatMap(r => r.vehicles);
+            const uniqueVehicles = Array.from(
+                new Map(allVehicles.map(v => [v.id, v])).values()
+            );
+
+            return {
+                vehicles: uniqueVehicles,
+                totalCount: results[0]?.totalCount || uniqueVehicles.length
+            };
+        },
+        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    });
+    const vehicles = vehiclesData?.vehicles || [];
 
     const fetchHistory = useCallback(async () => {
         setLoading(true);
@@ -567,6 +662,19 @@ const WebEditorHistoryTab: React.FC = () => {
         try {
             const response = await CarStudioService.listWebEditorRecords(params);
             setHistory(response);
+
+            // Pre-select vehicles based on traceId
+            if (response?.content) {
+                const preSelectedVehicles: {[key: string]: number | null} = {};
+                response.content.forEach((item: any) => {
+                    const itemId = item._id;
+                    const vehicleId = extractVehicleId(item.carStudio?.traceId);
+                    if (vehicleId) {
+                        preSelectedVehicles[itemId] = vehicleId;
+                    }
+                });
+                setSelectedVehicleId(preSelectedVehicles);
+            }
         } catch (e: any) {
             setError(e.message || "Failed to fetch web editor history.");
         } finally {
@@ -577,28 +685,103 @@ const WebEditorHistoryTab: React.FC = () => {
     useEffect(() => {
         fetchHistory();
     }, [fetchHistory]);
-    
+
+    const handleReplaceImages = async (itemId: string, images: string[]) => {
+        const vehicleId = selectedVehicleId[itemId];
+        if (!vehicleId || !images || images.length === 0) return;
+
+        setSaveStatus(prev => ({...prev, [itemId]: 'saving'}));
+        setSaveError(prev => ({...prev, [itemId]: ''}));
+
+        try {
+            // Note: History doesn't preserve position metadata, so we use the first image
+            // In the future, consider storing position data in Car Studio projects
+            await ImageService.processAndSaveImages(vehicleId, images, images[0]);
+
+            // Invalidate React Query cache to force refetch updated vehicle data
+            queryClient.invalidateQueries({ queryKey: ['vehicles-car-studio'] });
+            queryClient.invalidateQueries({ queryKey: ['all-vehicles-car-studio'] });
+
+            setSaveStatus(prev => ({...prev, [itemId]: 'success'}));
+            setTimeout(() => {
+                setSaveStatus(prev => ({...prev, [itemId]: 'idle'}));
+            }, 2000);
+        } catch (e: any) {
+            setSaveStatus(prev => ({...prev, [itemId]: 'error'}));
+            setSaveError(prev => ({...prev, [itemId]: e.message || 'Error desconocido'}));
+        }
+    };
+
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Historial de Trabajos (Web Editor)</h2>
-            {/* TODO: Add pagination controls here */}
             {loading && <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary-500" /></div>}
             {error && <ErrorDisplay title="Error al Cargar Historial" message={error} />}
             {history && history.content && (
                 <div className="space-y-4">
-                    {history.content.map((item: any) => (
-                        <div key={item._id} className="p-4 border rounded-lg">
-                            <h3 className="font-semibold">{item.carStudio.projectName || `Trabajo ID: ${item.carStudio._id.slice(-6)}`}</h3>
-                            <p className="text-xs text-gray-500">Fecha: {new Date(item.carStudio.createdDate).toLocaleString()}</p>
-                            <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                                {item.carStudio.afterStudioImages?.map((img: any, idx: number) => (
-                                    <a key={idx} href={img.afterStudioImageUrl} target="_blank" rel="noopener noreferrer">
-                                        <LazyImage src={img.afterStudioImageUrl} alt={`Processed image ${idx+1}`} className="aspect-square rounded-md" />
-                                    </a>
-                                ))}
+                    {history.content.map((item: any) => {
+                        const itemId = item._id;
+                        const processedImages = item.carStudio.afterStudioImages?.map((img: any) => img.afterStudioImageUrl) || [];
+                        const trackedVehicleId = extractVehicleId(item.carStudio?.traceId);
+                        const trackedVehicle = trackedVehicleId ? vehicles.find((v: any) => v.id === trackedVehicleId) : null;
+
+                        return (
+                            <div key={itemId} className="p-4 border rounded-lg space-y-3">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h3 className="font-semibold">{item.carStudio.projectName || `Trabajo ID: ${item.carStudio._id.slice(-6)}`}</h3>
+                                        <p className="text-xs text-gray-500">Fecha: {new Date(item.carStudio.createdDate).toLocaleString()}</p>
+                                        {trackedVehicle && (
+                                            <div className="mt-1 inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-md text-xs font-medium">
+                                                <Camera className="w-3 h-3" />
+                                                {trackedVehicle.titulo}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                                    {item.carStudio.afterStudioImages?.map((img: any, idx: number) => (
+                                        <a key={idx} href={img.afterStudioImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <LazyImage src={img.afterStudioImageUrl} alt={`Processed image ${idx+1}`} className="aspect-square rounded-md" />
+                                        </a>
+                                    ))}
+                                </div>
+
+                                {/* Replace Images Section */}
+                                <div className="flex items-center gap-3 pt-3 border-t">
+                                    <select
+                                        value={selectedVehicleId[itemId] || ''}
+                                        onChange={(e) => setSelectedVehicleId(prev => ({...prev, [itemId]: Number(e.target.value)}))}
+                                        className="flex-1 px-3 py-2 border rounded-md text-sm"
+                                    >
+                                        <option value="">Seleccionar vehículo... ({vehicles.length} disponibles)</option>
+                                        {vehicles.map((v: any) => (
+                                            <option key={v.id} value={v.id}>
+                                                {v.titulo} - {v.marca || ''} {v.modelo || ''} {v.anio || ''} (ID: {v.id})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        onClick={() => handleReplaceImages(itemId, processedImages)}
+                                        disabled={!selectedVehicleId[itemId] || saveStatus[itemId] === 'saving'}
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-2"
+                                    >
+                                        {saveStatus[itemId] === 'saving' ? (
+                                            <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</>
+                                        ) : (
+                                            <><SaveIcon className="w-4 h-4" /> Reemplazar</>
+                                        )}
+                                    </button>
+                                </div>
+                                {saveStatus[itemId] === 'success' && (
+                                    <p className="text-sm text-green-600 font-medium">¡Imágenes reemplazadas exitosamente!</p>
+                                )}
+                                {saveStatus[itemId] === 'error' && (
+                                    <p className="text-sm text-red-600">{saveError[itemId]}</p>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

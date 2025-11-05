@@ -23,13 +23,17 @@ const profileSchema = z.object({
   homoclave: z.string().length(3, 'Homoclave debe tener 3 caracteres'),
   fiscal_situation: z.string().min(1, 'Situación fiscal es requerida'),
   civil_status: z.string().min(1, 'Estado civil es requerido'),
+  spouse_name: z.string().optional().or(z.literal('')),
   gender: z.string().optional().or(z.literal('')),
   how_did_you_know: z.string().optional().or(z.literal('')),
-  address: z.string().min(5, 'La dirección es requerida'),
-  colony: z.string().min(3, 'La colonia es requerida'),
-  city: z.string().min(2, 'La ciudad es requerida'),
-  state: z.string().min(2, 'El estado es requerido'),
-  zip_code: z.string().min(5, 'El código postal debe tener 5 dígitos'),
+}).refine(data => {
+  if (data.civil_status?.toLowerCase() === 'casado') {
+    return data.spouse_name && data.spouse_name.length >= 2;
+  }
+  return true;
+}, {
+  message: 'El nombre del cónyuge es obligatorio para personas casadas.',
+  path: ['spouse_name'],
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -54,7 +58,8 @@ const checkProfileCompleteness = (p: Profile | undefined): boolean => {
 
 const ProfilePage: React.FC = () => {
   const { user, profile, loading, reloadProfile } = useAuth();
-  
+  const navigate = useNavigate();
+
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
@@ -69,6 +74,8 @@ const ProfilePage: React.FC = () => {
   });
   
   const { watch: watchProfileFields, reset: resetProfileForm } = profileForm;
+  const civilStatus = watchProfileFields('civil_status');
+  const isMarried = civilStatus?.toLowerCase() === 'casado';
 
   useEffect(() => {
     if (profile) {
@@ -86,13 +93,9 @@ const ProfilePage: React.FC = () => {
         homoclave: profile.homoclave || '',
         fiscal_situation: profile.fiscal_situation || '',
         civil_status: profile.civil_status || '',
+        spouse_name: profile.spouse_name || '',
         gender: profile.gender || '',
         how_did_you_know: profile.how_did_you_know || '',
-        address: profile.address || '',
-        colony: profile.colony || '',
-        city: profile.city || '',
-        state: profile.state || '',
-        zip_code: profile.zip_code || '',
       });
       setCalculatedRfc(profile.rfc || '');
       setAsesorAutorizadoAcceso(profile.asesor_autorizado_acceso || false);
@@ -155,14 +158,13 @@ const ProfilePage: React.FC = () => {
 
       await ProfileService.updateProfile(payload);
       await reloadProfile();
-      
+
       setSaveState('saved');
-      toast.success('¡Perfil guardado!');
+      toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');
 
       setTimeout(() => {
-        setSaveState('idle');
-        // Navigation logic can be placed here if needed, for now, we just reset the button
-      }, 2500);
+        navigate('/escritorio/perfilacion-bancaria');
+      }, 4000);
 
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Ocurrió un error desconocido');
@@ -324,27 +326,14 @@ const ProfilePage: React.FC = () => {
                 </select>
               </FormField>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField label="Calle y Número" error={profileForm.formState.errors.address?.message as React.ReactNode}>
-                <input {...profileForm.register('address')} className={inputClassName} />
-              </FormField>
-              <FormField label="Colonia" error={profileForm.formState.errors.colony?.message as React.ReactNode}>
-                <input {...profileForm.register('colony')} className={inputClassName} />
-              </FormField>
-              <FormField label="Ciudad" error={profileForm.formState.errors.city?.message as React.ReactNode}>
-                <input {...profileForm.register('city')} className={inputClassName} />
-              </FormField>
-              <FormField label="Estado" error={profileForm.formState.errors.state?.message as React.ReactNode}>
-                <select {...profileForm.register('state')} className={inputClassName}>
-                  <option value="">Seleccionar...</option>
-                  {MEXICAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </FormField>
-              <FormField label="Código Postal" error={profileForm.formState.errors.zip_code?.message as React.ReactNode}>
-                <input {...profileForm.register('zip_code')} className={inputClassName} />
-              </FormField>
-            </div>
+
+            {isMarried && (
+              <div>
+                <label htmlFor="spouse_name" className="block text-sm font-medium text-gray-700">Nombre Completo del Cónyuge</label>
+                <input id="spouse_name" {...profileForm.register('spouse_name')} className={inputClassName} placeholder="Nombre completo" />
+                {profileForm.formState.errors.spouse_name && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.spouse_name.message as React.ReactNode}</p>}
+              </div>
+            )}
 
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <label className="flex items-start cursor-pointer">

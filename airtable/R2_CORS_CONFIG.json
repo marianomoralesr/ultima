@@ -1,0 +1,29 @@
+[
+  {
+    "AllowedOrigins": [
+      "https://trefa.mx",
+      "https://www.trefa.mx",
+      "https://jjepfehmuybpctdzipnu.supabase.co",
+      "https://airtable.com",
+      "https://*.airtable.com"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "HEAD",
+      "PUT",
+      "POST",
+      "DELETE"
+    ],
+    "AllowedHeaders": [
+      "*"
+    ],
+    "ExposeHeaders": [
+      "ETag",
+      "Content-Length",
+      "Content-Type",
+      "x-amz-request-id",
+      "x-amz-meta-*"
+    ],
+    "MaxAgeSeconds": 3600
+  }
+]

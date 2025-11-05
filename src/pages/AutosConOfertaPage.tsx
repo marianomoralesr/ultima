@@ -3,8 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SellCarService } from '../services/SellCarService';
 import { AdminService } from '../services/AdminService';
-import { Loader2, AlertTriangle, ArrowLeft, Car, User, Phone, Mail, MapPin, Calendar, FileText, CheckCircle, X, Save, Send, Tag } from 'lucide-react';
+import { Loader2, AlertTriangle, ArrowLeft, Car, User, Phone, Mail, MapPin, Calendar, FileText, CheckCircle, X, Save, Send, Tag, Edit, ListOrdered, Gauge, DollarSign, Users, Key, Receipt, Building, CreditCard, ShieldAlert, MessageSquare } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import EmailNotificationsHistory from '../components/EmailNotificationsHistory';
 
 const ProfileDataItem: React.FC<{ label: string, value: any, icon?: React.ReactNode }> = ({ label, value, icon }) => (
     <div className="flex items-start gap-3">
@@ -26,6 +27,8 @@ const AutosConOfertaPage: React.FC = () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isEditingTags, setIsEditingTags] = useState(false);
     const [kommoWebhookUrl, setKommoWebhookUrl] = useState('');
+    const [status, setStatus] = useState('');
+    const [isEditingStatus, setIsEditingStatus] = useState(false);
 
     const { data: leadDetails, isLoading, isError, error } = useQuery<any, Error>({
         queryKey: ['purchaseLeadDetails', listingId],
@@ -47,6 +50,7 @@ const AutosConOfertaPage: React.FC = () => {
         if (leadDetails) {
             setContacted(leadDetails.contacted || false);
             setSelectedTags(leadDetails.tags?.map((t: any) => t.id) || []);
+            setStatus(leadDetails.status || 'pending');
         }
     }, [leadDetails]);
 
@@ -72,6 +76,16 @@ const AutosConOfertaPage: React.FC = () => {
         },
         onError: (error: any) => {
             alert(`Error: ${error.message}`);
+        }
+    });
+
+    const updateStatusMutation = useMutation({
+        mutationFn: (newStatus: string) => SellCarService.updateStatus(listingId!, newStatus),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['purchaseLeadDetails', listingId] });
+            queryClient.invalidateQueries({ queryKey: ['purchaseLeads'] });
+            queryClient.invalidateQueries({ queryKey: ['comprasDashboardStats'] });
+            setIsEditingStatus(false);
         }
     });
 
@@ -112,27 +126,27 @@ const AutosConOfertaPage: React.FC = () => {
                     <div className="bg-white p-6 rounded-xl shadow-sm border">
                         <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <Car className="w-6 h-6 text-primary-600" />
-                            Detalles del Vehículo
+                            Detalles del Auto
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <ProfileDataItem label="Vehículo" value={vehicle?.label || 'N/A'} icon={<Car className="w-5 h-5" />} />
+                            <ProfileDataItem label="Auto" value={vehicle?.label || 'N/A'} icon={<Car className="w-5 h-5" />} />
                             <ProfileDataItem label="Año" value={vehicle?.year} icon={<Calendar className="w-5 h-5" />} />
-                            <ProfileDataItem label="Kilometraje" value={leadDetails.valuation_data?.mileage ? `${leadDetails.valuation_data.mileage.toLocaleString('es-MX')} km` : 'N/A'} />
-                            <ProfileDataItem label="Oferta Inicial" value={valuation?.suggestedOffer ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valuation.suggestedOffer) : 'N/A'} />
-                            <ProfileDataItem label="Número de Dueños" value={leadDetails.owner_count} />
-                            <ProfileDataItem label="Llaves" value={leadDetails.key_info} />
-                            <ProfileDataItem label="Estado de Factura" value={leadDetails.invoice_status === 'liberada' ? 'Liberada' : 'Financiada'} />
+                            <ProfileDataItem label="Kilometraje" value={leadDetails.valuation_data?.mileage ? `${leadDetails.valuation_data.mileage.toLocaleString('es-MX')} km` : 'N/A'} icon={<Gauge className="w-5 h-5" />} />
+                            <ProfileDataItem label="Oferta Inicial" value={valuation?.suggestedOffer ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valuation.suggestedOffer) : 'N/A'} icon={<DollarSign className="w-5 h-5" />} />
+                            <ProfileDataItem label="Número de Dueños" value={leadDetails.owner_count} icon={<Users className="w-5 h-5" />} />
+                            <ProfileDataItem label="Llaves" value={leadDetails.key_info} icon={<Key className="w-5 h-5" />} />
+                            <ProfileDataItem label="Estado de Factura" value={leadDetails.invoice_status === 'liberada' ? 'Liberada' : 'Financiada'} icon={<Receipt className="w-5 h-5" />} />
                             {leadDetails.invoice_status === 'financiada' && (
                                 <>
-                                    <ProfileDataItem label="Tipo de Entidad" value={leadDetails.financing_entity_type === 'banco' ? 'Banco' : 'Agencia'} />
-                                    <ProfileDataItem label="Nombre de Entidad" value={leadDetails.financing_entity_name} />
+                                    <ProfileDataItem label="Tipo de Entidad" value={leadDetails.financing_entity_type === 'banco' ? 'Banco' : 'Agencia'} icon={<Building className="w-5 h-5" />} />
+                                    <ProfileDataItem label="Nombre de Entidad" value={leadDetails.financing_entity_name} icon={<Building className="w-5 h-5" />} />
                                 </>
                             )}
-                            <ProfileDataItem label="Estado del Vehículo" value={leadDetails.vehicle_state} icon={<MapPin className="w-5 h-5" />} />
-                            <ProfileDataItem label="Estado de Placas" value={leadDetails.plate_registration_state} />
-                            <ProfileDataItem label="Historial de Accidentes" value={leadDetails.accident_history} />
-                            <ProfileDataItem label="Razón de Venta" value={leadDetails.reason_for_selling} />
-                            <ProfileDataItem label="Sucursal de Inspección" value={leadDetails.inspection_branch} />
+                            <ProfileDataItem label="Estado del Auto" value={leadDetails.vehicle_state} icon={<MapPin className="w-5 h-5" />} />
+                            <ProfileDataItem label="Estado de Placas" value={leadDetails.plate_registration_state} icon={<CreditCard className="w-5 h-5" />} />
+                            <ProfileDataItem label="Historial de Accidentes" value={leadDetails.accident_history} icon={<ShieldAlert className="w-5 h-5" />} />
+                            <ProfileDataItem label="Razón de Venta" value={leadDetails.reason_for_selling} icon={<MessageSquare className="w-5 h-5" />} />
+                            <ProfileDataItem label="Sucursal de Inspección" value={leadDetails.inspection_branch} icon={<Building className="w-5 h-5" />} />
                         </div>
                         {leadDetails.additional_details && (
                             <div className="mt-6 pt-6 border-t">
@@ -197,6 +211,65 @@ const AutosConOfertaPage: React.FC = () => {
                             {contacted ? 'Contactado' : 'No Contactado'}
                         </button>
                     </div>
+
+                    <div className="bg-white p-6 rounded-xl shadow-sm border">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <ListOrdered className="w-5 h-5 text-primary-600" />
+                                Estado del Proceso
+                            </h2>
+                            <button onClick={() => setIsEditingStatus(!isEditingStatus)} className="text-sm font-semibold text-primary-600 hover:text-primary-800">
+                                {isEditingStatus ? 'Cancelar' : 'Editar'}
+                            </button>
+                        </div>
+                        {isEditingStatus ? (
+                            <div className="space-y-4">
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                >
+                                    <option value="pending">Pendiente</option>
+                                    <option value="in_inspection">En Inspección</option>
+                                    <option value="offer_made">Oferta Realizada</option>
+                                    <option value="completed">Completado</option>
+                                    <option value="rejected">Rechazado</option>
+                                </select>
+                                <button
+                                    onClick={() => updateStatusMutation.mutate(status)}
+                                    disabled={updateStatusMutation.isPending}
+                                    className="w-full flex items-center justify-center gap-2 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                                >
+                                    {updateStatusMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    {updateStatusMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="text-sm">
+                                <span className={`px-3 py-1.5 rounded-full font-semibold ${
+                                    status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    status === 'in_inspection' ? 'bg-blue-100 text-blue-800' :
+                                    status === 'offer_made' ? 'bg-purple-100 text-purple-800' :
+                                    status === 'completed' ? 'bg-green-100 text-green-800' :
+                                    status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }`}>
+                                    {status === 'pending' ? 'Pendiente' :
+                                     status === 'in_inspection' ? 'En Inspección' :
+                                     status === 'offer_made' ? 'Oferta Realizada' :
+                                     status === 'completed' ? 'Completado' :
+                                     status === 'rejected' ? 'Rechazado' : status}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    {(leadDetails?.user_id || leadDetails?.email) && (
+                        <EmailNotificationsHistory
+                            userId={leadDetails.user_id}
+                            recipientEmail={!leadDetails.user_id ? leadDetails.email : undefined}
+                        />
+                    )}
 
                     <div className="bg-white p-6 rounded-xl shadow-sm border">
                         <div className="flex justify-between items-center mb-4">

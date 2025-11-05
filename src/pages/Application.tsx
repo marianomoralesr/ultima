@@ -13,10 +13,13 @@ import {
 import StepIndicator from '../components/StepIndicator';
 import { ApplicationService } from '../services/ApplicationService';
 import { BankProfilingService } from '../services/BankProfilingService';
+import { ProfileService } from '../services/profileService';
 
 import FileUpload from '../components/FileUpload';
 import { DocumentService, UploadedDocument } from '../services/documentService';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
+import { BrevoEmailService } from '../services/BrevoEmailService';
+import { supabase } from '../../supabaseClient';
 
 const VehicleSelector = lazy(() => import('../components/VehicleSelector'));
 
@@ -24,16 +27,16 @@ const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California S
 
 const baseApplicationObject = z.object({
   // Step 1: Personal Info & Address
-  civil_status: z.string().optional(),
   current_address: z.string().optional(),
   current_colony: z.string().optional(),
   current_city: z.string().optional(),
   current_state: z.string().optional(),
   current_zip_code: z.string().optional(),
+  time_at_address: z.string().min(1, 'El tiempo en el domicilio es obligatorio'),
   housing_type: z.string().min(1, 'El tipo de vivienda es obligatorio'),
   grado_de_estudios: z.string().min(1, 'El grado de estudios es obligatorio'),
   dependents: z.string().min(1, 'El número de dependientes es obligatorio'),
-  spouse_full_name: z.string().optional(), // Always optional in base schema
+  // spouse_full_name removed - this data is collected in Profile page as spouse_name
 
   // Step 2: Employment Info
   fiscal_classification: z.string().min(1, "La clasificación fiscal es obligatoria"),
@@ -63,14 +66,6 @@ const baseApplicationObject = z.object({
   }),
   consent_survey: z.boolean().optional(),
   ordencompra: z.string().optional(),
-}).refine(data => {
-    if (data.civil_status?.toLowerCase() === 'casado') {
-        return data.spouse_full_name && data.spouse_full_name.length >= 2;
-    }
-    return true;
-}, {
-    message: 'El nombre completo del cónyuge es obligatorio.',
-    path: ['spouse_full_name'],
 });
 
 const baseApplicationSchema = baseApplicationObject;
@@ -104,9 +99,8 @@ const Application: React.FC = () => {
         consent_survey: false,
       }
     });
-    const { control, handleSubmit, formState: { errors, isValid }, reset, trigger, getValues, setValue, watch } = form;
-    const civilStatus = watch('civil_status');
-    const isMarried = civilStatus?.toLowerCase() === 'casado';
+    const { control, handleSubmit, formState: { errors, isValid }, reset, trigger, getValues, setValue } = form;
+    const isMarried = profile?.civil_status?.toLowerCase() === 'casado';
 
     useEffect(() => {
         const checkUserProfile = async () => {
@@ -121,7 +115,8 @@ const Application: React.FC = () => {
 
             setPageStatus('checking_profile');
             try {
-                const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'address', 'city', 'state', 'zip_code', 'rfc'];
+                // Address fields (address, city, state, zip_code) are now part of the application form, not profile requirements
+                const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
                 const isProfileComplete = requiredFields.every(field => profile[field] && String(profile[field]).trim() !== '');
                 
                 if (!isProfileComplete) {
@@ -226,7 +221,7 @@ const Application: React.FC = () => {
     };
 
     const steps = [
-        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'housing_type', 'dependents', 'grado_de_estudios', ...(isMarried ? ['spouse_full_name'] : [])] },
+        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },
@@ -321,12 +316,13 @@ const Application: React.FC = () => {
             return;
         }
 
-        const docValidationError = validateDocuments();
-        if (docValidationError) {
-            setSubmissionError(docValidationError);
-            setCurrentStep(3); // Go back to documents step
-            return;
-        }
+        // Documents are optional - users can upload later from dashboard
+        // const docValidationError = validateDocuments();
+        // if (docValidationError) {
+        //     setSubmissionError(docValidationError);
+        //     setCurrentStep(3); // Go back to documents step
+        //     return;
+        // }
 
         try {
             // Re-check for active applications right before submission to prevent race conditions
@@ -341,6 +337,16 @@ const Application: React.FC = () => {
                 }
             }
 
+            // Update profile with address information from application form
+            await ProfileService.updateProfile({
+                id: user.id,
+                address: data.current_address,
+                colony: data.current_colony,
+                city: data.current_city,
+                state: data.current_state,
+                zip_code: data.current_zip_code,
+            });
+
             const payload = {
                 personal_info_snapshot: profile,
                 car_info: vehicleInfo,
@@ -349,6 +355,60 @@ const Application: React.FC = () => {
             };
 
             await ApplicationService.updateApplication(applicationId, payload);
+
+            // Send email notifications (non-blocking)
+            const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+            const clientEmail = profile.email || '';
+            const vehicleTitle = vehicleInfo?._vehicleTitle || null;
+
+            // Send notification to client
+            if (clientEmail) {
+                BrevoEmailService.notifyApplicationSubmitted(
+                    clientEmail,
+                    clientName,
+                    vehicleTitle,
+                    applicationId
+                ).catch(err => console.error('[Application] Error sending client email:', err));
+            }
+
+            // Get advisor info if assigned
+            let advisorEmail: string | null = null;
+            let advisorName: string | null = null;
+            if (profile.asesor_asignado_id) {
+                const { data: advisor } = await supabase
+                    .from('profiles')
+                    .select('email, first_name, last_name')
+                    .eq('id', profile.asesor_asignado_id)
+                    .maybeSingle();
+
+                if (advisor) {
+                    advisorEmail = advisor.email;
+                    advisorName = `${advisor.first_name || ''} ${advisor.last_name || ''}`.trim();
+                }
+            }
+
+            // Send notification to admins
+            BrevoEmailService.notifyAdminsNewApplication(
+                clientName,
+                clientEmail,
+                profile.phone,
+                vehicleTitle,
+                user.id, // Using user.id for the client profile URL
+                advisorName
+            ).catch(err => console.error('[Application] Error sending admin emails:', err));
+
+            // Send notification to assigned advisor if exists
+            if (advisorEmail && advisorName) {
+                BrevoEmailService.notifySalesAdvisor(
+                    advisorEmail,
+                    advisorName,
+                    clientName,
+                    clientEmail,
+                    profile.phone,
+                    vehicleTitle,
+                    user.id
+                ).catch(err => console.error('[Application] Error sending advisor email:', err));
+            }
 
             setPageStatus('success');
 
@@ -387,67 +447,36 @@ const Application: React.FC = () => {
                  return <StatusDisplay icon={Info} title="Ocurrió un Error" message={pageError || 'Error desconocido'} linkTo="/escritorio" linkText="Volver al Escritorio" />;
             case 'success':
                  return (
-                     <div className="max-w-3xl mx-auto p-4 sm:p-6 text-gray-900">
-                         {/* Empowering Title */}
+                     <div className="max-w-4xl mx-auto p-4 sm:p-6 text-gray-900">
+                         {/* Success Header with Icon */}
                          <div className="text-center mb-6">
-                             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-                                 ¡Tu Solicitud Ha Sido Enviada Exitosamente!
+                             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                                 <CheckCircle className="w-10 h-10 text-green-600" />
+                             </div>
+                             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                                 ¡Solicitud Enviada Exitosamente!
                              </h1>
-                             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                                 Has dado el primer paso hacia el auto que deseas. Te recomendamos revisar frecuentemente el estado de tu solicitud para estar al tanto de cualquier actualización.
+                             <p className="text-sm text-gray-600 max-w-xl mx-auto">
+                                 Tu solicitud está en revisión. Te notificaremos por email y WhatsApp sobre cualquier actualización.
                              </p>
                          </div>
 
-                         {/* Process Explanation */}
-                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
-                             <h2 className="text-xl font-bold text-blue-900 mb-3">¿Qué Sigue?</h2>
-                             <div className="space-y-3 text-blue-800">
-                                 <div className="flex items-start gap-3">
-                                     <div className="bg-blue-200 rounded-full p-1 mt-0.5 flex-shrink-0">
-                                         <div className="w-6 h-6 flex items-center justify-center text-blue-900 font-bold">1</div>
+                         {/* Main Content Grid */}
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                             {/* Left Column: Vehicle & Contact Info */}
+                             <div className="bg-white rounded-lg shadow-sm border p-4">
+                                 {vehicleInfo?._vehicleTitle && (
+                                     <div className="mb-4 pb-4 border-b">
+                                         <p className="text-xs text-gray-500 mb-1">Vehículo Seleccionado</p>
+                                         <div className="flex items-center gap-3">
+                                             <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-16 h-12 object-cover rounded flex-shrink-0" />
+                                             <h3 className="text-sm font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h3>
+                                         </div>
                                      </div>
-                                     <p className="text-sm">Nuestro equipo revisará tu solicitud y documentación.</p>
-                                 </div>
-                                 <div className="flex items-start gap-3">
-                                     <div className="bg-blue-200 rounded-full p-1 mt-0.5 flex-shrink-0">
-                                         <div className="w-6 h-6 flex items-center justify-center text-blue-900 font-bold">2</div>
-                                     </div>
-                                     <p className="text-sm">Te notificaremos por email y WhatsApp sobre el estado de tu solicitud.</p>
-                                 </div>
-                                 <div className="flex items-start gap-3">
-                                     <div className="bg-blue-200 rounded-full p-1 mt-0.5 flex-shrink-0">
-                                         <div className="w-6 h-6 flex items-center justify-center text-blue-900 font-bold">3</div>
-                                     </div>
-                                     <p className="text-sm">Una vez aprobada, podrás separar tu auto en línea o elegir otro de nuestro inventario.</p>
-                                 </div>
-                             </div>
-                         </div>
-
-                         {/* Main Card Container */}
-                         <div className="bg-white p-6 rounded-xl shadow-sm border flex flex-col gap-6">
-                            {/* Vehicle Info */}
-                             {vehicleInfo?._vehicleTitle && (
-                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                                     <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-full sm:w-32 sm:h-24 object-cover rounded-md" />
+                                 )}
+                                 <div className="space-y-2 text-xs">
                                      <div>
-                                         <p className="text-sm text-gray-500">Vehículo en tu solicitud:</p>
-                                         <h3 className="text-lg font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h3>
-                                     </div>
-                                 </div>
-                             )}
-
-                             {/* Confirmation and User Details */}
-                             <div className="pt-4 border-t">
-                                 <h2 className="text-xl font-bold mb-4">Información de la Solicitud</h2>
-                                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3 mb-6">
-                                     <div className="bg-green-100 p-2 rounded-full">
-                                        <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
-                                     </div>
-                                     <p className="text-green-800 font-semibold self-center">¡Felicidades! Hemos recibido tu solicitud y se encuentra actualmente en revisión.</p>
-                                 </div>
-                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-                                     <div>
-                                         <p className="text-gray-500">Nombre Completo</p>
+                                         <p className="text-gray-500">Nombre</p>
                                          <p className="font-semibold">{`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim()}</p>
                                      </div>
                                      <div>
@@ -461,39 +490,72 @@ const Application: React.FC = () => {
                                  </div>
                              </div>
 
-                             {/* Important Disclaimer */}
-                             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
-                                 <p className="text-yellow-900">
-                                     <strong>Importante:</strong> El vehículo seleccionado no está garantizado hasta que tu crédito sea aprobado y realices la separación. Sin embargo, una vez aprobado tu crédito, podrás utilizarlo para cualquier vehículo de nuestro inventario con un precio similar (hasta 15% más caro o cualquier precio menor).
-                                 </p>
-                             </div>
-
-                             {/* Grayed Out Reservation Button */}
-                             <div className="p-4 bg-gray-50 rounded-lg border">
-                                 <button
-                                     disabled
-                                     className="w-full bg-gray-300 text-gray-500 font-bold py-3 px-6 rounded-lg cursor-not-allowed mb-3"
-                                 >
-                                     Separar Vehículo
-                                 </button>
-                                 <p className="text-xs text-gray-600 text-center font-medium">
-                                     La separación de autos solo está disponible para usuarios con créditos aprobados
-                                 </p>
-                                 <p className="text-sm text-gray-700 text-center mt-4">
-                                     Una vez que recibas el estatus de <strong>aprobado</strong>, podrás reservar tu vehículo directamente desde esta plataforma. Te notificaremos por email y WhatsApp cuando esto suceda.
-                                 </p>
+                             {/* Right Column: Next Steps */}
+                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                 <h2 className="text-sm font-bold text-blue-900 mb-3">Próximos Pasos</h2>
+                                 <div className="space-y-2">
+                                     <div className="flex items-start gap-2">
+                                         <span className="flex-shrink-0 w-5 h-5 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-900">1</span>
+                                         <p className="text-xs text-blue-800">Revisión de solicitud y documentos</p>
+                                     </div>
+                                     <div className="flex items-start gap-2">
+                                         <span className="flex-shrink-0 w-5 h-5 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-900">2</span>
+                                         <p className="text-xs text-blue-800">Notificación de estatus vía email/WhatsApp</p>
+                                     </div>
+                                     <div className="flex items-start gap-2">
+                                         <span className="flex-shrink-0 w-5 h-5 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-900">3</span>
+                                         <p className="text-xs text-blue-800">Separación del vehículo una vez aprobado</p>
+                                     </div>
+                                 </div>
                              </div>
                          </div>
 
-                         {/* Action Button */}
-                         <div className="mt-6 text-center">
+                         {/* Important Notice */}
+                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                             <p className="text-xs text-yellow-900">
+                                 <strong>Nota:</strong> El vehículo no está garantizado hasta la aprobación de tu crédito. Una vez aprobado, podrás usar tu crédito para cualquier vehículo de nuestro inventario con precio similar (±15%).
+                             </p>
+                         </div>
+
+                         {/* Action Buttons */}
+                         <div className="flex flex-col sm:flex-row gap-3 mb-4">
                              <Link
                                  to="/escritorio/seguimiento"
-                                 className="inline-flex items-center gap-2 px-8 py-3 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors"
+                                 className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors"
                              >
-                                 Ver Estado de mi Solicitud
-                                 <ArrowRight className="w-5 h-5" />
+                                 Ver Estado de Solicitud
+                                 <ArrowRight className="w-4 h-4" />
                              </Link>
+                             <Link
+                                 to="/explorar"
+                                 className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                             >
+                                 Explorar Más Vehículos
+                             </Link>
+                         </div>
+
+                         {/* Survey Invitation */}
+                         <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg p-4 shadow-lg">
+                             <div className="flex items-start gap-3">
+                                 <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                     <CheckCircle className="w-5 h-5" />
+                                 </div>
+                                 <div className="flex-1">
+                                     <h3 className="font-bold text-base mb-1">¡Obtén Beneficios Exclusivos!</h3>
+                                     <p className="text-xs text-white/90 mb-3">
+                                         Responde nuestra encuesta de 3 minutos y recibe promociones especiales, descuentos en accesorios,
+                                         seguros con tarifa preferencial y beneficios exclusivos.
+                                     </p>
+                                     <a
+                                         href="https://trefa-buyer-persona-survey-analytics-898935312460.us-west1.run.app/#/survey"
+                                         target="_blank"
+                                         rel="noopener noreferrer"
+                                         className="inline-flex items-center px-4 py-2 bg-white text-green-700 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors shadow-md"
+                                     >
+                                         Responder Encuesta <ArrowRight className="w-3 h-3 ml-1" />
+                                     </a>
+                                 </div>
+                             </div>
                          </div>
                      </div>
                  );
@@ -684,11 +746,12 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
                 </div>
             )}
         </div>
-        
+
         <hr className="my-6"/>
+        <FormRadio control={control} name="time_at_address" label="Tiempo Viviendo en el Domicilio" options={['Menos de 1 año', '1-2 años', '3-5 años', '6-10 años', 'Más de 10 años']} error={errors.time_at_address?.message} />
         <FormRadio control={control} name="housing_type" label="Tipo de Vivienda" options={['Propia', 'Rentada', 'Familiar']} error={errors.housing_type?.message} />
         <FormRadio control={control} name="grado_de_estudios" label="Grado de Estudios" options={['Primaria', 'Secundaria', 'Preparatoria', 'Licenciatura', 'Posgrado']} error={errors.grado_de_estudios?.message} />
-        {isMarried && <FormInput control={control} name="spouse_full_name" label="Nombre Completo del Cónyuge" error={errors.spouse_full_name?.message} />}
+        {/* Spouse name field removed - collected in Profile page instead */}
         <div>
             <FormRadio control={control} name="dependents" label="Número de Dependientes" options={['0', '1', '2', '3', '4+']} error={errors.dependents?.message} />
             <p className="text-xs text-gray-500 mt-2">Un número menor de dependientes aumenta tus probabilidades de ser aprobado.</p>
@@ -892,6 +955,11 @@ const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDo
     return (
         <div className="space-y-6">
             <h2 className="text-lg font-semibold">Carga de Documentos</h2>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 font-semibold">
+                    Los documentos son opcionales en este paso. Puedes continuar y subir tus documentos después de enviar tu solicitud a través del dashboard, o puedes subirlos ahora para agilizar tu solicitud.
+                </p>
+            </div>
             <p className="text-sm text-gray-600">Sube tus documentos para agilizar tu solicitud. Puedes tomar una foto o subir un archivo. Comprobantes de ingresos (debes cargar 3 PDFs)* No se aceptan imágenes o capturas. Por favor adjunta 3 archivos distintos en formato PDF (o un folder comprimido.zip) que descargas desde la aplicación de tu banca móvil.</p>
             <div className="grid md:grid-cols-2 gap-6">
                 {requiredDocuments.map(doc => (
@@ -956,40 +1024,58 @@ const ConsentStep: React.FC<{ control: any, errors: any, setValue: any }> = ({ c
     </div>
 );
 
-const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, vehicleInfo: any, bank: string | null }> = ({ applicationData, profile, vehicleInfo, bank }) => (
-    <div className="space-y-8">
-        <h2 className="text-xl font-semibold text-center">Revisa y Envía tu Solicitud</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1">
-                {vehicleInfo?._featureImage && <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="rounded-lg shadow-md aspect-video object-cover" />}
-                <div className="mt-4 space-y-2">
-                    <ReviewItem label="Vehículo" value={vehicleInfo?._vehicleTitle} isLarge={true}/>
-                    <ReviewItem label="Banco Recomendado" value={bank} isLarge={true}/>
+const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, vehicleInfo: any, bank: string | null }> = ({ applicationData, profile, vehicleInfo, bank }) => {
+    // Use application address if provided, otherwise fallback to profile address
+    const address = applicationData.current_address || profile?.address || '';
+    const colony = applicationData.current_colony || profile?.colony || '';
+    const city = applicationData.current_city || profile?.city || '';
+    const state = applicationData.current_state || profile?.state || '';
+    const zipCode = applicationData.current_zip_code || profile?.zip_code || '';
+
+    const fullAddress = [address, colony, city, state, zipCode ? `C.P. ${zipCode}` : '']
+        .filter(part => part && part.trim())
+        .join(', ');
+
+    return (
+        <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-center">Revisa y Envía tu Solicitud</h2>
+
+            {/* Compact vehicle info banner */}
+            <div className="bg-gradient-to-r from-primary-50 to-orange-50 rounded-lg p-4 border border-primary-200">
+                <div className="flex items-center gap-4">
+                    {vehicleInfo?._featureImage && (
+                        <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-24 h-16 rounded object-cover flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-600">Vehículo Seleccionado</p>
+                        <p className="font-semibold text-primary-700 truncate">{vehicleInfo?._vehicleTitle}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-600">Banco Recomendado</p>
+                        <p className="font-semibold text-primary-700">{bank || 'N/A'}</p>
+                    </div>
                 </div>
             </div>
-            <div className="md:col-span-2 space-y-4">
+
+            {/* Compact summary grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <SummarySection title="Datos Personales" icon={User}>
-                    <ReviewItem label="Nombre Completo" value={`${profile?.first_name || ''} ${profile?.last_name || ''} ${profile?.mother_last_name || ''}`} />
-                    <ReviewItem label="Email" value={profile?.email} />
-                    <ReviewItem label="Teléfono" value={profile?.phone} />
+                    <ReviewItem label="Nombre" value={`${profile?.first_name || ''} ${profile?.last_name || ''} ${profile?.mother_last_name || ''}`} />
                     <ReviewItem label="RFC" value={profile?.rfc} />
-                    
-                    <ReviewItem label="Dirección" value={`${applicationData.current_address}, ${applicationData.current_colony}, ${applicationData.current_city}, ${applicationData.current_state}, C.P. ${applicationData.current_zip_code}`} />
+                    <ReviewItem label="Teléfono" value={profile?.phone} />
+                    <ReviewItem label="Dirección" value={fullAddress} />
                 </SummarySection>
+
                 <SummarySection title="Datos Laborales" icon={Building2}>
-                    
-                    <ReviewItem label="Clasificación Fiscal" value={applicationData.fiscal_classification} />
-                    
                     <ReviewItem label="Empresa" value={applicationData.company_name} />
-                    
                     <ReviewItem label="Puesto" value={applicationData.job_title} />
-                    
                     <ReviewItem label="Ingreso Neto" value={applicationData.net_monthly_income} />
+                    <ReviewItem label="Antigüedad" value={applicationData.job_seniority} />
                 </SummarySection>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 
 // --- FORM HELPER COMPONENTS ---

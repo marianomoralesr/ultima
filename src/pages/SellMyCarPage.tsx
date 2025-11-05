@@ -13,6 +13,10 @@ const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California S
 const BRANCHES = ['Monterrey', 'Guadalupe', 'Reynosa', 'Saltillo'];
 
 const sellCarSchema = z.object({
+  first_name: z.string().min(1, "El nombre es requerido."),
+  last_name: z.string().min(1, "El apellido es requerido."),
+  contact_email: z.string().email("Email inválido.").min(1, "El email es requerido."),
+  contact_phone: z.string().min(10, "El teléfono debe tener al menos 10 dígitos."),
   owner_count: z.string().min(1, "El número de dueños es requerido."),
   key_info: z.string().min(1, "La información de las llaves es requerida."),
   invoice_status: z.enum(['liberada', 'financiada'], { message: "El estado de la factura es requerido." }),
@@ -53,7 +57,13 @@ const SellMyCarPage: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const { register, handleSubmit, watch, formState: { errors } } = useForm<SellCarFormData>({
-        resolver: zodResolver(sellCarSchema)
+        resolver: zodResolver(sellCarSchema),
+        defaultValues: {
+            first_name: valuationData?.contactInfo?.firstName || '',
+            last_name: valuationData?.contactInfo?.lastName || '',
+            contact_email: valuationData?.contactInfo?.email || user?.email || '',
+            contact_phone: valuationData?.contactInfo?.phone || ''
+        }
     });
 
     const invoiceStatus = watch('invoice_status');
@@ -91,11 +101,22 @@ const SellMyCarPage: React.FC = () => {
         setErrorMessage(null);
 
         try {
+            // Update user profile with contact information
+            await supabase
+                .from('profiles')
+                .update({
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    email: data.contact_email,
+                    phone: data.contact_phone,
+                })
+                .eq('id', user.id);
+
             const [exterior_photos, interior_photos] = await Promise.all([
                 uploadPhotos(exteriorPhotos, 'exterior'),
                 uploadPhotos(interiorPhotos, 'interior')
             ]);
-            
+
             const listingPayload = {
                 user_id: user.id,
                 status: 'in_inspection' as 'in_inspection',
@@ -164,6 +185,24 @@ const SellMyCarPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-8 rounded-xl shadow-lg border">
+                <div className="pb-4 mb-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Información de Contacto</h2>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <FormField label="Nombre" error={errors.first_name?.message}>
+                            <input {...register('first_name')} className={inputClass} placeholder="Tu nombre"/>
+                        </FormField>
+                        <FormField label="Apellido" error={errors.last_name?.message}>
+                            <input {...register('last_name')} className={inputClass} placeholder="Tu apellido"/>
+                        </FormField>
+                        <FormField label="Email" error={errors.contact_email?.message}>
+                            <input {...register('contact_email')} type="email" className={inputClass} placeholder="tu@email.com"/>
+                        </FormField>
+                        <FormField label="Teléfono" error={errors.contact_phone?.message}>
+                            <input {...register('contact_phone')} type="tel" className={inputClass} placeholder="8123456789"/>
+                        </FormField>
+                    </div>
+                </div>
+
                 <FormField label="Número de dueños anteriores" error={errors.owner_count?.message}>
                     <select {...register('owner_count')} className={inputClass}>
                         <option value="">Seleccionar...</option>

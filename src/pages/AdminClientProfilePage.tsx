@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AdminService } from '../services/AdminService';
 import { KommoService } from '../services/KommoService';
 import type { Profile } from '../types/types';
-import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Download, Eye, Phone } from 'lucide-react';
+import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Download, Eye, Phone, Printer } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
 import { supabase } from '../../supabaseClient';
+import BankingProfileSummary from '../components/BankingProfileSummary';
+import EmailNotificationsHistory from '../components/EmailNotificationsHistory';
 
 const BUCKET_NAME = 'application-documents';
 
@@ -143,23 +145,95 @@ const RemindersManager: React.FC<{ leadId: string; initialReminders: any[]; agen
 };
 
 const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId: string, status: string) => void }> = ({ applications, onStatusChange }) => {
-    const [viewingApp, setViewingApp] = useState<any | null>(null);
+    const [selectedApp, setSelectedApp] = useState<any | null>(applications.length > 0 ? applications[0] : null);
+    const printRef = useRef<HTMLDivElement>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    useEffect(() => {
+        if (applications.length > 0 && !selectedApp) {
+            setSelectedApp(applications[0]);
+        }
+    }, [applications, selectedApp]);
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!printRef.current || !selectedApp) return;
+
+        setIsDownloading(true);
+        try {
+            // Dynamic import for better bundle splitting
+            const html2canvas = (await import('html2canvas')).default;
+            const jsPDF = (await import('jspdf')).default;
+
+            const canvas = await html2canvas(printRef.current, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+            });
+
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save(`solicitud-${selectedApp.id?.slice(0, 8)}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error al generar el PDF. Por favor, intenta de nuevo.');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    if (applications.length === 0) {
+        return (
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Solicitud de Financiamiento</h2>
+                <p className="text-sm text-gray-500 text-center py-8">Este usuario aún no ha enviado ninguna solicitud.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Historial de Aplicaciones ({applications.length})</h2>
-            <div className="space-y-4">
-                {applications.length > 0 ? applications.map(app => (
-                    <div key={app.id} className="p-4 border rounded-lg flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                        <div>
-                            <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                            <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <select 
-                                value={app.status} 
-                                onChange={(e) => onStatusChange(app.id, e.target.value)}
-                                className="text-xs font-semibold bg-gray-100 text-gray-700 px-2 py-1 rounded-full border-none focus:ring-2 focus:ring-primary-500"
+        <div className="space-y-6">
+            {/* Application Selector and Actions */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                    <div className="flex-grow">
+                        <h2 className="text-lg font-semibold text-gray-800">Solicitud de Financiamiento</h2>
+                        <p className="text-sm text-gray-500">Total de solicitudes: {applications.length}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {applications.length > 1 && (
+                            <select
+                                value={selectedApp?.id || ''}
+                                onChange={(e) => {
+                                    const app = applications.find(a => a.id === e.target.value);
+                                    setSelectedApp(app || null);
+                                }}
+                                className="text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            >
+                                {applications.map((app, idx) => (
+                                    <option key={app.id} value={app.id}>
+                                        Solicitud {idx + 1} - {app.car_info?._vehicleTitle || 'General'}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        {selectedApp && (
+                            <select
+                                value={selectedApp.status}
+                                onChange={(e) => onStatusChange(selectedApp.id, e.target.value)}
+                                className="text-sm font-semibold bg-gray-100 text-gray-700 px-3 py-2 rounded-lg border-none focus:ring-2 focus:ring-primary-500"
                             >
                                 <option value="draft">Borrador</option>
                                 <option value="submitted">Enviada</option>
@@ -168,24 +242,44 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
                                 <option value="approved">Aprobada</option>
                                 <option value="rejected">Rechazada</option>
                             </select>
-                            <button onClick={() => setViewingApp(app)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-md">
-                                <FileText className="w-4 h-4"/>
-                            </button>
-                        </div>
+                        )}
                     </div>
-                )) : <p className="text-sm text-gray-500 text-center py-8">Este usuario aún no ha enviado ninguna solicitud.</p>}
+                </div>
+
+                {/* Prominent Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                        onClick={handleDownloadPDF}
+                        disabled={isDownloading || !selectedApp}
+                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold rounded-lg hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transform transition-all hover:scale-105"
+                    >
+                        {isDownloading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Generando PDF...
+                            </>
+                        ) : (
+                            <>
+                                <Download className="w-5 h-5" />
+                                Descargar Solicitud (PDF)
+                            </>
+                        )}
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        disabled={!selectedApp}
+                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    >
+                        <Printer className="w-5 h-5" />
+                        Imprimir
+                    </button>
+                </div>
             </div>
-            {viewingApp && (
-                <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setViewingApp(null)}>
-                    <div className="relative bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
-                        <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
-                            <h3 className="text-lg font-bold">Vista Previa de la Solicitud</h3>
-                            <button onClick={() => setViewingApp(null)} className="p-2 rounded-full hover:bg-gray-100"><X className="w-5 h-5" /></button>
-                        </div>
-                        <div className="overflow-y-auto p-2">
-                             <PrintableApplication application={viewingApp} />
-                        </div>
-                    </div>
+
+            {/* Application Preview */}
+            {selectedApp && (
+                <div ref={printRef} className="print:p-0">
+                    <PrintableApplication application={selectedApp} />
                 </div>
             )}
         </div>
@@ -353,24 +447,30 @@ const DocumentViewer: React.FC<{ documents: any[]; onStatusChange: (docId: strin
     );
 };
 
-const LeadSourceInfo: React.FC<{ metadata: any }> = ({ metadata }) => {
-    if (!metadata || Object.keys(metadata).length === 0) {
+const LeadSourceInfo: React.FC<{ metadata: any; source: string }> = ({ metadata, source }) => {
+    if (!metadata && !source) {
         return null;
     }
 
-    const utmParams = Object.entries(metadata).filter(([key]) => key.startsWith('utm_'));
+    const utmParams = metadata ? Object.entries(metadata).filter(([key]) => key.startsWith('utm_')) : [];
+    const fbclid = metadata?.fbclid;
 
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Fuente del Lead</h2>
             <div className="space-y-3">
-                {metadata.rfdm && <ProfileDataItem label="Referencia (rfdm)" value={metadata.rfdm} />}
-                {metadata.ordencompra && <ProfileDataItem label="Vehículo de Interés (ordencompra)" value={metadata.ordencompra} />}
+                {source && <ProfileDataItem label="Origen" value={source} />}
+                {metadata?.rfdm && <ProfileDataItem label="Referencia (rfdm)" value={metadata.rfdm} />}
+                {metadata?.ordencompra && <ProfileDataItem label="Vehículo de Interés" value={metadata.ordencompra} />}
+                {fbclid && <ProfileDataItem label="Facebook Click ID" value={fbclid} />}
                 {utmParams.length > 0 && (
                     <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider">Parámetros UTM</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Parámetros UTM</p>
                         {utmParams.map(([key, value]) => (
-                            <p key={key} className="text-sm font-mono text-gray-700">{`${key}: ${value}`}</p>
+                            <div key={key} className="mb-1">
+                                <span className="text-xs text-gray-600">{key.replace('utm_', '')}: </span>
+                                <span className="text-sm font-semibold text-gray-800">{value as string}</span>
+                            </div>
                         ))}
                     </div>
                 )}
@@ -533,7 +633,7 @@ const AdminClientProfilePage: React.FC = () => {
                         <div className="mt-6 grid grid-cols-2 gap-4">
                             <ProfileDataItem label="Fuente" value={profile.source} />
                             <ProfileDataItem label="RFC" value={profile.rfc} />
-                  <p className="text-sm text-gray-500">Asesor Asignado: {profile.asesor_asignado_id || 'N/A'}</p>
+                            <ProfileDataItem label="Asesor Asignado" value={profile.asesor_asignado_name || 'N/A'} />
                             <ProfileDataItem label="Contactado" value={profile.contactado ? 'Sí' : 'No'} />
                         </div>
                         <div className="mt-6 border-t pt-4 space-y-2">
@@ -548,7 +648,9 @@ const AdminClientProfilePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <LeadSourceInfo metadata={profile.metadata} />
+                    <BankingProfileSummary applications={applications} />
+                    <LeadSourceInfo metadata={profile.metadata} source={profile.source} />
+                    <EmailNotificationsHistory userId={profile.id} />
                     <TagsManager leadId={profile.id} initialTags={tags} />
                     <RemindersManager leadId={profile.id} initialReminders={reminders} agentId={user.id} />
                 </div>

@@ -1,6 +1,192 @@
-# Latest Updates - Vehicle Display Fix
+# Latest Updates
 
-## Date: October 14, 2025
+## Sistema de Seguridad Git y Respaldos
+
+### Fecha: Noviembre 5, 2025
+
+---
+
+## Verificación de Seguridad Git
+
+### Resumen
+Se implementó un sistema completo de verificación de Git para prevenir sobrescritura de código y pérdida de cambios.
+
+### Qué se Añadió
+
+#### Scripts de Seguridad
+
+1. **`scripts/git-safety-check.sh`** - Verificación completa de Git
+   - ✅ Detecta cambios sin commit
+   - ✅ Verifica sincronización con remoto
+   - ✅ Alerta si estás atrás del remoto
+   - ✅ Detecta ramas divergentes
+   - ✅ Identifica conflictos de merge
+
+2. **`scripts/safe-commit-push.sh`** - Commit y push seguro
+   - ✅ Verificación automática de Git
+   - ✅ Pull con rebase antes de push
+   - ✅ Proceso interactivo guiado
+   - ✅ Previene sobrescritura de código
+
+#### Integración con Deployment
+
+**Protección automática en deployment:**
+- ✅ Verificación de Git como Paso 0 en `deploy.sh`
+- ✅ Bloquea deployment si hay problemas de Git
+- ✅ Previene deployment con código desactualizado
+- ✅ Evita sobrescribir cambios remotos
+
+**Flujo de deployment seguro:**
+```bash
+./deploy.sh production
+  ↓
+[0/6] Verificando seguridad de Git... ✅
+[1/6] Verificando prerequisites...
+  ...
+📦 Respaldo de base de datos automático
+  ...
+Deployment continúa
+```
+
+#### Documentación
+
+📖 **[Flujo de Trabajo Seguro con Git](docs/GIT_SAFETY_WORKFLOW.md)**
+
+Incluye:
+- 8 verificaciones de seguridad
+- Casos de uso detallados
+- Solución de problemas comunes
+- Buenas prácticas
+- Comandos útiles
+
+#### Protección Implementada
+
+| Problema | Detección | Prevención |
+|----------|-----------|------------|
+| Código desactualizado | ✅ | ✅ Bloquea deployment |
+| Cambios sin commit | ✅ | ✅ Bloquea deployment |
+| Ramas divergentes | ✅ | ✅ Alerta y sugerencias |
+| Conflictos sin resolver | ✅ | ✅ Bloquea deployment |
+| Sobrescritura remota | ✅ | ✅ Pull automático antes de push |
+
+#### Flujo de Trabajo Recomendado
+
+**Desarrollo diario:**
+```bash
+# Commit y push seguro
+./scripts/safe-commit-push.sh
+```
+
+**Deployment:**
+```bash
+./deploy.sh production
+# Verificación automática de Git ✅
+# Respaldo automático de BD ✅
+```
+
+**Verificación manual:**
+```bash
+./scripts/git-safety-check.sh
+```
+
+---
+
+## Sistema de Respaldos de Base de Datos
+
+### Resumen
+Se implementó un sistema completo de respaldos para la base de datos de Supabase, incluyendo scripts automatizados y documentación en español.
+
+### Qué se Añadió
+
+#### Scripts de Respaldo
+- `scripts/backup-database.sh` - Crea respaldos completos de la base de datos
+- `scripts/restore-database.sh` - Restaura la base de datos desde un respaldo
+- `scripts/pre-migration-backup.sh` - Respaldo de seguridad antes de migraciones
+
+#### Documentación
+📖 **[Guía Completa de Respaldos (Español)](docs/GUIA_RESPALDOS_BD.md)**
+
+#### Características
+- ✅ Respaldos completos en formato SQL (17MB+)
+- ✅ Retención automática de últimos 10 respaldos
+- ✅ Confirmación requerida antes de restaurar
+- ✅ Respaldo de seguridad automático antes de cada restauración
+- ✅ Compatible con redes IPv4 (usa pooler de Supabase)
+
+#### Configuración de Conexión
+- **Host:** `aws-0-us-east-2.pooler.supabase.com` (IPv4 compatible)
+- **Puerto:** `5432`
+- **Base de Datos:** `postgres`
+
+**Nota:** Se usa el pooler en lugar de la conexión directa porque `db.jjepfehmuybpctdzipnu.supabase.co` requiere IPv6.
+
+#### Integración con Deployment
+
+**Respaldos automáticos en producción:**
+- ✅ Integrado en `deploy.sh`
+- ✅ Se ejecuta automáticamente antes de cada deployment a producción
+- ✅ NO se ejecuta en staging (solo producción)
+- ✅ Pregunta si continuar si el respaldo falla
+
+**Uso:**
+```bash
+./deploy.sh production
+# Automáticamente crea respaldo antes de continuar
+```
+
+#### Limpieza Inteligente de Respaldos
+
+**Script:** `scripts/cleanup-old-backups.sh`
+
+**Estrategia de retención:**
+- Últimos 7 días: Todos los respaldos
+- 8-30 días: 1 respaldo por semana
+- +30 días: 1 respaldo por mes
+- Mínimo: 5 respaldos más recientes
+
+**Almacenamiento:**
+- Cada respaldo: ~17MB
+- 10 respaldos: ~170MB
+- 20 respaldos: ~340MB
+
+**Protección:**
+- ✅ Respaldos NO se suben a GitHub (sensibles)
+- ✅ Agregado a `.gitignore`
+
+#### Documentación Adicional
+
+📖 **[Estrategia Completa de Respaldos](docs/ESTRATEGIA_RESPALDOS.md)**
+
+#### Flujo de Trabajo Recomendado
+
+**Deployment:**
+```bash
+./deploy.sh production
+# Respaldo automático ✅
+```
+
+**Migraciones:**
+```bash
+# Antes de aplicar migraciones
+./scripts/pre-migration-backup.sh
+
+# Aplicar migraciones
+supabase db push
+
+# Si algo sale mal, restaurar
+./scripts/restore-database.sh ./backups/backup_TIMESTAMP.sql
+```
+
+**Limpieza (mensual):**
+```bash
+./scripts/cleanup-old-backups.sh
+```
+
+---
+
+## Vehicle Display Fix
+
+### Date: October 14, 2025
 
 ## Summary
 Fixed the vehicle data fetching and normalization pipeline to properly handle the smooth-handler API response format and generate proper slugs using OrdenCompra and record_id as fallback identifiers.

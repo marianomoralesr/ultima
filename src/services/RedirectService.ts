@@ -8,7 +8,10 @@ export interface Redirect {
 export async function getRedirects(): Promise<Redirect[]> {
   // Manual redirects as requested to ensure critical paths work
   const manualRedirects: Redirect[] = [
-    { from: '/vende-tu-auto', to: '/vende-mi-auto' },
+    { from: '/vende-tu-auto', to: '/vender-mi-auto' },
+    { from: '/inventario-trefa', to: '/autos' },
+    { from: '/trefa-inventario', to: '/autos' },
+    { from: '/inventario', to: '/autos' },
     { from: '/unete-al-equipo', to: '/vacantes' },
     { from: '/financiamiento-en-trefa', to: '/escritorio/aplicacion' },
     { from: '/obten-financiamiento-100-en-linea', to: '/escritorio/aplicacion' },

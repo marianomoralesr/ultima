@@ -28,6 +28,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   const { isFavorite, toggleFavorite, isToggling } = useFavorites();
   const favorite = isFavorite(vehicle.id);
   const isSeparado = vehicle.separado === true;
+  const isPopular = vehicle.view_count >= 1000;
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,11 +57,11 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   }, [vehicle]);
 
   const CardContent = (
-    <div 
+    <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden group flex flex-col relative ${isSeparado ? 'opacity-70' : ''}`}
+      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
-        <div className="block relative">
+        <div className={`block relative ${isPopular ? 'overflow-hidden rounded-t-xl' : ''}`}>
             <ImageCarousel
               images={imagesForCarousel}
               alt={vehicle.titulo}
@@ -120,12 +121,12 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
 
             <div className="mt-auto">
                 <div className="flex items-baseline justify-between mb-2">
-                    <p className="text-xl font-bold text-gray-900">
+                    <p className="text-lg font-bold text-gray-900">
                         {formatPrice(vehicle.precio)}
                     </p>
-                    {vehicle.enganchemin > 0 && (
+                    {vehicle.mensualidad_recomendada > 0 && (
                         <p className="text-xs text-gray-500">
-                            Desde {formatPrice(vehicle.enganchemin)}
+                            desde <span className="text-orange-600 font-bold">{formatPrice(vehicle.mensualidad_recomendada)}</span> al mes
                         </p>
                     )}
                 </div>

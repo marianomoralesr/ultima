@@ -81,7 +81,7 @@ const InspectionCategoryEditor: React.FC<CategoryEditorProps> = ({ categoryKey, 
 };
 
 const AdminInspectionPage: React.FC = () => {
-    const { vehicleId } = useParams<{ vehicleId: string }>();
+    const { id: vehicleId } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { session, loading: authLoading } = useAuth();
     const [isLoading, setIsLoading] = useState(true);

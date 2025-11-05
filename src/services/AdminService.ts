@@ -132,5 +132,68 @@ export const AdminService = {
       console.error(`Error updating document status:`, error);
       throw new Error(`Could not update document status.`);
     }
+  },
+
+  /**
+   * Fetches all sales users with their analytics
+   */
+  async getSalesUsersWithAnalytics(): Promise<any[]> {
+    const { data, error } = await supabase.rpc('get_sales_users_with_analytics');
+
+    if (error) {
+      console.error("Error fetching sales users:", error);
+      throw new Error("No se pudieron obtener los usuarios de ventas. Asegúrese de tener los permisos necesarios.");
+    }
+    return data || [];
+  },
+
+  /**
+   * Creates a new sales user
+   */
+  async createSalesUser(email: string, password: string, firstName: string, lastName: string, phone?: string): Promise<any> {
+    const { data, error } = await supabase.rpc('create_sales_user', {
+      user_email: email,
+      user_password: password,
+      user_first_name: firstName,
+      user_last_name: lastName,
+      user_phone: phone || null
+    });
+
+    if (error) {
+      console.error("Error creating sales user:", error);
+      throw new Error(error.message || "No se pudo crear el usuario de ventas.");
+    }
+    return data;
+  },
+
+  /**
+   * Gets detailed analytics for a specific user
+   */
+  async getUserAnalyticsDetails(userId: string): Promise<any> {
+    const { data, error } = await supabase.rpc('get_user_analytics_details', {
+      user_id_param: userId
+    });
+
+    if (error) {
+      console.error("Error fetching user analytics:", error);
+      throw new Error("No se pudieron obtener las analíticas del usuario.");
+    }
+    return data;
+  },
+
+  /**
+   * Updates the status of a sales user (enable/disable from round-robin)
+   */
+  async updateSalesUserStatus(userId: string, isActive: boolean): Promise<any> {
+    const { data, error } = await supabase.rpc('update_sales_user_status', {
+      user_id_param: userId,
+      is_active: isActive
+    });
+
+    if (error) {
+      console.error("Error updating user status:", error);
+      throw new Error("No se pudo actualizar el estado del usuario.");
+    }
+    return data;
   }
 };

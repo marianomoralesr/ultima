@@ -92,7 +92,8 @@ const BetaSurveyInvitation: React.FC<{ onClose: () => void }> = ({ onClose }) =>
 );
 
 const OnboardingGuide: React.FC<{ profile: Profile | null, isBankProfileComplete: boolean }> = ({ profile, isBankProfileComplete }) => {
-    const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'address', 'city', 'state', 'zip_code', 'rfc'];
+    // Address fields (address, city, state, zip_code) are now part of the application form, not profile requirements
+    const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
     const isProfileComplete = requiredFields.every(field => profile?.[field] && String(profile[field]).trim() !== '');
 
     if (isProfileComplete && isBankProfileComplete) {
@@ -148,7 +149,7 @@ const EbookCta: React.FC = () => (
             </div>
             <div className="flex-shrink-0 mt-4 md:mt-0">
                 <a
-                    href="/public/manual-venta-TREFA.pdf"
+                    href="/Manual-Venta-TREFA-2025.pdf"
                     download="Manual-Venta-TREFA-2025.pdf"
                     className="inline-flex items-center px-5 py-2.5 bg-white text-green-700 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md"
                 >
@@ -339,9 +340,10 @@ const Dashboard: React.FC = () => {
 
 
   const userName = profile?.first_name || 'Usuario';
-  
+
+  // Show document upload section for any non-draft application (most recent first)
   const activeApplicationForDocs = applications
-    .filter(app => ['submitted', 'reviewing', 'pending_docs'].includes(app.status))
+    .filter(app => app.status !== 'draft')
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
 
   if (appsLoading || userLoading) {

@@ -151,4 +151,37 @@ export const SellCarService = {
       throw new Error('No se pudo enviar el lead a Kommo.');
     }
   },
+
+  /**
+   * Deletes a purchase lead from the database.
+   * @param listingId - The ID of the listing to delete.
+   */
+  async deletePurchaseLead(listingId: string): Promise<void> {
+    const { error } = await supabase
+      .from('user_vehicles_for_sale')
+      .delete()
+      .eq('id', listingId);
+
+    if (error) {
+      console.error('Error deleting purchase lead:', error);
+      throw new Error('No se pudo eliminar el lead de compra.');
+    }
+  },
+
+  /**
+   * Updates the status of a purchase lead.
+   * @param listingId - The ID of the listing.
+   * @param status - The new status value.
+   */
+  async updateStatus(listingId: string, status: string): Promise<void> {
+    const { error } = await supabase
+      .from('user_vehicles_for_sale')
+      .update({ status })
+      .eq('id', listingId);
+
+    if (error) {
+      console.error('Error updating status:', error);
+      throw new Error('No se pudo actualizar el estado.');
+    }
+  },
 };

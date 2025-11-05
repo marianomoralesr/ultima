@@ -63,6 +63,12 @@ const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
 const SimpleCRMPage = lazy(() => import('./pages/SimpleCRMPage'));
 const MarketingAnalyticsDashboardPage = lazy(() => import('./pages/MarketingAnalyticsDashboardPage'));
 const R2ImageManagerPage = lazy(() => import('./pages/R2ImageManagerPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
+const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
 
 import ConfigService from './services/ConfigService';
 
@@ -109,6 +115,11 @@ function App(): React.JSX.Element {
               <Route path="marcas/:marca" element={<MarketingCategoryPage />} />
               <Route path="carroceria/:carroceria" element={<MarketingCategoryPage />} />
               <Route path="changelog" element={<ChangelogPage />} />
+              <Route path="conocenos" element={<AboutPage />} />
+              <Route path="contacto" element={<ContactPage />} />
+              <Route path="landing" element={<LandingPage />} />
+              {/* Dynamic landing pages - must be before the * route */}
+              <Route path=":slug" element={<DynamicLandingPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
 
@@ -143,11 +154,13 @@ function App(): React.JSX.Element {
                   <Route path="admin/inspections/:id" element={<AdminInspectionPage />} />
                   <Route path="admin/vacantes" element={<AdminVacanciesPage />} />
                   <Route path="admin/vacantes/:id/candidatos" element={<AdminCandidatesPage />} />
+                  <Route path="admin/usuarios" element={<AdminUserManagementPage />} />
                   <Route path="admin/config" element={<AdminConfigPage />} />
                   <Route path="admin/marketing" element={<MarketingHubPage />} />
                   <Route path="admin/marketing-analytics" element={<MarketingAnalyticsDashboardPage />} />
                   <Route path="admin/r2-images" element={<R2ImageManagerPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />
+                  <Route path="marketing/constructor" element={<ConstructorPage />} />
                   <Route path="car-studio" element={<CarStudioPage />} />
                 </Route>
 

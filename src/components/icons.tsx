@@ -175,7 +175,9 @@ export const BellPlusIcon: React.FC<IconProps> = (props) => <BellPlus {...props}
 export const MegaphoneIcon: React.FC<IconProps> = (props) => <Megaphone {...props} />;
 export const SendIcon: React.FC<IconProps> = (props) => <Send {...props} />;
 export const EnvelopeIcon: React.FC<IconProps> = (props) => <Mail {...props} />;
+export const MailIcon: React.FC<IconProps> = (props) => <Mail {...props} />;
 export const MessageCircle: React.FC<IconProps> = (props) => <LucideMessageCircle {...props} />;
+export const MessageCircleIcon: React.FC<IconProps> = (props) => <LucideMessageCircle {...props} />;
 export const MessageSquareIcon: React.FC<IconProps> = (props) => <MessageSquare {...props} />;
 export const MessageCircleQuestionIcon: React.FC<IconProps> = (props) => <MessageCircleQuestion {...props} />;
 export const MessageSquareHeartIcon: React.FC<IconProps> = (props) => <MessageSquareHeart {...props} />;

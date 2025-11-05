@@ -112,16 +112,17 @@ function normalizePathsField(field) {
   }
   return [];
 }
-// ✅ Corrige %2F y mantiene estructura original
+// Build public URL - now supports R2 URLs stored directly in database
 function buildPublicUrl(bucket, path) {
   if (!path || typeof path !== "string" || !path.trim()) return null;
 
-  // If path is already a full URL, return it as-is (don't double-wrap)
+  // If path is already a full URL (R2, Supabase, or Airtable), return it as-is
   const trimmed = path.trim();
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
   }
 
+  // Legacy: Build Supabase Storage URL for old records
   const cleaned = decodeURIComponent(path).replace(/^\/+/, "");
   const segments = cleaned.split("/").map((seg)=>encodeURIComponent(seg));
   const encodedPath = segments.join("/");

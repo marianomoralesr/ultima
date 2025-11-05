@@ -44,3 +44,7 @@ coverage/
 
 # Local development
 .local/
+
+# Database backups (sensitive data, large files)
+backups/
+*.sql

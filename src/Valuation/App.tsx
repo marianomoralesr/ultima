@@ -342,6 +342,21 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
 
   return (
     <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-2xl mx-auto w-full">
+      {/* Maintenance Alert */}
+      <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+        <div className="flex items-start">
+          <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div className="ml-3">
+            <p className="text-sm font-medium text-yellow-800">
+              Servicio en mantenimiento
+            </p>
+            <p className="text-sm text-yellow-700 mt-1">
+              Por favor vuelve a revisar en unas cuantas horas.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="text-center">
         <Car className="w-12 h-12 text-primary-500 mx-auto" />
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-4">Cotiza el valor de tu auto</h1>

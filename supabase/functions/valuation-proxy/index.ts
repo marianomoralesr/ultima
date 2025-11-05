@@ -22,6 +22,7 @@ Deno.serve(async (req) => {
     console.log(`📡 Proxy request: ${method} ${targetUrl.pathname}`);
 
     let response;
+    let data;
     if (targetUrl.hostname.includes('api.airtable.com')) {
       // For Airtable, use Bearer token authentication
       if (!AIRTABLE_API_KEY) {
@@ -39,6 +40,8 @@ Deno.serve(async (req) => {
         },
         body: body ? JSON.stringify(body) : null,
       });
+
+      data = await response.json();
     } else if (targetUrl.hostname.includes('intelimotor.com')) {
       // For Intelimotor, add credentials as QUERY PARAMETERS (not headers)
       if (!INTELIMOTOR_API_KEY || !INTELIMOTOR_API_SECRET) {
@@ -55,25 +58,46 @@ Deno.serve(async (req) => {
       targetUrl.searchParams.set('apiKey', INTELIMOTOR_API_KEY);
       targetUrl.searchParams.set('apiSecret', INTELIMOTOR_API_SECRET);
 
-      console.log(`✓ Calling Intelimotor: ${method} ${targetUrl.pathname}`);
+      // Add lite parameter only if explicitly requested in body
+      if (body && body.lite === true) {
+        targetUrl.searchParams.set('lite', 'true');
+        console.log('✓ Added lite=true as query parameter');
+      }
 
-      response = await fetch(targetUrl.toString(), {
+      console.log(`✓ Calling Intelimotor: ${method} ${targetUrl.pathname}`);
+      console.log(`✓ Full URL: ${targetUrl.toString()}`);
+      console.log(`✓ Query params:`, Object.fromEntries(targetUrl.searchParams.entries()));
+
+      // Prepare fetch options
+      const fetchOptions: RequestInit = {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: body ? JSON.stringify(body) : null,
-      });
+      };
 
-      console.log(`✓ Intelimotor response: ${response.status}`);
+      // Only add body for non-GET requests
+      if (method !== 'GET' && body) {
+        fetchOptions.body = JSON.stringify(body);
+        console.log(`✓ Request body:`, body);
+      }
+
+      response = await fetch(targetUrl.toString(), fetchOptions);
+
+      console.log(`✓ Intelimotor response status: ${response.status}`);
+
+      // Log response body for debugging
+      const responseText = await response.text();
+      console.log(`✓ Intelimotor response body (first 500 chars):`, responseText.substring(0, 500));
+
+      // Parse back to JSON
+      data = JSON.parse(responseText);
     } else {
       return new Response(JSON.stringify({ error: 'Invalid target URL' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    const data = await response.json();
 
     if (!response.ok) {
       console.error('❌ Upstream API error:', response.status, JSON.stringify(data));

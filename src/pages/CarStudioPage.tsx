@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import VehicleService from '../services/VehicleService';
 import CarStudioService, { CarStudioApiError } from '../services/CarStudioService';
 import type { WordPressVehicle } from '../types/types';
@@ -138,7 +138,7 @@ const ImageComparison: React.FC<{
                     className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                 />
                 <label htmlFor="replaceFeatureImage" className="text-sm text-gray-700 cursor-pointer">
-                    Reemplazar imagen destacada con la primera imagen procesada
+                    Reemplazar imagen destacada con la imagen RIGHT_FRONT (o FRONT si no está disponible)
                 </label>
             </div>
 
@@ -232,6 +232,8 @@ interface ImageGeneratorTabProps {
 }
 
 const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoading, globalError }) => {
+    const queryClient = useQueryClient();
+
     // Filter vehicles to show only those with galleries (exterior photos)
     const vehiclesWithGalleries = vehicles.filter(v => {
         const exteriorImages = (v.galeria_exterior || v.fotos_exterior_url || []).filter((url): url is string =>
@@ -245,7 +247,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
     const [availableImages, setAvailableImages] = useState<string[]>([]);
     const [selectedImageIndices, setSelectedImageIndices] = useState<Set<number>>(new Set());
     const [uploadImages, setUploadImages] = useState<{ fileUrl: string; position: string }[]>([]);
-    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(false);
+    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(true); // Default to true (checked)
 
     const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [apiResponse, setApiResponse] = useState<string | null>(null);
@@ -262,7 +264,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveStatus('idle');
         setSaveError(null);
         setComparisonImages([]);
-        setReplaceFeatureImage(false);
+        setReplaceFeatureImage(true); // Default to checked
 
         const exteriorImages = (vehicle.galeria_exterior || vehicle.fotos_exterior_url || []).filter((url): url is string => !!url && url !== DEFAULT_PLACEHOLDER_IMAGE);
 
@@ -324,6 +326,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             const options: any = {
                 fileExtension: 'JPG',
                 blurBackground: false,
+                traceId: `vehicle_${selectedVehicle.id}`, // Track vehicle ID for history
             };
 
             console.log('Sending images to CarStudio:');
@@ -424,22 +427,47 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveError(null);
         try {
             const processedUrls = comparisonImages.map(img => img.processed);
+
+            // Find the feature image to use (prefer RIGHT_FRONT, then FRONT, then first image)
+            let featureImageUrl: string | undefined;
+            if (replaceFeatureImage) {
+                // Find the index of RIGHT_FRONT in uploadImages
+                const rightFrontIndex = uploadImages.findIndex(img => img.position === 'RIGHT_FRONT');
+                const frontIndex = uploadImages.findIndex(img => img.position === 'FRONT');
+
+                if (rightFrontIndex !== -1 && rightFrontIndex < processedUrls.length) {
+                    featureImageUrl = processedUrls[rightFrontIndex];
+                    console.log(`Using RIGHT_FRONT as feature image (index ${rightFrontIndex})`);
+                } else if (frontIndex !== -1 && frontIndex < processedUrls.length) {
+                    featureImageUrl = processedUrls[frontIndex];
+                    console.log(`RIGHT_FRONT not found, using FRONT as feature image (index ${frontIndex})`);
+                } else {
+                    featureImageUrl = processedUrls[0];
+                    console.log('RIGHT_FRONT and FRONT not found, using first image as feature image');
+                }
+            }
+
             await ImageService.processAndSaveImages(
                 selectedVehicle.id,
                 processedUrls,
-                replaceFeatureImage ? processedUrls[0] : undefined
+                featureImageUrl
             );
+
+            // Invalidate React Query cache to force refetch updated vehicle data
+            queryClient.invalidateQueries({ queryKey: ['vehicles-car-studio'] });
+            queryClient.invalidateQueries({ queryKey: ['all-vehicles-car-studio-unpaginated'] });
+
             setSaveStatus('success');
             setTimeout(() => {
                 setComparisonImages([]);
                 setRequestStatus('idle');
-                setReplaceFeatureImage(false);
+                setReplaceFeatureImage(true); // Keep it checked for next time
             }, 2000);
         } catch (error: any) {
             setSaveStatus('error');
             setSaveError(error.message || 'An unknown error occurred.');
         }
-    }, [selectedVehicle, comparisonImages, replaceFeatureImage]);
+    }, [selectedVehicle, comparisonImages, replaceFeatureImage, uploadImages, queryClient]);
 
     const handleDiscardImages = () => {
         setComparisonImages([]);
@@ -586,6 +614,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 };
 
 const WebEditorHistoryTab: React.FC = () => {
+    const queryClient = useQueryClient();
     const [history, setHistory] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -595,9 +624,35 @@ const WebEditorHistoryTab: React.FC = () => {
     const [saveError, setSaveError] = useState<{[key: string]: string}>({});
     const [selectedVehicleId, setSelectedVehicleId] = useState<{[key: string]: number | null}>({});
 
+    // Extract vehicle ID from traceId (format: "vehicle_123")
+    const extractVehicleId = (traceId?: string): number | null => {
+        if (!traceId) return null;
+        const match = traceId.match(/^vehicle_(\d+)$/);
+        return match ? parseInt(match[1], 10) : null;
+    };
+
+    // Fetch ALL vehicles by requesting multiple pages (21 vehicles per page)
+    // Fetching 10 pages = up to 210 vehicles to ensure comprehensive coverage
     const { data: vehiclesData } = useQuery({
-        queryKey: ['vehicles-car-studio'],
-        queryFn: () => VehicleService.getAllVehicles(),
+        queryKey: ['all-vehicles-car-studio-unpaginated'],
+        queryFn: async () => {
+            const pagePromises = Array.from({ length: 10 }, (_, i) =>
+                VehicleService.getAllVehicles({}, i + 1)
+            );
+            const results = await Promise.all(pagePromises);
+
+            // Combine all vehicles from all pages and deduplicate by ID
+            const allVehicles = results.flatMap(r => r.vehicles);
+            const uniqueVehicles = Array.from(
+                new Map(allVehicles.map(v => [v.id, v])).values()
+            );
+
+            return {
+                vehicles: uniqueVehicles,
+                totalCount: results[0]?.totalCount || uniqueVehicles.length
+            };
+        },
+        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     });
     const vehicles = vehiclesData?.vehicles || [];
 
@@ -607,6 +662,19 @@ const WebEditorHistoryTab: React.FC = () => {
         try {
             const response = await CarStudioService.listWebEditorRecords(params);
             setHistory(response);
+
+            // Pre-select vehicles based on traceId
+            if (response?.content) {
+                const preSelectedVehicles: {[key: string]: number | null} = {};
+                response.content.forEach((item: any) => {
+                    const itemId = item._id;
+                    const vehicleId = extractVehicleId(item.carStudio?.traceId);
+                    if (vehicleId) {
+                        preSelectedVehicles[itemId] = vehicleId;
+                    }
+                });
+                setSelectedVehicleId(preSelectedVehicles);
+            }
         } catch (e: any) {
             setError(e.message || "Failed to fetch web editor history.");
         } finally {
@@ -626,7 +694,14 @@ const WebEditorHistoryTab: React.FC = () => {
         setSaveError(prev => ({...prev, [itemId]: ''}));
 
         try {
+            // Note: History doesn't preserve position metadata, so we use the first image
+            // In the future, consider storing position data in Car Studio projects
             await ImageService.processAndSaveImages(vehicleId, images, images[0]);
+
+            // Invalidate React Query cache to force refetch updated vehicle data
+            queryClient.invalidateQueries({ queryKey: ['vehicles-car-studio'] });
+            queryClient.invalidateQueries({ queryKey: ['all-vehicles-car-studio'] });
+
             setSaveStatus(prev => ({...prev, [itemId]: 'success'}));
             setTimeout(() => {
                 setSaveStatus(prev => ({...prev, [itemId]: 'idle'}));
@@ -647,11 +722,23 @@ const WebEditorHistoryTab: React.FC = () => {
                     {history.content.map((item: any) => {
                         const itemId = item._id;
                         const processedImages = item.carStudio.afterStudioImages?.map((img: any) => img.afterStudioImageUrl) || [];
+                        const trackedVehicleId = extractVehicleId(item.carStudio?.traceId);
+                        const trackedVehicle = trackedVehicleId ? vehicles.find((v: any) => v.id === trackedVehicleId) : null;
 
                         return (
                             <div key={itemId} className="p-4 border rounded-lg space-y-3">
-                                <h3 className="font-semibold">{item.carStudio.projectName || `Trabajo ID: ${item.carStudio._id.slice(-6)}`}</h3>
-                                <p className="text-xs text-gray-500">Fecha: {new Date(item.carStudio.createdDate).toLocaleString()}</p>
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h3 className="font-semibold">{item.carStudio.projectName || `Trabajo ID: ${item.carStudio._id.slice(-6)}`}</h3>
+                                        <p className="text-xs text-gray-500">Fecha: {new Date(item.carStudio.createdDate).toLocaleString()}</p>
+                                        {trackedVehicle && (
+                                            <div className="mt-1 inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-md text-xs font-medium">
+                                                <Camera className="w-3 h-3" />
+                                                {trackedVehicle.titulo}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
                                     {item.carStudio.afterStudioImages?.map((img: any, idx: number) => (
                                         <a key={idx} href={img.afterStudioImageUrl} target="_blank" rel="noopener noreferrer">
@@ -667,9 +754,11 @@ const WebEditorHistoryTab: React.FC = () => {
                                         onChange={(e) => setSelectedVehicleId(prev => ({...prev, [itemId]: Number(e.target.value)}))}
                                         className="flex-1 px-3 py-2 border rounded-md text-sm"
                                     >
-                                        <option value="">Seleccionar vehículo...</option>
+                                        <option value="">Seleccionar vehículo... ({vehicles.length} disponibles)</option>
                                         {vehicles.map((v: any) => (
-                                            <option key={v.id} value={v.id}>{v.titulo} (ID: {v.id})</option>
+                                            <option key={v.id} value={v.id}>
+                                                {v.titulo} - {v.marca || ''} {v.modelo || ''} {v.anio || ''} (ID: {v.id})
+                                            </option>
                                         ))}
                                     </select>
                                     <button

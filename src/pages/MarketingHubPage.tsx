@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Tag, FileText, Users, BarChart3, Image } from 'lucide-react';
+import { TrendingUp, Tag, FileText, Users, Layout, Image } from 'lucide-react';
 
 const MarketingHubPage: React.FC = () => {
   const marketingTools = [
@@ -40,12 +40,11 @@ const MarketingHubPage: React.FC = () => {
       color: 'bg-orange-500',
     },
     {
-      title: 'Analytics',
-      description: 'Ver estadísticas y métricas (Próximamente)',
-      icon: BarChart3,
-      link: '#',
+      title: 'Generador de Landing Pages',
+      description: 'Crear y publicar landing pages personalizadas',
+      icon: Layout,
+      link: '/escritorio/marketing/constructor',
       color: 'bg-indigo-500',
-      disabled: true,
     },
   ];
 

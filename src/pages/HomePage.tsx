@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useVehicles } from '../context/VehicleContext';
 import type { Vehicle } from '../types/types';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
-import { 
+import {
     CarIcon as Car,
-    FileTextIcon as FileText, 
-    CheckIcon as Check, 
-    ArrowRightIcon as ArrowRight    
+    FileTextIcon as FileText,
+    CheckIcon as Check,
+    ArrowRightIcon as ArrowRight
 } from '../components/icons';
+import { ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import WallOfLove from '../components/WallOfLove';
 import { formatPrice } from '../utils/formatters';
 import { getVehicleImage } from '../utils/getVehicleImage';
@@ -147,8 +149,8 @@ const NewHeroSection: React.FC = () => {
         <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-trefa-blue/10 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8 mt-9 lg:mb-10">
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-gray-900 leading-none sm:leading-tight animate-fade-in-down">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-10 mt-12 lg:mb-12">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight sm:leading-tight animate-fade-in-down">
           Encuentra tu próximo auto
         </h1>
       </div>
@@ -208,7 +210,7 @@ const AnimatedHeader: React.FC<{ title: React.ReactNode; subtitle: string }> = (
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
-      <h2 className="text-5xl lg:text-6xl font-black tracking-tight text-gray-900 leading-snug lg:leading-tight">
+      <h2 className="text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-snug lg:leading-tight">
         {title}
       </h2>
       <p className="mt-4 text-lg max-w-3xl mx-auto leading-relaxed">{subtitle}</p>
@@ -359,6 +361,106 @@ const YouTubeVSLSection: React.FC = () => {
   );
 };
 
+/* ---------- Landing Page Hero Section ---------- */
+const LandingPageHero: React.FC = () => {
+  return (
+    <section className="relative overflow-hidden bg-white">
+      {/* Desktop background vehicles */}
+      <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute right-0 xl:right-16 bottom-0">
+          <img
+            src="https://r2.trefa.mx/Frame%2040%20(1).png"
+            alt="TREFA Vehicle"
+            className="w-[425px] xl:w-[510px] h-auto object-contain opacity-40"
+          />
+        </div>
+        <div className="absolute left-0 xl:left-16 bottom-0">
+          <img
+            src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
+            alt="TREFA Vehicle"
+            className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1] opacity-40"
+          />
+        </div>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-primary/20 translate-y-1/2 w-[80%] h-96" />
+      </div>
+
+      <div className="container mx-auto px-4 lg:px-6 relative z-10 py-8 lg:py-20 lg:min-h-[88dvh] lg:flex lg:items-center">
+        <div className="flex flex-col items-center text-center space-y-4 lg:space-y-6 w-full">
+          <span className="px-3 py-1 lg:px-4 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2 text-xs lg:text-sm">
+            <ShieldCheck className="w-3 h-3 text-primary" />
+            <span className="font-medium">Autos Seminuevos Certificados</span>
+          </span>
+
+          <motion.h1 className="font-heading text-2xl md:text-4xl lg:text-6xl font-bold tracking-tight max-w-4xl leading-tight">
+            Tu próximo auto seminuevo te está esperando
+          </motion.h1>
+
+          <p className="text-sm md:text-base lg:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            Encuentra el auto perfecto en nuestra selección de vehículos seminuevos 2019 en
+            adelante. SUVs, Sedanes, Hatchbacks y Pick Ups con garantía y financiamiento
+            disponible.
+          </p>
+
+          {/* Mobile image - shown only on mobile */}
+          <div className="lg:hidden w-full max-w-xs mx-auto my-6">
+            <img
+              src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
+              alt="TREFA Vehicle Showcase"
+              className="w-full h-auto object-contain"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-2 lg:pt-4 w-full sm:w-auto">
+            <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-background text-foreground border-2 border-input hover:bg-accent hover:text-accent-foreground px-6 py-2.5 lg:px-8 lg:py-3 rounded-lg font-semibold transition-all text-sm lg:text-base">
+              Ver Inventario
+              <Car className="w-4 h-4" />
+            </Link>
+            <Link to="/kit-trefa" className="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90 px-6 py-2.5 lg:px-8 lg:py-3 rounded-lg font-semibold shadow-lg transition-all text-sm lg:text-base">
+              Conoce el Kit de Seguridad
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="flex flex-col items-center space-y-3 lg:space-y-4 mt-6 lg:mt-10">
+            <p className="text-xs lg:text-sm text-muted-foreground">
+              Más de 5,000 autos vendidos y clientes satisfechos
+            </p>
+            <div className="flex items-center space-x-4 lg:space-x-6 opacity-60 flex-wrap justify-center gap-y-3 gap-x-3 lg:gap-y-4 lg:gap-x-4">
+              <div className="flex items-center space-x-2">
+                <img src="/images/Honda.png" alt="Honda" className="h-5 lg:h-7 w-auto opacity-70" />
+                <span className="text-sm lg:text-base font-semibold hidden sm:inline">Honda</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Toyota.png" alt="Toyota" className="h-5 lg:h-7 w-auto opacity-70" />
+                <span className="text-sm lg:text-base font-semibold hidden sm:inline">Toyota</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Nissan.png" alt="Nissan" className="h-5 lg:h-7 w-auto opacity-70" />
+                <span className="text-sm lg:text-base font-semibold hidden sm:inline">Nissan</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Mazda.png" alt="Mazda" className="h-5 lg:h-7 w-auto opacity-70" />
+                <span className="text-sm lg:text-base font-semibold hidden sm:inline">Mazda</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Jeep.png" alt="Jeep" className="h-5 lg:h-7 w-auto opacity-70" />
+                <span className="text-sm lg:text-base font-semibold hidden sm:inline">Jeep</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <img src="/images/Kia.png" alt="Kia" className="h-5 lg:h-7 w-auto opacity-70" />
+                <span className="text-sm lg:text-base font-semibold hidden sm:inline">Kia</span>
+              </div>
+            </div>
+            <p className="text-xs lg:text-sm text-muted-foreground">
+              y 15 de las mejores marcas más...
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ---------- Testimonio Separator ---------- */
 const TestimonioSeparator: React.FC = () => {
   return (
@@ -411,7 +513,7 @@ const CTACardsSection: React.FC = () => {
         <div className="bg-trefa-bgradient-down text-white rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
           <div className="p-4 md:p-12 flex flex-col md:flex-row md:items-center justify-between">
             <div className="relative z-10 text-center md:text-left md:w-1/2 lg:w-3/5">
-              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-black">Conoce nuestro inventario</AnimatedHeading>
+              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-bold">Conoce nuestro inventario</AnimatedHeading>
               <p className="mt-4 text-lg text-gray-300">
                 Autos seminuevos seleccionados cuidadosamente para ti.
               </p>
@@ -437,7 +539,7 @@ const CTACardsSection: React.FC = () => {
           {/* Sell Car Card */}
           <div className="bg-trefa-bgradient-right text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[20rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <div className="relative z-10">
-              <AnimatedHeading as="h3" className="text-4xl font-black">¿Quieres vender tu auto?</AnimatedHeading>
+              <AnimatedHeading as="h3" className="text-4xl font-bold">¿Quieres vender tu auto?</AnimatedHeading>
               <p className="mt-2 text-gray-300">
                 Recibe una oferta por tu auto en un proceso rápido y transparente.
               </p>
@@ -459,7 +561,7 @@ const CTACardsSection: React.FC = () => {
           {/* Contact Advisor Card */}
           <div className="bg-trefa-bgradient-left text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[20rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <div className="relative z-10">
-              <AnimatedHeading as="h3" className="text-4xl font-black">Hablar con un asesor</AnimatedHeading>
+              <AnimatedHeading as="h3" className="text-4xl font-bold">Hablar con un asesor</AnimatedHeading>
               <p className="mt-2 text-gray-300">
                 Obtén una asesoría personalizada de un experto de nuestro equipo.
               </p>
@@ -485,7 +587,7 @@ const CTACardsSection: React.FC = () => {
         <div className="bg-trefa-bgradient-up text-white border-xl rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
           <div className="p-6 md:p-14 flex flex-col md:flex-row md:items-center justify-between">
             <div className="relative z-10 text-center md:text-left md:w-1/2 lg:w-3/5">
-              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-black">Tramita tu crédito en línea</AnimatedHeading>
+              <AnimatedHeading as="h2" className="text-4xl md:text-5xl font-bold">Tramita tu crédito en línea</AnimatedHeading>
               <p className="mt-4 text-lg text-gray-100">
                 Nuevo portal de financiamiento con respuesta en 24 horas o menos.
               </p>
@@ -523,6 +625,7 @@ const HomePage: React.FC = () => {
 
   return (
     <main className="relative z-10">
+      <LandingPageHero />
       <NewHeroSection />
       <CTACardsSection />
       <YouTubeVSLSection />

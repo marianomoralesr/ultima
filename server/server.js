@@ -164,22 +164,35 @@ app.post("/intelimotor-api/", async (req, res) => {
     targetUrl.searchParams.set('apiKey', apiKey);
     targetUrl.searchParams.set('apiSecret', apiSecret);
 
+    // Add lite=true for GET requests or if in POST body
+    if (method === 'GET' || (body && body.lite === true)) {
+      targetUrl.searchParams.set('lite', 'true');
+      console.log('✓ Added lite=true to query params');
+    }
+
     console.log('Intelimotor proxy request:', {
       url: targetUrl.toString(),
       method,
       hasApiKey: !!apiKey,
-      hasApiSecret: !!apiSecret
+      hasApiSecret: !!apiSecret,
+      hasLite: targetUrl.searchParams.has('lite')
     });
 
     // Make request to Intelimotor API with credentials as query params
-    const response = await fetch(targetUrl.toString(), {
+    const fetchOptions = {
       method: method || 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...headers,
       },
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    };
+
+    // Only add body for non-GET requests
+    if (method !== 'GET' && body) {
+      fetchOptions.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(targetUrl.toString(), fetchOptions);
 
     const data = await response.json();
 

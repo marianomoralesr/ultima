@@ -35,6 +35,7 @@ const menuLinks = [
 const BottomNav: React.FC = () => {
     const { session, signOut } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const navigate = useNavigate();
@@ -56,6 +57,41 @@ const BottomNav: React.FC = () => {
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Hide bottom nav when keyboard is visible (input/textarea focused)
+    useEffect(() => {
+        const handleFocusIn = (e: FocusEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+                setIsKeyboardVisible(true);
+                // Scroll the focused element into view with some offset
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        };
+
+        const handleFocusOut = (e: FocusEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+                // Delay hiding to allow for focus transitions between fields
+                setTimeout(() => {
+                    const activeElement = document.activeElement as HTMLElement;
+                    if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA' && activeElement.tagName !== 'SELECT') {
+                        setIsKeyboardVisible(false);
+                    }
+                }, 100);
+            }
+        };
+
+        document.addEventListener('focusin', handleFocusIn);
+        document.addEventListener('focusout', handleFocusOut);
+
+        return () => {
+            document.removeEventListener('focusin', handleFocusIn);
+            document.removeEventListener('focusout', handleFocusOut);
+        };
     }, []);
 
     const handleLinkClick = (to: string, authRequired: boolean, isSignOut?: boolean) => {
@@ -98,7 +134,7 @@ const BottomNav: React.FC = () => {
 
     return (
         <>
-            <nav className="fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-gray-200 lg:hidden">
+            <nav className={`fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-gray-200 lg:hidden transition-transform duration-300 ${isKeyboardVisible ? 'translate-y-full' : 'translate-y-0'}`}>
                 <div className="max-w-md mx-auto grid grid-cols-5 justify-around items-center h-16">
                     <NavItem to="/" icon={HomeIcon} label="Inicio" end={true} />
                     <NavItem to="/vender-mi-auto" icon={SellCarIcon} label="Vender" />

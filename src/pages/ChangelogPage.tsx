@@ -23,13 +23,532 @@ const ChangelogPage: React.FC = () => {
             <p className="text-sm mt-2 opacity-90">trefa.mx</p>
             <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
               <p className="text-lg font-semibold">
-                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">550+</span> horas
+                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">565+</span> horas
               </p>
             </div>
           </div>
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+
+          {/* Version 1.7.0 */}
+          <div className="border-l-4 border-blue-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.7.0</h2>
+              <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-bold">
+                Mejoras Críticas y SEO
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                2 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Valuation Form Critical Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🚨 Corrección Crítica
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Formulario de Valuación - Seguridad de Ofertas</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">⚠️</span>
+                    <span><strong>PROBLEMA CRÍTICO RESUELTO:</strong> Se detectó que el sistema generaba ofertas arbitrarias cuando Intelimotor no retornaba valores, poniendo en riesgo dinero real de la empresa.</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Eliminados +50 líneas de cálculos de respaldo que generaban ofertas sin autorización de Intelimotor</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Ahora SOLO se usa <code className="bg-gray-100 px-2 py-0.5 rounded">suggestedOffer</code> de la respuesta oficial de Intelimotor API</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Agregado parámetro obligatorio <code className="bg-gray-100 px-2 py-0.5 rounded">lite=true</code> en todas las llamadas a la API</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Corregido bug crítico: solicitudes GET enviaban body (inválido en HTTP), causando fallos de red</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Actualizada ruta de extracción: <code className="bg-gray-100 px-2 py-0.5 rounded">data.regions[0].stats.suggestedOffer</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Logging mejorado en todo el flujo de valuación para debugging</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos modificados:</strong> src/Valuation/services/valuationService.ts (líneas 356, 394-447), server/server.js, supabase/functions/valuation-proxy/index.ts</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* SEO Improvements */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🚀 SEO y Marketing
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Sitemap XML - Optimización Total para Google</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🗺️</span>
+                    <span>Agregados tags <code className="bg-gray-100 px-2 py-0.5 rounded">&lt;lastmod&gt;</code> con timestamps reales de actualización de cada vehículo</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🗺️</span>
+                    <span>Agregados tags <code className="bg-gray-100 px-2 py-0.5 rounded">&lt;changefreq&gt;</code> estratégicos (daily, weekly, monthly, yearly) según tipo de página</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🗺️</span>
+                    <span>Prioridades dinámicas basadas en estado: Disponible (0.85), Vendido (0.6)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🖼️</span>
+                    <span><strong>Image Sitemap implementado:</strong> Cada vehículo incluye hasta 6 imágenes con títulos y captions optimizados para Google Images</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🖼️</span>
+                    <span>Agregados namespaces XML: <code className="bg-gray-100 px-2 py-0.5 rounded">xmlns:image</code> y <code className="bg-gray-100 px-2 py-0.5 rounded">xmlns:xhtml</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Función <code className="bg-gray-100 px-2 py-0.5 rounded">escapeXml()</code> para prevenir errores de parsing en títulos con caracteres especiales</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Actualizada toda terminología: "Auto" en lugar de "Vehículo" + branding TREFA consistente</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> generate-sitemap.js</span>
+                  </li>
+                </ul>
+                <div className="mt-3 p-3 bg-green-50 border-l-4 border-green-500 rounded">
+                  <p className="text-sm text-green-800">
+                    <strong>Impacto esperado:</strong> Mayor visibilidad en Google Images, mejores rankings orgánicos,
+                    crawling más eficiente. Ventaja competitiva ya que la mayoría de agencias no optimizan image sitemaps.
+                  </p>
+                </div>
+              </div>
+
+              {/* Email Notifications */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    📧 Comunicación
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Sistema de Emails Automatizados</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Edge Function <code className="bg-gray-100 px-2 py-0.5 rounded">automated-email-notifications</code> desplegada y funcionando</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📧</span>
+                    <span>Emails diarios automatizados: 93 recordatorios de perfil incompleto, 68 seguimientos de valuación, 5 resúmenes para asesores</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📧</span>
+                    <span>Confirmación inmediata al enviar solicitud de financiamiento</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📊</span>
+                    <span>Historial de emails ahora consulta directamente Brevo API (sin dependencias de base de datos)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">⏰</span>
+                    <span>Cron job programado: Ejecución diaria a las 4:00 AM CST (10:00 AM UTC)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos modificados:</strong> supabase/functions/automated-email-notifications/index.ts, src/components/EmailNotificationsHistory.tsx</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* UI/UX Improvements */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🎨 Interfaz
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Homepage - Uniformidad de Tipografía</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Heading principal mantiene <code className="bg-gray-100 px-2 py-0.5 rounded">font-black</code> (más destacado)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Todos los headings secundarios estandarizados a <code className="bg-gray-100 px-2 py-0.5 rounded">font-bold</code> para consistencia visual</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Afecta secciones: "¿Cómo funciona?", "Conoce nuestro inventario", "¿Quieres vender tu auto?", "Hablar con un asesor", "Tramita tu crédito"</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> src/pages/HomePage.tsx (líneas 213, 516, 542, 564, 590)</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.6.0 */}
+          <div className="border-l-4 border-green-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.6.0</h2>
+              <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold">
+                Dashboard de Compras
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                1 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad Principal
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Dashboard de Compras de Vehículos</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Sistema completo de gestión de vehículos que usuarios desean vender a la empresa</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Lista de leads con filtrado, búsqueda y asignación de asesores</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Página de detalles con información completa del vehículo y propietario</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Extracción y visualización de metadatos EXIF de fotos (fecha, cámara, ubicación GPS)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Seguimiento de ofertas sugeridas y finales con estados de aceptación</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Botones de acción para contactar vendedores por email o teléfono</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Íconos descriptivos para todos los campos de información del vehículo</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Formulario de venta mejorado con campos de nombre completo del vendedor</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Base de Datos
+                  </span>
+                </div>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🗄️</span>
+                    <span>Funciones RPC de Supabase con seguridad SECURITY DEFINER para control de roles</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🗄️</span>
+                    <span>Campos adicionales: contacted, asesor_asignado_id, tags en tabla user_vehicles_for_sale</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.5.0 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.5.0</h2>
+              <span className="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-sm font-bold">
+                Constructor de Landing Pages
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                28 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Generador de Landing Pages con IA</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Constructor Visual de Componentes</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema completo de construcción de landing pages con 5 tipos de componentes reutilizables:
+                        Heroes, Secciones, Features, Carruseles y Comparaciones. Cada tipo ofrece múltiples layouts
+                        (16 variaciones en total) para crear páginas únicas y profesionales.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🤖</span>
+                    <div className="flex-1">
+                      <strong>Generación de Contenido con Google Gemini AI</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Integración con Google Generative AI (Gemini) para generar automáticamente textos e imágenes.
+                        Los usuarios pueden describir su campaña y el sistema genera headlines, párrafos, CTAs e imágenes
+                        optimizadas con IA. También incluye generación de videos con Veo 3.1.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📱</span>
+                    <div className="flex-1">
+                      <strong>Diseño 100% Responsivo</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Todos los 16 templates optimizados para móviles, tablets y desktop. Tipografía escalable,
+                        layouts adaptables que se apilan verticalmente en móvil, y espaciado progresivo según el
+                        tamaño de pantalla. Las páginas se ven perfectas en cualquier dispositivo.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔗</span>
+                    <div className="flex-1">
+                      <strong>Publicación con Slugs Personalizados</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Publica landing pages en URLs personalizadas (ej: /promo-especial, /oferta-navidad).
+                        Sistema de validación de slugs, meta tags para SEO, y seguimiento de vistas. Las páginas
+                        se renderizan con el MainLayout completo de TREFA (navbar y footer).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">💾</span>
+                    <div className="flex-1">
+                      <strong>Persistencia en Supabase</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de base de datos completo con tablas landing_pages y landing_page_components.
+                        RLS policies para control de acceso admin-only, funciones PostgreSQL para operaciones optimizadas,
+                        y gestión completa de CRUD (crear, leer, actualizar, duplicar, archivar, eliminar).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎯</span>
+                    <div className="flex-1">
+                      <strong>Imágenes Orientadas a Familias</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Todas las imágenes placeholder reemplazadas con vehículos familiares (SUVs y sedanes)
+                        de Unsplash, alineadas con los valores de marca de TREFA: familia, seguridad y accesibilidad.
+                        Sin asociación con vehículos de lujo, deportivos o carreras.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Acceso
+                  </span>
+                  <h3 className="text-xl font-semibold">Integración con Marketing Hub</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🚀</span>
+                    <div className="flex-1">
+                      <strong>Acceso desde el Hub de Marketing</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Nueva sección "Generador de Landing Pages" en el Marketing Hub (/escritorio/marketing)
+                        reemplazando el bloque de Analytics. Constructor accesible en /escritorio/marketing/constructor
+                        con permisos de admin únicamente.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejoras y Correcciones
+                  </span>
+                  <h3 className="text-xl font-semibold">Constructor Mejorado</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">✅</span>
+                    <div className="flex-1">
+                      <strong>Campo de Título Añadido</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Corregido error de base de datos "null value of title violates not-null constraint". Ahora se requiere
+                        un título al publicar landing pages, eliminando el error de validación de la base de datos.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📱</span>
+                    <div className="flex-1">
+                      <strong>Vista Previa Móvil con Container Queries</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Implementados CSS Container Queries en los 16 templates para que respondan correctamente a la vista
+                        previa móvil de 375px. Ya no es necesario usar la emulación de dispositivo del navegador - la vista
+                        previa ahora funciona perfectamente desde escritorio.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔍</span>
+                    <div className="flex-1">
+                      <strong>Generación Automática de SEO</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Sistema de generación automática de meta tags SEO a partir del contenido de la página. Extrae el título
+                        del primer headline, la descripción del primer párrafo (truncado a 160 caracteres), e incluye tags
+                        Open Graph (og:title, og:description, og:type, og:url) para compartir en redes sociales.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.5.1 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.5.1</h2>
+              <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-bold">
+                Mejoras de UX Móvil
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                30 de Octubre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Mejoras Móviles
+                  </span>
+                  <h3 className="text-xl font-semibold">Optimización de Experiencia Móvil</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📱</span>
+                    <div className="flex-1">
+                      <strong>Navegación Inferior Inteligente</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Implementado auto-ocultamiento del bottom navigation cuando aparece el teclado móvil.
+                        El sistema detecta focus en inputs/textarea/select y oculta automáticamente la barra inferior
+                        para evitar que bloquee los campos del formulario. Incluye scroll automático al elemento enfocado.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🔍</span>
+                    <div className="flex-1">
+                      <strong>Barra de Búsqueda Ampliada</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Optimizado el header móvil con logo más pequeño (h-3.5 vs h-5) para dar más espacio a la barra
+                        de búsqueda. Input ampliado con padding py-3 y texto text-base, resultados con thumbnails más
+                        grandes (w-20 h-16), texto más legible, y mejor feedback visual con estados active.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">⚡</span>
+                    <div className="flex-1">
+                      <strong>Scroll Instantáneo en Detalle de Vehículo</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Corregido el comportamiento de scroll to top en VehicleDetailPage. Cambiado de smooth scroll
+                        a instant scroll (window.scrollTo(0, 0)) para mejor rendimiento móvil. Elimina el problema de
+                        scroll lento e incompleto en dispositivos móviles.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🖼️</span>
+                    <div className="flex-1">
+                      <strong>Botón de Cerrar Lightbox Visible</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Mejorado el botón de cerrar en el visor de imágenes (Lightbox) con fondo más oscuro
+                        (bg-black/60), borde, sombra y backdrop-blur para mejor contraste. Tamaño responsivo
+                        (w-8 h-8 móvil, w-10 h-10 desktop) y posicionamiento optimizado (top-4 right-4 móvil).
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">📐</span>
+                    <div className="flex-1">
+                      <strong>Títulos de Sección Responsivos</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Ajustados todos los títulos de sección en VehicleDetailPage a tamaños responsivos apropiados.
+                        "Características" y "Descripción" ahora usan text-xl sm:text-2xl, "También te puede interesar"
+                        usa text-2xl lg:text-3xl, y carruseles tienen text-xl sm:text-2xl lg:text-3xl.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Nueva Funcionalidad
+                  </span>
+                  <h3 className="text-xl font-semibold">Landing Page y CRM</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">🎨</span>
+                    <div className="flex-1">
+                      <strong>Nueva Landing Page Disponible en /landing</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Nueva landing page adaptable disponible en /landing para personalización y campañas.
+                        Landing page original preservada como LandingPageOriginal.tsx.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-orange-500 text-xl">👥</span>
+                    <div className="flex-1">
+                      <strong>Página de CRM Actualizada con Estatus de Aplicaciones</strong>
+                      <p className="text-gray-600 text-sm mt-1">
+                        SimpleCRMPage mejorada con visualización clara del estatus de aplicaciones.
+                        Navegación actualizada para mejor acceso a funciones de gestión de leads.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.4.2 */}
           <div className="border-l-4 border-orange-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -839,6 +1358,138 @@ const ChangelogPage: React.FC = () => {
                         Esto mejora significativamente la velocidad de carga y reduce costos de egreso comparado con
                         Supabase Storage.
                       </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.3.1 - CRITICAL FIX */}
+          <div className="border-l-4 border-red-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.3.1</h2>
+              <span className="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-bold">
+                🚨 CORRECCIÓN CRÍTICA
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                2 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Critical Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    Corrección Crítica
+                  </span>
+                  <h3 className="text-xl font-semibold">Sistema de Valuación con Intelimotor</h3>
+                </div>
+                <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <span className="text-red-500 text-xl">💰</span>
+                    <div className="flex-1">
+                      <strong>CRÍTICO: Corregidas ofertas incorrectas en valuaciones de vehículos</strong>
+                      <p className="text-gray-700 text-sm mt-2 font-semibold">
+                        ⚠️ PROBLEMA IDENTIFICADO:
+                      </p>
+                      <p className="text-gray-600 text-sm mt-1">
+                        El sistema estaba generando ofertas INCORRECTAS que no provenían de la API de Intelimotor,
+                        causando pérdidas económicas reales a la empresa. Se detectaron los siguientes problemas críticos:
+                      </p>
+
+                      <div className="mt-3 space-y-2">
+                        <p className="text-gray-700 text-sm font-semibold">1. Faltaba el parámetro lite=true (REQUERIDO):</p>
+                        <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                          <li>• La API de Intelimotor requiere el parámetro lite=true en todas las solicitudes</li>
+                          <li>• Este parámetro NO estaba siendo enviado en ninguna llamada a la API</li>
+                          <li>• Sin lite=true, la API puede devolver datos incompletos o incorrectos</li>
+                        </ul>
+
+                        <p className="text-gray-700 text-sm font-semibold mt-3">2. Cálculos arbitrarios generaban ofertas falsas:</p>
+                        <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                          <li>• Si no se recibía suggestedOffer, el sistema calculaba ofertas con fórmulas arbitrarias:</li>
+                          <li className="ml-4">- avgMarketValue - $5,000</li>
+                          <li className="ml-4">- (lowMarketValue + highMarketValue) / 2 - $5,000</li>
+                          <li className="ml-4">- lowMarketValue - $7,500</li>
+                          <li className="ml-4">- highMarketValue - $15,000</li>
+                          <li>• Estas ofertas NO venían de Intelimotor y eran INVENTADAS por el código</li>
+                          <li>• Esto causaba ofertas incorrectas que afectaban el negocio directamente</li>
+                        </ul>
+
+                        <p className="text-gray-700 text-sm font-semibold mt-3">3. Se usaba ofertaAutomatica como respaldo:</p>
+                        <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                          <li>• El sistema intentaba usar ofertaAutomatica cuando no había suggestedOffer</li>
+                          <li>• Según instrucciones, SOLO debemos usar suggestedOffer</li>
+                        </ul>
+                      </div>
+
+                      <p className="text-gray-700 text-sm mt-4 font-semibold">
+                        ✅ SOLUCIONES IMPLEMENTADAS:
+                      </p>
+
+                      <div className="mt-3 space-y-3">
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">A. Agregado lite=true a todas las llamadas API:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• Se agregó el parámetro "lite: true" al request body del POST a /valuations</li>
+                            <li>• Esto asegura que Intelimotor procese la solicitud correctamente</li>
+                            <li>• Archivo: src/Valuation/services/valuationService.ts línea 324</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">B. Eliminados TODOS los cálculos arbitrarios:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• Se removieron completamente las 50+ líneas de código que calculaban ofertas falsas</li>
+                            <li>• Ahora el sistema SOLO acepta suggestedOffer directamente de Intelimotor</li>
+                            <li>• Si no hay suggestedOffer, se falla la valuación en lugar de inventar una oferta</li>
+                            <li>• Archivo: src/Valuation/services/valuationService.ts líneas 394-412</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">C. Proceso de valuación simplificado y correcto:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• Paso 1: POST a /valuations con lite=true</li>
+                            <li>• Paso 2: Si suggestedOffer está en la respuesta → usar ese valor ✓</li>
+                            <li>• Paso 3: Si no, hacer polling con GET /valuations/:id</li>
+                            <li>• Paso 4: Cuando suggestedOffer {'>'} 0 → usar ese valor ✓</li>
+                            <li>• Paso 5: Si después de 6 intentos no hay suggestedOffer → ERROR (no inventar oferta)</li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-700 text-sm font-semibold">D. Validaciones mejoradas:</p>
+                          <ul className="ml-4 space-y-1 text-sm text-gray-600">
+                            <li>• El código ahora verifica explícitamente que suggestedOffer {'>'} 0</li>
+                            <li>• Si no se recibe suggestedOffer válido, se muestra mensaje sugiriendo versiones alternativas</li>
+                            <li>• Se loguea toda la respuesta de la API para debugging si hay problemas</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700 text-sm mt-4 font-semibold">
+                        📊 IMPACTO:
+                      </p>
+                      <ul className="ml-4 space-y-1 text-sm text-gray-600 mt-2">
+                        <li>✅ Todas las ofertas ahora provienen EXCLUSIVAMENTE de Intelimotor</li>
+                        <li>✅ Se eliminó el riesgo de hacer ofertas incorrectas que cuestan dinero real</li>
+                        <li>✅ Mayor precisión en valuaciones (datos de mercado reales)</li>
+                        <li>✅ Cumplimiento total con especificaciones de API de Intelimotor</li>
+                        <li>✅ Transparencia: El usuario sabe si su vehículo no puede ser valuado</li>
+                      </ul>
+
+                      <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <p className="text-red-800 text-sm font-semibold">
+                          ⚠️ ACCIÓN REQUERIDA:
+                        </p>
+                        <p className="text-red-700 text-sm mt-1">
+                          Este fix debe desplegarse INMEDIATAMENTE a producción dado que afecta ofertas reales con dinero real.
+                          Después del despliegue, se recomienda revisar valuaciones recientes en Airtable para validar que las ofertas sean consistentes con el mercado.
+                        </p>
+                      </div>
                     </div>
                   </li>
                 </ul>
@@ -1678,7 +2329,7 @@ const ChangelogPage: React.FC = () => {
             <p className="text-sm mt-2 opacity-90">Innovación Continua</p>
             <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
               <p className="text-lg font-semibold">
-                📊 Proyectos en Desarrollo: <span className="text-2xl">6+</span>
+                📊 Proyectos en Desarrollo: <span className="text-2xl">8+</span>
               </p>
             </div>
           </div>
@@ -1942,6 +2593,65 @@ const ChangelogPage: React.FC = () => {
               </div>
 
               <div className="space-y-4">
+                {/* Publicador de Redes Sociales */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      Marketing Digital
+                    </span>
+                    <h3 className="text-xl font-semibold">Publicador y Administrador de Redes Sociales</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">📱</span>
+                      <div className="flex-1">
+                        <strong>Gestión Centralizada de Redes Sociales</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Plataforma integrada para publicar, programar y gestionar contenido en múltiples redes sociales
+                          (Facebook, Instagram, Twitter, LinkedIn) desde un solo lugar. Incluye calendario de publicaciones,
+                          biblioteca de contenido multimedia, plantillas reutilizables, y programación automática. Dashboard
+                          con métricas de engagement, alcance y conversiones por red social.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-100 px-3 py-1 rounded-full text-xs text-gray-600 font-medium">
+                            🎯 Planeado para Q1 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Suite SEO */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                      SEO & Analytics
+                    </span>
+                    <h3 className="text-xl font-semibold">Suite SEO y Monitoreo de Ranking</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex gap-3">
+                      <span className="text-blue-500 text-xl">📈</span>
+                      <div className="flex-1">
+                        <strong>Optimización y Seguimiento SEO Avanzado</strong>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Suite completa de herramientas SEO: auditoría técnica automatizada, análisis de palabras clave,
+                          seguimiento de rankings en Google por palabra clave y ubicación, monitoreo de backlinks,
+                          optimización de meta tags, análisis de competencia, y recomendaciones de contenido basadas en IA.
+                          Dashboard con métricas de visibilidad orgánica, tráfico SEO, y oportunidades de mejora. Alertas
+                          automáticas para cambios significativos en rankings.
+                        </p>
+                        <div className="mt-2">
+                          <span className="inline-block bg-gray-100 px-3 py-1 rounded-full text-xs text-gray-600 font-medium">
+                            🎯 Planeado para Q2 2026
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
                 <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
                   <p className="text-purple-900 font-bold text-lg">💳 Separación en línea tras financiamiento aprobado con Stripe</p>
                   <p className="text-purple-800 text-sm mt-2">

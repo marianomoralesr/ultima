@@ -94,7 +94,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         </div>
       )}
       <div className="flex flex-col md:flex-row bg-white">
-        <div className={`md:w-1/3 md:flex-shrink-0 relative ${isPopular ? 'overflow-hidden rounded-tl-2xl rounded-bl-2xl' : ''}`}>
+        <div className={`md:w-1/3 md:flex-shrink-0 relative ${isPopular ? 'overflow-hidden rounded-tl-xl rounded-bl-xl' : ''}`}>
           <ImageCarousel
             images={imagesForCarousel}
             alt={vehicle.title}
@@ -122,7 +122,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             <div className="flex-grow">
               <VehicleCardPrice
                 precio={vehicle.precio}
-                engancheMinimo={vehicle.enganchemin}
+                mensualidadRecomendada={vehicle.mensualidad_recomendada}
               />
               <PriceDropNotificationToggle vehicleId={vehicle.id} />
             </div>

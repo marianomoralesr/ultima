@@ -140,7 +140,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             // Determine role based on email
-            const adminEmails = ['marianomorales@outlook.com', 'mariano.morales@autostrefa.mx', 'genauservices@gmail.com'];
+            const adminEmails = [
+                'marianomorales@outlook.com',
+                'mariano.morales@autostrefa.mx',
+                'genauservices@gmail.com',
+                'alejandro.trevino@autostrefa.mx',
+                'evelia.castillo@autostrefa.mx',
+                'fernando.trevino@autostrefa.mx'
+            ];
             const role = adminEmails.includes(user.email || '') ? 'admin' : 'user';
 
             // Retrieve tracking data from sessionStorage

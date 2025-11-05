@@ -48,40 +48,39 @@ const Header: React.FC = () => {
 
     return (
       <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24 lg:h-28 gap-x-4">
+        <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-28 gap-x-2 lg:gap-x-4">
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="lg:hidden p-1.5 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
                 aria-label="Toggle mobile menu"
             >
-                <MenuIcon className="w-6 h-6" />
+                <MenuIcon className="w-5 h-5" />
             </button>
 
             {/* Left Section */}
-            <div className={`flex justify-start items-center ${!isListPage ? 'lg:w-1/3' : ''}`}>
+            <div className={`flex justify-start items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
                 <div className="flex items-center">
-                    <Link to="/" className="flex items-center space-x-4">
-                      <img 
+                    <Link to="/" className="flex items-center">
+                      <img
                         src={"/images/trefalogo.png"}
-                        alt="TREFA" 
-                        className="w-auto object-contain transition-all h-7 lg:h-9"
+                        alt="TREFA"
+                        className="w-auto object-contain transition-all h-3.5 sm:h-4 lg:h-9"
                       />
                     </Link>
                 </div>
             </div>
 
             {/* Center Section (Search) */}
-            {!isListPage && (
-             <div className="flex-1 flex justify-center min-w-0 px-2">
-                    <HeaderSearchBar />
-                </div>
-            )}
-            
+            {/* Show on all pages on mobile, hide on listings page on desktop (desktop has filter search) */}
+            <div className={`flex-1 flex justify-center min-w-0 px-2 lg:px-2 ${isListPage ? 'lg:hidden' : ''}`}>
+                <HeaderSearchBar />
+            </div>
+
             {/* Right Section */}
-            <div className={`flex justify-end items-center ${!isListPage ? 'lg:w-1/3' : ''}`}>
-                <div className="flex items-center space-x-6">
+            <div className={`flex justify-end items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
+                <div className="flex items-center space-x-2 lg:space-x-6">
                   <div className="hidden lg:block">
                       <button ref={menuButtonRef} onClick={() => setMegaMenuOpen(o => !o)} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base font-bold transition-colors text-primary-600 border-b hover:bg-gray-100">
                           <span>Menú</span>
@@ -137,7 +136,7 @@ const Header: React.FC = () => {
 
         {/* Mobile Sidebar Menu */}
         {mobileMenuOpen && (
-            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '96px' }}>
+            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '64px' }}>
                 <div
                     className="absolute inset-0 bg-black/60"
                     onClick={() => setMobileMenuOpen(false)}

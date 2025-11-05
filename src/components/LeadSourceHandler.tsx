@@ -1,10 +1,25 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 
 const LeadSourceHandler: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   useEffect(() => {
+    // Check if we already have captured source data
+    const existingData = sessionStorage.getItem('leadSourceData');
+    if (existingData) {
+      try {
+        const parsed = JSON.parse(existingData);
+        // If we already have first_visit_at, don't overwrite
+        if (parsed.first_visit_at) {
+          return;
+        }
+      } catch (e) {
+        // Invalid JSON, continue with capture
+      }
+    }
+
     // This effect runs once on initial load to capture URL parameters.
     const utm_source = searchParams.get('utm_source');
     const utm_medium = searchParams.get('utm_medium');
@@ -31,12 +46,14 @@ const LeadSourceHandler: React.FC = () => {
     if (fbclid) leadSourceData.fbclid = fbclid;
     if (source) leadSourceData.source = source;
 
-    if (Object.keys(leadSourceData).length > 0) {
-      // Only set the item if there is data to save.
-      // We use sessionStorage to ensure it's cleared when the session ends.
-      sessionStorage.setItem('leadSourceData', JSON.stringify(leadSourceData));
-    }
-  }, [searchParams]); // Dependency array ensures this runs only when search params change.
+    // Always capture referrer and landing page on first visit
+    leadSourceData.referrer = document.referrer || '';
+    leadSourceData.landing_page = window.location.href;
+    leadSourceData.first_visit_at = new Date().toISOString();
+
+    // We use sessionStorage to ensure it's cleared when the session ends.
+    sessionStorage.setItem('leadSourceData', JSON.stringify(leadSourceData));
+  }, []); // Run only once on mount
 
   return null; // This component does not render anything.
 };

@@ -80,20 +80,19 @@ export const ImageService = {
     }
 
     const galleryImages = processedImages.slice(0); // Use all images for gallery
-    const galleryImagesString = galleryImages.join(', '); // Convert array to comma-separated string
 
     // Step 1: Save the gallery images to inventario_cache
     const updateData: any = {
-      fotos_exterior_url: galleryImagesString, // Save as TEXT (comma-separated)
-      galeria_exterior: galleryImages, // Save as JSONB array
+      fotos_exterior_url: galleryImages, // Save as JSONB array
+      galeria_exterior: galleryImages, // Save as JSONB array (for Car Studio processed images)
       use_car_studio_images: true,
       updated_at: new Date().toISOString(),
     };
 
     // If replaceFeatureImageUrl is provided, update the feature image
     if (replaceFeatureImageUrl) {
-      updateData.feature_image = [replaceFeatureImageUrl]; // Save as JSONB array
-      updateData.car_studio_feature_image = replaceFeatureImageUrl;
+      updateData.feature_image = replaceFeatureImageUrl; // Save as TEXT
+      updateData.car_studio_feature_image = replaceFeatureImageUrl; // Save as TEXT
     }
 
     // Determine which column to use for matching based on the vehicleId type

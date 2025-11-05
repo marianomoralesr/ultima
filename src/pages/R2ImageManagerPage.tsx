@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import VehicleService from '../services/VehicleService';
 import r2Storage from '../services/R2StorageService';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../supabaseClient';
 import type { WordPressVehicle } from '../types/types';
 
 interface UploadedImage {
@@ -46,7 +46,7 @@ const R2ImageManagerPage: React.FC = () => {
   });
 
   const vehicles = vehiclesData?.vehicles || [];
-  const selected Vehicle = vehicles.find(v => v.id === selectedVehicleId);
+  const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
 
   // Load images from database
   const loadImages = useCallback(async () => {

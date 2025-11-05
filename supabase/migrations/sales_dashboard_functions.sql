@@ -49,7 +49,7 @@ BEGIN
         p.contactado,
         p.asesor_asignado_id,
         COALESCE(asesor.first_name || ' ' || asesor.last_name, 'No asignado') as asesor_asignado,
-        COALESCE(p.autorizar_asesor_acceso, false) as autorizar_asesor_acceso,
+        COALESCE(p.asesor_autorizado_acceso, false) as asesor_autorizado_acceso,
         p.created_at,
         p.metadata,
         latest_app.status as latest_app_status,
@@ -59,13 +59,14 @@ BEGIN
     LEFT JOIN profiles asesor ON p.asesor_asignado_id = asesor.id
     LEFT JOIN LATERAL (
         SELECT status, car_info
-        FROM applications
+        FROM financing_applications
         WHERE user_id = p.id
         ORDER BY created_at DESC
         LIMIT 1
     ) latest_app ON true
     WHERE p.asesor_asignado_id = sales_user_id
       AND p.role = 'user'
+      AND COALESCE(p.asesor_autorizado_acceso, false) = true
     ORDER BY p.created_at DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -101,7 +102,7 @@ BEGIN
             THEN p.id
         END) as leads_needing_follow_up
     FROM profiles p
-    LEFT JOIN applications a ON p.id = a.user_id
+    LEFT JOIN financing_applications a ON p.id = a.user_id
     WHERE p.asesor_asignado_id = sales_user_id
       AND p.role = 'user';
 END;
@@ -131,7 +132,7 @@ DECLARE
 BEGIN
     -- Check if sales user has access to this client
     SELECT
-        (p.asesor_asignado_id = sales_user_id AND p.autorizar_asesor_acceso = true)
+        (p.asesor_asignado_id = sales_user_id AND p.asesor_autorizado_acceso = true)
     INTO has_access
     FROM profiles p
     WHERE p.id = client_id;
@@ -149,7 +150,7 @@ BEGIN
     -- Get applications
     SELECT COALESCE(jsonb_agg(to_jsonb(a.*) ORDER BY a.created_at DESC), '[]'::jsonb)
     INTO client_applications
-    FROM applications a
+    FROM financing_applications a
     WHERE a.user_id = client_id;
 
     -- Get tags
@@ -168,7 +169,7 @@ BEGIN
     -- Get documents
     SELECT COALESCE(jsonb_agg(to_jsonb(d.*) ORDER BY d.created_at DESC), '[]'::jsonb)
     INTO client_documents
-    FROM documents d
+    FROM uploaded_documents d
     WHERE d.user_id = client_id;
 
     -- Build result
@@ -201,7 +202,7 @@ DECLARE
     has_access BOOLEAN;
 BEGIN
     SELECT
-        (p.asesor_asignado_id = sales_user_id AND p.autorizar_asesor_acceso = true)
+        (p.asesor_asignado_id = sales_user_id AND p.asesor_autorizado_acceso = true)
     INTO has_access
     FROM profiles p
     WHERE p.id = lead_id;

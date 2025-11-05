@@ -25,13 +25,225 @@ const ChangelogPage: React.FC = () => {
             <p className="text-sm mt-2 opacity-90">trefa.mx</p>
             <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-lg">
               <p className="text-lg font-semibold">
-                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">565+</span> horas
+                ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">568+</span> horas
               </p>
             </div>
           </div>
 
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
+
+          {/* Version 1.8.1 */}
+          <div className="border-l-4 border-red-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.8.1</h2>
+              <span className="bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-bold">
+                🚨 Correcciones Críticas de CRM
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                5 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Admin Access Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🔧 Acceso Administrativo Restaurado
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Fix: Función get_secure_client_profile con Autenticación Basada en Roles</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🐛</span>
+                    <span><strong>PROBLEMA:</strong> Función usaba lista hardcodeada de emails, faltaban 3 administradores y causó pérdida total de acceso al CRM</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>SOLUCIÓN:</strong> Cambiado a autenticación dinámica basada en <code>profiles.role = 'admin'</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Removida columna inexistente <code>date_of_birth</code> que causaba error de SQL</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Implementado <code>to_jsonb(p.*)</code> para inclusión automática de todas las columnas del perfil</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>5 usuarios admin ahora tienen acceso completo al CRM</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📄</span>
+                    <span><strong>Migración:</strong> 20251105000004_fix_function_role_based_auth.sql</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Sales Access Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🔧 Acceso de Ventas Reparado
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Fix: Funciones de Sales Dashboard con Nombres de Tablas Correctos</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🐛</span>
+                    <span><strong>PROBLEMA:</strong> Usuarios de ventas sin acceso funcional desde Oct 22 (~2 semanas). Funciones consultaban tabla vacía <code>applications</code> en lugar de <code>financing_applications</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">⚠️</span>
+                    <span><strong>CAUSA RAÍZ:</strong> Migración creada el 22 de octubre usó nombres de tabla obsoletos después de renombrado</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Corregido <code>get_sales_client_profile</code>: <code>applications</code> → <code>financing_applications</code>, <code>documents</code> → <code>uploaded_documents</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Corregido <code>get_sales_assigned_leads</code>: Ahora consulta tabla correcta con datos reales</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Corregido <code>verify_sales_access_to_lead</code>: Validación de acceso ahora funcional</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Cambiado <code>autorizar_asesor_acceso</code> → <code>asesor_autorizado_acceso</code> (nombre de columna correcto)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>4+ usuarios de ventas ahora pueden ver sus leads asignados</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📄</span>
+                    <span><strong>Migraciones:</strong> 20251105000005_fix_sales_functions_table_names.sql + sales_dashboard_functions.sql actualizado</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Infinite Recursion Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🔧 Recursión Infinita Resuelta
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Fix: Política RLS Causaba Loop Infinito en Consultas de Perfil</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🐛</span>
+                    <span><strong>ERROR:</strong> "infinite recursion detected in policy for relation profiles" - Bloqueaba carga de asesores</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">⚠️</span>
+                    <span><strong>CAUSA:</strong> Política "Admin users can view all profiles" consultaba tabla <code>profiles</code> para verificar rol, disparando la misma política recursivamente</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Removida política problemática - Acceso admin manejado por funciones SECURITY DEFINER</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Políticas restantes suficientes: "Users can view own profile", "Authenticated users can view profiles"</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Función <code>get_my_role()</code> con SECURITY DEFINER bypass RLS correctamente</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📄</span>
+                    <span><strong>Migración:</strong> 20251105000006_fix_infinite_recursion_in_profiles_rls.sql</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Scripts Created */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🛠️ Herramientas de Diagnóstico
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Scripts de Verificación y Aplicación de Migraciones</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🔧</span>
+                    <span><strong>apply-sales-fix.sh:</strong> Script para aplicar correcciones de funciones de ventas</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🔧</span>
+                    <span><strong>apply-recursion-fix.sh:</strong> Script para remover política RLS problemática</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🔍</span>
+                    <span><strong>verify-sales-access.sql:</strong> Diagnóstico completo de acceso de ventas</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">🔍</span>
+                    <span><strong>check-policies.sh:</strong> Verificación de políticas RLS en tiempo real</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Impact Summary */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    ✅ Impacto y Resultados
+                  </span>
+                </div>
+                <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start">
+                      <span className="mr-2">✅</span>
+                      <span><strong>5 usuarios admin</strong> recuperaron acceso completo a SimpleCRMPage</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✅</span>
+                      <span><strong>4+ usuarios de ventas</strong> ahora pueden ver sus leads asignados (primera vez en 2 semanas)</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✅</span>
+                      <span><strong>Tabla applications vacía</strong> identificada como causa de acceso roto</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✅</span>
+                      <span><strong>3 migraciones aplicadas</strong> exitosamente a producción</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✅</span>
+                      <span><strong>Zero downtime</strong> durante las correcciones</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">🔒</span>
+                      <span><strong>Sistema de respaldos</strong> permitió trabajo seguro sin riesgo de pérdida de datos</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Development Time */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <strong>Tiempo de desarrollo:</strong> 3 horas
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Migraciones aplicadas:</strong> 3 archivos SQL
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Funciones corregidas:</strong> 4 (get_secure_client_profile, get_sales_client_profile, get_sales_assigned_leads, verify_sales_access_to_lead)
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Políticas RLS optimizadas:</strong> 5 → 4 (removida política con recursión infinita)
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Version 1.8.0 */}
           <div className="border-l-4 border-green-500 pl-8">

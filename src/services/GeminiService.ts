@@ -1,12 +1,12 @@
-import { GoogleGenerativeAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 class GeminiService {
-  private genAI: GoogleGenerativeAI;
+  private genAI: GoogleGenAI;
 
   constructor() {
-    this.genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    this.genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
   }
 
   /**

@@ -5,7 +5,7 @@
  * Stores data in Supabase for analytics and reporting
  */
 
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../supabaseClient';
 
 export interface MarketingEvent {
   id?: string;

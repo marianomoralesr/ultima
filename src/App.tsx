@@ -42,6 +42,7 @@ const SurveyPage = lazy(() => import('./pages/SurveyPage'));
 const KitTrefaPage = lazy(() => import('./pages/KitTrefaPage'));
 const CarStudioPage = lazy(() => import('./pages/CarStudioPage'));
 const ChangelogPage = lazy(() => import('./pages/ChangelogPage'));
+const IntelPage = lazy(() => import('./pages/IntelPage'));
 const AdminLeadsDashboardPage = lazy(() => import('./pages/AdminLeadsDashboardPage'));
 const AdminClientProfilePage = lazy(() => import('./pages/AdminClientProfilePage'));
 const AdminAirtableConfigPage = lazy(() => import('./pages/AdminAirtableConfigPage'));
@@ -115,6 +116,7 @@ function App(): React.JSX.Element {
               <Route path="marcas/:marca" element={<MarketingCategoryPage />} />
               <Route path="carroceria/:carroceria" element={<MarketingCategoryPage />} />
               <Route path="changelog" element={<ChangelogPage />} />
+              <Route path="intel" element={<IntelPage />} />
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
               <Route path="landing" element={<LandingPage />} />

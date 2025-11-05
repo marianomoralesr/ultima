@@ -97,8 +97,9 @@ const DocumentUploadSection: React.FC<DocumentUploadSectionProps> = ({
   
   const approvedCount = documentsWithStatus.filter(d => d.status === 'approved').length;
 
-
-  if (applicationStatus === 'pending' || applicationStatus === 'rejected' || applicationStatus === 'draft' || !applicationId) {
+  // Only hide document upload for draft and rejected applications
+  // Show for all other statuses including pending, submitted, reviewing, pending_docs, approved
+  if (applicationStatus === 'rejected' || applicationStatus === 'draft' || !applicationId) {
     return null;
   }
 

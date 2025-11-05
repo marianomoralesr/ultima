@@ -340,9 +340,10 @@ const Dashboard: React.FC = () => {
 
 
   const userName = profile?.first_name || 'Usuario';
-  
+
+  // Show document upload section for any non-draft application (most recent first)
   const activeApplicationForDocs = applications
-    .filter(app => ['submitted', 'reviewing', 'pending_docs'].includes(app.status))
+    .filter(app => app.status !== 'draft')
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
 
   if (appsLoading || userLoading) {

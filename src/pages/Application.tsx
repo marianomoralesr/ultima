@@ -36,7 +36,7 @@ const baseApplicationObject = z.object({
   housing_type: z.string().min(1, 'El tipo de vivienda es obligatorio'),
   grado_de_estudios: z.string().min(1, 'El grado de estudios es obligatorio'),
   dependents: z.string().min(1, 'El número de dependientes es obligatorio'),
-  spouse_full_name: z.string().optional(), // Always optional in base schema
+  // spouse_full_name removed - this data is collected in Profile page as spouse_name
 
   // Step 2: Employment Info
   fiscal_classification: z.string().min(1, "La clasificación fiscal es obligatoria"),
@@ -221,7 +221,7 @@ const Application: React.FC = () => {
     };
 
     const steps = [
-        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios', ...(isMarried ? ['spouse_full_name'] : [])] },
+        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },
@@ -751,7 +751,7 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
         <FormRadio control={control} name="time_at_address" label="Tiempo Viviendo en el Domicilio" options={['Menos de 1 año', '1-2 años', '3-5 años', '6-10 años', 'Más de 10 años']} error={errors.time_at_address?.message} />
         <FormRadio control={control} name="housing_type" label="Tipo de Vivienda" options={['Propia', 'Rentada', 'Familiar']} error={errors.housing_type?.message} />
         <FormRadio control={control} name="grado_de_estudios" label="Grado de Estudios" options={['Primaria', 'Secundaria', 'Preparatoria', 'Licenciatura', 'Posgrado']} error={errors.grado_de_estudios?.message} />
-        {isMarried && <FormInput control={control} name="spouse_full_name" label="Nombre Completo del Cónyuge" error={errors.spouse_full_name?.message} />}
+        {/* Spouse name field removed - collected in Profile page instead */}
         <div>
             <FormRadio control={control} name="dependents" label="Número de Dependientes" options={['0', '1', '2', '3', '4+']} error={errors.dependents?.message} />
             <p className="text-xs text-gray-500 mt-2">Un número menor de dependientes aumenta tus probabilidades de ser aprobado.</p>

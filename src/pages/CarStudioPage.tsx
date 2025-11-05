@@ -138,7 +138,7 @@ const ImageComparison: React.FC<{
                     className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                 />
                 <label htmlFor="replaceFeatureImage" className="text-sm text-gray-700 cursor-pointer">
-                    Reemplazar imagen destacada con la primera imagen procesada
+                    Reemplazar imagen destacada con la imagen RIGHT_FRONT (o FRONT si no está disponible)
                 </label>
             </div>
 
@@ -245,7 +245,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
     const [availableImages, setAvailableImages] = useState<string[]>([]);
     const [selectedImageIndices, setSelectedImageIndices] = useState<Set<number>>(new Set());
     const [uploadImages, setUploadImages] = useState<{ fileUrl: string; position: string }[]>([]);
-    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(false);
+    const [replaceFeatureImage, setReplaceFeatureImage] = useState<boolean>(true); // Default to true (checked)
 
     const [requestStatus, setRequestStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [apiResponse, setApiResponse] = useState<string | null>(null);
@@ -262,7 +262,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveStatus('idle');
         setSaveError(null);
         setComparisonImages([]);
-        setReplaceFeatureImage(false);
+        setReplaceFeatureImage(true); // Default to checked
 
         const exteriorImages = (vehicle.galeria_exterior || vehicle.fotos_exterior_url || []).filter((url): url is string => !!url && url !== DEFAULT_PLACEHOLDER_IMAGE);
 
@@ -324,6 +324,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             const options: any = {
                 fileExtension: 'JPG',
                 blurBackground: false,
+                traceId: `vehicle_${selectedVehicle.id}`, // Track vehicle ID for history
             };
 
             console.log('Sending images to CarStudio:');
@@ -424,22 +425,42 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
         setSaveError(null);
         try {
             const processedUrls = comparisonImages.map(img => img.processed);
+
+            // Find the feature image to use (prefer RIGHT_FRONT, then FRONT, then first image)
+            let featureImageUrl: string | undefined;
+            if (replaceFeatureImage) {
+                // Find the index of RIGHT_FRONT in uploadImages
+                const rightFrontIndex = uploadImages.findIndex(img => img.position === 'RIGHT_FRONT');
+                const frontIndex = uploadImages.findIndex(img => img.position === 'FRONT');
+
+                if (rightFrontIndex !== -1 && rightFrontIndex < processedUrls.length) {
+                    featureImageUrl = processedUrls[rightFrontIndex];
+                    console.log(`Using RIGHT_FRONT as feature image (index ${rightFrontIndex})`);
+                } else if (frontIndex !== -1 && frontIndex < processedUrls.length) {
+                    featureImageUrl = processedUrls[frontIndex];
+                    console.log(`RIGHT_FRONT not found, using FRONT as feature image (index ${frontIndex})`);
+                } else {
+                    featureImageUrl = processedUrls[0];
+                    console.log('RIGHT_FRONT and FRONT not found, using first image as feature image');
+                }
+            }
+
             await ImageService.processAndSaveImages(
                 selectedVehicle.id,
                 processedUrls,
-                replaceFeatureImage ? processedUrls[0] : undefined
+                featureImageUrl
             );
             setSaveStatus('success');
             setTimeout(() => {
                 setComparisonImages([]);
                 setRequestStatus('idle');
-                setReplaceFeatureImage(false);
+                setReplaceFeatureImage(true); // Keep it checked for next time
             }, 2000);
         } catch (error: any) {
             setSaveStatus('error');
             setSaveError(error.message || 'An unknown error occurred.');
         }
-    }, [selectedVehicle, comparisonImages, replaceFeatureImage]);
+    }, [selectedVehicle, comparisonImages, replaceFeatureImage, uploadImages]);
 
     const handleDiscardImages = () => {
         setComparisonImages([]);
@@ -595,6 +616,13 @@ const WebEditorHistoryTab: React.FC = () => {
     const [saveError, setSaveError] = useState<{[key: string]: string}>({});
     const [selectedVehicleId, setSelectedVehicleId] = useState<{[key: string]: number | null}>({});
 
+    // Extract vehicle ID from traceId (format: "vehicle_123")
+    const extractVehicleId = (traceId?: string): number | null => {
+        if (!traceId) return null;
+        const match = traceId.match(/^vehicle_(\d+)$/);
+        return match ? parseInt(match[1], 10) : null;
+    };
+
     const { data: vehiclesData } = useQuery({
         queryKey: ['vehicles-car-studio'],
         queryFn: () => VehicleService.getAllVehicles(),
@@ -607,6 +635,19 @@ const WebEditorHistoryTab: React.FC = () => {
         try {
             const response = await CarStudioService.listWebEditorRecords(params);
             setHistory(response);
+
+            // Pre-select vehicles based on traceId
+            if (response?.content) {
+                const preSelectedVehicles: {[key: string]: number | null} = {};
+                response.content.forEach((item: any) => {
+                    const itemId = item._id;
+                    const vehicleId = extractVehicleId(item.carStudio?.traceId);
+                    if (vehicleId) {
+                        preSelectedVehicles[itemId] = vehicleId;
+                    }
+                });
+                setSelectedVehicleId(preSelectedVehicles);
+            }
         } catch (e: any) {
             setError(e.message || "Failed to fetch web editor history.");
         } finally {
@@ -647,11 +688,23 @@ const WebEditorHistoryTab: React.FC = () => {
                     {history.content.map((item: any) => {
                         const itemId = item._id;
                         const processedImages = item.carStudio.afterStudioImages?.map((img: any) => img.afterStudioImageUrl) || [];
+                        const trackedVehicleId = extractVehicleId(item.carStudio?.traceId);
+                        const trackedVehicle = trackedVehicleId ? vehicles.find((v: any) => v.id === trackedVehicleId) : null;
 
                         return (
                             <div key={itemId} className="p-4 border rounded-lg space-y-3">
-                                <h3 className="font-semibold">{item.carStudio.projectName || `Trabajo ID: ${item.carStudio._id.slice(-6)}`}</h3>
-                                <p className="text-xs text-gray-500">Fecha: {new Date(item.carStudio.createdDate).toLocaleString()}</p>
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h3 className="font-semibold">{item.carStudio.projectName || `Trabajo ID: ${item.carStudio._id.slice(-6)}`}</h3>
+                                        <p className="text-xs text-gray-500">Fecha: {new Date(item.carStudio.createdDate).toLocaleString()}</p>
+                                        {trackedVehicle && (
+                                            <div className="mt-1 inline-flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-700 rounded-md text-xs font-medium">
+                                                <Camera className="w-3 h-3" />
+                                                {trackedVehicle.titulo}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
                                     {item.carStudio.afterStudioImages?.map((img: any, idx: number) => (
                                         <a key={idx} href={img.afterStudioImageUrl} target="_blank" rel="noopener noreferrer">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import VehicleService from '../services/VehicleService';
 import CarStudioService, { CarStudioApiError } from '../services/CarStudioService';
 import type { WordPressVehicle } from '../types/types';
@@ -232,6 +232,8 @@ interface ImageGeneratorTabProps {
 }
 
 const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoading, globalError }) => {
+    const queryClient = useQueryClient();
+
     // Filter vehicles to show only those with galleries (exterior photos)
     const vehiclesWithGalleries = vehicles.filter(v => {
         const exteriorImages = (v.galeria_exterior || v.fotos_exterior_url || []).filter((url): url is string =>
@@ -450,6 +452,11 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
                 processedUrls,
                 featureImageUrl
             );
+
+            // Invalidate React Query cache to force refetch updated vehicle data
+            queryClient.invalidateQueries({ queryKey: ['vehicles-car-studio'] });
+            queryClient.invalidateQueries({ queryKey: ['all-vehicles-car-studio-unpaginated'] });
+
             setSaveStatus('success');
             setTimeout(() => {
                 setComparisonImages([]);
@@ -460,7 +467,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
             setSaveStatus('error');
             setSaveError(error.message || 'An unknown error occurred.');
         }
-    }, [selectedVehicle, comparisonImages, replaceFeatureImage, uploadImages]);
+    }, [selectedVehicle, comparisonImages, replaceFeatureImage, uploadImages, queryClient]);
 
     const handleDiscardImages = () => {
         setComparisonImages([]);
@@ -607,6 +614,7 @@ const ImageGeneratorTab: React.FC<ImageGeneratorTabProps> = ({ vehicles, isLoadi
 };
 
 const WebEditorHistoryTab: React.FC = () => {
+    const queryClient = useQueryClient();
     const [history, setHistory] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -623,9 +631,28 @@ const WebEditorHistoryTab: React.FC = () => {
         return match ? parseInt(match[1], 10) : null;
     };
 
+    // Fetch ALL vehicles by requesting multiple pages (21 vehicles per page)
+    // Fetching 10 pages = up to 210 vehicles to ensure comprehensive coverage
     const { data: vehiclesData } = useQuery({
-        queryKey: ['vehicles-car-studio'],
-        queryFn: () => VehicleService.getAllVehicles(),
+        queryKey: ['all-vehicles-car-studio-unpaginated'],
+        queryFn: async () => {
+            const pagePromises = Array.from({ length: 10 }, (_, i) =>
+                VehicleService.getAllVehicles({}, i + 1)
+            );
+            const results = await Promise.all(pagePromises);
+
+            // Combine all vehicles from all pages and deduplicate by ID
+            const allVehicles = results.flatMap(r => r.vehicles);
+            const uniqueVehicles = Array.from(
+                new Map(allVehicles.map(v => [v.id, v])).values()
+            );
+
+            return {
+                vehicles: uniqueVehicles,
+                totalCount: results[0]?.totalCount || uniqueVehicles.length
+            };
+        },
+        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     });
     const vehicles = vehiclesData?.vehicles || [];
 
@@ -667,7 +694,14 @@ const WebEditorHistoryTab: React.FC = () => {
         setSaveError(prev => ({...prev, [itemId]: ''}));
 
         try {
+            // Note: History doesn't preserve position metadata, so we use the first image
+            // In the future, consider storing position data in Car Studio projects
             await ImageService.processAndSaveImages(vehicleId, images, images[0]);
+
+            // Invalidate React Query cache to force refetch updated vehicle data
+            queryClient.invalidateQueries({ queryKey: ['vehicles-car-studio'] });
+            queryClient.invalidateQueries({ queryKey: ['all-vehicles-car-studio'] });
+
             setSaveStatus(prev => ({...prev, [itemId]: 'success'}));
             setTimeout(() => {
                 setSaveStatus(prev => ({...prev, [itemId]: 'idle'}));
@@ -720,9 +754,11 @@ const WebEditorHistoryTab: React.FC = () => {
                                         onChange={(e) => setSelectedVehicleId(prev => ({...prev, [itemId]: Number(e.target.value)}))}
                                         className="flex-1 px-3 py-2 border rounded-md text-sm"
                                     >
-                                        <option value="">Seleccionar vehículo...</option>
+                                        <option value="">Seleccionar vehículo... ({vehicles.length} disponibles)</option>
                                         {vehicles.map((v: any) => (
-                                            <option key={v.id} value={v.id}>{v.titulo} (ID: {v.id})</option>
+                                            <option key={v.id} value={v.id}>
+                                                {v.titulo} - {v.marca || ''} {v.modelo || ''} {v.anio || ''} (ID: {v.id})
+                                            </option>
                                         ))}
                                     </select>
                                     <button

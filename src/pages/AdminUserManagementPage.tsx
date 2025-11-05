@@ -32,6 +32,9 @@ interface SalesUser {
     leads_assigned: number;
     leads_contacted: number;
     leads_with_applications: number;
+    leads_actualizados: number;
+    solicitudes_enviadas: number;
+    solicitudes_procesadas: number;
     is_overloaded: boolean;
     is_active: boolean;
 }
@@ -69,18 +72,53 @@ const AdminUserManagementPage: React.FC = () => {
         }
     };
 
+    // Utility function to convert UTC date to GMT-6 (Monterrey, Mexico)
+    const toGMT6 = (dateString: string | null): Date | null => {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        // GMT-6 is -360 minutes offset
+        const gmt6Offset = -6 * 60;
+        const localOffset = date.getTimezoneOffset();
+        const offsetDiff = gmt6Offset - localOffset;
+        return new Date(date.getTime() + offsetDiff * 60 * 1000);
+    };
+
+    // Format date in GMT-6 timezone
     const formatDate = (dateString: string | null) => {
         if (!dateString) return 'Nunca';
+        const date = toGMT6(dateString);
+        if (!date) return 'Nunca';
+
+        return date.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            timeZone: 'America/Monterrey'
+        });
+    };
+
+    // Format relative time in Spanish (hace 30 mins, hace 2 horas, etc.)
+    const formatRelativeTime = (dateString: string | null) => {
+        if (!dateString) return 'Nunca';
+
         const date = new Date(dateString);
         const now = new Date();
-        const diffTime = Math.abs(now.getTime() - date.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffMs = now.getTime() - date.getTime();
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHour = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHour / 24);
+        const diffWeek = Math.floor(diffDay / 7);
+        const diffMonth = Math.floor(diffDay / 30);
 
-        if (diffDays === 0) return 'Hoy';
-        if (diffDays === 1) return 'Ayer';
-        if (diffDays < 7) return `Hace ${diffDays} días`;
-        if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-        return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
+        if (diffMin < 1) return 'hace unos segundos';
+        if (diffMin < 60) return `hace ${diffMin} min${diffMin !== 1 ? 's' : ''}`;
+        if (diffHour < 24) return `hace ${diffHour} hora${diffHour !== 1 ? 's' : ''}`;
+        if (diffDay < 7) return `hace ${diffDay} día${diffDay !== 1 ? 's' : ''}`;
+        if (diffWeek < 4) return `hace ${diffWeek} semana${diffWeek !== 1 ? 's' : ''}`;
+        if (diffMonth < 12) return `hace ${diffMonth} mes${diffMonth !== 1 ? 'es' : ''}`;
+
+        return formatDate(dateString);
     };
 
     const getStatusBadge = (user: SalesUser) => {
@@ -149,6 +187,7 @@ const AdminUserManagementPage: React.FC = () => {
     const totalLeads = salesUsers.reduce((sum, user) => sum + user.leads_assigned, 0);
     const totalContacted = salesUsers.reduce((sum, user) => sum + user.leads_contacted, 0);
     const totalApplications = salesUsers.reduce((sum, user) => sum + user.leads_with_applications, 0);
+    const totalLeadsActualizados = salesUsers.reduce((sum, user) => sum + user.leads_actualizados, 0);
     const activeUsers = salesUsers.filter(user => user.is_active).length;
     const overloadedUsers = salesUsers.filter(user => user.is_overloaded).length;
 
@@ -189,7 +228,7 @@ const AdminUserManagementPage: React.FC = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div className="bg-white p-4 rounded-xl shadow-sm border">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 rounded-lg">
@@ -240,6 +279,18 @@ const AdminUserManagementPage: React.FC = () => {
 
                 <div className="bg-white p-4 rounded-xl shadow-sm border">
                     <div className="flex items-center gap-3">
+                        <div className="p-2 bg-indigo-100 rounded-lg">
+                            <TrendingUp className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Leads Actualizados</p>
+                            <p className="text-2xl font-bold text-gray-900">{totalLeadsActualizados}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl shadow-sm border">
+                    <div className="flex items-center gap-3">
                         <div className="p-2 bg-red-100 rounded-lg">
                             <AlertCircle className="w-6 h-6 text-red-600" />
                         </div>
@@ -259,9 +310,6 @@ const AdminUserManagementPage: React.FC = () => {
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Usuario
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Contacto
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Estado
@@ -302,25 +350,13 @@ const AdminUserManagementPage: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900 flex items-center">
-                                            <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                                            {user.email}
-                                        </div>
-                                        {user.phone && (
-                                            <div className="text-sm text-gray-500 flex items-center mt-1">
-                                                <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                                                {user.phone}
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
                                         {getStatusBadge(user)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-1">
                                             {getActivityBadge(user.last_sign_in_at)}
                                             <div className="text-xs text-gray-500">
-                                                Última sesión: {formatDate(user.last_sign_in_at)}
+                                                Última sesión: {formatRelativeTime(user.last_sign_in_at)}
                                             </div>
                                         </div>
                                     </td>
@@ -343,9 +379,15 @@ const AdminUserManagementPage: React.FC = () => {
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-gray-600">Con solicitud:</span>
+                                                <span className="text-gray-600">Leads Actualizados:</span>
+                                                <span className="font-medium text-indigo-600">
+                                                    {user.leads_actualizados}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-600">Solicitudes Procesadas:</span>
                                                 <span className="font-medium text-blue-600">
-                                                    {user.leads_with_applications}
+                                                    {user.solicitudes_procesadas}/{user.solicitudes_enviadas}
                                                 </span>
                                             </div>
                                             <div className="w-full bg-gray-200 rounded-full h-2">

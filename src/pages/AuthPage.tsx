@@ -10,6 +10,7 @@ import useSEO from '../hooks/useSEO';
 import { getVehicleImage } from '../utils/getVehicleImage';
 import { getEmailRedirectUrl } from './config';
 import { proxyImage } from '../utils/proxyImage';
+import { conversionTracking } from '../services/ConversionTrackingService';
 
 const VehicleFinanceCard: React.FC<{ vehicle: WordPressVehicle }> = ({ vehicle }) => (
   <div className="mb-6 bg-gray-100 p-4 rounded-lg border border-gray-200">
@@ -146,6 +147,13 @@ const AuthPage: React.FC = () => {
             }
 
             console.log('OTP sent successfully:', data);
+
+            // Track OTP request
+            conversionTracking.trackAuth.otpRequested(email, {
+                source: source || 'direct',
+                vehicleId: searchParams.get('ordencompra') || undefined
+            });
+
             setView('verifyOtp');
         } catch (error: any) {
             console.error('Full Email Submit Error:', error);
@@ -173,6 +181,12 @@ const AuthPage: React.FC = () => {
 
             console.log('OTP Verification Success:', data);
 
+            // Track registration completion
+            conversionTracking.trackAuth.otpVerified(data.user?.id || '', {
+                email: email,
+                vehicleId: searchParams.get('ordencompra') || undefined
+            });
+
             const redirectPath = localStorage.getItem('loginRedirect') || '/escritorio';
             localStorage.removeItem('loginRedirect');
             navigate(redirectPath, { replace: true });
@@ -188,6 +202,13 @@ const AuthPage: React.FC = () => {
     const handleGoogleSignIn = async () => {
         setLoading(true);
         setError(null);
+
+        // Track Google sign-in attempt
+        conversionTracking.trackButtonClick('Google Sign In Initiated', {
+            page: 'auth',
+            vehicleId: searchParams.get('ordencompra') || undefined
+        });
+
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {

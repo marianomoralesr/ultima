@@ -20,6 +20,7 @@ import { DocumentService, UploadedDocument } from '../services/documentService';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 import { BrevoEmailService } from '../services/BrevoEmailService';
 import { supabase } from '../../supabaseClient';
+import { conversionTracking } from '../services/ConversionTrackingService';
 
 const VehicleSelector = lazy(() => import('../components/VehicleSelector'));
 
@@ -270,6 +271,13 @@ const Application: React.FC = () => {
       // Save and proceed
       try {
         await ApplicationService.saveApplicationDraft(applicationId, { application_data: getValues() });
+
+        // Track step completion
+        conversionTracking.trackApplication.stepCompleted(currentStep + 1, steps[currentStep].title, {
+          applicationId: applicationId,
+          vehicleId: vehicleInfo?._ordenCompra || undefined
+        });
+
         if(currentStep < steps.length - 1) setCurrentStep(s => s + 1);
       } catch (e) {
         console.error("Error saving application draft:", e);
@@ -409,6 +417,16 @@ const Application: React.FC = () => {
                     user.id
                 ).catch(err => console.error('[Application] Error sending advisor email:', err));
             }
+
+            // Track application submission
+            conversionTracking.trackApplication.submitted({
+                applicationId: applicationId,
+                vehicleId: vehicleInfo._ordenCompra,
+                vehicleName: vehicleTitle || undefined,
+                vehiclePrice: vehicleInfo._precioNumerico || 0,
+                recommendedBank: recommendedBank,
+                userId: user.id
+            });
 
             setPageStatus('success');
 

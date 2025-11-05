@@ -1022,40 +1022,83 @@ const ConsentStep: React.FC<{ control: any, errors: any, setValue: any }> = ({ c
     </div>
 );
 
-const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, vehicleInfo: any, bank: string | null }> = ({ applicationData, profile, vehicleInfo, bank }) => (
-    <div className="space-y-8">
-        <h2 className="text-xl font-semibold text-center">Revisa y Envía tu Solicitud</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1">
-                {vehicleInfo?._featureImage && <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="rounded-lg shadow-md aspect-video object-cover" />}
-                <div className="mt-4 space-y-2">
-                    <ReviewItem label="Vehículo" value={vehicleInfo?._vehicleTitle} isLarge={true}/>
-                    <ReviewItem label="Banco Recomendado" value={bank} isLarge={true}/>
+const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, vehicleInfo: any, bank: string | null }> = ({ applicationData, profile, vehicleInfo, bank }) => {
+    // Use application address if provided, otherwise fallback to profile address
+    const address = applicationData.current_address || profile?.address || '';
+    const colony = applicationData.current_colony || profile?.colony || '';
+    const city = applicationData.current_city || profile?.city || '';
+    const state = applicationData.current_state || profile?.state || '';
+    const zipCode = applicationData.current_zip_code || profile?.zip_code || '';
+
+    const fullAddress = [address, colony, city, state, zipCode ? `C.P. ${zipCode}` : '']
+        .filter(part => part && part.trim())
+        .join(', ');
+
+    return (
+        <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-center">Revisa y Envía tu Solicitud</h2>
+
+            {/* Compact vehicle info banner */}
+            <div className="bg-gradient-to-r from-primary-50 to-orange-50 rounded-lg p-4 border border-primary-200">
+                <div className="flex items-center gap-4">
+                    {vehicleInfo?._featureImage && (
+                        <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-24 h-16 rounded object-cover flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-600">Vehículo Seleccionado</p>
+                        <p className="font-semibold text-primary-700 truncate">{vehicleInfo?._vehicleTitle}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-600">Banco Recomendado</p>
+                        <p className="font-semibold text-primary-700">{bank || 'N/A'}</p>
+                    </div>
                 </div>
             </div>
-            <div className="md:col-span-2 space-y-4">
+
+            {/* Compact summary grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <SummarySection title="Datos Personales" icon={User}>
-                    <ReviewItem label="Nombre Completo" value={`${profile?.first_name || ''} ${profile?.last_name || ''} ${profile?.mother_last_name || ''}`} />
-                    <ReviewItem label="Email" value={profile?.email} />
-                    <ReviewItem label="Teléfono" value={profile?.phone} />
+                    <ReviewItem label="Nombre" value={`${profile?.first_name || ''} ${profile?.last_name || ''} ${profile?.mother_last_name || ''}`} />
                     <ReviewItem label="RFC" value={profile?.rfc} />
-                    
-                    <ReviewItem label="Dirección" value={`${applicationData.current_address}, ${applicationData.current_colony}, ${applicationData.current_city}, ${applicationData.current_state}, C.P. ${applicationData.current_zip_code}`} />
+                    <ReviewItem label="Teléfono" value={profile?.phone} />
+                    <ReviewItem label="Dirección" value={fullAddress} />
                 </SummarySection>
+
                 <SummarySection title="Datos Laborales" icon={Building2}>
-                    
-                    <ReviewItem label="Clasificación Fiscal" value={applicationData.fiscal_classification} />
-                    
                     <ReviewItem label="Empresa" value={applicationData.company_name} />
-                    
                     <ReviewItem label="Puesto" value={applicationData.job_title} />
-                    
                     <ReviewItem label="Ingreso Neto" value={applicationData.net_monthly_income} />
+                    <ReviewItem label="Antigüedad" value={applicationData.job_seniority} />
                 </SummarySection>
             </div>
+
+            {/* Survey invitation with benefits */}
+            <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg p-6 shadow-lg">
+                <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-lg mb-2">¡Obtén Beneficios Exclusivos!</h3>
+                        <p className="text-sm text-white/90 mb-4">
+                            Responde nuestra breve encuesta de 3 minutos y recibe promociones especiales, descuentos en accesorios,
+                            seguros con tarifa preferencial y beneficios exclusivos para la compra de tu auto.
+                            ¡Ayúdanos a mejorar y ahorra más!
+                        </p>
+                        <a
+                            href="https://trefa-buyer-persona-survey-analytics-898935312460.us-west1.run.app/#/survey"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-5 py-2.5 bg-white text-green-700 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md"
+                        >
+                            Responder Encuesta y Recibir Beneficios <ArrowRight className="w-4 h-4 ml-2" />
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 
 // --- FORM HELPER COMPONENTS ---

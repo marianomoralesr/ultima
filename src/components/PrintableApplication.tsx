@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../supabaseClient';
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-sm font-bold uppercase tracking-wider text-white bg-trefa-blue p-2 rounded-t-md mt-3">{title}</h3>
@@ -15,6 +16,37 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
     const profile = application.personal_info_snapshot || {};
     const appData = application.application_data || {};
     const carInfo = application.car_info || {};
+    const [advisorName, setAdvisorName] = useState<string | null>(null);
+
+    // Fetch advisor name if we have an asesor_asignado_id
+    useEffect(() => {
+        const fetchAdvisorName = async () => {
+            // Check if we already have the name in the profile
+            if (profile.asesor_asignado_name) {
+                setAdvisorName(profile.asesor_asignado_name);
+                return;
+            }
+
+            // If we have an ID but no name, fetch it
+            if (profile.asesor_asignado_id) {
+                try {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('first_name, last_name')
+                        .eq('id', profile.asesor_asignado_id)
+                        .single();
+
+                    if (!error && data) {
+                        setAdvisorName(`${data.first_name} ${data.last_name}`);
+                    }
+                } catch (err) {
+                    console.error('Error fetching advisor name:', err);
+                }
+            }
+        };
+
+        fetchAdvisorName();
+    }, [profile.asesor_asignado_id, profile.asesor_asignado_name]);
 
     // Format currency
     const formatCurrency = (amount: any) => {
@@ -87,8 +119,8 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <p className="text-xs text-gray-500 font-mono">ID: {application.id?.slice(0, 8)}</p>
                     <p className="text-xs text-gray-500">Fecha: {new Date(application.created_at).toLocaleDateString('es-MX')}</p>
                     <p className="text-xs font-semibold text-primary-600 mt-1">Status: {getStatusLabel(application.status)}</p>
-                    {profile.asesor_asignado_id && (
-                        <p className="text-xs text-gray-600 mt-1">Asesor Asignado: {profile.asesor_asignado_id}</p>
+                    {advisorName && (
+                        <p className="text-xs text-gray-600 mt-1">Asesor Asignado: {advisorName}</p>
                     )}
                 </div>
                 <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-10" />

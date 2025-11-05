@@ -633,7 +633,7 @@ const AdminClientProfilePage: React.FC = () => {
                         <div className="mt-6 grid grid-cols-2 gap-4">
                             <ProfileDataItem label="Fuente" value={profile.source} />
                             <ProfileDataItem label="RFC" value={profile.rfc} />
-                  <p className="text-sm text-gray-500">Asesor Asignado: {profile.asesor_asignado_id || 'N/A'}</p>
+                            <ProfileDataItem label="Asesor Asignado" value={profile.asesor_asignado_name || 'N/A'} />
                             <ProfileDataItem label="Contactado" value={profile.contactado ? 'Sí' : 'No'} />
                         </div>
                         <div className="mt-6 border-t pt-4 space-y-2">

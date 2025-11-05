@@ -1,37 +1,59 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { SalesService } from '../services/SalesService';
-import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Tag, Filter, CheckCircle, XCircle } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { AdminService } from '../services/AdminService';
+import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import StatsCard from '../components/StatsCard';
+import { supabase } from '../../supabaseClient';
+import { toast } from 'react-hot-toast';
 
 const SalesLeadsDashboardPage: React.FC = () => {
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const [filterContactado, setFilterContactado] = useState<string>('all');
+    const queryClient = useQueryClient();
 
-    const { data: leads = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
-        queryKey: ['salesLeads', user?.id],
-        queryFn: () => {
-            if (!user?.id) throw new Error("Usuario no autenticado");
-            return SalesService.getMyAssignedLeads(user.id);
-        },
-        enabled: !!user?.id,
+    // Use the same function as Admin (get_leads_for_dashboard works for both admin and sales)
+    const { data: allLeads = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
+        queryKey: ['leads'],
+        queryFn: AdminService.getAllLeads,
     });
 
-    const { data: stats = {}, isLoading: isLoadingStats, isError: isErrorStats, error: errorStats } = useQuery<any, Error>({
-        queryKey: ['salesDashboardStats', user?.id],
-        queryFn: () => {
-            if (!user?.id) throw new Error("Usuario no autenticado");
-            return SalesService.getMyLeadsStats(user.id);
-        },
-        enabled: !!user?.id,
+    const { data: allStats = {}, isLoading: isLoadingStats, isError: isErrorStats, error: errorStats } = useQuery<any, Error>({
+        queryKey: ['dashboardStats'],
+        queryFn: AdminService.getDashboardStats,
     });
+
+    // Filter to show only leads assigned to this sales user
+    const myLeads = useMemo(() => {
+        if (!user?.id) return [];
+        return allLeads.filter(lead =>
+            lead.asesor_asignado_id === user.id &&
+            lead.asesor_autorizado_acceso === true
+        );
+    }, [allLeads, user?.id]);
+
+    // Calculate stats for this sales user's leads only
+    const stats = useMemo(() => {
+        const total_leads = myLeads.length;
+        const leads_with_active_app = myLeads.filter(l =>
+            l.latest_app_status && l.latest_app_status !== 'draft'
+        ).length;
+        const leads_not_contacted = myLeads.filter(l => !l.contactado).length;
+        const leads_needing_follow_up = myLeads.filter(l => !l.contactado).length;
+
+        return {
+            total_leads,
+            leads_with_active_app,
+            leads_not_contacted,
+            leads_needing_follow_up,
+        };
+    }, [myLeads]);
 
     const filteredLeads = useMemo(() => {
-        let filtered = leads;
+        let filtered = myLeads;
 
         // Filter by search term
         if (searchTerm) {
@@ -58,7 +80,27 @@ const SalesLeadsDashboardPage: React.FC = () => {
         }
 
         return filtered;
-    }, [leads, searchTerm, filterStatus, filterContactado]);
+    }, [myLeads, searchTerm, filterStatus, filterContactado]);
+
+    // Toggle contactado status
+    const toggleContactado = async (leadId: string, currentValue: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ contactado: !currentValue })
+                .eq('id', leadId);
+
+            if (error) throw error;
+
+            // Invalidate and refetch
+            await queryClient.invalidateQueries({ queryKey: ['leads'] });
+
+            toast.success(`Marcado como ${!currentValue ? 'contactado' : 'no contactado'}`);
+        } catch (err: any) {
+            console.error('Error toggling contactado:', err);
+            toast.error(`Error: ${err.message}`);
+        }
+    };
 
     const isLoading = isLoadingLeads || isLoadingStats;
     const isError = isErrorLeads || isErrorStats;
@@ -191,7 +233,7 @@ const SalesLeadsDashboardPage: React.FC = () => {
 
                 {/* Results count */}
                 <div className="mb-4 text-sm text-gray-600">
-                    Mostrando {filteredLeads.length} de {leads.length} leads
+                    Mostrando {filteredLeads.length} de {myLeads.length} leads
                 </div>
 
                 {/* Table */}
@@ -204,7 +246,6 @@ const SalesLeadsDashboardPage: React.FC = () => {
                                 <th scope="col" className="px-6 py-3">Último Auto de Interés</th>
                                 <th scope="col" className="px-6 py-3">Estado Solicitud</th>
                                 <th scope="col" className="px-6 py-3">Contactado</th>
-                                <th scope="col" className="px-6 py-3">Acceso Autorizado</th>
                                 <th scope="col" className="px-6 py-3">Acciones</th>
                             </tr>
                         </thead>
@@ -213,7 +254,9 @@ const SalesLeadsDashboardPage: React.FC = () => {
                                 filteredLeads.map(lead => (
                                     <tr key={lead.id} className="bg-white border-b hover:bg-gray-50">
                                         <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                            {`${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Sin Nombre'}
+                                            <Link to={`/escritorio/ventas/cliente/${lead.id}`} className="hover:underline text-primary-600">
+                                                {`${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Sin Nombre'}
+                                            </Link>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="truncate w-48" title={lead.email}>{lead.email}</div>
@@ -226,81 +269,59 @@ const SalesLeadsDashboardPage: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             {lead.latest_app_status ? (
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`w-3 h-3 rounded-full animate-pulse ${
-                                                        lead.latest_app_status === 'submitted' ? 'bg-blue-500' :
-                                                        lead.latest_app_status === 'reviewing' ? 'bg-purple-500' :
-                                                        lead.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
-                                                        lead.latest_app_status === 'approved' ? 'bg-green-500' :
-                                                        lead.latest_app_status === 'rejected' ? 'bg-red-500' :
-                                                        lead.latest_app_status === 'draft' ? 'bg-gray-400' :
-                                                        'bg-gray-400'
-                                                    }`}></span>
-                                                    <span className={`font-bold text-sm ${
-                                                        lead.latest_app_status === 'submitted' ? 'text-blue-700' :
-                                                        lead.latest_app_status === 'reviewing' ? 'text-purple-700' :
-                                                        lead.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
-                                                        lead.latest_app_status === 'approved' ? 'text-green-700' :
-                                                        lead.latest_app_status === 'rejected' ? 'text-red-700' :
-                                                        lead.latest_app_status === 'draft' ? 'text-gray-600' :
-                                                        'text-gray-600'
-                                                    }`}>
-                                                        {lead.latest_app_status === 'submitted' ? 'Enviada' :
-                                                        lead.latest_app_status === 'reviewing' ? 'En Revisión' :
-                                                        lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
-                                                        lead.latest_app_status === 'approved' ? 'Aprobada' :
-                                                        lead.latest_app_status === 'rejected' ? 'Rechazada' :
-                                                        lead.latest_app_status === 'draft' ? 'Borrador' :
-                                                        lead.latest_app_status}
-                                                    </span>
-                                                </div>
+                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                                    lead.latest_app_status === 'submitted' ? 'bg-blue-100 text-blue-800' :
+                                                    lead.latest_app_status === 'reviewing' ? 'bg-purple-100 text-purple-800' :
+                                                    lead.latest_app_status === 'pending_docs' ? 'bg-yellow-100 text-yellow-800' :
+                                                    lead.latest_app_status === 'approved' ? 'bg-green-100 text-green-800' :
+                                                    lead.latest_app_status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                    lead.latest_app_status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                    {lead.latest_app_status === 'submitted' ? 'Enviada' :
+                                                    lead.latest_app_status === 'reviewing' ? 'En Revisión' :
+                                                    lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
+                                                    lead.latest_app_status === 'approved' ? 'Aprobada' :
+                                                    lead.latest_app_status === 'rejected' ? 'Rechazada' :
+                                                    lead.latest_app_status === 'draft' ? 'Borrador' :
+                                                    lead.latest_app_status}
+                                                </span>
                                             ) : (
                                                 <span className="text-gray-400">-</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            {lead.contactado ? (
-                                                <div className="flex items-center gap-1 text-green-700">
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    <span className="text-xs font-semibold">Sí</span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-1 text-red-700">
-                                                    <XCircle className="w-4 h-4" />
-                                                    <span className="text-xs font-semibold">No</span>
-                                                </div>
-                                            )}
+                                            <button
+                                                onClick={() => toggleContactado(lead.id, lead.contactado)}
+                                                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                                title="Click para cambiar estado"
+                                            >
+                                                {lead.contactado ? (
+                                                    <>
+                                                        <CheckCircle className="w-5 h-5 text-green-600" />
+                                                        <span className="text-xs font-semibold text-green-700">Sí</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <XCircle className="w-5 h-5 text-red-600" />
+                                                        <span className="text-xs font-semibold text-red-700">No</span>
+                                                    </>
+                                                )}
+                                            </button>
                                         </td>
                                         <td className="px-6 py-4">
-                                            {lead.autorizar_asesor_acceso ? (
-                                                <div className="flex items-center gap-1 text-green-700">
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    <span className="text-xs font-semibold">Sí</span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-1 text-yellow-700">
-                                                    <XCircle className="w-4 h-4" />
-                                                    <span className="text-xs font-semibold">No</span>
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {lead.autorizar_asesor_acceso ? (
-                                                <Link
-                                                    to={`/escritorio/ventas/cliente/${lead.id}`}
-                                                    className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
-                                                >
-                                                    Ver Perfil
-                                                </Link>
-                                            ) : (
-                                                <span className="text-xs text-gray-400 italic">Acceso Restringido</span>
-                                            )}
+                                            <Link
+                                                to={`/escritorio/ventas/cliente/${lead.id}`}
+                                                className="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+                                            >
+                                                Ver Perfil
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                                         {searchTerm || filterStatus !== 'all' || filterContactado !== 'all'
                                             ? 'No se encontraron leads con los filtros seleccionados.'
                                             : 'No tienes leads asignados aún.'}

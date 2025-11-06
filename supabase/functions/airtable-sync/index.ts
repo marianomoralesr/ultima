@@ -352,7 +352,7 @@ serve(async (req: Request) => {
         ordenstatus: currentOrdenStatus,
         metadata: {
           fields_synced: Object.keys(supabaseData).length,
-          has_images: !!(exteriorImages || interiorImages),
+          has_images: !!(exteriorImagesArray.length || interiorImagesArray.length),
           cache_invalidated: true
         }
       });

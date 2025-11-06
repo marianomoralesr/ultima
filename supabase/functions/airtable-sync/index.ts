@@ -274,10 +274,24 @@ serve(async (req: Request) => {
     const isVendido = currentOrdenStatus === 'Historico' || fields.vendido === true;
 
     // Map Airtable fields to Supabase columns
+    // Generate unique slug: use ligawp/slug if available, otherwise generate from title + record_id
+    let slug = fields.ligawp || fields.slug;
+    if (!slug) {
+      // Generate slug from title and append part of record_id for uniqueness
+      const titleSlug = titulo.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+        .replace(/\s+/g, '-')         // Replace spaces with hyphens
+        .replace(/-+/g, '-')          // Remove duplicate hyphens
+        .trim();
+      const recordIdShort = record.id.substring(0, 8); // Use first 8 chars of record ID
+      slug = `${titleSlug}-${recordIdShort}`;
+    }
+    slug = slug.toLowerCase().replace(/\s+/g, '-');
+
     const supabaseData = {
       record_id: record.id,
       title: titulo,
-      slug: (fields.ligawp || fields.slug || record.id).toLowerCase().replace(/\s+/g, '-'),
+      slug: slug,
       precio: parseFloat(fields.Precio || '0'),
       marca: fields.AutoMarca || 'Sin Marca',
       modelo: fields.AutoSubmarcaVersion || '',

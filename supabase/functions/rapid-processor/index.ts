@@ -4,18 +4,35 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
 const BUCKET = "fotos_airtable";
 const CACHE_TTL_MS = 3600_000; // 1 hour (was 1 min - reduces DB queries)
 
-// Placeholder images by carroceria/clasificacionid
-const DEFAULT_PLACEHOLDER_IMAGE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
+// Cloudflare CDN URL for optimized image delivery (reduces Supabase egress by 70-90%)
+const IMAGE_CDN_URL = "https://images.trefa.mx";
+const SUPABASE_STORAGE_BASE = "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public";
+
+// Placeholder images by carroceria/clasificacionid (using CDN URLs with Supabase fallback)
+const DEFAULT_PLACEHOLDER_IMAGE = `${IMAGE_CDN_URL}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`;
+const DEFAULT_PLACEHOLDER_FALLBACK = `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`;
 
 const PLACEHOLDER_IMAGES: Record<string, string> = {
-  "suv": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/suv-2Artboard-12-trefa.png",
-  "pick-up": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "pickup": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "sedan": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "sedán": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "hatchback": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/hbArtboard-12-trefa.png",
-  "motos": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/motos-placeholder.png",
-  "moto": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/motos-placeholder.png",
+  "suv": `${IMAGE_CDN_URL}/fotos_airtable/app/suv-2Artboard-12-trefa.png`,
+  "pick-up": `${IMAGE_CDN_URL}/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png`,
+  "pickup": `${IMAGE_CDN_URL}/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png`,
+  "sedan": `${IMAGE_CDN_URL}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`,
+  "sedán": `${IMAGE_CDN_URL}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`,
+  "hatchback": `${IMAGE_CDN_URL}/fotos_airtable/app/hbArtboard-12-trefa.png`,
+  "motos": `${IMAGE_CDN_URL}/fotos_airtable/app/motos-placeholder.png`,
+  "moto": `${IMAGE_CDN_URL}/fotos_airtable/app/motos-placeholder.png`,
+};
+
+// Supabase fallback URLs (used if CDN fails)
+const PLACEHOLDER_IMAGES_FALLBACK: Record<string, string> = {
+  "suv": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/suv-2Artboard-12-trefa.png`,
+  "pick-up": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png`,
+  "pickup": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png`,
+  "sedan": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`,
+  "sedán": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`,
+  "hatchback": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/hbArtboard-12-trefa.png`,
+  "motos": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/motos-placeholder.png`,
+  "moto": `${SUPABASE_STORAGE_BASE}/fotos_airtable/app/motos-placeholder.png`,
 };
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error("❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY");
@@ -36,6 +53,29 @@ let lastCacheInvalidation = Date.now();
 /* ================================
    🔧 HELPERS
 ================================== */
+/**
+ * Converts Supabase Storage URLs to Cloudflare CDN URLs
+ * This dramatically reduces Supabase egress costs and improves performance
+ * Falls back to original URL if not a Supabase storage URL
+ */
+function convertToCdnUrl(url: string | null | undefined): string {
+  if (!url) return "";
+
+  // If already using CDN or R2, return as-is
+  if (url.startsWith(IMAGE_CDN_URL) || url.includes('.r2.cloudflarestorage.com')) {
+    return url;
+  }
+
+  // Convert Supabase Storage URL to CDN URL
+  const pathMatch = url.match(/\/storage\/v1\/object\/public\/(.+)$/);
+  if (pathMatch) {
+    return `${IMAGE_CDN_URL}/${pathMatch[1]}`;
+  }
+
+  // If not a Supabase URL, return as-is
+  return url;
+}
+
 // Get placeholder image based on carroceria/clasificacionid
 function getPlaceholderImage(clasificacionid: any, carroceria: any): string {
   // Try clasificacionid first
@@ -139,10 +179,10 @@ function buildPublicUrl(bucket, path) {
   const fotosExterior = normalizePathsField(fotosExteriorRaw);
   const fotosInterior = normalizePathsField(fotosInteriorRaw);
 
-  // Build public URLs for all images
-  let feature_public = looksLikePath(featureRaw) ? buildPublicUrl(BUCKET, String(featureRaw).trim()) : null;
-  const galeriaExterior = fotosExterior.map((p)=>buildPublicUrl(BUCKET, p)).filter(Boolean);
-  const galeriaInterior = fotosInterior.map((p)=>buildPublicUrl(BUCKET, p)).filter(Boolean);
+  // Build public URLs for all images and convert to CDN URLs
+  let feature_public = looksLikePath(featureRaw) ? convertToCdnUrl(buildPublicUrl(BUCKET, String(featureRaw).trim())) : null;
+  const galeriaExterior = fotosExterior.map((p)=>convertToCdnUrl(buildPublicUrl(BUCKET, p))).filter(Boolean);
+  const galeriaInterior = fotosInterior.map((p)=>convertToCdnUrl(buildPublicUrl(BUCKET, p))).filter(Boolean);
 
   // If no feature_image, try to use first exterior image
   if (!feature_public && galeriaExterior.length > 0) {

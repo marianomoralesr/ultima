@@ -8,6 +8,7 @@ import { FilterProvider } from './context/FilterContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ConfigProvider } from './context/ConfigContext';
+import { conversionTracking } from './services/ConversionTrackingService';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +22,9 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Initialize conversion tracking on app startup
+conversionTracking.initialize();
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

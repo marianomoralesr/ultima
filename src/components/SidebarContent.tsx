@@ -81,16 +81,17 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon },
         { to: '/escritorio/autos', label: 'Inventario', icon: Car },
         { to: '/escritorio/vende-tu-auto', label: 'Vender mi Auto', icon: Car },
-        // Sales and Admin role specific links
-        ...((isSales || isAdmin) ? [
-            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart },
+        // Sales role specific links
+        ...((isSales && !isAdmin) ? [
+            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users },
+            { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users },
         ] : []),
-        // Sales role specific link
-        ...((isSales) ? [{ to: '/escritorio/admin/leads', label: 'Mis Leads', icon: Users }] : []),
         // Admin role specific links
         ...((isAdmin) ? [
+            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart },
             { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon },
             { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
+            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users },
             { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog },
             { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
             { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera },

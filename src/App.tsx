@@ -170,6 +170,7 @@ function App(): React.JSX.Element {
 
                 {/* Sales routes - accessible by sales and admin roles */}
                 <Route element={<SalesRoute />}>
+                  <Route path="ventas/crm" element={<SimpleCRMPage />} />
                   <Route path="ventas/leads" element={<SalesLeadsDashboardPage />} />
                   <Route path="ventas/cliente/:id" element={<SalesClientProfilePage />} />
                 </Route>

@@ -16,7 +16,7 @@ const SalesLeadsDashboardPage: React.FC = () => {
     const queryClient = useQueryClient();
 
     // Use the same function as Admin (get_leads_for_dashboard works for both admin and sales)
-    const { data: allLeads = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
+    const { data: allClients = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
         queryKey: ['leads'],
         queryFn: AdminService.getAllLeads,
     });
@@ -26,23 +26,23 @@ const SalesLeadsDashboardPage: React.FC = () => {
         queryFn: AdminService.getDashboardStats,
     });
 
-    // Filter to show only leads assigned to this sales user
-    const myLeads = useMemo(() => {
+    // Filter to show only clients assigned to this sales user
+    const myClients = useMemo(() => {
         if (!user?.id) return [];
-        return allLeads.filter(lead =>
-            lead.asesor_asignado_id === user.id &&
-            lead.asesor_autorizado_acceso === true
+        return allClients.filter(client =>
+            client.asesor_asignado_id === user.id &&
+            client.asesor_autorizado_acceso === true
         );
-    }, [allLeads, user?.id]);
+    }, [allClients, user?.id]);
 
-    // Calculate stats for this sales user's leads only
+    // Calculate stats for this sales user's clients only
     const stats = useMemo(() => {
-        const total_leads = myLeads.length;
-        const leads_with_active_app = myLeads.filter(l =>
-            l.latest_app_status && l.latest_app_status !== 'draft'
+        const total_leads = myClients.length;
+        const leads_with_active_app = myClients.filter(c =>
+            c.latest_app_status && c.latest_app_status !== 'draft'
         ).length;
-        const leads_not_contacted = myLeads.filter(l => !l.contactado).length;
-        const leads_needing_follow_up = myLeads.filter(l => !l.contactado).length;
+        const leads_not_contacted = myClients.filter(c => !c.contactado).length;
+        const leads_needing_follow_up = myClients.filter(c => !c.contactado).length;
 
         return {
             total_leads,
@@ -50,10 +50,10 @@ const SalesLeadsDashboardPage: React.FC = () => {
             leads_not_contacted,
             leads_needing_follow_up,
         };
-    }, [myLeads]);
+    }, [myClients]);
 
     const filteredLeads = useMemo(() => {
-        let filtered = myLeads;
+        let filtered = myClients;
 
         // Filter by search term
         if (searchTerm) {

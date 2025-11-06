@@ -15,7 +15,7 @@ const ADMIN_EMAILS = [
     'fernando.trevino@autostrefa.mx'
 ];
 
-interface Lead {
+interface Client {
     id: string;
     first_name: string | null;
     last_name: string | null;
@@ -46,21 +46,21 @@ type SortColumn = 'name' | 'email' | 'created_at' | 'updated_at' | 'last_sign_in
 type SortDirection = 'asc' | 'desc';
 
 interface Stats {
-    total_leads: number;
-    leads_with_active_app: number;
-    leads_with_unfinished_app: number;
-    leads_needing_follow_up: number;
+    total_clients: number;
+    clients_with_active_app: number;
+    clients_with_unfinished_app: number;
+    clients_needing_follow_up: number;
 }
 
 const SimpleCRMPage: React.FC = () => {
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
-    const [leads, setLeads] = useState<Lead[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
     const [stats, setStats] = useState<Stats>({
-        total_leads: 0,
-        leads_with_active_app: 0,
-        leads_with_unfinished_app: 0,
-        leads_needing_follow_up: 0
+        total_clients: 0,
+        clients_with_active_app: 0,
+        clients_with_unfinished_app: 0,
+        clients_needing_follow_up: 0
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -132,38 +132,38 @@ const SimpleCRMPage: React.FC = () => {
 
             console.log('[SimpleCRM] Fetched leads:', leadsData?.length);
 
-            // Transform data to match Lead interface
-            const combinedLeads: Lead[] = (leadsData || []).map(lead => ({
-                id: lead.id,
-                first_name: lead.first_name,
-                last_name: lead.last_name,
-                email: lead.email,
-                phone: lead.phone,
-                contactado: lead.contactado || false,
-                asesor_nombre: lead.asesor_asignado || null,
-                asesor_asignado_id: lead.asesor_asignado_id || null,
-                latest_app_status: lead.latest_app_status || null,
-                latest_app_car_title: lead.latest_app_car_info?._vehicleTitle || null,
-                source: lead.source,
+            // Transform data to match Client interface
+            const combinedClients: Client[] = (leadsData || []).map(client => ({
+                id: client.id,
+                first_name: client.first_name,
+                last_name: client.last_name,
+                email: client.email,
+                phone: client.phone,
+                contactado: client.contactado || false,
+                asesor_nombre: client.asesor_asignado || null,
+                asesor_asignado_id: client.asesor_asignado_id || null,
+                latest_app_status: client.latest_app_status || null,
+                latest_app_car_title: client.latest_app_car_info?._vehicleTitle || null,
+                source: client.source,
                 metadata: null, // Not returned by function
-                created_at: lead.created_at || null,
-                updated_at: lead.updated_at || null,
-                last_sign_in_at: lead.last_sign_in_at || null,
-                utm_source: lead.utm_source || null,
-                utm_medium: lead.utm_medium || null,
-                utm_campaign: lead.utm_campaign || null,
-                utm_term: lead.utm_term || null,
-                utm_content: lead.utm_content || null,
-                rfdm: lead.rfdm || null,
-                referrer: lead.referrer || null,
-                landing_page: lead.landing_page || null,
-                first_visit_at: lead.first_visit_at || null
+                created_at: client.created_at || null,
+                updated_at: client.updated_at || null,
+                last_sign_in_at: client.last_sign_in_at || null,
+                utm_source: client.utm_source || null,
+                utm_medium: client.utm_medium || null,
+                utm_campaign: client.utm_campaign || null,
+                utm_term: client.utm_term || null,
+                utm_content: client.utm_content || null,
+                rfdm: client.rfdm || null,
+                referrer: client.referrer || null,
+                landing_page: client.landing_page || null,
+                first_visit_at: client.first_visit_at || null
             }));
 
-            console.log('[SimpleCRM] Combined leads:', combinedLeads.length);
-            console.log('[SimpleCRM] Sample lead:', combinedLeads[0]);
+            console.log('[SimpleCRM] Combined clients:', combinedClients.length);
+            console.log('[SimpleCRM] Sample client:', combinedClients[0]);
 
-            setLeads(combinedLeads);
+            setClients(combinedClients);
 
             // Fetch stats using the dashboard stats function
             const { data: statsData, error: statsError } = await supabase
@@ -172,29 +172,29 @@ const SimpleCRMPage: React.FC = () => {
             if (statsError) {
                 console.error('[SimpleCRM] Error fetching stats:', statsError);
                 // Calculate stats locally if function fails
-                const totalLeads = combinedLeads.length;
-                const leadsWithActiveApp = combinedLeads.filter(l =>
-                    ['submitted', 'reviewing', 'pending_docs'].includes(l.latest_app_status || '')
+                const totalClients = combinedClients.length;
+                const clientsWithActiveApp = combinedClients.filter(c =>
+                    ['submitted', 'reviewing', 'pending_docs'].includes(c.latest_app_status || '')
                 ).length;
-                const leadsWithUnfinishedApp = combinedLeads.filter(l =>
-                    l.latest_app_status === 'draft'
+                const clientsWithUnfinishedApp = combinedClients.filter(c =>
+                    c.latest_app_status === 'draft'
                 ).length;
-                const leadsNeedingFollowUp = combinedLeads.filter(l =>
-                    !l.contactado
+                const clientsNeedingFollowUp = combinedClients.filter(c =>
+                    !c.contactado
                 ).length;
 
                 setStats({
-                    total_leads: totalLeads,
-                    leads_with_active_app: leadsWithActiveApp,
-                    leads_with_unfinished_app: leadsWithUnfinishedApp,
-                    leads_needing_follow_up: leadsNeedingFollowUp
+                    total_clients: totalClients,
+                    clients_with_active_app: clientsWithActiveApp,
+                    clients_with_unfinished_app: clientsWithUnfinishedApp,
+                    clients_needing_follow_up: clientsNeedingFollowUp
                 });
             } else {
                 setStats({
-                    total_leads: statsData?.[0]?.total_leads || 0,
-                    leads_with_active_app: statsData?.[0]?.leads_with_active_app || 0,
-                    leads_with_unfinished_app: statsData?.[0]?.leads_with_unfinished_app || 0,
-                    leads_needing_follow_up: statsData?.[0]?.leads_needing_follow_up || 0
+                    total_clients: statsData?.[0]?.total_leads || 0,
+                    clients_with_active_app: statsData?.[0]?.leads_with_active_app || 0,
+                    clients_with_unfinished_app: statsData?.[0]?.leads_with_unfinished_app || 0,
+                    clients_needing_follow_up: statsData?.[0]?.leads_needing_follow_up || 0
                 });
             }
 
@@ -341,16 +341,16 @@ const SimpleCRMPage: React.FC = () => {
         return formatDate(dateString);
     };
 
-    const filteredAndSortedLeads = useMemo(() => {
-        let filtered = leads;
+    const filteredAndSortedClients = useMemo(() => {
+        let filtered = clients;
 
         // Apply search filter
         if (searchTerm) {
             const lowercasedQuery = searchTerm.toLowerCase();
-            filtered = leads.filter(lead =>
-                `${lead.first_name || ''} ${lead.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
-                lead.email?.toLowerCase().includes(lowercasedQuery) ||
-                lead.source?.toLowerCase().includes(lowercasedQuery)
+            filtered = clients.filter(client =>
+                `${client.first_name || ''} ${client.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
+                client.email?.toLowerCase().includes(lowercasedQuery) ||
+                client.source?.toLowerCase().includes(lowercasedQuery)
             );
         }
 
@@ -398,7 +398,7 @@ const SimpleCRMPage: React.FC = () => {
         });
 
         return sorted;
-    }, [leads, searchTerm, sortColumn, sortDirection]);
+    }, [clients, searchTerm, sortColumn, sortDirection]);
 
     if (!user) {
         return (
@@ -455,8 +455,8 @@ const SimpleCRMPage: React.FC = () => {
                 <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-blue-600">Total de Leads</p>
-                            <p className="text-3xl font-bold text-blue-900">{stats.total_leads}</p>
+                            <p className="text-sm font-medium text-blue-600">Total de Clientes Potenciales</p>
+                            <p className="text-3xl font-bold text-blue-900">{stats.total_clients}</p>
                         </div>
                         <Users className="w-8 h-8 text-blue-600" />
                     </div>
@@ -465,7 +465,7 @@ const SimpleCRMPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-purple-600">Con Solicitud Activa</p>
-                            <p className="text-3xl font-bold text-purple-900">{stats.leads_with_active_app}</p>
+                            <p className="text-3xl font-bold text-purple-900">{stats.clients_with_active_app}</p>
                         </div>
                         <FileText className="w-8 h-8 text-purple-600" />
                     </div>
@@ -474,7 +474,7 @@ const SimpleCRMPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-yellow-600">Solicitud Incompleta</p>
-                            <p className="text-3xl font-bold text-yellow-900">{stats.leads_with_unfinished_app}</p>
+                            <p className="text-3xl font-bold text-yellow-900">{stats.clients_with_unfinished_app}</p>
                         </div>
                         <User className="w-8 h-8 text-yellow-600" />
                     </div>
@@ -483,7 +483,7 @@ const SimpleCRMPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-red-600">Necesitan Seguimiento</p>
-                            <p className="text-3xl font-bold text-red-900">{stats.leads_needing_follow_up}</p>
+                            <p className="text-3xl font-bold text-red-900">{stats.clients_needing_follow_up}</p>
                         </div>
                         <Clock className="w-8 h-8 text-red-600" />
                     </div>
@@ -571,47 +571,47 @@ const SimpleCRMPage: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredAndSortedLeads.map(lead => (
-                                <tr key={lead.id} className="bg-white border-b hover:bg-gray-50">
+                            {filteredAndSortedClients.map(client => (
+                                <tr key={client.id} className="bg-white border-b hover:bg-gray-50">
                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                        {`${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Sin Nombre'}
+                                        {`${client.first_name || ''} ${client.last_name || ''}`.trim() || 'Sin Nombre'}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="truncate w-48" title={lead.email || ''}>{lead.email || '-'}</div>
-                                        <div className="text-xs text-gray-400">{lead.phone || '-'}</div>
+                                        <div className="truncate w-48" title={client.email || ''}>{client.email || '-'}</div>
+                                        <div className="text-xs text-gray-400">{client.phone || '-'}</div>
                                     </td>
-                                    <td className="px-6 py-4">{lead.latest_app_car_title || '-'}</td>
+                                    <td className="px-6 py-4">{client.latest_app_car_title || '-'}</td>
                                     <td className="px-6 py-4">
-                                        {lead.latest_app_status ? (
+                                        {client.latest_app_status ? (
                                             <div className="flex items-center gap-2">
                                                 <span className={`w-3 h-3 rounded-full animate-pulse ${
-                                                    lead.latest_app_status === 'submitted' ? 'bg-blue-500' :
-                                                    lead.latest_app_status === 'reviewing' ? 'bg-purple-500' :
-                                                    lead.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
-                                                    lead.latest_app_status === 'approved' ? 'bg-green-500' :
-                                                    lead.latest_app_status === 'draft' ? 'bg-gray-400' :
+                                                    client.latest_app_status === 'submitted' ? 'bg-blue-500' :
+                                                    client.latest_app_status === 'reviewing' ? 'bg-purple-500' :
+                                                    client.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
+                                                    client.latest_app_status === 'approved' ? 'bg-green-500' :
+                                                    client.latest_app_status === 'draft' ? 'bg-gray-400' :
                                                     'bg-gray-400'
                                                 }`}></span>
                                                 <span className={`font-bold text-sm ${
-                                                    lead.latest_app_status === 'submitted' ? 'text-blue-700' :
-                                                    lead.latest_app_status === 'reviewing' ? 'text-purple-700' :
-                                                    lead.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
-                                                    lead.latest_app_status === 'approved' ? 'text-green-700' :
-                                                    lead.latest_app_status === 'draft' ? 'text-gray-600' :
+                                                    client.latest_app_status === 'submitted' ? 'text-blue-700' :
+                                                    client.latest_app_status === 'reviewing' ? 'text-purple-700' :
+                                                    client.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
+                                                    client.latest_app_status === 'approved' ? 'text-green-700' :
+                                                    client.latest_app_status === 'draft' ? 'text-gray-600' :
                                                     'text-gray-600'
                                                 }`}>
-                                                    {lead.latest_app_status === 'submitted' ? 'Enviada' :
-                                                    lead.latest_app_status === 'reviewing' ? 'En Revisión' :
-                                                    lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
-                                                    lead.latest_app_status === 'approved' ? 'Aprobada' :
-                                                    lead.latest_app_status === 'draft' ? 'Borrador' :
-                                                    lead.latest_app_status}
+                                                    {client.latest_app_status === 'submitted' ? 'Enviada' :
+                                                    client.latest_app_status === 'reviewing' ? 'En Revisión' :
+                                                    client.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
+                                                    client.latest_app_status === 'approved' ? 'Aprobada' :
+                                                    client.latest_app_status === 'draft' ? 'Borrador' :
+                                                    client.latest_app_status}
                                                 </span>
                                             </div>
                                         ) : '-'}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {editingSource === lead.id ? (
+                                        {editingSource === client.id ? (
                                             <div className="flex items-center gap-2">
                                                 <input
                                                     type="text"
@@ -622,7 +622,7 @@ const SimpleCRMPage: React.FC = () => {
                                                     autoFocus
                                                 />
                                                 <button
-                                                    onClick={() => saveSource(lead.id)}
+                                                    onClick={() => saveSource(client.id)}
                                                     className="p-1 text-green-600 hover:bg-green-100 rounded"
                                                 >
                                                     <Check className="w-4 h-4" />
@@ -637,24 +637,24 @@ const SimpleCRMPage: React.FC = () => {
                                         ) : (
                                             <div className="flex items-center gap-2">
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="truncate" title={lead.source || '-'}>
-                                                        {lead.source || '-'}
+                                                    <span className="truncate" title={client.source || '-'}>
+                                                        {client.source || '-'}
                                                     </span>
-                                                    {(lead.utm_source || lead.utm_campaign || lead.rfdm) && (
+                                                    {(client.utm_source || client.utm_campaign || client.rfdm) && (
                                                         <div className="text-[10px] text-gray-500 space-y-0.5">
-                                                            {lead.utm_source && <div>UTM: {lead.utm_source}</div>}
-                                                            {lead.utm_campaign && <div>Camp: {lead.utm_campaign}</div>}
-                                                            {lead.rfdm && <div>RFDM: {lead.rfdm}</div>}
-                                                            {lead.referrer && (
-                                                                <div title={lead.referrer}>
-                                                                    Ref: {new URL(lead.referrer || 'https://example.com').hostname.replace('www.', '')}
+                                                            {client.utm_source && <div>UTM: {client.utm_source}</div>}
+                                                            {client.utm_campaign && <div>Camp: {client.utm_campaign}</div>}
+                                                            {client.rfdm && <div>RFDM: {client.rfdm}</div>}
+                                                            {client.referrer && (
+                                                                <div title={client.referrer}>
+                                                                    Ref: {new URL(client.referrer || 'https://example.com').hostname.replace('www.', '')}
                                                                 </div>
                                                             )}
                                                         </div>
                                                     )}
                                                 </div>
                                                 <button
-                                                    onClick={() => startEditingSource(lead.id, lead.source)}
+                                                    onClick={() => startEditingSource(client.id, client.source)}
                                                     className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                                                 >
                                                     <Edit2 className="w-3 h-3" />
@@ -663,23 +663,23 @@ const SimpleCRMPage: React.FC = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className={`text-xs ${!lead.last_sign_in_at ? 'text-gray-400 italic' : ''}`} title={formatDate(lead.last_sign_in_at)}>
-                                            {formatRelativeTime(lead.last_sign_in_at)}
+                                        <div className={`text-xs ${!client.last_sign_in_at ? 'text-gray-400 italic' : ''}`} title={formatDate(client.last_sign_in_at)}>
+                                            {formatRelativeTime(client.last_sign_in_at)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <input
                                             type="checkbox"
-                                            checked={lead.contactado}
-                                            onChange={() => toggleContactado(lead.id, lead.contactado)}
+                                            checked={client.contactado}
+                                            onChange={() => toggleContactado(client.id, client.contactado)}
                                             className="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer"
                                         />
                                     </td>
                                     <td className="px-6 py-4">
                                         {userRole === 'admin' ? (
                                             <select
-                                                value={lead.asesor_asignado_id || ''}
-                                                onChange={(e) => updateAsesorAsignado(lead.id, e.target.value || null)}
+                                                value={client.asesor_asignado_id || ''}
+                                                onChange={(e) => updateAsesorAsignado(client.id, e.target.value || null)}
                                                 className="text-sm px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white cursor-pointer"
                                             >
                                                 <option value="">Sin asignar</option>
@@ -690,12 +690,12 @@ const SimpleCRMPage: React.FC = () => {
                                                 ))}
                                             </select>
                                         ) : (
-                                            <span>{lead.asesor_nombre || 'Sin asignar'}</span>
+                                            <span>{client.asesor_nombre || 'Sin asignar'}</span>
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <Link
-                                            to={`/escritorio/admin/cliente/${lead.id}`}
+                                            to={`/escritorio/admin/cliente/${client.id}`}
                                             className="flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium"
                                         >
                                             Ver perfil
@@ -707,7 +707,7 @@ const SimpleCRMPage: React.FC = () => {
                         </tbody>
                     </table>
 
-                    {filteredAndSortedLeads.length === 0 && (
+                    {filteredAndSortedClients.length === 0 && (
                         <div className="text-center py-12 text-gray-500">
                             No se encontraron resultados
                         </div>

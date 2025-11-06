@@ -46,7 +46,7 @@ const AdminLeadsDashboardPage: React.FC = () => {
     return (
         <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard title="Total de Leads" value={stats.total_leads || 0} change="" changeType="neutral" icon={Users} color="blue" />
+                <StatsCard title="Total de Clientes Potenciales" value={stats.total_leads || 0} change="" changeType="neutral" icon={Users} color="blue" />
                 <StatsCard title="Con Solicitud Activa" value={stats.leads_with_active_app || 0} change="" changeType="neutral" icon={FileText} color="purple" />
                 <StatsCard title="Solicitud Incompleta" value={stats.leads_with_unfinished_app || 0} change="" changeType="neutral" icon={User} color="yellow" />
                 <StatsCard title="Necesitan Seguimiento" value={stats.leads_needing_follow_up || 0} change="" changeType="neutral" icon={Clock} color="red" />

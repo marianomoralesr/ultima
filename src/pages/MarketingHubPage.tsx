@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Tag, FileText, Users, Layout, Image } from 'lucide-react';
+import { TrendingUp, Tag, Settings, Users, Layout, Image } from 'lucide-react';
 
 const MarketingHubPage: React.FC = () => {
   const marketingTools = [
@@ -33,10 +33,10 @@ const MarketingHubPage: React.FC = () => {
       color: 'bg-pink-500',
     },
     {
-      title: 'Configuración Airtable',
-      description: 'Configurar integraciones con Airtable',
-      icon: FileText,
-      link: '/escritorio/admin/airtable',
+      title: 'Configuración de Marketing',
+      description: 'Configurar GTM, Facebook Pixel y eventos de conversión',
+      icon: Settings,
+      link: '/escritorio/admin/marketing-config',
       color: 'bg-orange-500',
     },
     {

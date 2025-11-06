@@ -9,6 +9,7 @@ import { User, ArrowLeft, CheckCircle, Loader2, Info, ArrowRight } from 'lucide-
 import type { Profile } from '../types/types';
 import { calculateRFC } from '../utils/rfcCalculator';
 import { toast } from 'sonner';
+import { conversionTracking } from '../services/ConversionTrackingService';
 
 
 const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas', ];
@@ -158,6 +159,15 @@ const ProfilePage: React.FC = () => {
 
       await ProfileService.updateProfile(payload);
       await reloadProfile();
+
+      // Track profile update conversion
+      conversionTracking.trackProfile.updated({
+        userId: user.id,
+        email: user.email,
+        profileComplete: checkProfileCompleteness(payload as Profile),
+        hasProfilePicture: !!pictureUrl,
+        asesorAutorizado: asesorAutorizadoAcceso
+      });
 
       setSaveState('saved');
       toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');

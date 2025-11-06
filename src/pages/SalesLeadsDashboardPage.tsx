@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AdminService } from '../services/AdminService';
-import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Filter, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Filter } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import StatsCard from '../components/StatsCard';
 import { supabase } from '../../supabaseClient';
@@ -269,45 +269,43 @@ const SalesLeadsDashboardPage: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             {lead.latest_app_status ? (
-                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    lead.latest_app_status === 'submitted' ? 'bg-blue-100 text-blue-800' :
-                                                    lead.latest_app_status === 'reviewing' ? 'bg-purple-100 text-purple-800' :
-                                                    lead.latest_app_status === 'pending_docs' ? 'bg-yellow-100 text-yellow-800' :
-                                                    lead.latest_app_status === 'approved' ? 'bg-green-100 text-green-800' :
-                                                    lead.latest_app_status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                    lead.latest_app_status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                                                    'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                    {lead.latest_app_status === 'submitted' ? 'Enviada' :
-                                                    lead.latest_app_status === 'reviewing' ? 'En Revisión' :
-                                                    lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
-                                                    lead.latest_app_status === 'approved' ? 'Aprobada' :
-                                                    lead.latest_app_status === 'rejected' ? 'Rechazada' :
-                                                    lead.latest_app_status === 'draft' ? 'Borrador' :
-                                                    lead.latest_app_status}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`w-3 h-3 rounded-full animate-pulse ${
+                                                        lead.latest_app_status === 'submitted' ? 'bg-blue-500' :
+                                                        lead.latest_app_status === 'reviewing' ? 'bg-purple-500' :
+                                                        lead.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
+                                                        lead.latest_app_status === 'approved' ? 'bg-green-500' :
+                                                        lead.latest_app_status === 'draft' ? 'bg-gray-400' :
+                                                        'bg-gray-400'
+                                                    }`}></span>
+                                                    <span className={`font-bold text-sm ${
+                                                        lead.latest_app_status === 'submitted' ? 'text-blue-700' :
+                                                        lead.latest_app_status === 'reviewing' ? 'text-purple-700' :
+                                                        lead.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
+                                                        lead.latest_app_status === 'approved' ? 'text-green-700' :
+                                                        lead.latest_app_status === 'draft' ? 'text-gray-600' :
+                                                        'text-gray-600'
+                                                    }`}>
+                                                        {lead.latest_app_status === 'submitted' ? 'Enviada' :
+                                                        lead.latest_app_status === 'reviewing' ? 'En Revisión' :
+                                                        lead.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
+                                                        lead.latest_app_status === 'approved' ? 'Aprobada' :
+                                                        lead.latest_app_status === 'rejected' ? 'Rechazada' :
+                                                        lead.latest_app_status === 'draft' ? 'Borrador' :
+                                                        lead.latest_app_status}
+                                                    </span>
+                                                </div>
                                             ) : (
                                                 <span className="text-gray-400">-</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => toggleContactado(lead.id, lead.contactado)}
-                                                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                                                title="Click para cambiar estado"
-                                            >
-                                                {lead.contactado ? (
-                                                    <>
-                                                        <CheckCircle className="w-5 h-5 text-green-600" />
-                                                        <span className="text-xs font-semibold text-green-700">Sí</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <XCircle className="w-5 h-5 text-red-600" />
-                                                        <span className="text-xs font-semibold text-red-700">No</span>
-                                                    </>
-                                                )}
-                                            </button>
+                                            <input
+                                                type="checkbox"
+                                                checked={lead.contactado}
+                                                onChange={() => toggleContactado(lead.id, lead.contactado)}
+                                                className="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer"
+                                            />
                                         </td>
                                         <td className="px-6 py-4">
                                             <Link

@@ -3,7 +3,7 @@
 ## Tu Configuración
 
 - **GTM Container ID:** `GTM-KDVDMB4X`
-- **Facebook Pixel ID:** `1748754972582547`
+- **Facebook Pixel ID:** `846689825695126`
 
 ---
 
@@ -96,8 +96,8 @@ conversionTracking.test();
 
 ### En Facebook Events Manager:
 
-1. Ve a: https://business.facebook.com/events_manager2/list/pixel/1748754972582547
-2. Click en tu Pixel ID: `1748754972582547`
+1. Ve a: https://business.facebook.com/events_manager2/list/pixel/846689825695126
+2. Click en tu Pixel ID: `846689825695126`
 3. Deberías empezar a ver eventos como:
    - **PageView** (automático en todas las páginas)
    - **Lead** (cuando alguien envía un formulario)
@@ -154,7 +154,7 @@ Deberías ver:
 1. Instala la extensión de Chrome: [Facebook Pixel Helper](https://chrome.google.com/webstore/detail/facebook-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc)
 2. Visita tu sitio
 3. Click en el ícono de la extensión
-4. Deberías ver tu Pixel ID: `1748754972582547`
+4. Deberías ver tu Pixel ID: `846689825695126`
 5. Verás los eventos que se están enviando en tiempo real
 
 ---
@@ -164,12 +164,12 @@ Deberías ver:
 ### Crear Conversión Personalizada:
 
 1. Ve a [Facebook Events Manager](https://business.facebook.com/events_manager2)
-2. Click en tu Pixel: `1748754972582547`
+2. Click en tu Pixel: `846689825695126`
 3. Ve a **Custom Conversions**
 4. Click **Create Custom Conversion**
 5. Configura:
    - **Name:** Lead - Solicitud de Financiamiento
-   - **Data Source:** Tu Pixel (1748754972582547)
+   - **Data Source:** Tu Pixel (846689825695126)
    - **Event:** Lead
    - **Rule:** URL contains `/aplicacion`
 6. Save

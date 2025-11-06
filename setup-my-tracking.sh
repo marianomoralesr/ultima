@@ -2,7 +2,7 @@
 
 # Setup Marketing Tracking para Ultima Copy
 # GTM: GTM-KDVDMB4X
-# FB Pixel: 1748754972582547
+# FB Pixel: 846689825695126
 
 set -e
 
@@ -18,7 +18,7 @@ echo -e "${BLUE}   🚀 Setup Marketing Tracking - Ultima Copy${NC}"
 echo -e "${BLUE}════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${YELLOW}GTM Container ID:${NC} GTM-KDVDMB4X"
-echo -e "${YELLOW}Facebook Pixel ID:${NC} 1748754972582547"
+echo -e "${YELLOW}Facebook Pixel ID:${NC} 846689825695126"
 echo ""
 
 # Paso 1: Aplicar migraciones
@@ -73,7 +73,7 @@ echo "   c. En consola ejecuta: conversionTracking.test()"
 echo "   d. Deberías ver: ✅ GTM active, ✅ Facebook Pixel active"
 echo ""
 echo "4. Ver en Facebook Events Manager:"
-echo "   🔗 https://business.facebook.com/events_manager2/list/pixel/1748754972582547"
+echo "   🔗 https://business.facebook.com/events_manager2/list/pixel/846689825695126"
 echo ""
 echo -e "${BLUE}🎉 Tu tracking está configurado y listo!${NC}"
 echo ""

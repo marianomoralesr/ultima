@@ -1,6 +1,6 @@
 import { marketingConfigService } from './MarketingConfigService';
 import { marketingEvents } from './MarketingEventsService';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 
 /**
  * Unified Conversion Tracking Service

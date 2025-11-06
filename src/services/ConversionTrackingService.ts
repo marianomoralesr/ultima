@@ -1,5 +1,6 @@
 import { marketingConfigService } from './MarketingConfigService';
 import { marketingEvents } from './MarketingEventsService';
+import { supabase } from '../supabaseClient';
 
 /**
  * Unified Conversion Tracking Service
@@ -256,35 +257,80 @@ class ConversionTrackingService {
   /**
    * Core tracking method - sends to all configured platforms
    */
-  private track(eventType: string, eventName: string, metadata: ConversionMetadata = {}): void {
-    // Send to GTM dataLayer
+  private async track(eventType: string, eventName: string, metadata: ConversionMetadata = {}): Promise<void> {
+    // Get UTM parameters from sessionStorage
+    const leadSourceData = sessionStorage.getItem('leadSourceData');
+    let utmParams: any = {};
+    if (leadSourceData) {
+      try {
+        const parsed = JSON.parse(leadSourceData);
+        utmParams = {
+          utm_source: parsed.utm_source,
+          utm_medium: parsed.utm_medium,
+          utm_campaign: parsed.utm_campaign,
+          utm_term: parsed.utm_term,
+          utm_content: parsed.utm_content,
+          referrer: parsed.referrer,
+          fbclid: parsed.fbclid
+        };
+      } catch (e) {
+        console.warn('Error parsing leadSourceData:', e);
+      }
+    }
+
+    // Send to GTM dataLayer with UTMs
     if ((window as any).dataLayer) {
       (window as any).dataLayer.push({
         event: eventName.toLowerCase().replace(/\s+/g, '_'),
         eventName: eventName,
         eventType: eventType,
         ...metadata,
+        ...utmParams,
         timestamp: new Date().toISOString()
       });
-      console.log(`✅ GTM Event: ${eventName}`, metadata);
+      console.log(`✅ GTM Event: ${eventName}`, { ...metadata, ...utmParams });
     }
 
-    // Send directly to Facebook Pixel
+    // Send directly to Facebook Pixel with UTMs
     if ((window as any).fbq) {
       (window as any).fbq('track', eventType, {
         content_name: eventName,
-        ...metadata
+        ...metadata,
+        ...utmParams
       });
-      console.log(`✅ Facebook Pixel Event: ${eventType}`, metadata);
+      console.log(`✅ Facebook Pixel Event: ${eventType}`, { ...metadata, ...utmParams });
     }
 
-    // Track to existing marketing events service (Supabase)
+    // Save to tracking_events table with UTMs
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const sessionId = sessionStorage.getItem('session_id') || crypto.randomUUID();
+
+      await supabase.from('tracking_events').insert({
+        event_name: eventName,
+        event_type: eventType,
+        user_id: user?.id || null,
+        session_id: sessionId,
+        metadata: metadata,
+        utm_source: utmParams.utm_source || null,
+        utm_medium: utmParams.utm_medium || null,
+        utm_campaign: utmParams.utm_campaign || null,
+        created_at: new Date().toISOString()
+      });
+
+      console.log(`✅ Saved to tracking_events with UTMs:`, { eventName, ...utmParams });
+    } catch (error) {
+      console.error('Error saving to tracking_events:', error);
+    }
+
+    // Also track to existing marketing events service (Supabase)
     marketingEvents.trackEvent('conversion', eventName, {
       eventType,
-      ...metadata
+      ...metadata,
+      ...utmParams
     });
 
-    console.log(`📊 Conversion tracked: ${eventType} - ${eventName}`, metadata);
+    console.log(`📊 Conversion tracked: ${eventType} - ${eventName}`, { ...metadata, ...utmParams });
   }
 
   /**

@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AdminService } from '../services/AdminService';
 import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { supabase } from '../../supabaseClient';
 import StatsCard from '../components/StatsCard';
 
 const AdminLeadsDashboardPage: React.FC = () => {
     const { user, isSales } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
+    const queryClient = useQueryClient();
 
     const { data: leads = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
         queryKey: ['leads'],
@@ -28,13 +31,34 @@ const AdminLeadsDashboardPage: React.FC = () => {
         }
 
         if (!searchTerm) return filtered;
-        
+
         const lowercasedQuery = searchTerm.toLowerCase();
         return filtered.filter(lead =>
             `${lead.first_name || ''} ${lead.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
             lead.email?.toLowerCase().includes(lowercasedQuery)
         );
     }, [leads, searchTerm, isSales, user]);
+
+    // Toggle contactado status
+    const toggleContactado = async (leadId: string, currentValue: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ contactado: !currentValue })
+                .eq('id', leadId);
+
+            if (error) throw error;
+
+            // Invalidate and refetch
+            await queryClient.invalidateQueries({ queryKey: ['leads'] });
+            await queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+
+            toast.success(`Marcado como ${!currentValue ? 'contactado' : 'no contactado'}`);
+        } catch (err: any) {
+            console.error('Error toggling contactado:', err);
+            toast.error(`Error: ${err.message}`);
+        }
+    };
 
     const isLoading = isLoadingLeads || isLoadingStats;
     const isError = isErrorLeads || isErrorStats;
@@ -94,9 +118,12 @@ const AdminLeadsDashboardPage: React.FC = () => {
                                     <td className="px-6 py-4">{lead.latest_app_car_info?._vehicleTitle || '-'}</td>
                                     <td className="px-6 py-4">{lead.latest_app_status || '-'}</td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${lead.contactado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {lead.contactado ? 'Sí' : 'No'}
-                                        </span>
+                                        <input
+                                            type="checkbox"
+                                            checked={lead.contactado}
+                                            onChange={() => toggleContactado(lead.id, lead.contactado)}
+                                            className="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer"
+                                        />
                                     </td>
                                     <td className="px-6 py-4">{lead.asesor_asignado || '-'}</td>
                                 </tr>

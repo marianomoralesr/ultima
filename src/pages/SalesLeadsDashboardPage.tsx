@@ -80,7 +80,7 @@ const SalesLeadsDashboardPage: React.FC = () => {
         }
 
         return filtered;
-    }, [myLeads, searchTerm, filterStatus, filterContactado]);
+    }, [myClients, searchTerm, filterStatus, filterContactado]);
 
     // Toggle contactado status
     const toggleContactado = async (leadId: string, currentValue: boolean) => {
@@ -233,7 +233,7 @@ const SalesLeadsDashboardPage: React.FC = () => {
 
                 {/* Results count */}
                 <div className="mb-4 text-sm text-gray-600">
-                    Mostrando {filteredLeads.length} de {myLeads.length} leads
+                    Mostrando {filteredLeads.length} de {myClients.length} leads
                 </div>
 
                 {/* Table */}

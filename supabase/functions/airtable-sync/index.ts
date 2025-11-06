@@ -274,19 +274,45 @@ serve(async (req: Request) => {
     const isVendido = currentOrdenStatus === 'Historico' || fields.vendido === true;
 
     // Map Airtable fields to Supabase columns
-    // Generate unique slug: use ligawp/slug if available, otherwise generate from title + record_id
+    // Generate unique slug: use ligawp/slug if available, otherwise generate from title with numeric suffix
     let slug = fields.ligawp || fields.slug;
     if (!slug) {
-      // Generate slug from title and append part of record_id for uniqueness
-      const titleSlug = titulo.toLowerCase()
+      // Generate base slug from title
+      slug = titulo.toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
         .replace(/\s+/g, '-')         // Replace spaces with hyphens
         .replace(/-+/g, '-')          // Remove duplicate hyphens
         .trim();
-      const recordIdShort = record.id.substring(0, 8); // Use first 8 chars of record ID
-      slug = `${titleSlug}-${recordIdShort}`;
     }
     slug = slug.toLowerCase().replace(/\s+/g, '-');
+
+    // Check if slug already exists and add numeric suffix if needed
+    const baseSlug = slug;
+    let slugExists = true;
+    let counter = 0;
+
+    while (slugExists && counter < 100) { // Max 100 attempts to find unique slug
+      const { data: existingRecord, error: checkError } = await supabase
+        .from('inventario_cache')
+        .select('record_id')
+        .eq('slug', slug)
+        .single();
+
+      if (checkError && checkError.code === 'PGRST116') {
+        // No record found with this slug - it's unique!
+        slugExists = false;
+      } else if (existingRecord && existingRecord.record_id === record.id) {
+        // The existing record is this same record - it's fine
+        slugExists = false;
+      } else if (existingRecord) {
+        // Slug exists for a different record - try with counter
+        counter++;
+        slug = `${baseSlug}-${counter}`;
+      } else {
+        // Some other error, but proceed
+        slugExists = false;
+      }
+    }
 
     const supabaseData = {
       record_id: record.id,

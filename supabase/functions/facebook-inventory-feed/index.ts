@@ -14,19 +14,45 @@ let cacheTimestamp = 0;
 // Base URL for your website
 const BASE_URL = Deno.env.get("PUBLIC_SITE_URL") || "https://trefa.mx";
 
-// Placeholder images by carroceria/clasificacionid
-const DEFAULT_PLACEHOLDER_IMAGE = 'https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png';
+// Cloudflare CDN URL for optimized image delivery (reduces Supabase egress by 70-90%)
+const IMAGE_CDN_URL = "https://images.trefa.mx";
+const SUPABASE_STORAGE_BASE = "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public";
+
+// Placeholder images by carroceria/clasificacionid (using CDN URLs)
+const DEFAULT_PLACEHOLDER_IMAGE = `${IMAGE_CDN_URL}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`;
 
 const PLACEHOLDER_IMAGES: Record<string, string> = {
-  "suv": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/suv-2Artboard-12-trefa.png",
-  "pick-up": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "pickup": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png",
-  "sedan": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "sedán": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/sedan-2Artboard-12-trefa.png",
-  "hatchback": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/hbArtboard-12-trefa.png",
-  "motos": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/motos-placeholder.png",
-  "moto": "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/motos-placeholder.png",
+  "suv": `${IMAGE_CDN_URL}/fotos_airtable/app/suv-2Artboard-12-trefa.png`,
+  "pick-up": `${IMAGE_CDN_URL}/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png`,
+  "pickup": `${IMAGE_CDN_URL}/fotos_airtable/app/pickup-2Artboard-12-trefa-1.png`,
+  "sedan": `${IMAGE_CDN_URL}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`,
+  "sedán": `${IMAGE_CDN_URL}/fotos_airtable/app/sedan-2Artboard-12-trefa.png`,
+  "hatchback": `${IMAGE_CDN_URL}/fotos_airtable/app/hbArtboard-12-trefa.png`,
+  "motos": `${IMAGE_CDN_URL}/fotos_airtable/app/motos-placeholder.png`,
+  "moto": `${IMAGE_CDN_URL}/fotos_airtable/app/motos-placeholder.png`,
 };
+
+/**
+ * Converts Supabase Storage URLs to Cloudflare CDN URLs
+ * This dramatically reduces Supabase egress costs and improves performance
+ */
+function convertToCdnUrl(url: string | null | undefined): string {
+  if (!url) return "";
+
+  // If already using CDN, return as-is
+  if (url.startsWith(IMAGE_CDN_URL)) {
+    return url;
+  }
+
+  // Convert Supabase Storage URL to CDN URL
+  const pathMatch = url.match(/\/storage\/v1\/object\/public\/(.+)$/);
+  if (pathMatch) {
+    return `${IMAGE_CDN_URL}/${pathMatch[1]}`;
+  }
+
+  // If not a Supabase URL, return as-is
+  return url;
+}
 
 interface InventarioRow {
   id: number;
@@ -121,24 +147,24 @@ function extractAdditionalImages(
 ): string {
   const images: string[] = [];
 
-  // Add from additional_image_link if available
+  // Add from additional_image_link if available (convert to CDN)
   if (additionalImageLink) {
-    images.push(additionalImageLink);
+    images.push(convertToCdnUrl(additionalImageLink));
   }
 
-  // Extract from fotos_exterior_url (JSONB array)
+  // Extract from fotos_exterior_url (JSONB array) and convert to CDN
   if (fotosExterior && Array.isArray(fotosExterior)) {
     fotosExterior.slice(0, 10).forEach((foto: any) => {
-      if (typeof foto === "string") images.push(foto);
-      else if (foto?.url) images.push(foto.url);
+      const url = typeof foto === "string" ? foto : foto?.url;
+      if (url) images.push(convertToCdnUrl(url));
     });
   }
 
-  // Extract from fotos_interior_url (JSONB array)
+  // Extract from fotos_interior_url (JSONB array) and convert to CDN
   if (fotosInterior && Array.isArray(fotosInterior)) {
     fotosInterior.slice(0, 10).forEach((foto: any) => {
-      if (typeof foto === "string") images.push(foto);
-      else if (foto?.url) images.push(foto.url);
+      const url = typeof foto === "string" ? foto : foto?.url;
+      if (url) images.push(convertToCdnUrl(url));
     });
   }
 
@@ -169,9 +195,10 @@ function transformToFacebookProduct(row: InventarioRow): FacebookProduct {
     link: row.slug
       ? `${BASE_URL}/inventario/${row.slug}`
       : `${BASE_URL}/inventario/${row.id}`,
-    image_link:
+    image_link: convertToCdnUrl(
       row.feature_image_url ||
-      getPlaceholderImage(row.clasificacionid, row.carroceria),
+      getPlaceholderImage(row.clasificacionid, row.carroceria)
+    ),
     brand: (row.marca || "").substring(0, 100),
   };
 

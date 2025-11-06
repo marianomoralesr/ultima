@@ -231,9 +231,15 @@ class ConversionTrackingService {
   trackProfile = {
     /**
      * Track profile update
+     * This sends CompleteRegistration event to Facebook when user completes their profile
      */
     updated: (metadata: ConversionMetadata = {}): void => {
-      marketingEvents.trackEvent('profile_updated', 'profile_update', metadata);
+      // Send CompleteRegistration to Facebook Pixel
+      this.track('CompleteRegistration', 'Profile Information Completed', {
+        ...metadata,
+        content_name: 'Profile Completed',
+        status: 'completed'
+      });
     },
 
     /**
@@ -251,8 +257,26 @@ class ConversionTrackingService {
    * Core tracking method - sends to all configured platforms
    */
   private track(eventType: string, eventName: string, metadata: ConversionMetadata = {}): void {
-    // Track to marketing config service (GTM + Facebook Pixel)
-    marketingConfigService.trackConversionEvent(eventName, eventType as any, metadata);
+    // Send to GTM dataLayer
+    if ((window as any).dataLayer) {
+      (window as any).dataLayer.push({
+        event: eventName.toLowerCase().replace(/\s+/g, '_'),
+        eventName: eventName,
+        eventType: eventType,
+        ...metadata,
+        timestamp: new Date().toISOString()
+      });
+      console.log(`✅ GTM Event: ${eventName}`, metadata);
+    }
+
+    // Send directly to Facebook Pixel
+    if ((window as any).fbq) {
+      (window as any).fbq('track', eventType, {
+        content_name: eventName,
+        ...metadata
+      });
+      console.log(`✅ Facebook Pixel Event: ${eventType}`, metadata);
+    }
 
     // Track to existing marketing events service (Supabase)
     marketingEvents.trackEvent('conversion', eventName, {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { AnalyticsService, DashboardMetrics, TrendComparisons, DashboardFilters } from '../services/AnalyticsService';
 import TrendLineChart from '../components/dashboard/TrendLineChart';
 import SourcePieChart from '../components/dashboard/SourcePieChart';

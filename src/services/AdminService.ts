@@ -198,7 +198,7 @@ export const AdminService = {
   },
 
   /**
-   * Saves Kommo lead data to the leads table after successful sync
+   * Saves Kommo lead data to the profiles table after successful sync
    */
   async saveKommoData(leadId: string, kommoData: {
     kommo_id: number;
@@ -211,7 +211,7 @@ export const AdminService = {
     tags: string[];
   }): Promise<void> {
     const { error } = await supabase
-      .from('leads')
+      .from('profiles')
       .update({
         kommo_data: kommoData,
         kommo_last_synced: new Date().toISOString()

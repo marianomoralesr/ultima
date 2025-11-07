@@ -193,11 +193,23 @@ const AuthPage: React.FC = () => {
 
             console.log('OTP Verification Success:', data);
 
-            // Track registration completion
-            conversionTracking.trackAuth.otpVerified(data.user?.id || '', {
-                email: email,
-                vehicleId: searchParams.get('ordencompra') || undefined
-            });
+            // Check if this is a new user by checking their metadata or created_at timestamp
+            const isNewUser = data.user?.created_at &&
+                              new Date(data.user.created_at).getTime() > (Date.now() - 10000); // Within last 10 seconds
+
+            // Track registration completion ONLY for first-time users
+            if (isNewUser) {
+                console.log('🎉 New user detected - tracking InitialRegistration');
+                conversionTracking.trackAuth.otpVerified(data.user?.id || '', {
+                    email: email,
+                    vehicleId: searchParams.get('ordencompra') || undefined
+                });
+
+                // Wait 500ms to ensure Facebook Pixel event is sent before redirect
+                await new Promise(resolve => setTimeout(resolve, 500));
+            } else {
+                console.log('👤 Returning user - skipping InitialRegistration event');
+            }
 
             // Redirect path will be determined by the useEffect above based on profile role
             // But we'll check here in case the profile is already loaded

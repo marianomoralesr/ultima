@@ -257,32 +257,69 @@ export default function AdminSalesDashboard() {
                     />
                 </div>
 
-                {/* Lead Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <MetricCard
-                        title="Total de Leads"
-                        value={metrics.totalLeads}
-                        icon={<Users className="w-6 h-6" />}
-                        color="indigo"
-                        trendPercent={trends?.leadsChangePercent}
-                        onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
-                    />
+                {/* Website Lead Metrics */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <Globe className="w-6 h-6 text-blue-600" />
+                        Leads del Sitio Web
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <MetricCard
+                            title="Total de Leads Web"
+                            value={metrics.websiteLeads.total}
+                            icon={<Users className="w-6 h-6" />}
+                            color="indigo"
+                            trendPercent={trends?.leadsChangePercent}
+                            onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
+                        />
 
-                    <MetricCard
-                        title="Leads Contactados"
-                        value={metrics.contactedLeads}
-                        icon={<MessageSquare className="w-6 h-6" />}
-                        color="green"
-                        subtitle={`${((metrics.contactedLeads / (metrics.totalLeads || 1)) * 100).toFixed(0)}% contactados`}
-                    />
+                        <MetricCard
+                            title="Leads Contactados"
+                            value={metrics.websiteLeads.contacted}
+                            icon={<MessageSquare className="w-6 h-6" />}
+                            color="green"
+                            subtitle={`${((metrics.websiteLeads.contacted / (metrics.websiteLeads.total || 1)) * 100).toFixed(0)}% contactados`}
+                        />
 
-                    <MetricCard
-                        title="Sin Contactar"
-                        value={metrics.uncontactedLeads}
-                        icon={<Clock className="w-6 h-6" />}
-                        color="red"
-                        urgent={metrics.uncontactedLeads > 10}
-                    />
+                        <MetricCard
+                            title="Sin Contactar"
+                            value={metrics.websiteLeads.uncontacted}
+                            icon={<Clock className="w-6 h-6" />}
+                            color="red"
+                            urgent={metrics.websiteLeads.uncontacted > 10}
+                        />
+                    </div>
+                </div>
+
+                {/* Kommo CRM Lead Metrics */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <Bot className="w-6 h-6 text-purple-600" />
+                        Leads de Kommo CRM
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <MetricCard
+                            title="Total de Leads Kommo"
+                            value={metrics.kommoLeads.total}
+                            icon={<Users className="w-6 h-6" />}
+                            color="purple"
+                        />
+
+                        <MetricCard
+                            title="Leads Activos"
+                            value={metrics.kommoLeads.active}
+                            icon={<CheckCircle className="w-6 h-6" />}
+                            color="green"
+                            subtitle={`${((metrics.kommoLeads.active / (metrics.kommoLeads.total || 1)) * 100).toFixed(0)}% activos`}
+                        />
+
+                        <MetricCard
+                            title="Leads Eliminados"
+                            value={metrics.kommoLeads.deleted}
+                            icon={<Clock className="w-6 h-6" />}
+                            color="red"
+                        />
+                    </div>
                 </div>
 
                 {/* Performance Metrics */}
@@ -480,65 +517,112 @@ export default function AdminSalesDashboard() {
 
                         {/* Activity Tab */}
                         {activeTab === 'activity' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Recent Leads */}
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Leads Recientes</h3>
-                                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                                        {metrics.recentLeads.length === 0 ? (
-                                            <p className="text-sm text-gray-500 text-center py-4">No hay leads recientes</p>
-                                        ) : (
-                                            metrics.recentLeads.map((lead) => (
-                                                <div
-                                                    key={lead.id}
-                                                    onClick={() => navigate(isAdmin ? `/escritorio/admin/cliente/${lead.id}` : `/escritorio/ventas/cliente/${lead.id}`)}
-                                                    className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                                                >
-                                                    <div className="flex-1">
-                                                        <p className="font-medium text-gray-900 text-sm">
-                                                            {lead.first_name} {lead.last_name}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500">{lead.email}</p>
+                            <div className="space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Recent Website Leads */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                            <Globe className="w-5 h-5 text-blue-600" />
+                                            Leads Web Recientes
+                                        </h3>
+                                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                                            {metrics.recentLeads.length === 0 ? (
+                                                <p className="text-sm text-gray-500 text-center py-4">No hay leads web recientes</p>
+                                            ) : (
+                                                metrics.recentLeads.map((lead) => (
+                                                    <div
+                                                        key={lead.id}
+                                                        onClick={() => navigate(isAdmin ? `/escritorio/admin/cliente/${lead.id}` : `/escritorio/ventas/cliente/${lead.id}`)}
+                                                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                    >
+                                                        <div className="flex-1">
+                                                            <p className="font-medium text-gray-900 text-sm">
+                                                                {lead.first_name} {lead.last_name}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">{lead.email}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            {lead.contactado ? (
+                                                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                                                                    Contactado
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
+                                                                    Pendiente
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        {lead.contactado ? (
-                                                            <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                                                                Contactado
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
-                                                                Pendiente
-                                                            </span>
-                                                        )}
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Recent Applications */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Recientes</h3>
+                                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                                            {metrics.recentApplications.length === 0 ? (
+                                                <p className="text-sm text-gray-500 text-center py-4">No hay solicitudes recientes</p>
+                                            ) : (
+                                                metrics.recentApplications.map((app) => (
+                                                    <div
+                                                        key={app.id}
+                                                        onClick={() => navigate(`/escritorio/aplicacion/${app.id}`)}
+                                                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                    >
+                                                        <div className="flex-1">
+                                                            <p className="font-medium text-gray-900 text-sm">
+                                                                Solicitud #{app.id.slice(0, 8)}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {new Date(app.created_at).toLocaleDateString('es-MX')}
+                                                            </p>
+                                                        </div>
+                                                        <StatusBadge status={app.status} />
                                                     </div>
-                                                </div>
-                                            ))
-                                        )}
+                                                ))
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Recent Applications */}
+                                {/* Recent Kommo Leads */}
                                 <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Recientes</h3>
-                                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                                        {metrics.recentApplications.length === 0 ? (
-                                            <p className="text-sm text-gray-500 text-center py-4">No hay solicitudes recientes</p>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <Bot className="w-5 h-5 text-purple-600" />
+                                        Leads Kommo CRM Recientes
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {metrics.recentKommoLeads.length === 0 ? (
+                                            <p className="text-sm text-gray-500 text-center py-4 col-span-full">No hay leads de Kommo recientes</p>
                                         ) : (
-                                            metrics.recentApplications.map((app) => (
+                                            metrics.recentKommoLeads.map((lead) => (
                                                 <div
-                                                    key={app.id}
-                                                    onClick={() => navigate(`/escritorio/aplicacion/${app.id}`)}
-                                                    className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                    key={lead.id}
+                                                    className="p-3 bg-purple-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-colors"
                                                 >
-                                                    <div className="flex-1">
-                                                        <p className="font-medium text-gray-900 text-sm">
-                                                            Solicitud #{app.id.slice(0, 8)}
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <p className="font-medium text-gray-900 text-sm flex-1">
+                                                            {lead.name || `Lead #${lead.kommo_id}`}
                                                         </p>
-                                                        <p className="text-xs text-gray-500">
-                                                            {new Date(app.created_at).toLocaleDateString('es-MX')}
-                                                        </p>
+                                                        {!lead.is_deleted && (
+                                                            <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded ml-2">
+                                                                Activo
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <StatusBadge status={app.status} />
+                                                    <p className="text-xs text-gray-600 mb-1">
+                                                        ID: {lead.kommo_id}
+                                                    </p>
+                                                    {lead.price > 0 && (
+                                                        <p className="text-xs font-semibold text-purple-700">
+                                                            ${lead.price.toLocaleString('es-MX')} MXN
+                                                        </p>
+                                                    )}
+                                                    <p className="text-xs text-gray-500 mt-2">
+                                                        {new Date(lead.created_at).toLocaleDateString('es-MX')}
+                                                    </p>
                                                 </div>
                                             ))
                                         )}

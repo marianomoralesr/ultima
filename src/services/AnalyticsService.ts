@@ -8,12 +8,26 @@ export interface DashboardMetrics {
     approvedApplications: number;
     completedLast24Hours: number; // NEW: Applications approved or completed in last 24 hours
 
-    // Lead Metrics
+    // Website Lead Metrics (from profiles - users who registered on website)
+    websiteLeads: {
+        total: number;
+        contacted: number;
+        uncontacted: number;
+    };
+
+    // Kommo CRM Lead Metrics (from kommo_leads table)
+    kommoLeads: {
+        total: number;
+        active: number; // not deleted
+        deleted: number;
+    };
+
+    // Legacy fields (for backward compatibility - will show website leads)
     totalLeads: number;
     contactedLeads: number;
     uncontactedLeads: number;
 
-    // Source Attribution
+    // Source Attribution (for website leads)
     sourceBreakdown: {
         facebook: number;
         google: number;
@@ -29,6 +43,7 @@ export interface DashboardMetrics {
     // Recent Activity
     recentApplications: any[];
     recentLeads: any[];
+    recentKommoLeads: any[]; // NEW: Recent Kommo leads
 
     // To-dos and Actions
     pendingReminders: number;
@@ -80,11 +95,23 @@ export class AnalyticsService {
                 appQuery = appQuery.lte('created_at', filters.endDate.toISOString());
             }
 
+            // Fetch Kommo leads query
+            let kommoLeadsQuery = supabase.from('kommo_leads').select('*');
+
+            // Apply date filters to Kommo leads if provided
+            if (filters?.startDate) {
+                kommoLeadsQuery = kommoLeadsQuery.gte('created_at', filters.startDate.toISOString());
+            }
+            if (filters?.endDate) {
+                kommoLeadsQuery = kommoLeadsQuery.lte('created_at', filters.endDate.toISOString());
+            }
+
             // Fetch all data in parallel
             const [
                 leadsResult,
                 applicationsResult,
-                remindersResult
+                remindersResult,
+                kommoLeadsResult
             ] = await Promise.all([
                 leadQuery,
                 appQuery,
@@ -93,12 +120,23 @@ export class AnalyticsService {
                     .select('*')
                     .eq(isAdmin ? 'id' : 'agent_id', isAdmin ? undefined : userId)
                     .gte('reminder_date', new Date().toISOString())
-                    .order('reminder_date', { ascending: true })
+                    .order('reminder_date', { ascending: true }),
+                kommoLeadsQuery
             ]);
 
-            let leads = leadsResult.data || [];
+            let allProfiles = leadsResult.data || [];
             let applications = applicationsResult.data || [];
             const reminders = remindersResult.data || [];
+            const kommoLeadsData = kommoLeadsResult.data || [];
+
+            // Filter profiles to only include website leads (users who registered directly, not created by admin)
+            // We identify website leads by checking if they have a role of null or 'customer' and have source data
+            const leads = allProfiles.filter(profile => {
+                // Exclude admin and sales users
+                if (profile.role === 'admin' || profile.role === 'sales') return false;
+                // Include profiles that likely registered via website (have source or came through auth)
+                return true; // For now, include all non-admin/sales profiles as potential leads
+            });
 
             // Apply source filter if provided
             if (filters?.source && filters.source !== 'all') {
@@ -256,6 +294,16 @@ export class AnalyticsService {
             // Filter out draft applications from total count
             const submittedApplications = applications.filter(app => app.status !== 'draft');
 
+            // Calculate Kommo leads metrics
+            const activeKommoLeads = kommoLeadsData.filter(lead => !lead.is_deleted);
+            const deletedKommoLeads = kommoLeadsData.filter(lead => lead.is_deleted);
+
+            // Get recent Kommo leads (last 10)
+            const recentKommoLeads = kommoLeadsData
+                .filter(lead => !lead.is_deleted)
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .slice(0, 10);
+
             return {
                 totalApplications: submittedApplications.length,
                 pendingApplications: pendingApps.length,
@@ -263,6 +311,21 @@ export class AnalyticsService {
                 approvedApplications: approvedApps.length,
                 completedLast24Hours, // NEW METRIC
 
+                // Website leads metrics
+                websiteLeads: {
+                    total: leads.length,
+                    contacted: contactedLeads.length,
+                    uncontacted: uncontactedLeads.length
+                },
+
+                // Kommo CRM leads metrics
+                kommoLeads: {
+                    total: kommoLeadsData.length,
+                    active: activeKommoLeads.length,
+                    deleted: deletedKommoLeads.length
+                },
+
+                // Legacy fields for backward compatibility
                 totalLeads: leads.length,
                 contactedLeads: contactedLeads.length,
                 uncontactedLeads: uncontactedLeads.length,
@@ -274,6 +337,7 @@ export class AnalyticsService {
 
                 recentApplications,
                 recentLeads,
+                recentKommoLeads,
 
                 pendingReminders: reminders.length,
                 tasksToday

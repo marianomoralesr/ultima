@@ -32,6 +32,9 @@ serve(async (req: Request) => {
       throw new Error('Missing required environment variables.');
     }
 
+    // --- 1.5. Initialize Supabase Client (used throughout function) ---
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     // --- 2. Get recordId from Request Body ---
     const body = await req.json();
     const { recordId } = body;
@@ -58,7 +61,6 @@ serve(async (req: Request) => {
       if (response.status === 404) {
         console.log(`🗑️ Record ${recordId} not found in Airtable. Deleting from Supabase...`);
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
         const { error: deleteError } = await supabase
           .from('inventario_cache')
           .delete()
@@ -95,8 +97,6 @@ serve(async (req: Request) => {
     // update it in Supabase to mark it as not active
     if (ordenStatus !== 'Comprado') {
       console.log(`⚠️ Record ${recordId} is no longer "Comprado" (status: ${ordenStatus}). Updating to Historico in Supabase...`);
-
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
       // Update the record to mark it as Historico so it won't show in listings
       const { error: updateError } = await supabase
@@ -361,7 +361,6 @@ serve(async (req: Request) => {
 
     // --- 6. Upsert Data into Supabase ---
     console.log(`📤 Upserting record ${record.id} into Supabase...`);
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { error } = await supabase
       .from('inventario_cache')
@@ -392,7 +391,7 @@ serve(async (req: Request) => {
         ordenstatus: currentOrdenStatus,
         metadata: {
           fields_synced: Object.keys(supabaseData).length,
-          has_images: !!(exteriorImagesArray.length || interiorImagesArray.length),
+          has_images: !!(exteriorImages || interiorImages),
           cache_invalidated: true
         }
       });

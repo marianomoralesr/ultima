@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { FileText, Download, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { FileText, Download, Loader2, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import ValuationPDFService, { RecentCommit } from '../services/ValuationPDFService';
+import ValuationPDFServiceV2 from '../services/ValuationPDFServiceV2';
 
 const AdminValuationPage: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedVersion, setSelectedVersion] = useState<'v1' | 'v2'>('v2');
 
   const handleGeneratePDF = async () => {
     setIsGenerating(true);
@@ -257,7 +259,9 @@ const AdminValuationPage: React.FC = () => {
         },
       ];
 
-      const pdfService = new ValuationPDFService();
+      const pdfService = selectedVersion === 'v2'
+        ? new ValuationPDFServiceV2()
+        : new ValuationPDFService();
       await pdfService.generateValuationPDF(recentCommits);
 
       setSuccess(true);
@@ -280,6 +284,7 @@ const AdminValuationPage: React.FC = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
             Generador de Valuación Profesional
+            {selectedVersion === 'v2' && <span className="ml-3 text-amber-600">v2.0</span>}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Genera un reporte de valuación profesional en formato bancario para TREFA.MX,
@@ -289,9 +294,70 @@ const AdminValuationPage: React.FC = () => {
 
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+          {/* Version Selector */}
+          <div className="px-8 py-6 bg-gray-50 border-b border-gray-200">
+            <h3 className="text-sm font-bold text-gray-700 mb-3">Selecciona la Versión del Reporte</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* V1 Option */}
+              <button
+                onClick={() => setSelectedVersion('v1')}
+                className={`p-4 rounded-lg border-2 transition-all ${
+                  selectedVersion === 'v1'
+                    ? 'border-blue-600 bg-blue-50'
+                    : 'border-gray-300 bg-white hover:border-gray-400'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-1 ${selectedVersion === 'v1' ? 'text-blue-600' : 'text-gray-400'}`}>
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="font-semibold text-gray-900 mb-1">Versión 1.0 (Estándar)</div>
+                    <div className="text-xs text-gray-600">
+                      Reporte profesional completo con valuación, métricas técnicas, y análisis financiero. ~20 páginas.
+                    </div>
+                  </div>
+                  {selectedVersion === 'v1' && (
+                    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  )}
+                </div>
+              </button>
+
+              {/* V2 Option */}
+              <button
+                onClick={() => setSelectedVersion('v2')}
+                className={`p-4 rounded-lg border-2 transition-all ${
+                  selectedVersion === 'v2'
+                    ? 'border-amber-600 bg-amber-50'
+                    : 'border-gray-300 bg-white hover:border-gray-400'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-1 ${selectedVersion === 'v2' ? 'text-amber-600' : 'text-gray-400'}`}>
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                      Versión 2.0 Enhanced
+                      <span className="px-2 py-0.5 bg-amber-600 text-white text-xs rounded">NUEVO</span>
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Incluye tecnologías de vanguardia, problemas resueltos, arquitectura backend completa, y catálogo de 31 servicios. ~25-30 páginas.
+                    </div>
+                  </div>
+                  {selectedVersion === 'v2' && (
+                    <CheckCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                  )}
+                </div>
+              </button>
+            </div>
+          </div>
+
           {/* Info Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-8 py-6">
-            <h2 className="text-2xl font-bold mb-3">Características del Reporte</h2>
+          <div className={`${selectedVersion === 'v2' ? 'bg-gradient-to-r from-amber-600 to-amber-800' : 'bg-gradient-to-r from-blue-600 to-blue-800'} text-white px-8 py-6`}>
+            <h2 className="text-2xl font-bold mb-3">
+              Características del Reporte {selectedVersion === 'v2' && 'v2.0 Enhanced'}
+            </h2>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
@@ -305,6 +371,26 @@ const AdminValuationPage: React.FC = () => {
                 <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
                 <span>Incluye {48} commits recientes de los últimos 4 días</span>
               </li>
+              {selectedVersion === 'v2' && (
+                <>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="font-semibold">✨ NUEVO: Análisis de tecnologías de vanguardia</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="font-semibold">✨ NUEVO: Sección completa de problemas resueltos con métricas antes/después</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="font-semibold">✨ NUEVO: Arquitectura backend completa con diagramas</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="font-semibold">✨ NUEVO: Catálogo completo de 31 servicios especializados</span>
+                  </li>
+                </>
+              )}
               <li className="flex items-start">
                 <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
                 <span>Análisis técnico detallado con métricas y proyecciones financieras</span>
@@ -368,17 +454,17 @@ const AdminValuationPage: React.FC = () => {
             <button
               onClick={handleGeneratePDF}
               disabled={isGenerating}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 text-lg"
+              className={`w-full ${selectedVersion === 'v2' ? 'bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'} text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 text-lg`}
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="w-6 h-6 animate-spin" />
-                  Generando Reporte PDF...
+                  Generando Reporte PDF {selectedVersion.toUpperCase()}...
                 </>
               ) : (
                 <>
-                  <Download className="w-6 h-6" />
-                  Generar Reporte de Valuación PDF
+                  {selectedVersion === 'v2' ? <Sparkles className="w-6 h-6" /> : <Download className="w-6 h-6" />}
+                  Generar Reporte de Valuación PDF {selectedVersion.toUpperCase()}
                 </>
               )}
             </button>

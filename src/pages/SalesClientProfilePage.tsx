@@ -7,6 +7,7 @@ import type { Profile } from '../types/types';
 import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Lock } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
+import { toast } from 'sonner';
 
 const ProfileDataItem: React.FC<{ label: string, value: any }> = ({ label, value }) => (
     <div>
@@ -331,14 +332,38 @@ const SalesClientProfilePage: React.FC = () => {
 
     const handleStatusChange = async (appId: string, status: string) => {
         if (!clientData) return;
+
+        // Show confirmation dialog for "En Revisión" status
+        if (status === 'reviewing') {
+            const userConfirmed = window.confirm('¿Ya te envió o cargó a su cuenta los documentos?');
+            if (!userConfirmed) {
+                return; // Cancel the status change
+            }
+        }
+
         try {
             await ApplicationService.updateApplicationStatus(appId, status);
+
+            // Update local state for instant feedback
             setClientData(prev => prev ? ({
                 ...prev,
                 applications: prev.applications.map(app => app.id === appId ? { ...app, status } : app),
             }) : null);
+
+            // Show success toast
+            const statusLabels: Record<string, string> = {
+                'draft': 'Borrador',
+                'submitted': 'Enviada',
+                'reviewing': 'En Revisión',
+                'pending_docs': 'Docs Pendientes',
+                'approved': 'Aprobada',
+                'rejected': 'Rechazada'
+            };
+
+            toast.success(`Estado actualizado a: ${statusLabels[status] || status}`);
         } catch(e: any) {
-            alert(`Error updating status: ${e.message}`);
+            console.error('Error updating status:', e);
+            toast.error(`Error al actualizar el estado: ${e.message}`);
         }
     };
 

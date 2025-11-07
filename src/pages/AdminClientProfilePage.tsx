@@ -10,6 +10,7 @@ import { ApplicationService } from '../services/ApplicationService';
 import { supabase } from '../../supabaseClient';
 import BankingProfileSummary from '../components/BankingProfileSummary';
 import EmailNotificationsHistory from '../components/EmailNotificationsHistory';
+import { toast } from 'sonner';
 
 const BUCKET_NAME = 'application-documents';
 
@@ -543,14 +544,38 @@ const AdminClientProfilePage: React.FC = () => {
 
     const handleStatusChange = async (appId: string, status: string) => {
         if (!clientData) return;
+
+        // Show confirmation dialog for "En Revisión" status
+        if (status === 'reviewing') {
+            const userConfirmed = window.confirm('¿Ya te envió o cargó a su cuenta los documentos?');
+            if (!userConfirmed) {
+                return; // Cancel the status change
+            }
+        }
+
         try {
             await ApplicationService.updateApplicationStatus(appId, status);
+
+            // Update local state for instant feedback
             setClientData(prev => prev ? ({
                 ...prev,
                 applications: prev.applications.map(app => app.id === appId ? { ...app, status } : app),
             }) : null);
+
+            // Show success toast
+            const statusLabels: Record<string, string> = {
+                'draft': 'Borrador',
+                'submitted': 'Enviada',
+                'reviewing': 'En Revisión',
+                'pending_docs': 'Docs Pendientes',
+                'approved': 'Aprobada',
+                'rejected': 'Rechazada'
+            };
+
+            toast.success(`Estado actualizado a: ${statusLabels[status] || status}`);
         } catch(e: any) {
-            alert(`Error updating status: ${e.message}`);
+            console.error('Error updating status:', e);
+            toast.error(`Error al actualizar el estado: ${e.message}`);
         }
     };
 

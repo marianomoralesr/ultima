@@ -195,7 +195,13 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                      <div className="mt-6 pt-6 border-t">
                         <NavLink
                             to="/escritorio/encuesta"
-                            className={navLinkClasses}
+                            className={({ isActive }) =>
+                                `flex items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                                    isActive
+                                        ? 'bg-primary-100 text-primary-700'
+                                        : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
+                                } ${isCollapsed ? 'justify-center' : ''}`
+                            }
                         >
                             <ListChecks className={`w-5 h-5 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
                             <span className={`transition-opacity duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Encuesta de Mejora</span>

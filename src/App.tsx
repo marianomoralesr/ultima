@@ -71,6 +71,7 @@ const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
 const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
+const AdminSalesDashboard = lazy(() => import('./pages/AdminSalesDashboard'));
 
 import ConfigService from './services/ConfigService';
 
@@ -146,6 +147,7 @@ function App(): React.JSX.Element {
 
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>
+                  <Route path="admin/dashboard" element={<AdminSalesDashboard />} />
                   <Route path="admin/crm" element={<SimpleCRMPage />} />
                   <Route path="admin/leads" element={<AdminLeadsDashboardPage />} />
                   <Route path="admin/client/:id" element={<AdminClientProfilePage />} />
@@ -170,6 +172,7 @@ function App(): React.JSX.Element {
 
                 {/* Sales routes - accessible by sales and admin roles */}
                 <Route element={<SalesRoute />}>
+                  <Route path="ventas/dashboard" element={<AdminSalesDashboard />} />
                   <Route path="ventas/crm" element={<SimpleCRMPage />} />
                   <Route path="ventas/leads" element={<SalesLeadsDashboardPage />} />
                   <Route path="ventas/cliente/:id" element={<AdminClientProfilePage />} />

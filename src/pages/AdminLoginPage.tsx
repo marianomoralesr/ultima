@@ -10,20 +10,26 @@ const AdminLoginPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const { session } = useAuth();
+    const { session, profile } = useAuth();
 
     useEffect(() => {
-        if (session) {
-            navigate('/escritorio', { replace: true });
+        if (session && profile) {
+            if (profile.role === 'admin') {
+                navigate('/escritorio/admin/dashboard', { replace: true });
+            } else if (profile.role === 'sales') {
+                navigate('/escritorio/ventas/dashboard', { replace: true });
+            } else {
+                navigate('/escritorio', { replace: true });
+            }
         }
-    }, [session, navigate]);
+    }, [session, profile, navigate]);
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
@@ -33,7 +39,25 @@ const AdminLoginPage: React.FC = () => {
             setLoading(false);
         } else {
             sessionStorage.setItem('justLoggedIn', 'true');
-            navigate('/escritorio');
+
+            // Fetch user profile to determine role-based redirect
+            if (data.user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (profile?.role === 'admin') {
+                    navigate('/escritorio/admin/dashboard');
+                } else if (profile?.role === 'sales') {
+                    navigate('/escritorio/ventas/dashboard');
+                } else {
+                    navigate('/escritorio');
+                }
+            } else {
+                navigate('/escritorio');
+            }
         }
     };
 

@@ -251,13 +251,24 @@ This is the endpoint configured in the Kommo CRM settings to receive webhook eve
 
 The webhook handler is **independent** from your existing `KommoService.ts` implementation:
 
-- **KommoService.ts**: Makes API calls TO Kommo (create leads, update leads, search)
-- **kommo-webhook Edge Function**: Receives data FROM Kommo (passive listener)
+- **KommoService.ts**: Makes API calls TO Kommo (⚠️ MANUAL ONLY - see policy below)
+- **kommo-webhook Edge Function**: Receives data FROM Kommo (automated, passive listener)
 
 They can work together:
-1. User fills out form → `KommoService.syncLeadWithKommo()` creates lead in Kommo
+1. User fills out form → Admin clicks "Sync to Kommo" → Lead created in Kommo
 2. Lead is created in Kommo → Webhook fires → Lead data synced to `kommo_leads` table
 3. Your app can now query `kommo_leads` for real-time lead status without API calls
+
+### ⚠️ CRITICAL POLICY: Manual Operations Only
+
+**ALL operations that send data TO Kommo MUST be manual, lead-by-lead operations.**
+
+- ✅ **ALLOWED**: User viewing profile clicks "Sync to Kommo" button
+- ❌ **PROHIBITED**: Loops, bulk operations, automated triggers, scheduled jobs
+
+**Why?** To prevent duplicate leads, rate limiting issues, and data corruption.
+
+**Full Policy**: See [KOMMO_POLICY.md](./KOMMO_POLICY.md) for complete guidelines
 
 ## Next Steps
 

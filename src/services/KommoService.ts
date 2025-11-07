@@ -7,6 +7,12 @@ import { config } from '../pages/config';
  *
  * OAuth Security: All token management happens server-side via Supabase Edge Function.
  * Tokens are never exposed to the browser.
+ *
+ * ⚠️ CRITICAL POLICY: MANUAL OPERATION ONLY ⚠️
+ * - Sending data TO Kommo MUST be manual, lead-by-lead only
+ * - NO automation, NO bulk operations, NO scheduled jobs
+ * - Only triggered by explicit user button clicks in Admin/Sales profile pages
+ * - Violating this policy could result in duplicate leads and data corruption
  */
 
 // ============================================
@@ -562,6 +568,17 @@ class KommoService {
      * - If exists: Returns Kommo data (pipeline, stage, assigned user)
      * - If not exists: Creates new lead in Kommo with TREFA.mx source tag
      */
+    /**
+     * ⚠️ CRITICAL: MANUAL OPERATION ONLY ⚠️
+     * This function MUST only be called from user-initiated button clicks.
+     * DO NOT call this from:
+     * - Loops or batch operations
+     * - Automated triggers or webhooks
+     * - Scheduled jobs or cron tasks
+     * - useEffect hooks or automatic lifecycle methods
+     *
+     * Each call creates or searches for ONE lead in Kommo CRM.
+     */
     static async syncLeadWithKommo(profile: {
         id: string;
         first_name?: string;
@@ -586,6 +603,8 @@ class KommoService {
         };
     }> {
         try {
+            // Log every call for audit trail
+            console.log('[Kommo Sync] MANUAL SYNC initiated for profile:', profile.id);
             // Check if phone number exists
             if (!profile.phone || profile.phone.trim() === '') {
                 return {

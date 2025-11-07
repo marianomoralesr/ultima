@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AnalyticsService, DashboardMetrics, TrendComparisons, DashboardFilters } from '../services/AnalyticsService';
+import { BrevoEmailService } from '../services/BrevoEmailService';
 import TrendLineChart from '../components/dashboard/TrendLineChart';
 import SourcePieChart from '../components/dashboard/SourcePieChart';
 import ConversionFunnel from '../components/dashboard/ConversionFunnel';
@@ -22,7 +23,9 @@ import {
     Facebook,
     Globe,
     Bot,
-    MousePointerClick
+    MousePointerClick,
+    Mail,
+    Zap
 } from 'lucide-react';
 
 export default function AdminSalesDashboard() {
@@ -34,6 +37,8 @@ export default function AdminSalesDashboard() {
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [refreshing, setRefreshing] = useState(false);
+    const [emailHistory, setEmailHistory] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<'charts' | 'activity' | 'emails'>('charts');
 
     // Filter state with default values (last 30 days)
     const [filters, setFilters] = useState<DashboardFilters>({
@@ -63,14 +68,16 @@ export default function AdminSalesDashboard() {
             else setRefreshing(true);
 
             // Fetch all data in parallel for performance
-            const [metricsData, chartData, trendData] = await Promise.all([
+            const [metricsData, chartData, trendData, emailData] = await Promise.all([
                 AnalyticsService.getDashboardMetrics(user?.id, profile?.role, filters),
                 AnalyticsService.getTimeSeriesData(user?.id, profile?.role),
-                AnalyticsService.getTrendComparisons(user?.id, profile?.role, 7)
+                AnalyticsService.getTrendComparisons(user?.id, profile?.role, 7),
+                BrevoEmailService.getRecentEmailHistory(15)
             ]);
 
             // Update state with fetched data
             setMetrics(metricsData);
+            setEmailHistory(emailData);
 
             // Transform time series data for charts
             if (chartData.labels && chartData.labels.length > 0) {
@@ -173,7 +180,7 @@ export default function AdminSalesDashboard() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 {/* Filter Panel */}
                 <FilterPanel
                     filters={filters}
@@ -181,8 +188,38 @@ export default function AdminSalesDashboard() {
                     onReset={handleResetFilters}
                 />
 
-                {/* Key Metrics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {/* 24-Hour Metric - PROMINENT AT TOP */}
+                <div className="mb-6">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-lg p-6 border-2 border-green-400">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-full">
+                                    <Zap className="w-8 h-8 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-white text-sm font-medium uppercase tracking-wide mb-1">
+                                        Últimas 24 Horas
+                                    </h3>
+                                    <p className="text-white text-3xl font-bold">
+                                        {metrics.completedLast24Hours}
+                                    </p>
+                                    <p className="text-green-100 text-sm mt-1">
+                                        Solicitudes completadas (Aprobadas + Completadas)
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-white/80 text-xs">Tiempo real</div>
+                                <div className="text-white text-sm font-semibold mt-1">
+                                    {lastUpdated.toLocaleTimeString('es-MX')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Key Metrics Cards - COMPACT */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {/* Total Applications */}
                     <MetricCard
                         title="Solicitudes Totales"
@@ -220,8 +257,8 @@ export default function AdminSalesDashboard() {
                     />
                 </div>
 
-                {/* Lead Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Lead Metrics - COMPACT */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <MetricCard
                         title="Total de Leads"
                         value={metrics.totalLeads}
@@ -248,15 +285,15 @@ export default function AdminSalesDashboard() {
                     />
                 </div>
 
-                {/* Performance Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Tasa de Conversión</h3>
+                {/* Performance Metrics - COMPACT */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-base font-semibold text-gray-900">Tasa de Conversión</h3>
                             <TrendingUp className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-bold text-blue-600">
+                            <span className="text-3xl font-bold text-blue-600">
                                 {metrics.conversionRate}%
                             </span>
                             <span className="text-sm text-gray-500">Leads a Solicitudes</span>
@@ -278,13 +315,13 @@ export default function AdminSalesDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Tasa de Aprobación</h3>
+                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-base font-semibold text-gray-900">Tasa de Aprobación</h3>
                             <CheckCircle className="w-5 h-5 text-green-600" />
                         </div>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-bold text-green-600">
+                            <span className="text-3xl font-bold text-green-600">
                                 {metrics.approvalRate}%
                             </span>
                             <span className="text-sm text-gray-500">Solicitudes Aprobadas</span>
@@ -307,9 +344,9 @@ export default function AdminSalesDashboard() {
                     </div>
                 </div>
 
-                {/* Source Attribution */}
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Atribución por Fuente</h3>
+                {/* Source Attribution - COMPACT */}
+                <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 mb-6">
+                    <h3 className="text-base font-semibold text-gray-900 mb-4">Atribución por Fuente</h3>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <SourceCard
                             name="Facebook"
@@ -349,41 +386,211 @@ export default function AdminSalesDashboard() {
                     </div>
                 </div>
 
-                {/* 30-Day Trends Chart */}
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 Tendencia de 30 Días</h3>
-                    {timeSeriesData.length > 0 ? (
-                        <TrendLineChart data={timeSeriesData} />
-                    ) : (
-                        <div className="flex items-center justify-center h-64 text-gray-400">
-                            <p>Cargando datos de tendencias...</p>
-                        </div>
-                    )}
+                {/* Tabs for Charts, Recent Activity, and Email History */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    {/* Tab Headers */}
+                    <div className="flex border-b border-gray-200">
+                        <button
+                            onClick={() => setActiveTab('charts')}
+                            className={`px-6 py-3 text-sm font-medium transition-colors ${
+                                activeTab === 'charts'
+                                    ? 'border-b-2 border-blue-600 text-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            📈 Gráficas y Análisis
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('activity')}
+                            className={`px-6 py-3 text-sm font-medium transition-colors ${
+                                activeTab === 'activity'
+                                    ? 'border-b-2 border-blue-600 text-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            🔄 Actividad Reciente
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('emails')}
+                            className={`px-6 py-3 text-sm font-medium transition-colors ${
+                                activeTab === 'emails'
+                                    ? 'border-b-2 border-blue-600 text-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            📧 Historial de Emails
+                        </button>
+                    </div>
+
+                    {/* Tab Content */}
+                    <div className="p-4">
+                        {/* Charts Tab */}
+                        {activeTab === 'charts' && (
+                            <div className="space-y-6">
+                                {/* 30-Day Trends Chart - COMPACT */}
+                                <div>
+                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Tendencia de 30 Días</h3>
+                                    {timeSeriesData.length > 0 ? (
+                                        <div style={{ height: '280px' }}>
+                                            <TrendLineChart data={timeSeriesData} />
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-center h-64 text-gray-400">
+                                            <p>Cargando datos de tendencias...</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Enhanced Source Attribution with Pie Chart - COMPACT */}
+                                <div>
+                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Distribución de Fuentes</h3>
+                                    <SourcePieChart data={metrics.sourceBreakdown} height={280} />
+                                </div>
+
+                                {/* Conversion Funnel - COMPACT */}
+                                <div>
+                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Pipeline de Conversión</h3>
+                                    <ConversionFunnel metrics={{
+                                        totalLeads: metrics.totalLeads,
+                                        contactedLeads: metrics.contactedLeads,
+                                        totalApplications: metrics.totalApplications,
+                                        processedApplications: metrics.processedApplications,
+                                        approvedApplications: metrics.approvedApplications
+                                    }} />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Activity Tab */}
+                        {activeTab === 'activity' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Recent Leads */}
+                                <div>
+                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Leads Recientes</h3>
+                                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                                        {metrics.recentLeads.length === 0 ? (
+                                            <p className="text-sm text-gray-500 text-center py-4">No hay leads recientes</p>
+                                        ) : (
+                                            metrics.recentLeads.map((lead) => (
+                                                <div
+                                                    key={lead.id}
+                                                    onClick={() => navigate(`/client/${lead.id}`)}
+                                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                >
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-gray-900 text-sm">
+                                                            {lead.first_name} {lead.last_name}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">{lead.email}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {lead.contactado ? (
+                                                            <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                                                                Contactado
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
+                                                                Pendiente
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Recent Applications */}
+                                <div>
+                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Solicitudes Recientes</h3>
+                                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                                        {metrics.recentApplications.length === 0 ? (
+                                            <p className="text-sm text-gray-500 text-center py-4">No hay solicitudes recientes</p>
+                                        ) : (
+                                            metrics.recentApplications.map((app) => (
+                                                <div
+                                                    key={app.id}
+                                                    onClick={() => navigate(`/application/${app.id}`)}
+                                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                >
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-gray-900 text-sm">
+                                                            Solicitud #{app.id.slice(0, 8)}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {new Date(app.created_at).toLocaleDateString('es-MX')}
+                                                        </p>
+                                                    </div>
+                                                    <StatusBadge status={app.status} />
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Email History Tab */}
+                        {activeTab === 'emails' && (
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-base font-semibold text-gray-900">Últimos Emails Enviados (Brevo)</h3>
+                                    <Mail className="w-5 h-5 text-gray-400" />
+                                </div>
+                                {emailHistory.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-500">
+                                        <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                                        <p className="text-sm">No hay historial de emails disponible</p>
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            Los emails se registrarán automáticamente cuando se envíen
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                                        {emailHistory.map((email, index) => (
+                                            <div
+                                                key={email.id || index}
+                                                className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                            >
+                                                <div className="p-2 bg-blue-100 rounded-lg">
+                                                    <Mail className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <p className="font-medium text-gray-900 text-sm truncate">
+                                                            {email.recipient_email || email.to || 'Sin destinatario'}
+                                                        </p>
+                                                        <span className={`text-xs px-2 py-1 rounded ${
+                                                            email.status === 'sent' || email.status === 'delivered'
+                                                                ? 'bg-green-100 text-green-700'
+                                                                : email.status === 'failed'
+                                                                ? 'bg-red-100 text-red-700'
+                                                                : 'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                            {email.status || 'unknown'}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-600 mb-1">
+                                                        {email.template_type || email.subject || 'Sin asunto'}
+                                                    </p>
+                                                    <p className="text-xs text-gray-400">
+                                                        {new Date(email.created_at || email.sent_at).toLocaleString('es-MX')}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                {/* Enhanced Source Attribution with Pie Chart */}
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Distribución de Fuentes</h3>
-                    <SourcePieChart data={metrics.sourceBreakdown} height={320} />
-                </div>
-
-                {/* Conversion Funnel */}
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">🔄 Pipeline de Conversión</h3>
-                    <ConversionFunnel metrics={{
-                        totalLeads: metrics.totalLeads,
-                        contactedLeads: metrics.contactedLeads,
-                        totalApplications: metrics.totalApplications,
-                        processedApplications: metrics.processedApplications,
-                        approvedApplications: metrics.approvedApplications
-                    }} />
-                </div>
-
-                {/* Tasks and Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Tareas y Recordatorios</h3>
+                {/* Tasks and Actions - COMPACT */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-base font-semibold text-gray-900">Tareas y Recordatorios</h3>
                             <Calendar className="w-5 h-5 text-gray-400" />
                         </div>
                         <div className="space-y-4">
@@ -398,9 +605,9 @@ export default function AdminSalesDashboard() {
                         </div>
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
+                    {/* Quick Actions - COMPACT */}
+                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                        <h3 className="text-base font-semibold text-gray-900 mb-3">Acciones Rápidas</h3>
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => navigate('/leads')}
@@ -434,9 +641,9 @@ export default function AdminSalesDashboard() {
                     </div>
                 </div>
 
-                {/* Marketing Links */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-sm p-6 text-white mb-8">
-                    <h3 className="text-lg font-semibold mb-4">Enlaces de Marketing</h3>
+                {/* Marketing Links - COMPACT */}
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-sm p-4 text-white mb-6">
+                    <h3 className="text-base font-semibold mb-3">Enlaces de Marketing</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <a
                             href="https://trefa.mx"
@@ -465,73 +672,6 @@ export default function AdminSalesDashboard() {
                             <ExternalLink className="w-4 h-4" />
                             <span className="text-sm font-medium">Inventario Público</span>
                         </a>
-                    </div>
-                </div>
-
-                {/* Recent Activity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Recent Leads */}
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Leads Recientes</h3>
-                        <div className="space-y-3 max-h-80 overflow-y-auto">
-                            {metrics.recentLeads.length === 0 ? (
-                                <p className="text-sm text-gray-500 text-center py-4">No hay leads recientes</p>
-                            ) : (
-                                metrics.recentLeads.map((lead) => (
-                                    <div
-                                        key={lead.id}
-                                        onClick={() => navigate(`/client/${lead.id}`)}
-                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                                    >
-                                        <div className="flex-1">
-                                            <p className="font-medium text-gray-900 text-sm">
-                                                {lead.first_name} {lead.last_name}
-                                            </p>
-                                            <p className="text-xs text-gray-500">{lead.email}</p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {lead.contactado ? (
-                                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                                                    Contactado
-                                                </span>
-                                            ) : (
-                                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
-                                                    Pendiente
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Recent Applications */}
-                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Solicitudes Recientes</h3>
-                        <div className="space-y-3 max-h-80 overflow-y-auto">
-                            {metrics.recentApplications.length === 0 ? (
-                                <p className="text-sm text-gray-500 text-center py-4">No hay solicitudes recientes</p>
-                            ) : (
-                                metrics.recentApplications.map((app) => (
-                                    <div
-                                        key={app.id}
-                                        onClick={() => navigate(`/application/${app.id}`)}
-                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                                    >
-                                        <div className="flex-1">
-                                            <p className="font-medium text-gray-900 text-sm">
-                                                Solicitud #{app.id.slice(0, 8)}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                {new Date(app.created_at).toLocaleDateString('es-MX')}
-                                            </p>
-                                        </div>
-                                        <StatusBadge status={app.status} />
-                                    </div>
-                                ))
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -574,27 +714,26 @@ function MetricCard({ title, value, icon, color, subtitle, urgent, onClick, tren
     return (
         <div
             onClick={onClick}
-            className={`bg-white rounded-lg shadow-sm p-6 border ${
+            className={`bg-white rounded-lg shadow-sm p-4 border ${
                 urgent ? 'border-red-300 ring-2 ring-red-200' : 'border-gray-200'
             } ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
         >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
                     {icon}
                 </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-2">{title}</h3>
-            <p className={`text-3xl font-bold ${textColorClasses[color]}`}>{value}</p>
+            <h3 className="text-xs font-medium text-gray-600 mb-1">{title}</h3>
+            <p className={`text-2xl font-bold ${textColorClasses[color]}`}>{value}</p>
             {trendPercent !== undefined && trendPercent !== 0 && (
-                <div className={`flex items-center gap-1 mt-2 ${trendPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {trendPercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                    <span className="text-sm font-semibold">
+                <div className={`flex items-center gap-1 mt-1 ${trendPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {trendPercent > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    <span className="text-xs font-semibold">
                         {trendPercent > 0 ? '+' : ''}{trendPercent.toFixed(1)}%
                     </span>
-                    <span className="text-xs text-gray-500">vs período anterior</span>
                 </div>
             )}
-            {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
         </div>
     );
 }
@@ -620,12 +759,12 @@ function SourceCard({ name, count, total, icon, color }: SourceCardProps) {
 
     return (
         <div className="text-center">
-            <div className={`inline-flex p-3 rounded-full ${colorClasses[color]} mb-2`}>
+            <div className={`inline-flex p-2 rounded-full ${colorClasses[color]} mb-1`}>
                 {icon}
             </div>
-            <p className="text-2xl font-bold text-gray-900">{count}</p>
-            <p className="text-xs text-gray-500 mt-1">{name}</p>
-            <p className="text-xs font-medium text-gray-600 mt-1">{percentage}%</p>
+            <p className="text-xl font-bold text-gray-900">{count}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{name}</p>
+            <p className="text-xs font-medium text-gray-600">{percentage}%</p>
         </div>
     );
 }

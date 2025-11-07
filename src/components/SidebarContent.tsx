@@ -35,7 +35,9 @@ import {
     TrendingUp,
     TrendingDown,
     Grid3x3,
-    HelpCircle
+    HelpCircle,
+    Search,
+    DollarSign
 } from 'lucide-react';
 
 // @ts-ignore
@@ -51,6 +53,21 @@ interface SidebarContentProps {
     isBetaSurveyVisible: boolean;
     setIsBetaSurveyVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+// Custom icon components for Comprar and Vender
+const ComprarIcon = ({ className }: { className?: string }) => (
+    <div className="relative w-5 h-5 flex items-center justify-center">
+        <Search className={`w-4 h-4 absolute ${className}`} style={{ transform: 'translate(-2px, -2px)' }} />
+        <Car className={`w-3 h-3 absolute ${className}`} style={{ transform: 'translate(2px, 2px)' }} />
+    </div>
+);
+
+const VenderIcon = ({ className }: { className?: string }) => (
+    <div className="relative w-5 h-5 flex items-center justify-center">
+        <DollarSign className={`w-4 h-4 absolute ${className}`} style={{ transform: 'translate(-2px, -2px)' }} />
+        <Car className={`w-3 h-3 absolute ${className}`} style={{ transform: 'translate(2px, 2px)' }} />
+    </div>
+);
 
 const SidebarContent: React.FC<SidebarContentProps> = ({
     isCollapsed,
@@ -79,46 +96,39 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
     const navItems = [
         // Dashboard first for admin/sales roles
         ...((isAdmin || isSales) ? [
-            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, iconColor: 'text-blue-600' }
+            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50' }
         ] : []),
         // Regular user items
         ...(!isAdmin && !isSales ? [
-            { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true, iconColor: 'text-blue-600' }
+            { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50' }
         ] : []),
-        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, iconColor: 'text-gray-600' },
-        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart, iconColor: 'text-red-500' },
-        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText, iconColor: 'text-gray-600' },
-        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2, iconColor: 'text-gray-600' },
-        { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon, iconColor: 'text-gray-600' },
-        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: TrendingUp, iconColor: 'text-green-600' },
-        { to: '/escritorio/autos', label: 'Comprar', icon: TrendingDown, iconColor: 'text-blue-600' },
+        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart, iconColor: 'text-red-500', bgColor: 'bg-red-50/50' },
+        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+        { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: VenderIcon, iconColor: 'text-green-600', bgColor: 'bg-green-50/50', isCustomIcon: true },
+        { to: '/escritorio/autos', label: 'Comprar', icon: ComprarIcon, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50', isCustomIcon: true },
         // Sales role specific links
         ...((isSales && !isAdmin) ? [
-            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600' },
-            { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, iconColor: 'text-gray-600' },
+            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
         ] : []),
         // Admin role specific links
         ...((isAdmin) ? [
-            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart, iconColor: 'text-gray-600' },
-            { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon, iconColor: 'text-gray-600' },
-            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600' },
-            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users, iconColor: 'text-gray-600' },
-            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog, iconColor: 'text-gray-600' },
-            { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings, iconColor: 'text-gray-600' },
-            { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera, iconColor: 'text-gray-600' },
-            { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText, iconColor: 'text-gray-600' },
-            { to: '/changelog', label: 'Registro de Cambios', icon: BookOpen, iconColor: 'text-gray-600' },
+            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
+            { to: '/changelog', label: 'Registro de Cambios', icon: BookOpen, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
         ] : []),
         // Help/FAQ for everyone at the end
-        { to: '/faq', label: 'Ayuda', icon: HelpCircle, iconColor: 'text-gray-400' },
+        { to: '/faq', label: 'Ayuda', icon: HelpCircle, iconColor: 'text-gray-400', bgColor: 'bg-gray-50/50' },
     ];
-
-    const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
-        `flex items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-        isActive
-            ? 'bg-primary-100 text-primary-700'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-    } ${isCollapsed ? 'justify-center' : ''}`;
 
     const userRoleText = isAdmin ? 'Administrador' : isSales ? 'Ventas' : 'Usuario';
 
@@ -136,10 +146,20 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                             key={item.to}
                             to={item.to}
                             end={item.end}
-                            className={navLinkClasses}
+                            className={({ isActive }) =>
+                                `flex items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                                    isActive
+                                        ? 'bg-primary-100 text-primary-700'
+                                        : `${item.bgColor || 'bg-gray-50/50'} text-gray-600 hover:bg-gray-200/50 hover:text-gray-900`
+                                } ${isCollapsed ? 'justify-center' : ''}`
+                            }
                             title={isCollapsed ? item.label : undefined}
                         >
-                            <item.icon className={`w-5 h-5 flex-shrink-0 ${item.iconColor || 'text-gray-600'} ${isCollapsed ? '' : 'mr-3'}`} />
+                            {item.isCustomIcon ? (
+                                <item.icon className={`${item.iconColor || 'text-gray-600'} ${isCollapsed ? '' : 'mr-3'}`} />
+                            ) : (
+                                <item.icon className={`w-5 h-5 flex-shrink-0 ${item.iconColor || 'text-gray-600'} ${isCollapsed ? '' : 'mr-3'}`} />
+                            )}
                             <span className={`transition-opacity duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>{item.label}</span>
                         </NavLink>
                     ))}

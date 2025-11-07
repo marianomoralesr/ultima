@@ -110,7 +110,7 @@ const AuthPage: React.FC = () => {
             localStorage.removeItem('loginRedirect'); // Clean up after use
             navigate(redirectPath, { replace: true });
         }
-    }, [session, navigate]);
+    }, [session, profile, navigate]);
 
     useEffect(() => {
         const ordenCompraFromUrl = searchParams.get('ordencompra');

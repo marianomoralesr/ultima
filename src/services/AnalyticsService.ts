@@ -6,6 +6,7 @@ export interface DashboardMetrics {
     pendingApplications: number;
     processedApplications: number;
     approvedApplications: number;
+    completedLast24Hours: number; // NEW: Applications approved or completed in last 24 hours
 
     // Lead Metrics
     totalLeads: number;
@@ -144,6 +145,7 @@ export class AnalyticsService {
             }
 
             // Calculate application metrics
+            // FIX: Changed from 'draft' to 'submitted' to count submitted applications
             const pendingApps = applications.filter(app =>
                 app.status === 'pending' || app.status === 'submitted'
             );
@@ -154,34 +156,67 @@ export class AnalyticsService {
                 app.status === 'approved'
             );
 
+            // NEW: Calculate completed applications in last 24 hours
+            const twentyFourHoursAgo = new Date();
+            twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+            const completedLast24Hours = applications.filter(app => {
+                const isCompletedStatus = app.status === 'approved' || app.status === 'completed';
+                const createdAt = new Date(app.created_at);
+                return isCompletedStatus && createdAt >= twentyFourHoursAgo;
+            }).length;
+
             // Calculate lead metrics
             const contactedLeads = leads.filter(lead => lead.contactado === true);
             const uncontactedLeads = leads.filter(lead => !lead.contactado);
 
-            // Source attribution
+            // Source attribution - IMPROVED MATCHING LOGIC
             const sourceBreakdown = {
-                facebook: leads.filter(l =>
-                    l.source?.toLowerCase().includes('facebook') ||
-                    l.source?.toLowerCase().includes('fb') ||
-                    l.metadata?.utm_source?.includes('facebook')
-                ).length,
-                google: leads.filter(l =>
-                    l.source?.toLowerCase().includes('google') ||
-                    l.metadata?.utm_source?.includes('google')
-                ).length,
-                bot: leads.filter(l =>
-                    l.source?.toLowerCase().includes('bot') ||
-                    l.source?.toLowerCase().includes('whatsapp')
-                ).length,
-                direct: leads.filter(l =>
-                    l.source?.toLowerCase().includes('direct') ||
-                    l.source === 'Portal TREFA' ||
-                    l.source === 'TREFA.mx'
-                ).length,
+                facebook: leads.filter(l => {
+                    const source = (l.source || '').toLowerCase();
+                    const utmSource = (l.metadata?.utm_source || '').toLowerCase();
+                    const utmMedium = (l.metadata?.utm_medium || '').toLowerCase();
+                    return source.includes('facebook') ||
+                           source.includes('fb') ||
+                           source === 'meta' ||
+                           utmSource.includes('facebook') ||
+                           utmSource.includes('fb') ||
+                           utmMedium.includes('facebook');
+                }).length,
+                google: leads.filter(l => {
+                    const source = (l.source || '').toLowerCase();
+                    const utmSource = (l.metadata?.utm_source || '').toLowerCase();
+                    const utmMedium = (l.metadata?.utm_medium || '').toLowerCase();
+                    return source.includes('google') ||
+                           source.includes('adwords') ||
+                           source.includes('gads') ||
+                           utmSource.includes('google') ||
+                           utmMedium.includes('cpc') ||
+                           utmMedium.includes('ppc');
+                }).length,
+                bot: leads.filter(l => {
+                    const source = (l.source || '').toLowerCase();
+                    const utmSource = (l.metadata?.utm_source || '').toLowerCase();
+                    return source.includes('bot') ||
+                           source.includes('whatsapp') ||
+                           source.includes('wa') ||
+                           source.includes('chatbot') ||
+                           utmSource.includes('whatsapp') ||
+                           utmSource.includes('bot');
+                }).length,
+                direct: leads.filter(l => {
+                    const source = (l.source || '').toLowerCase();
+                    return source.includes('direct') ||
+                           source.includes('directo') ||
+                           source === 'portal trefa' ||
+                           source === 'trefa.mx' ||
+                           source === 'trefa' ||
+                           source === 'website' ||
+                           source === 'web';
+                }).length,
                 other: 0
             };
 
-            // Calculate "other" sources
+            // Calculate "other" sources (any lead not categorized above)
             sourceBreakdown.other = leads.length - (
                 sourceBreakdown.facebook +
                 sourceBreakdown.google +
@@ -223,6 +258,7 @@ export class AnalyticsService {
                 pendingApplications: pendingApps.length,
                 processedApplications: processedApps.length,
                 approvedApplications: approvedApps.length,
+                completedLast24Hours, // NEW METRIC
 
                 totalLeads: leads.length,
                 contactedLeads: contactedLeads.length,

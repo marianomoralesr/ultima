@@ -197,5 +197,31 @@ export const BrevoEmailService = {
 
         const results = await Promise.all(promises);
         return results.every(result => result === true);
+    },
+
+    /**
+     * Get recent email history (last 15 emails sent)
+     * This fetches from a hypothetical email_logs table in Supabase
+     * If the table doesn't exist, it will return an empty array
+     */
+    async getRecentEmailHistory(limit: number = 15): Promise<any[]> {
+        try {
+            // Try to fetch from email_logs table
+            const { data, error } = await supabase
+                .from('email_logs')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) {
+                console.warn('[BrevoEmailService] No email_logs table found or error fetching:', error);
+                return [];
+            }
+
+            return data || [];
+        } catch (err) {
+            console.error('[BrevoEmailService] Exception fetching email history:', err);
+            return [];
+        }
     }
 };

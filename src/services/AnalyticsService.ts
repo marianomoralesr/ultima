@@ -281,6 +281,8 @@ export class AnalyticsService {
 
         } catch (error) {
             console.error('[AnalyticsService] Error fetching dashboard metrics:', error);
+            console.error('[AnalyticsService] Error details:', JSON.stringify(error, null, 2));
+            console.error('[AnalyticsService] User ID:', userId, 'Role:', role);
             throw error;
         }
     }

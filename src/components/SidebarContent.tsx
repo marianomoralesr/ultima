@@ -94,10 +94,6 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
     };
 
     const navItems = [
-        // Dashboard first for admin/sales roles
-        ...((isAdmin || isSales) ? [
-            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50' }
-        ] : []),
         // Regular user items
         ...(!isAdmin && !isSales ? [
             { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50' }
@@ -109,19 +105,9 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
         { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: VenderIcon, iconColor: 'text-green-600', bgColor: 'bg-green-50/50', isCustomIcon: true },
         { to: '/escritorio/autos', label: 'Comprar', icon: ComprarIcon, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50', isCustomIcon: true },
-        // Sales role specific links
-        ...((isSales && !isAdmin) ? [
-            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-            { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-        ] : []),
-        // Admin role specific links
+        // Admin role specific links (items not in top menu)
         ...((isAdmin) ? [
-            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
             { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-            { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
             { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
             { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
             { to: '/changelog', label: 'Registro de Cambios', icon: BookOpen, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
@@ -134,9 +120,9 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-white border-r border-gray-200">
-            <div className={`p-4 border-b flex-shrink-0 flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
+            <div className={`p-4 border-b flex-shrink-0 flex items-center ${isCollapsed ? 'justify-center' : 'justify-center'}`}>
                  <Link to="/" className="flex items-center">
-                    <img src="/images/trefalogo.png" alt="TREFA Logo" className={`w-auto transition-all duration-300 ${isCollapsed ? 'h-6' : 'h-7'}`} />
+                    <img src="/images/icono.png" alt="TREFA" className={`w-auto transition-all duration-300 ${isCollapsed ? 'h-10' : 'h-10'}`} />
                  </Link>
             </div>
             <div className="flex-grow p-4 overflow-y-auto">
@@ -147,20 +133,20 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                             to={item.to}
                             end={item.end}
                             className={({ isActive }) =>
-                                `flex items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                                `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
                                     isActive
                                         ? 'bg-primary-100 text-primary-700'
                                         : `${item.bgColor || 'bg-gray-50/50'} text-gray-600 hover:bg-gray-200/50 hover:text-gray-900`
-                                } ${isCollapsed ? 'justify-center' : ''}`
+                                }`
                             }
                             title={isCollapsed ? item.label : undefined}
                         >
                             {item.isCustomIcon ? (
-                                <item.icon className={`${item.iconColor || 'text-gray-600'} ${isCollapsed ? '' : 'mr-3'}`} />
+                                <item.icon className={`${item.iconColor || 'text-gray-600'} ${isCollapsed ? 'w-6 h-6' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
                             ) : (
-                                <item.icon className={`w-5 h-5 flex-shrink-0 ${item.iconColor || 'text-gray-600'} ${isCollapsed ? '' : 'mr-3'}`} />
+                                <item.icon className={`${isCollapsed ? 'w-7 h-7' : 'w-5 h-5'} flex-shrink-0 ${item.iconColor || 'text-gray-600'} ${!isCollapsed ? 'mr-3' : ''}`} />
                             )}
-                            <span className={`transition-opacity duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>{item.label}</span>
+                            <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.65rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>{item.label}</span>
                         </NavLink>
                     ))}
                 </nav>

@@ -31,6 +31,8 @@ import BottomNav from './BottomNav';
 
 import SidebarContent from './SidebarContent';
 
+import TopMenu from './TopMenu';
+
 
 
 import useSEO from '../hooks/useSEO';
@@ -184,7 +186,7 @@ const DashboardLayout: React.FC = () => {
 
 
 
-            <aside className={`hidden lg:flex lg:flex-shrink-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-24' : 'w-64'}`}>
+            <aside className={`hidden lg:flex lg:flex-shrink-0 transition-all duration-300 ease-in-out relative z-20 ${isCollapsed ? 'w-28' : 'w-64'}`}>
 
 
 
@@ -361,6 +363,9 @@ const DashboardLayout: React.FC = () => {
                     </Link>
                     <div className="w-10"></div> {/* Spacer for center alignment */}
                 </div>
+
+                {/* Top Menu for Admin/Sales */}
+                <TopMenu />
 
                 <main ref={mainContentRef} className="flex-1 relative overflow-y-auto focus:outline-none">
 

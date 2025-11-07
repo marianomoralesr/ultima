@@ -40,11 +40,11 @@ export default function AdminSalesDashboard() {
     const [emailHistory, setEmailHistory] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'charts' | 'activity' | 'emails'>('charts');
 
-    // Filter state with default values (last 30 days)
+    // Filter state with default values (all time - no date restrictions)
     const [filters, setFilters] = useState<DashboardFilters>({
-        dateRange: 'last30days',
-        startDate: startOfDay(subDays(new Date(), 30)),
-        endDate: endOfDay(new Date()),
+        dateRange: 'all',
+        startDate: undefined,
+        endDate: undefined,
         source: 'all',
         status: 'all'
     });
@@ -105,9 +105,9 @@ export default function AdminSalesDashboard() {
 
     const handleResetFilters = () => {
         setFilters({
-            dateRange: 'last30days',
-            startDate: startOfDay(subDays(new Date(), 30)),
-            endDate: endOfDay(new Date()),
+            dateRange: 'all',
+            startDate: undefined,
+            endDate: undefined,
             source: 'all',
             status: 'all'
         });
@@ -189,28 +189,28 @@ export default function AdminSalesDashboard() {
                 />
 
                 {/* 24-Hour Metric - PROMINENT AT TOP */}
-                <div className="mb-6">
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-lg p-6 border-2 border-green-400">
+                <div className="mb-8">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-xl p-8 border-2 border-green-400 hover:shadow-2xl transition-all">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/20 rounded-full">
-                                    <Zap className="w-8 h-8 text-white" />
+                            <div className="flex items-center gap-5">
+                                <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                                    <Zap className="w-10 h-10 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-white text-sm font-medium uppercase tracking-wide mb-1">
+                                    <h3 className="text-white text-sm font-semibold uppercase tracking-wider mb-2">
                                         Últimas 24 Horas
                                     </h3>
-                                    <p className="text-white text-3xl font-bold">
+                                    <p className="text-white text-5xl font-bold mb-2">
                                         {metrics.completedLast24Hours}
                                     </p>
-                                    <p className="text-green-100 text-sm mt-1">
+                                    <p className="text-green-50 text-base font-medium">
                                         Solicitudes completadas (Aprobadas + Completadas)
                                     </p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <div className="text-white/80 text-xs">Tiempo real</div>
-                                <div className="text-white text-sm font-semibold mt-1">
+                            <div className="text-right bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
+                                <div className="text-white/90 text-xs font-medium uppercase tracking-wide">Tiempo real</div>
+                                <div className="text-white text-base font-bold mt-1">
                                     {lastUpdated.toLocaleTimeString('es-MX')}
                                 </div>
                             </div>
@@ -218,8 +218,8 @@ export default function AdminSalesDashboard() {
                     </div>
                 </div>
 
-                {/* Key Metrics Cards - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                {/* Key Metrics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {/* Total Applications */}
                     <MetricCard
                         title="Solicitudes Totales"
@@ -257,8 +257,8 @@ export default function AdminSalesDashboard() {
                     />
                 </div>
 
-                {/* Lead Metrics - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                {/* Lead Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <MetricCard
                         title="Total de Leads"
                         value={metrics.totalLeads}
@@ -285,137 +285,154 @@ export default function AdminSalesDashboard() {
                     />
                 </div>
 
-                {/* Performance Metrics - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-200">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-base font-semibold text-gray-900">Tasa de Conversión</h3>
-                            <TrendingUp className="w-5 h-5 text-blue-600" />
+                {/* Performance Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-md p-8 border-2 border-orange-200 hover:border-orange-300 hover:shadow-lg transition-all">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-bold text-gray-900">Tasa de Conversión</h3>
+                            <div className="p-3 bg-orange-100 rounded-xl">
+                                <TrendingUp className="w-6 h-6 text-orange-600" />
+                            </div>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold text-blue-600">
-                                {metrics.conversionRate}%
-                            </span>
-                            <span className="text-sm text-gray-500">Leads a Solicitudes</span>
+                        <div className="mb-4">
+                            <div className="flex items-baseline gap-3 mb-2">
+                                <span className="text-5xl font-black text-orange-600">
+                                    {metrics.conversionRate}%
+                                </span>
+                            </div>
+                            <span className="text-sm font-medium text-gray-600">Leads a Solicitudes</span>
                         </div>
                         {trends?.conversionChangePercent !== undefined && trends.conversionChangePercent !== 0 && (
-                            <div className={`flex items-center gap-1 mt-2 ${trends.conversionChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg mb-4 ${
+                                trends.conversionChangePercent > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            }`}>
                                 {trends.conversionChangePercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                                <span className="text-sm font-semibold">
+                                <span className="text-sm font-bold">
                                     {trends.conversionChangePercent > 0 ? '+' : ''}{trends.conversionChangePercent.toFixed(1)}%
                                 </span>
-                                <span className="text-xs text-gray-500">vs período anterior</span>
+                                <span className="text-xs font-medium opacity-80">vs anterior</span>
                             </div>
                         )}
-                        <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-gray-300 rounded-full h-3 shadow-inner">
                             <div
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-700 shadow-sm"
                                 style={{ width: `${Math.min(metrics.conversionRate, 100)}%` }}
                             />
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-200">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-base font-semibold text-gray-900">Tasa de Aprobación</h3>
-                            <CheckCircle className="w-5 h-5 text-green-600" />
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-md p-8 border-2 border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-bold text-gray-900">Tasa de Aprobación</h3>
+                            <div className="p-3 bg-gray-200 rounded-xl">
+                                <CheckCircle className="w-6 h-6 text-gray-600" />
+                            </div>
                         </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold text-green-600">
-                                {metrics.approvalRate}%
-                            </span>
-                            <span className="text-sm text-gray-500">Solicitudes Aprobadas</span>
+                        <div className="mb-4">
+                            <div className="flex items-baseline gap-3 mb-2">
+                                <span className="text-5xl font-black text-gray-700">
+                                    {metrics.approvalRate}%
+                                </span>
+                            </div>
+                            <span className="text-sm font-medium text-gray-600">Solicitudes Aprobadas</span>
                         </div>
                         {trends?.approvalChangePercent !== undefined && trends.approvalChangePercent !== 0 && (
-                            <div className={`flex items-center gap-1 mt-2 ${trends.approvalChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg mb-4 ${
+                                trends.approvalChangePercent > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            }`}>
                                 {trends.approvalChangePercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                                <span className="text-sm font-semibold">
+                                <span className="text-sm font-bold">
                                     {trends.approvalChangePercent > 0 ? '+' : ''}{trends.approvalChangePercent.toFixed(1)}%
                                 </span>
-                                <span className="text-xs text-gray-500">vs período anterior</span>
+                                <span className="text-xs font-medium opacity-80">vs anterior</span>
                             </div>
                         )}
-                        <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-gray-300 rounded-full h-3 shadow-inner">
                             <div
-                                className="bg-green-600 h-2 rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-gray-500 to-gray-600 h-3 rounded-full transition-all duration-700 shadow-sm"
                                 style={{ width: `${Math.min(metrics.approvalRate, 100)}%` }}
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Source Attribution - COMPACT */}
-                <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-200 mb-4">
-                    <h3 className="text-base font-semibold text-gray-900 mb-3">Atribución por Fuente</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {/* Source Attribution */}
+                <div className="bg-white rounded-2xl shadow-md p-8 border-2 border-gray-200 mb-10 hover:border-gray-300 hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-xl font-bold text-gray-900">Atribución por Fuente</h3>
+                        <div className="px-3 py-1 bg-gray-100 rounded-lg">
+                            <span className="text-sm font-semibold text-gray-600">{metrics.totalLeads} Total</span>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <SourceCard
                             name="Facebook"
                             count={metrics.sourceBreakdown.facebook}
                             total={metrics.totalLeads}
-                            icon={<Facebook className="w-5 h-5" />}
+                            icon={<Facebook className="w-6 h-6" />}
                             color="blue"
                         />
                         <SourceCard
                             name="Google"
                             count={metrics.sourceBreakdown.google}
                             total={metrics.totalLeads}
-                            icon={<Globe className="w-5 h-5" />}
+                            icon={<Globe className="w-6 h-6" />}
                             color="red"
                         />
                         <SourceCard
                             name="Bot/WhatsApp"
                             count={metrics.sourceBreakdown.bot}
                             total={metrics.totalLeads}
-                            icon={<Bot className="w-5 h-5" />}
+                            icon={<Bot className="w-6 h-6" />}
                             color="green"
                         />
                         <SourceCard
                             name="Directo"
                             count={metrics.sourceBreakdown.direct}
                             total={metrics.totalLeads}
-                            icon={<MousePointerClick className="w-5 h-5" />}
+                            icon={<MousePointerClick className="w-6 h-6" />}
                             color="purple"
                         />
                         <SourceCard
                             name="Otros"
                             count={metrics.sourceBreakdown.other}
                             total={metrics.totalLeads}
-                            icon={<Globe className="w-5 h-5" />}
+                            icon={<Globe className="w-6 h-6" />}
                             color="gray"
                         />
                     </div>
                 </div>
 
                 {/* Tabs for Charts, Recent Activity, and Email History */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+                <div className="bg-white rounded-2xl shadow-md border-2 border-gray-200 mb-8">
                     {/* Tab Headers */}
-                    <div className="flex border-b border-gray-200">
+                    <div className="flex border-b-2 border-gray-100 px-2 pt-2">
                         <button
                             onClick={() => setActiveTab('charts')}
-                            className={`px-4 py-2 text-sm font-medium transition-colors ${
+                            className={`px-6 py-3 text-sm font-semibold transition-all rounded-t-xl ${
                                 activeTab === 'charts'
-                                    ? 'border-b-2 border-blue-600 text-blue-600'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                    ? 'bg-orange-50 border-b-4 border-orange-600 text-orange-700'
+                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                             }`}
                         >
                             📈 Gráficas y Análisis
                         </button>
                         <button
                             onClick={() => setActiveTab('activity')}
-                            className={`px-4 py-2 text-sm font-medium transition-colors ${
+                            className={`px-6 py-3 text-sm font-semibold transition-all rounded-t-xl ${
                                 activeTab === 'activity'
-                                    ? 'border-b-2 border-blue-600 text-blue-600'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                    ? 'bg-orange-50 border-b-4 border-orange-600 text-orange-700'
+                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                             }`}
                         >
                             🔄 Actividad Reciente
                         </button>
                         <button
                             onClick={() => setActiveTab('emails')}
-                            className={`px-4 py-2 text-sm font-medium transition-colors ${
+                            className={`px-6 py-3 text-sm font-semibold transition-all rounded-t-xl ${
                                 activeTab === 'emails'
-                                    ? 'border-b-2 border-blue-600 text-blue-600'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                    ? 'bg-orange-50 border-b-4 border-orange-600 text-orange-700'
+                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                             }`}
                         >
                             📧 Historial de Emails
@@ -423,13 +440,13 @@ export default function AdminSalesDashboard() {
                     </div>
 
                     {/* Tab Content */}
-                    <div className="p-4">
+                    <div className="p-8">
                         {/* Charts Tab */}
                         {activeTab === 'charts' && (
-                            <div className="space-y-4">
-                                {/* 30-Day Trends Chart - COMPACT */}
+                            <div className="space-y-8">
+                                {/* 30-Day Trends Chart */}
                                 <div>
-                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Tendencia de 30 Días</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Tendencia de 30 Días</h3>
                                     {timeSeriesData.length > 0 ? (
                                         <div style={{ height: '280px' }}>
                                             <TrendLineChart data={timeSeriesData} />
@@ -441,15 +458,15 @@ export default function AdminSalesDashboard() {
                                     )}
                                 </div>
 
-                                {/* Enhanced Source Attribution with Pie Chart - COMPACT */}
+                                {/* Enhanced Source Attribution with Pie Chart */}
                                 <div>
-                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Distribución de Fuentes</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Distribución de Fuentes</h3>
                                     <SourcePieChart data={metrics.sourceBreakdown} height={280} />
                                 </div>
 
-                                {/* Conversion Funnel - COMPACT */}
+                                {/* Conversion Funnel */}
                                 <div>
-                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Pipeline de Conversión</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Pipeline de Conversión</h3>
                                     <ConversionFunnel metrics={{
                                         totalLeads: metrics.totalLeads,
                                         contactedLeads: metrics.contactedLeads,
@@ -463,10 +480,10 @@ export default function AdminSalesDashboard() {
 
                         {/* Activity Tab */}
                         {activeTab === 'activity' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Recent Leads */}
                                 <div>
-                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Leads Recientes</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Leads Recientes</h3>
                                     <div className="space-y-2 max-h-96 overflow-y-auto">
                                         {metrics.recentLeads.length === 0 ? (
                                             <p className="text-sm text-gray-500 text-center py-4">No hay leads recientes</p>
@@ -502,7 +519,7 @@ export default function AdminSalesDashboard() {
 
                                 {/* Recent Applications */}
                                 <div>
-                                    <h3 className="text-base font-semibold text-gray-900 mb-3">Solicitudes Recientes</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Recientes</h3>
                                     <div className="space-y-2 max-h-96 overflow-y-auto">
                                         {metrics.recentApplications.length === 0 ? (
                                             <p className="text-sm text-gray-500 text-center py-4">No hay solicitudes recientes</p>
@@ -534,7 +551,7 @@ export default function AdminSalesDashboard() {
                         {activeTab === 'emails' && (
                             <div>
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-base font-semibold text-gray-900">Últimos Emails Enviados (Brevo)</h3>
+                                    <h3 className="text-xl font-bold text-gray-900">Últimos Emails Enviados (Brevo)</h3>
                                     <Mail className="w-5 h-5 text-gray-400" />
                                 </div>
                                 {emailHistory.length === 0 ? (
@@ -586,53 +603,53 @@ export default function AdminSalesDashboard() {
                     </div>
                 </div>
 
-                {/* Tasks and Actions - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-base font-semibold text-gray-900">Tareas y Recordatorios</h3>
-                            <Calendar className="w-5 h-5 text-gray-400" />
+                {/* Tasks and Actions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-gray-900">Tareas y Recordatorios</h3>
+                            <Calendar className="w-6 h-6 text-gray-400" />
                         </div>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between py-3 border-b border-gray-100">
                                 <span className="text-gray-600">Recordatorios pendientes</span>
-                                <span className="text-2xl font-bold text-blue-600">{metrics.pendingReminders}</span>
+                                <span className="text-2xl font-bold text-orange-600">{metrics.pendingReminders}</span>
                             </div>
                             <div className="flex items-center justify-between py-3">
                                 <span className="text-gray-600">Tareas para hoy</span>
-                                <span className="text-2xl font-bold text-orange-600">{metrics.tasksToday}</span>
+                                <span className="text-2xl font-bold text-gray-700">{metrics.tasksToday}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Quick Actions - COMPACT */}
-                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-                        <h3 className="text-base font-semibold text-gray-900 mb-3">Acciones Rápidas</h3>
+                    {/* Quick Actions */}
+                    <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-gray-200">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h3>
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => navigate('/leads')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                                className="flex items-center justify-center gap-2 py-3 px-4 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
                             >
                                 <Users className="w-4 h-4" />
                                 <span className="text-sm font-medium">Ver Leads</span>
                             </button>
                             <button
                                 onClick={() => navigate('/applications')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
+                                className="flex items-center justify-center gap-2 py-3 px-4 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
                             >
                                 <FileText className="w-4 h-4" />
                                 <span className="text-sm font-medium">Solicitudes</span>
                             </button>
                             <button
                                 onClick={() => navigate('/tracking')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
+                                className="flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                             >
                                 <BarChart3 className="w-4 h-4" />
                                 <span className="text-sm font-medium">Tracking</span>
                             </button>
                             <button
                                 onClick={() => navigate('/inventario')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
+                                className="flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                             >
                                 <FileText className="w-4 h-4" />
                                 <span className="text-sm font-medium">Inventario</span>
@@ -641,9 +658,9 @@ export default function AdminSalesDashboard() {
                     </div>
                 </div>
 
-                {/* Marketing Links - COMPACT */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-sm p-4 text-white mb-6">
-                    <h3 className="text-base font-semibold mb-3">Enlaces de Marketing</h3>
+                {/* Marketing Links */}
+                <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl shadow-md p-6 text-white mb-8">
+                    <h3 className="text-xl font-bold mb-4">Enlaces de Marketing</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <a
                             href="https://trefa.mx"
@@ -693,47 +710,44 @@ interface MetricCardProps {
 }
 
 function MetricCard({ title, value, icon, color, subtitle, urgent, onClick, trendPercent }: MetricCardProps) {
-    const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-50 text-green-600',
-        yellow: 'bg-yellow-50 text-yellow-600',
-        red: 'bg-red-50 text-red-600',
-        purple: 'bg-purple-50 text-purple-600',
-        indigo: 'bg-indigo-50 text-indigo-600'
+    const textColorClasses = {
+        blue: 'text-orange-600',
+        green: 'text-orange-600',
+        yellow: 'text-orange-600',
+        red: 'text-orange-600',
+        purple: 'text-gray-700',
+        indigo: 'text-gray-700'
     };
 
-    const textColorClasses = {
-        blue: 'text-blue-600',
-        green: 'text-green-600',
-        yellow: 'text-yellow-600',
-        red: 'text-red-600',
-        purple: 'text-purple-600',
-        indigo: 'text-indigo-600'
+    const bgColorClasses = {
+        blue: 'bg-orange-50',
+        green: 'bg-orange-50',
+        yellow: 'bg-orange-100',
+        red: 'bg-orange-100',
+        purple: 'bg-gray-50',
+        indigo: 'bg-gray-100'
     };
 
     return (
         <div
             onClick={onClick}
-            className={`bg-white rounded-lg shadow-sm p-3 border ${
-                urgent ? 'border-red-300 ring-2 ring-red-200' : 'border-gray-200'
-            } ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+            className={`${bgColorClasses[color]} rounded-xl shadow-sm p-8 border-2 ${
+                urgent ? 'border-orange-400 ring-2 ring-orange-200' : 'border-gray-200'
+            } ${onClick ? 'cursor-pointer hover:shadow-md transition-all duration-200' : ''} hover:border-orange-300`}
         >
-            <div className="flex items-center justify-between mb-2">
-                <div className={`p-1.5 rounded-lg ${colorClasses[color]}`}>
-                    {icon}
-                </div>
+            <div className="flex items-start justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+                {trendPercent !== undefined && trendPercent !== 0 && (
+                    <div className={`flex items-center gap-1 px-3 py-1.5 rounded-lg ${trendPercent > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {trendPercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                        <span className="text-sm font-bold">
+                            {trendPercent > 0 ? '+' : ''}{trendPercent.toFixed(1)}%
+                        </span>
+                    </div>
+                )}
             </div>
-            <h3 className="text-xs font-medium text-gray-600 mb-1">{title}</h3>
-            <p className={`text-2xl font-bold ${textColorClasses[color]}`}>{value}</p>
-            {trendPercent !== undefined && trendPercent !== 0 && (
-                <div className={`flex items-center gap-1 mt-1 ${trendPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {trendPercent > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                    <span className="text-xs font-semibold">
-                        {trendPercent > 0 ? '+' : ''}{trendPercent.toFixed(1)}%
-                    </span>
-                </div>
-            )}
-            {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+            <p className={`text-5xl font-black ${textColorClasses[color]} mb-3`}>{value}</p>
+            {subtitle && <p className="text-base font-medium text-gray-600">{subtitle}</p>}
         </div>
     );
 }
@@ -750,21 +764,31 @@ function SourceCard({ name, count, total, icon, color }: SourceCardProps) {
     const percentage = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
 
     const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        red: 'bg-red-50 text-red-600',
-        green: 'bg-green-50 text-green-600',
-        purple: 'bg-purple-50 text-purple-600',
-        gray: 'bg-gray-50 text-gray-600'
+        blue: 'bg-orange-100 text-orange-600 border-orange-200',
+        red: 'bg-orange-200 text-orange-700 border-orange-300',
+        green: 'bg-orange-100 text-orange-600 border-orange-200',
+        purple: 'bg-gray-100 text-gray-600 border-gray-200',
+        gray: 'bg-gray-100 text-gray-600 border-gray-200'
+    };
+
+    const bgClasses = {
+        blue: 'bg-orange-50',
+        red: 'bg-orange-100',
+        green: 'bg-orange-50',
+        purple: 'bg-gray-50',
+        gray: 'bg-gray-100'
     };
 
     return (
-        <div className="text-center">
-            <div className={`inline-flex p-1.5 rounded-full ${colorClasses[color]} mb-1`}>
+        <div className={`text-center p-5 rounded-xl ${bgClasses[color]} border-2 ${colorClasses[color].split(' ')[2]} hover:shadow-md transition-all`}>
+            <div className={`inline-flex p-4 rounded-xl ${colorClasses[color].split(' ').slice(0, 2).join(' ')} mb-4 shadow-sm`}>
                 {icon}
             </div>
-            <p className="text-xl font-bold text-gray-900">{count}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{name}</p>
-            <p className="text-xs font-medium text-gray-600">{percentage}%</p>
+            <p className="text-3xl font-black text-gray-900 mb-2">{count}</p>
+            <p className="text-sm font-semibold text-gray-600 mb-3">{name}</p>
+            <div className="inline-block px-3 py-1.5 bg-white rounded-full shadow-sm border border-gray-200">
+                <p className="text-xs font-bold text-gray-700">{percentage}%</p>
+            </div>
         </div>
     );
 }

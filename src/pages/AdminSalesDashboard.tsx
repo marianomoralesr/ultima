@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AnalyticsService, DashboardMetrics } from '../services/AnalyticsService';
+import { AnalyticsService, DashboardMetrics, TrendComparisons } from '../services/AnalyticsService';
+import TrendLineChart from '../components/dashboard/TrendLineChart';
+import SourcePieChart from '../components/dashboard/SourcePieChart';
+import ConversionFunnel from '../components/dashboard/ConversionFunnel';
 import {
     BarChart3,
     Users,
@@ -9,6 +12,7 @@ import {
     CheckCircle,
     Clock,
     TrendingUp,
+    TrendingDown,
     MessageSquare,
     Calendar,
     ExternalLink,
@@ -23,6 +27,8 @@ export default function AdminSalesDashboard() {
     const { user, profile } = useAuth();
     const navigate = useNavigate();
     const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+    const [timeSeriesData, setTimeSeriesData] = useState<any[]>([]);
+    const [trends, setTrends] = useState<TrendComparisons | null>(null);
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [refreshing, setRefreshing] = useState(false);

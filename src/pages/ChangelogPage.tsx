@@ -33,6 +33,250 @@ const ChangelogPage: React.FC = () => {
           {/* Content - Scrollable */}
           <div className="px-8 py-10 space-y-12 overflow-y-auto flex-1">
 
+          {/* Version 1.9.0 */}
+          <div className="border-l-4 border-purple-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.9.0</h2>
+              <span className="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-sm font-bold">
+                🔗 Integración Kommo CRM
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                7 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Kommo CRM Integration */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🔗 Kommo CRM
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Sistema Completo de Sincronización con Kommo CRM</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>KommoService.ts:</strong> Servicio completo de integración con OAuth 2.0, búsqueda de leads por email/teléfono/RFC y sincronización bidireccional</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>AdminClientProfilePage:</strong> Interfaz de sincronización manual con visualización de datos de Kommo (Lead ID, Pipeline, Stage, Usuario asignado)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>SalesClientProfilePage:</strong> Interfaz de sincronización disponible para equipo de ventas</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Búsqueda inteligente de leads existentes antes de crear duplicados</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Manejo seguro de tokens con renovación automática</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Modo seguro read-only para prevenir modificaciones accidentales</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivos:</strong> KommoService.ts, AdminClientProfilePage.tsx, SalesClientProfilePage.tsx, config.ts</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📄</span>
+                    <span><strong>Documentación:</strong> KOMMO_INTEGRATION.md con guía completa de implementación</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Development Time */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <strong>Tiempo de desarrollo:</strong> 4 horas
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Archivos modificados:</strong> 5 archivos (2 servicios, 2 páginas, 1 configuración)
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Funcionalidades agregadas:</strong> OAuth 2.0, búsqueda de leads, sincronización bidireccional, UI de visualización
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.8.3 */}
+          <div className="border-l-4 border-blue-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.8.3</h2>
+              <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-bold">
+                🌐 CDN & Correcciones CRM
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                6 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* SimpleCRM setLeads Fix */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🐛 Corrección Crítica CRM
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Fix: Error "Can't find variable: setLeads" en SimpleCRMPage</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">🐛</span>
+                    <span><strong>PROBLEMA:</strong> Error en edición de fuente y checkbox contactado en SimpleCRMPage desde esta mañana</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">⚠️</span>
+                    <span><strong>CAUSA:</strong> Código llamaba <code>setLeads</code> pero el state variable se llamaba <code>setClients</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Corregido en 3 funciones: updateAsesorAsignado (línea 241), toggleContactado (línea 268), saveSource (línea 292)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Ahora los administradores pueden editar fuente de lead y marcar como contactado sin errores</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> SimpleCRMPage.tsx</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Cloudflare CDN */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    🌐 Optimización CDN
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Integración Cloudflare CDN para Imágenes de Facebook Catalogue</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">📉</span>
+                    <span><strong>OBJETIVO:</strong> Reducir costos de egress de Supabase Storage redirigiendo imágenes del catálogo de Facebook a través de Cloudflare CDN</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Feed de Facebook ahora usa URLs de Cloudflare en lugar de URLs directas de Supabase</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Configuración de caché inteligente para máxima eficiencia</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">💰</span>
+                    <span>Reducción estimada de 80% en costos de bandwidth de imágenes</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> facebook-catalogue-feed edge function</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Development Time */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <strong>Tiempo de desarrollo:</strong> 1.5 horas
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Bugs corregidos:</strong> 1 crítico (setLeads en SimpleCRMPage)
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Optimizaciones:</strong> Cloudflare CDN para Facebook catalogue (-80% egress costs)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Version 1.8.2 */}
+          <div className="border-l-4 border-orange-500 pl-8">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">v1.8.2</h2>
+              <span className="bg-orange-100 text-orange-700 px-4 py-1 rounded-full text-sm font-bold">
+                📊 Marketing Tracking Reorganizado
+              </span>
+              <span className="bg-gray-100 px-4 py-1 rounded-full text-sm text-gray-600">
+                6 de Noviembre, 2025
+              </span>
+            </div>
+
+            <div className="space-y-8">
+              {/* Tracking Events Reorganization */}
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-lg text-xs font-bold uppercase">
+                    📊 Sistema de Eventos
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Reorganización Completa de Eventos de Tracking con Nombres Claros</h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>4 Eventos Principales:</strong> InitialRegistration, PersonalInformationComplete, PerfilacionBancariaComplete, LeadComplete</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Cada evento ahora indica claramente QUÉ pasó y DÓNDE ocurrió</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>InitialRegistration:</strong> Dispara en /acceder cuando usuario verifica OTP (AuthPage.tsx:185)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>PersonalInformationComplete:</strong> Dispara en /escritorio/profile al guardar información personal (ProfilePage.tsx:164)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>PerfilacionBancariaComplete:</strong> Dispara en /escritorio/perfilacion-bancaria al completar cuestionario</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span><strong>LeadComplete:</strong> Dispara en /escritorio/aplicacion al enviar solicitud (Application.tsx:415)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📱</span>
+                    <span>Eventos se envían a Facebook Pixel, GTM dataLayer, y tabla tracking_events de Supabase</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">✅</span>
+                    <span>Parámetros UTM incluidos automáticamente en todos los eventos</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📄</span>
+                    <span><strong>Documentación:</strong> EVENTOS_TRACKING_REORGANIZADOS_ES.md con guía completa de GTM y Facebook Ads</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">📁</span>
+                    <span><strong>Archivo modificado:</strong> ConversionTrackingService.ts</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Development Time */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <strong>Tiempo de desarrollo:</strong> 2.5 horas
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Eventos reorganizados:</strong> 4 eventos de conversión principales
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Documentación creada:</strong> Guía completa en español con configuración de GTM y Facebook Ads
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Version 1.8.1 */}
           <div className="border-l-4 border-red-500 pl-8">
             <div className="flex flex-wrap items-center gap-3 mb-6">

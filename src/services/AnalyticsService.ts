@@ -95,39 +95,55 @@ export class AnalyticsService {
                 appQuery = appQuery.lte('created_at', filters.endDate.toISOString());
             }
 
-            // Fetch Kommo leads query
-            let kommoLeadsQuery = supabase.from('kommo_leads').select('*');
-
-            // Apply date filters to Kommo leads if provided
-            if (filters?.startDate) {
-                kommoLeadsQuery = kommoLeadsQuery.gte('created_at', filters.startDate.toISOString());
-            }
-            if (filters?.endDate) {
-                kommoLeadsQuery = kommoLeadsQuery.lte('created_at', filters.endDate.toISOString());
-            }
-
             // Fetch all data in parallel
             const [
                 leadsResult,
                 applicationsResult,
-                remindersResult,
-                kommoLeadsResult
+                remindersResult
             ] = await Promise.all([
                 leadQuery,
                 appQuery,
                 supabase
-                    .from('reminders')
+                    .from('lead_reminders')
                     .select('*')
                     .eq(isAdmin ? 'id' : 'agent_id', isAdmin ? undefined : userId)
                     .gte('reminder_date', new Date().toISOString())
-                    .order('reminder_date', { ascending: true }),
-                kommoLeadsQuery
+                    .order('reminder_date', { ascending: true })
+                    .then(result => result)
+                    .catch(error => {
+                        console.warn('[Analytics] lead_reminders table not found, skipping reminders:', error);
+                        return { data: [], error: null };
+                    })
             ]);
+
+            // Try to fetch Kommo leads if the table exists
+            let kommoLeadsData: any[] = [];
+            try {
+                let kommoLeadsQuery = supabase.from('profiles').select('kommo_data');
+
+                // Apply date filters to Kommo data if provided
+                if (filters?.startDate) {
+                    kommoLeadsQuery = kommoLeadsQuery.gte('created_at', filters.startDate.toISOString());
+                }
+                if (filters?.endDate) {
+                    kommoLeadsQuery = kommoLeadsQuery.lte('created_at', filters.endDate.toISOString());
+                }
+
+                const kommoResult = await kommoLeadsQuery.not('kommo_data', 'is', null);
+
+                if (kommoResult.data) {
+                    // Extract kommo_data from profiles
+                    kommoLeadsData = kommoResult.data
+                        .filter(p => p.kommo_data)
+                        .map(p => p.kommo_data);
+                }
+            } catch (error) {
+                console.warn('[Analytics] Error fetching Kommo data from profiles:', error);
+            }
 
             let allProfiles = leadsResult.data || [];
             let applications = applicationsResult.data || [];
             const reminders = remindersResult.data || [];
-            const kommoLeadsData = kommoLeadsResult.data || [];
 
             // Filter profiles to only include website leads (users who registered directly, not created by admin)
             // We identify website leads by checking if they have a role of null or 'customer' and have source data

@@ -77,7 +77,10 @@ const DashboardLayout: React.FC = () => {
 
 
 
-    const [isCollapsed, setIsCollapsed] = useState(false); // For desktop
+    const { profile } = useAuth();
+    // Admin and sales users get compact sidebar by default for more dashboard space
+    const isAdminOrSales = profile?.role === 'admin' || profile?.role === 'sales';
+    const [isCollapsed, setIsCollapsed] = useState(isAdminOrSales); // For desktop
 
 
 

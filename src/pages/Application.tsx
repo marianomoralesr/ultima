@@ -465,114 +465,66 @@ const Application: React.FC = () => {
                  return <StatusDisplay icon={Info} title="Ocurrió un Error" message={pageError || 'Error desconocido'} linkTo="/escritorio" linkText="Volver al Escritorio" />;
             case 'success':
                  return (
-                     <div className="max-w-4xl mx-auto p-4 sm:p-6 text-gray-900">
-                         {/* Success Header with Icon */}
-                         <div className="text-center mb-6">
-                             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                                 <CheckCircle className="w-10 h-10 text-green-600" />
-                             </div>
-                             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                                 ¡Solicitud Enviada Exitosamente!
-                             </h1>
-                             <p className="text-sm text-gray-600 max-w-xl mx-auto">
-                                 Tu solicitud está en revisión. Te notificaremos por email y WhatsApp sobre cualquier actualización.
-                             </p>
-                         </div>
-
-                         {/* Main Content Grid */}
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                             {/* Left Column: Vehicle & Contact Info */}
-                             <div className="bg-white rounded-lg shadow-sm border p-4">
-                                 {vehicleInfo?._vehicleTitle && (
-                                     <div className="mb-4 pb-4 border-b">
-                                         <p className="text-xs text-gray-500 mb-1">Vehículo Seleccionado</p>
-                                         <div className="flex items-center gap-3">
-                                             <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-16 h-12 object-cover rounded flex-shrink-0" />
-                                             <h3 className="text-sm font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h3>
-                                         </div>
-                                     </div>
-                                 )}
-                                 <div className="space-y-2 text-xs">
-                                     <div>
-                                         <p className="text-gray-500">Nombre</p>
-                                         <p className="font-semibold">{`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim()}</p>
-                                     </div>
-                                     <div>
-                                         <p className="text-gray-500">Email</p>
-                                         <p className="font-semibold truncate">{profile?.email}</p>
-                                     </div>
-                                     <div>
-                                         <p className="text-gray-500">Teléfono</p>
-                                         <p className="font-semibold">{profile?.phone}</p>
-                                     </div>
+                     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+                         <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6 sm:p-8">
+                             {/* Success Header */}
+                             <div className="text-center mb-6">
+                                 <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+                                     <CheckCircle className="w-12 h-12 text-green-600" />
                                  </div>
+                                 <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                                     ¡Solicitud Enviada!
+                                 </h1>
+                                 <p className="text-base text-gray-600 max-w-md mx-auto">
+                                     Tu solicitud está en revisión. Te notificaremos por email y WhatsApp.
+                                 </p>
                              </div>
 
-                             {/* Right Column: Next Steps */}
-                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                 <h2 className="text-sm font-bold text-blue-900 mb-3">Próximos Pasos</h2>
-                                 <div className="space-y-2">
-                                     <div className="flex items-start gap-2">
-                                         <span className="flex-shrink-0 w-5 h-5 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-900">1</span>
-                                         <p className="text-xs text-blue-800">Revisión de solicitud y documentos</p>
-                                     </div>
-                                     <div className="flex items-start gap-2">
-                                         <span className="flex-shrink-0 w-5 h-5 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-900">2</span>
-                                         <p className="text-xs text-blue-800">Notificación de estatus vía email/WhatsApp</p>
-                                     </div>
-                                     <div className="flex items-start gap-2">
-                                         <span className="flex-shrink-0 w-5 h-5 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold text-blue-900">3</span>
-                                         <p className="text-xs text-blue-800">Separación del vehículo una vez aprobado</p>
+                             {/* Vehicle Info (if selected) */}
+                             {vehicleInfo?._vehicleTitle && (
+                                 <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                     <p className="text-xs text-gray-500 mb-2">Vehículo de Interés</p>
+                                     <div className="flex items-center gap-3">
+                                         <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-20 h-14 object-cover rounded flex-shrink-0" />
+                                         <h3 className="text-sm font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h3>
                                      </div>
                                  </div>
+                             )}
+
+                             {/* Important Notice */}
+                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                 <p className="text-sm text-blue-900">
+                                     <strong>Próximo Paso:</strong> Revisaremos tu solicitud y documentos. Una vez aprobado tu crédito, podrás separar el vehículo de tu preferencia.
+                                 </p>
                              </div>
-                         </div>
 
-                         {/* Important Notice */}
-                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                             <p className="text-xs text-yellow-900">
-                                 <strong>Nota:</strong> El vehículo no está garantizado hasta la aprobación de tu crédito. Una vez aprobado, podrás usar tu crédito para cualquier vehículo de nuestro inventario con precio similar (±15%).
-                             </p>
-                         </div>
+                             {/* Action Buttons */}
+                             <div className="space-y-3 mb-6">
+                                 <Link
+                                     to="/escritorio/seguimiento"
+                                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors"
+                                 >
+                                     Ver Estado de Solicitud
+                                     <ArrowRight className="w-4 h-4" />
+                                 </Link>
+                                 <button
+                                     disabled
+                                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-500 font-semibold rounded-lg cursor-not-allowed"
+                                     title="Disponible después de la aprobación"
+                                 >
+                                     Separar Vehículo
+                                     <span className="text-xs">(Disponible al aprobar)</span>
+                                 </button>
+                             </div>
 
-                         {/* Action Buttons */}
-                         <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                             <Link
-                                 to="/escritorio/seguimiento"
-                                 className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors"
-                             >
-                                 Ver Estado de Solicitud
-                                 <ArrowRight className="w-4 h-4" />
-                             </Link>
-                             <Link
-                                 to="/explorar"
-                                 className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
-                             >
-                                 Explorar Más Vehículos
-                             </Link>
-                         </div>
-
-                         {/* Survey Invitation */}
-                         <div className="bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg p-4 shadow-lg">
-                             <div className="flex items-start gap-3">
-                                 <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                     <CheckCircle className="w-5 h-5" />
-                                 </div>
-                                 <div className="flex-1">
-                                     <h3 className="font-bold text-base mb-1">¡Obtén Beneficios Exclusivos!</h3>
-                                     <p className="text-xs text-white/90 mb-3">
-                                         Responde nuestra encuesta de 3 minutos y recibe promociones especiales, descuentos en accesorios,
-                                         seguros con tarifa preferencial y beneficios exclusivos.
-                                     </p>
-                                     <a
-                                         href="https://trefa-buyer-persona-survey-analytics-898935312460.us-west1.run.app/#/survey"
-                                         target="_blank"
-                                         rel="noopener noreferrer"
-                                         className="inline-flex items-center px-4 py-2 bg-white text-green-700 font-bold rounded-lg text-xs hover:bg-gray-100 transition-colors shadow-md"
-                                     >
-                                         Responder Encuesta <ArrowRight className="w-3 h-3 ml-1" />
-                                     </a>
-                                 </div>
+                             {/* Secondary Actions */}
+                             <div className="pt-4 border-t border-gray-200 text-center">
+                                 <Link
+                                     to="/explorar"
+                                     className="text-sm text-primary-600 hover:text-primary-700 font-semibold"
+                                 >
+                                     Explorar Más Vehículos →
+                                 </Link>
                              </div>
                          </div>
                      </div>
@@ -975,10 +927,9 @@ const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDo
             <h2 className="text-lg font-semibold">Carga de Documentos</h2>
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800 font-semibold">
-                    Los documentos son opcionales en este paso. Puedes continuar y subir tus documentos después de enviar tu solicitud a través del dashboard, o puedes subirlos ahora para agilizar tu solicitud.
+                    Aunque te recomendamos subir todos tus documentos ahora para agilizar el proceso, puedes continuar con el envío de tu solicitud y cargar los documentos después desde tu dashboard.
                 </p>
             </div>
-            <p className="text-sm text-gray-600">Sube tus documentos para agilizar tu solicitud. Puedes tomar una foto o subir un archivo. Comprobantes de ingresos (debes cargar 3 PDFs)* No se aceptan imágenes o capturas. Por favor adjunta 3 archivos distintos en formato PDF (o un folder comprimido.zip) que descargas desde la aplicación de tu banca móvil.</p>
             <div className="grid md:grid-cols-2 gap-6">
                 {requiredDocuments.map(doc => (
                     <div key={doc.type} className={doc.multiple ? "md:col-span-2" : ""}>

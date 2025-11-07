@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense, useRef } from 'react';
 import { Upload, Camera, CheckCircle, Trash2 } from 'lucide-react';
 import { DocumentService, UploadedDocument } from '../services/documentService';
 
@@ -39,6 +39,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const mobileCheck = /Mobi|Android/i.test(navigator.userAgent);
@@ -73,12 +74,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
     if (newFiles.length + existingDocuments.length > maxFiles) {
       setError(`No puedes subir más de ${maxFiles} archivos.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     const totalSize = newFiles.reduce((acc, file) => acc + file.size, 0);
     if (totalSize > maxTotalSizeMB * 1024 * 1024) {
       setError(`El tamaño total no puede exceder ${maxTotalSizeMB}MB.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
@@ -87,6 +90,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
     } else {
       onFileSelect(newFiles);
     }
+
+    // Reset the file input so the same files can be selected again if needed
+    if (fileInputRef.current) fileInputRef.current.value = '';
   }, [existingDocuments.length, maxFiles, maxTotalSizeMB, onFileSelect, enableWordPressUpload, applicationId, documentType, userId, onFileUpload]);
   
   const handleDelete = async (doc: UploadedDocument) => {
@@ -163,7 +169,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 </>
                 )}
             </div>
-            <input type="file" className="hidden" accept={accept} multiple={multiple} onChange={e => onDrop(e.target.files)} disabled={isUploading} />
+            <input ref={fileInputRef} type="file" className="hidden" accept={accept} multiple={multiple} onChange={e => onDrop(e.target.files)} disabled={isUploading} />
             </label>
         </div>
       )}

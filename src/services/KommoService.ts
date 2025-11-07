@@ -371,6 +371,8 @@ class KommoService {
     /**
      * SAFE: Searches for leads by email or phone
      * This is READ-ONLY and will not modify any data
+     *
+     * Strategy: Search contacts first (by phone/email), then get associated leads
      */
     static async searchLeadByContact(email?: string, phone?: string): Promise<KommoLead | null> {
         try {
@@ -378,20 +380,52 @@ class KommoService {
                 throw new Error('Either email or phone must be provided');
             }
 
-            const searchQuery = email || phone;
-            const response = await this.apiRequest<KommoLeadsListResponse>(
-                `/leads?query=${encodeURIComponent(searchQuery!)}&with=contacts`
+            // Search by phone first (more reliable), fallback to email
+            const searchQuery = phone || email;
+
+            console.log(`[Kommo] Searching contacts for: ${searchQuery}`);
+
+            // Step 1: Search contacts (not leads) using query parameter
+            interface ContactsResponse {
+                _embedded?: {
+                    contacts?: Array<{
+                        id: number;
+                        name: string;
+                        _links?: {
+                            self?: { href: string };
+                        };
+                    }>;
+                };
+            }
+
+            const contactsResponse = await this.apiRequest<ContactsResponse>(
+                `/contacts?query=${encodeURIComponent(searchQuery!)}`
             );
 
-            const leads = response._embedded?.leads || [];
+            const contacts = contactsResponse._embedded?.contacts || [];
 
-            if (leads.length === 0) {
-                console.log(`[Kommo] No lead found for: ${searchQuery}`);
+            if (contacts.length === 0) {
+                console.log(`[Kommo] No contact found for: ${searchQuery}`);
                 return null;
             }
 
-            console.log(`[Kommo] Found ${leads.length} lead(s) for: ${searchQuery}`);
-            return leads[0]; // Return the first match
+            console.log(`[Kommo] Found ${contacts.length} contact(s), searching their leads...`);
+
+            // Step 2: Get leads for the first matching contact
+            const contactId = contacts[0].id;
+            const leadsResponse = await this.apiRequest<KommoLeadsListResponse>(
+                `/leads?filter[contacts][0]=${contactId}`
+            );
+
+            const leads = leadsResponse._embedded?.leads || [];
+
+            if (leads.length === 0) {
+                console.log(`[Kommo] Contact found but no associated leads for contact ID: ${contactId}`);
+                return null;
+            }
+
+            console.log(`[Kommo] Found ${leads.length} lead(s) for contact ID: ${contactId}`);
+            return leads[0]; // Return the first/most recent lead
         } catch (error) {
             console.error('[Kommo] Failed to search lead:', error);
             throw error;

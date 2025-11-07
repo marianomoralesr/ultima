@@ -51,12 +51,27 @@ export default function AdminSalesDashboard() {
             if (!silent) setLoading(true);
             else setRefreshing(true);
 
-            const data = await AnalyticsService.getDashboardMetrics(
-                user?.id,
-                profile?.role
-            );
+            // Fetch all data in parallel for performance
+            const [metricsData, chartData, trendData] = await Promise.all([
+                AnalyticsService.getDashboardMetrics(user?.id, profile?.role),
+                AnalyticsService.getTimeSeriesData(user?.id, profile?.role),
+                AnalyticsService.getTrendComparisons(user?.id, profile?.role, 7)
+            ]);
 
-            setMetrics(data);
+            // Update state with fetched data
+            setMetrics(metricsData);
+
+            // Transform time series data for charts
+            if (chartData.labels && chartData.labels.length > 0) {
+                const transformedData = chartData.labels.map((label, i) => ({
+                    label,
+                    leads: chartData.leadsData[i] || 0,
+                    applications: chartData.applicationsData[i] || 0
+                }));
+                setTimeSeriesData(transformedData);
+            }
+
+            setTrends(trendData);
             setLastUpdated(new Date());
         } catch (error) {
             console.error('[Dashboard] Error loading metrics:', error);
@@ -140,6 +155,7 @@ export default function AdminSalesDashboard() {
                         value={metrics.totalApplications}
                         icon={<FileText className="w-6 h-6" />}
                         color="blue"
+                        trendPercent={trends?.applicationsChangePercent}
                         onClick={() => navigate('/applications')}
                     />
 
@@ -177,6 +193,7 @@ export default function AdminSalesDashboard() {
                         value={metrics.totalLeads}
                         icon={<Users className="w-6 h-6" />}
                         color="indigo"
+                        trendPercent={trends?.leadsChangePercent}
                         onClick={() => navigate('/leads')}
                     />
 
@@ -210,6 +227,15 @@ export default function AdminSalesDashboard() {
                             </span>
                             <span className="text-sm text-gray-500">Leads a Solicitudes</span>
                         </div>
+                        {trends?.conversionChangePercent !== undefined && trends.conversionChangePercent !== 0 && (
+                            <div className={`flex items-center gap-1 mt-2 ${trends.conversionChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {trends.conversionChangePercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                                <span className="text-sm font-semibold">
+                                    {trends.conversionChangePercent > 0 ? '+' : ''}{trends.conversionChangePercent.toFixed(1)}%
+                                </span>
+                                <span className="text-xs text-gray-500">vs período anterior</span>
+                            </div>
+                        )}
                         <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
                             <div
                                 className="bg-blue-600 h-2 rounded-full transition-all duration-500"
@@ -229,6 +255,15 @@ export default function AdminSalesDashboard() {
                             </span>
                             <span className="text-sm text-gray-500">Solicitudes Aprobadas</span>
                         </div>
+                        {trends?.approvalChangePercent !== undefined && trends.approvalChangePercent !== 0 && (
+                            <div className={`flex items-center gap-1 mt-2 ${trends.approvalChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {trends.approvalChangePercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                                <span className="text-sm font-semibold">
+                                    {trends.approvalChangePercent > 0 ? '+' : ''}{trends.approvalChangePercent.toFixed(1)}%
+                                </span>
+                                <span className="text-xs text-gray-500">vs período anterior</span>
+                            </div>
+                        )}
                         <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
                             <div
                                 className="bg-green-600 h-2 rounded-full transition-all duration-500"
@@ -278,6 +313,36 @@ export default function AdminSalesDashboard() {
                             color="gray"
                         />
                     </div>
+                </div>
+
+                {/* 30-Day Trends Chart */}
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">📈 Tendencia de 30 Días</h3>
+                    {timeSeriesData.length > 0 ? (
+                        <TrendLineChart data={timeSeriesData} />
+                    ) : (
+                        <div className="flex items-center justify-center h-64 text-gray-400">
+                            <p>Cargando datos de tendencias...</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Enhanced Source Attribution with Pie Chart */}
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Distribución de Fuentes</h3>
+                    <SourcePieChart data={metrics.sourceBreakdown} height={320} />
+                </div>
+
+                {/* Conversion Funnel */}
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">🔄 Pipeline de Conversión</h3>
+                    <ConversionFunnel metrics={{
+                        totalLeads: metrics.totalLeads,
+                        contactedLeads: metrics.contactedLeads,
+                        totalApplications: metrics.totalApplications,
+                        processedApplications: metrics.processedApplications,
+                        approvedApplications: metrics.approvedApplications
+                    }} />
                 </div>
 
                 {/* Tasks and Actions */}
@@ -450,9 +515,10 @@ interface MetricCardProps {
     subtitle?: string;
     urgent?: boolean;
     onClick?: () => void;
+    trendPercent?: number;
 }
 
-function MetricCard({ title, value, icon, color, subtitle, urgent, onClick }: MetricCardProps) {
+function MetricCard({ title, value, icon, color, subtitle, urgent, onClick, trendPercent }: MetricCardProps) {
     const colorClasses = {
         blue: 'bg-blue-50 text-blue-600',
         green: 'bg-green-50 text-green-600',
@@ -485,6 +551,15 @@ function MetricCard({ title, value, icon, color, subtitle, urgent, onClick }: Me
             </div>
             <h3 className="text-sm font-medium text-gray-600 mb-2">{title}</h3>
             <p className={`text-3xl font-bold ${textColorClasses[color]}`}>{value}</p>
+            {trendPercent !== undefined && trendPercent !== 0 && (
+                <div className={`flex items-center gap-1 mt-2 ${trendPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {trendPercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                    <span className="text-sm font-semibold">
+                        {trendPercent > 0 ? '+' : ''}{trendPercent.toFixed(1)}%
+                    </span>
+                    <span className="text-xs text-gray-500">vs período anterior</span>
+                </div>
+            )}
             {subtitle && <p className="text-xs text-gray-500 mt-2">{subtitle}</p>}
         </div>
     );

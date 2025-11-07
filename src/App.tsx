@@ -69,6 +69,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
 const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const FinanciamientosPage = lazy(() => import('./pages/FinanciamientosPage'));
 const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
 const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
 const AdminSalesDashboard = lazy(() => import('./pages/AdminSalesDashboard'));
@@ -123,6 +124,7 @@ function App(): React.JSX.Element {
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
               <Route path="landing" element={<LandingPage />} />
+              <Route path="financiamientos" element={<FinanciamientosPage />} />
               {/* Dynamic landing pages - must be before the * route */}
               <Route path=":slug" element={<DynamicLandingPage />} />
               <Route path="*" element={<NotFoundPage />} />

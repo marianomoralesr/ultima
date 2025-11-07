@@ -45,21 +45,39 @@ export interface TrendComparisons {
     approvalChangePercent: number;
 }
 
+export interface DashboardFilters {
+    startDate?: Date;
+    endDate?: Date;
+    source?: 'all' | 'facebook' | 'google' | 'bot' | 'direct' | 'other';
+    status?: 'all' | 'pending' | 'contacted' | 'uncontacted' | 'approved';
+}
+
 export class AnalyticsService {
     /**
      * Fetch comprehensive dashboard metrics
      * @param userId - If provided (sales role), filter by assigned sales rep
      * @param role - User role to determine data scope
+     * @param filters - Optional filters for date range, source, and status
      */
-    static async getDashboardMetrics(userId?: string, role?: string): Promise<DashboardMetrics> {
+    static async getDashboardMetrics(userId?: string, role?: string, filters?: DashboardFilters): Promise<DashboardMetrics> {
         try {
             const isAdmin = role === 'admin';
             const baseLeadQuery = supabase.from('profiles').select('*');
             const baseAppQuery = supabase.from('applications').select('*');
 
             // Filter by sales rep if not admin
-            const leadQuery = isAdmin ? baseLeadQuery : baseLeadQuery.eq('asesor_asignado_id', userId);
-            const appQuery = isAdmin ? baseAppQuery : baseAppQuery.eq('sales_user_id', userId);
+            let leadQuery = isAdmin ? baseLeadQuery : baseLeadQuery.eq('asesor_asignado_id', userId);
+            let appQuery = isAdmin ? baseAppQuery : baseAppQuery.eq('sales_user_id', userId);
+
+            // Apply date filters if provided
+            if (filters?.startDate) {
+                leadQuery = leadQuery.gte('created_at', filters.startDate.toISOString());
+                appQuery = appQuery.gte('created_at', filters.startDate.toISOString());
+            }
+            if (filters?.endDate) {
+                leadQuery = leadQuery.lte('created_at', filters.endDate.toISOString());
+                appQuery = appQuery.lte('created_at', filters.endDate.toISOString());
+            }
 
             // Fetch all data in parallel
             const [
@@ -77,9 +95,53 @@ export class AnalyticsService {
                     .order('reminder_date', { ascending: true })
             ]);
 
-            const leads = leadsResult.data || [];
-            const applications = applicationsResult.data || [];
+            let leads = leadsResult.data || [];
+            let applications = applicationsResult.data || [];
             const reminders = remindersResult.data || [];
+
+            // Apply source filter if provided
+            if (filters?.source && filters.source !== 'all') {
+                leads = leads.filter(lead => {
+                    const source = lead.source?.toLowerCase() || '';
+                    const metadata = lead.metadata?.utm_source?.toLowerCase() || '';
+
+                    switch (filters.source) {
+                        case 'facebook':
+                            return source.includes('facebook') || source.includes('fb') || metadata.includes('facebook');
+                        case 'google':
+                            return source.includes('google') || metadata.includes('google');
+                        case 'bot':
+                            return source.includes('bot') || source.includes('whatsapp');
+                        case 'direct':
+                            return source.includes('direct') || source === 'Portal TREFA' || source === 'TREFA.mx';
+                        case 'other':
+                            return !source.includes('facebook') && !source.includes('fb') &&
+                                   !source.includes('google') && !source.includes('bot') &&
+                                   !source.includes('whatsapp') && !source.includes('direct') &&
+                                   source !== 'Portal TREFA' && source !== 'TREFA.mx';
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            // Apply status filter if provided
+            if (filters?.status && filters.status !== 'all') {
+                switch (filters.status) {
+                    case 'contacted':
+                        leads = leads.filter(lead => lead.contactado === true);
+                        break;
+                    case 'uncontacted':
+                        leads = leads.filter(lead => !lead.contactado);
+                        break;
+                    case 'pending':
+                        applications = applications.filter(app => app.status === 'pending' || app.status === 'submitted');
+                        break;
+                    case 'approved':
+                        applications = applications.filter(app => app.status === 'approved');
+                        break;
+                }
+            }
 
             // Calculate application metrics
             const pendingApps = applications.filter(app =>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AnalyticsService, DashboardMetrics, TrendComparisons } from '../services/AnalyticsService';
+import { AnalyticsService, DashboardMetrics, TrendComparisons, DashboardFilters } from '../services/AnalyticsService';
 import TrendLineChart from '../components/dashboard/TrendLineChart';
 import SourcePieChart from '../components/dashboard/SourcePieChart';
 import ConversionFunnel from '../components/dashboard/ConversionFunnel';
+import FilterPanel from '../components/dashboard/FilterPanel';
+import { subDays, startOfDay, endOfDay } from 'date-fns';
 import {
     BarChart3,
     Users,
@@ -33,6 +35,15 @@ export default function AdminSalesDashboard() {
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [refreshing, setRefreshing] = useState(false);
 
+    // Filter state with default values (last 30 days)
+    const [filters, setFilters] = useState<DashboardFilters>({
+        dateRange: 'last30days',
+        startDate: startOfDay(subDays(new Date(), 30)),
+        endDate: endOfDay(new Date()),
+        source: 'all',
+        status: 'all'
+    });
+
     const isAdmin = profile?.role === 'admin';
     const userName = profile?.first_name || user?.email?.split('@')[0] || 'Usuario';
 
@@ -44,7 +55,7 @@ export default function AdminSalesDashboard() {
         }, 120000);
 
         return () => clearInterval(interval);
-    }, [user?.id, profile?.role]);
+    }, [user?.id, profile?.role, filters]);
 
     const loadDashboardData = async (silent = false) => {
         try {
@@ -53,7 +64,7 @@ export default function AdminSalesDashboard() {
 
             // Fetch all data in parallel for performance
             const [metricsData, chartData, trendData] = await Promise.all([
-                AnalyticsService.getDashboardMetrics(user?.id, profile?.role),
+                AnalyticsService.getDashboardMetrics(user?.id, profile?.role, filters),
                 AnalyticsService.getTimeSeriesData(user?.id, profile?.role),
                 AnalyticsService.getTrendComparisons(user?.id, profile?.role, 7)
             ]);
@@ -79,6 +90,22 @@ export default function AdminSalesDashboard() {
             setLoading(false);
             setRefreshing(false);
         }
+    };
+
+    const handleFilterChange = (newFilters: any) => {
+        setFilters(newFilters);
+    };
+
+    const handleResetFilters = () => {
+        setFilters({
+            dateRange: 'last30days',
+            startDate: startOfDay(subDays(new Date(), 30)),
+            endDate: endOfDay(new Date()),
+            source: 'all',
+            status: 'all'
+        });
+        // Trigger a manual refresh
+        loadDashboardData(true);
     };
 
     const handleManualRefresh = () => {
@@ -147,6 +174,13 @@ export default function AdminSalesDashboard() {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Filter Panel */}
+                <FilterPanel
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onReset={handleResetFilters}
+                />
+
                 {/* Key Metrics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {/* Total Applications */}

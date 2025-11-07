@@ -480,6 +480,71 @@ const LeadSourceInfo: React.FC<{ metadata: any; source: string }> = ({ metadata,
     );
 };
 
+const KommoDataDisplay: React.FC<{ kommoData: any; lastSynced: string }> = ({ kommoData, lastSynced }) => {
+    if (!kommoData) {
+        return null;
+    }
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleString('es-MX', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    return (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-200">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Datos de Kommo CRM
+                </h2>
+                <span className="text-xs text-gray-600">
+                    {lastSynced && `Sincronizado: ${formatDate(lastSynced)}`}
+                </span>
+            </div>
+            <div className="space-y-3 bg-white p-4 rounded-lg">
+                <ProfileDataItem label="ID de Lead en Kommo" value={`#${kommoData.kommo_id}`} />
+                <ProfileDataItem label="Pipeline" value={kommoData.pipeline_name} />
+                <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                        <ProfileDataItem label="Etapa" value={kommoData.status_name} />
+                    </div>
+                    {kommoData.price > 0 && (
+                        <div className="flex-1">
+                            <ProfileDataItem
+                                label="Valor"
+                                value={new Intl.NumberFormat('es-MX', {
+                                    style: 'currency',
+                                    currency: 'MXN'
+                                }).format(kommoData.price)}
+                            />
+                        </div>
+                    )}
+                </div>
+                {kommoData.tags && kommoData.tags.length > 0 && (
+                    <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Etiquetas en Kommo</p>
+                        <div className="flex flex-wrap gap-2">
+                            {kommoData.tags.map((tag: string, idx: number) => (
+                                <span key={idx} className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 const AdminClientProfilePage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
@@ -519,27 +584,41 @@ const AdminClientProfilePage: React.FC = () => {
         setIsSyncing(true);
         setSyncMessage('');
 
-        const result = await KommoService.syncLeadWithKommo(clientData.profile);
+        try {
+            const result = await KommoService.syncLeadWithKommo(clientData.profile);
 
-        if (result.success) {
-            if (result.action === 'found') {
-                setSyncMessage(`✓ Lead encontrado en Kommo - ${result.kommoData?.pipeline_name} / ${result.kommoData?.status_name}`);
-            } else if (result.action === 'created') {
-                setSyncMessage(`✓ Lead creado en Kommo exitosamente`);
-            }
+            if (result.success) {
+                if (result.action === 'found') {
+                    setSyncMessage(`✓ Lead encontrado en Kommo - ${result.kommoData?.pipeline_name} / ${result.kommoData?.status_name}`);
+                } else if (result.action === 'created') {
+                    setSyncMessage(`✓ Lead creado en Kommo exitosamente`);
+                }
 
-            // If we got Kommo data, update the local profile (you'll need to implement this API call)
-            if (result.kommoData) {
-                console.log('[Kommo Data]', result.kommoData);
-                // Optionally reload the page to show updated data
-                // window.location.reload();
+                // Save Kommo data to database
+                if (result.kommoData) {
+                    console.log('[Kommo Data]', result.kommoData);
+                    await AdminService.saveKommoData(clientData.profile.id, result.kommoData);
+
+                    // Reload profile data to show updated Kommo information
+                    const updatedData = await AdminService.getClientProfile(id!);
+                    if (updatedData) {
+                        setClientData(updatedData);
+                    }
+
+                    toast.success('Datos de Kommo actualizados correctamente');
+                }
+            } else {
+                setSyncMessage(`❌ Error: ${result.message}`);
+                toast.error(result.message);
             }
-        } else {
-            setSyncMessage(`Error: ${result.message}`);
+        } catch (error: any) {
+            console.error('[Kommo Sync Error]', error);
+            setSyncMessage(`❌ Error al sincronizar con Kommo`);
+            toast.error('Error al sincronizar con Kommo');
         }
 
         setIsSyncing(false);
-        setTimeout(() => setSyncMessage(''), 5000);
+        setTimeout(() => setSyncMessage(''), 8000);
     };
 
     const handleStatusChange = async (appId: string, status: string) => {
@@ -697,6 +776,7 @@ const AdminClientProfilePage: React.FC = () => {
 
                     <BankingProfileSummary applications={applications} />
                     <LeadSourceInfo metadata={profile.metadata} source={profile.source} />
+                    <KommoDataDisplay kommoData={profile.kommo_data} lastSynced={profile.kommo_last_synced} />
                     <EmailNotificationsHistory userId={profile.id} />
                     <TagsManager leadId={profile.id} initialTags={tags} />
                     <RemindersManager leadId={profile.id} initialReminders={reminders} agentId={user.id} />

@@ -195,5 +195,32 @@ export const AdminService = {
       throw new Error("No se pudo actualizar el estado del usuario.");
     }
     return data;
+  },
+
+  /**
+   * Saves Kommo lead data to the leads table after successful sync
+   */
+  async saveKommoData(leadId: string, kommoData: {
+    kommo_id: number;
+    pipeline_id: number;
+    pipeline_name: string;
+    status_id: number;
+    status_name: string;
+    responsible_user_id: number;
+    price: number;
+    tags: string[];
+  }): Promise<void> {
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        kommo_data: kommoData,
+        kommo_last_synced: new Date().toISOString()
+      })
+      .eq('id', leadId);
+
+    if (error) {
+      console.error("Error saving Kommo data:", error);
+      throw new Error("No se pudieron guardar los datos de Kommo.");
+    }
   }
 };

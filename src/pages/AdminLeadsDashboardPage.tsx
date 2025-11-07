@@ -35,7 +35,10 @@ const AdminLeadsDashboardPage: React.FC = () => {
         const lowercasedQuery = searchTerm.toLowerCase();
         return filtered.filter(lead =>
             `${lead.first_name || ''} ${lead.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
-            lead.email?.toLowerCase().includes(lowercasedQuery)
+            lead.email?.toLowerCase().includes(lowercasedQuery) ||
+            lead.source?.toLowerCase().includes(lowercasedQuery) ||
+            lead.utm_source?.toLowerCase().includes(lowercasedQuery) ||
+            lead.utm_campaign?.toLowerCase().includes(lowercasedQuery)
         );
     }, [leads, searchTerm, isSales, user]);
 
@@ -81,9 +84,9 @@ const AdminLeadsDashboardPage: React.FC = () => {
                     <h2 className="text-xl font-bold text-gray-800">Directorio de Clientes</h2>
                     <div className="relative w-full sm:w-72">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input 
+                        <input
                             type="text"
-                            placeholder="Buscar por nombre o email..."
+                            placeholder="Buscar por nombre, email o fuente..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -99,6 +102,7 @@ const AdminLeadsDashboardPage: React.FC = () => {
                                 <th scope="col" className="px-6 py-3">Email / Teléfono</th>
                                 <th scope="col" className="px-6 py-3">Último Auto de Interés</th>
                                 <th scope="col" className="px-6 py-3">Estado Solicitud</th>
+                                <th scope="col" className="px-6 py-3">Fuente</th>
                                 <th scope="col" className="px-6 py-3">Contactado</th>
                                 <th scope="col" className="px-6 py-3">Asesor</th>
                             </tr>
@@ -117,6 +121,31 @@ const AdminLeadsDashboardPage: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4">{lead.latest_app_car_info?._vehicleTitle || '-'}</td>
                                     <td className="px-6 py-4">{lead.latest_app_status || '-'}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="truncate text-sm" title={lead.source || '-'}>
+                                                {lead.source || '-'}
+                                            </span>
+                                            {(lead.utm_source || lead.utm_campaign || lead.rfdm || lead.referrer) && (
+                                                <div className="text-[10px] text-gray-500 space-y-0.5">
+                                                    {lead.utm_source && <div>UTM: {lead.utm_source}</div>}
+                                                    {lead.utm_campaign && <div>Camp: {lead.utm_campaign}</div>}
+                                                    {lead.rfdm && <div>RFDM: {lead.rfdm}</div>}
+                                                    {lead.referrer && (
+                                                        <div title={lead.referrer}>
+                                                            Ref: {(() => {
+                                                                try {
+                                                                    return new URL(lead.referrer).hostname.replace('www.', '');
+                                                                } catch {
+                                                                    return lead.referrer;
+                                                                }
+                                                            })()}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
                                     <td className="px-6 py-4">
                                         <input
                                             type="checkbox"

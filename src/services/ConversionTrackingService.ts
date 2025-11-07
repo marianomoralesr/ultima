@@ -145,7 +145,7 @@ class ConversionTrackingService {
      * Track when user starts application
      */
     started: (metadata: ConversionMetadata = {}): void => {
-      this.track('Lead', 'Application Started', {
+      marketingEvents.trackEvent('application_started', 'Application Started', {
         ...metadata,
         applicationStage: 'started'
       });
@@ -155,7 +155,7 @@ class ConversionTrackingService {
      * Track application step completion
      */
     stepCompleted: (stepNumber: number, stepName: string, metadata: ConversionMetadata = {}): void => {
-      this.track('Lead', `Application Step ${stepNumber} Complete: ${stepName}`, {
+      marketingEvents.trackEvent('application_step_completed', `Application Step ${stepNumber} Complete: ${stepName}`, {
         ...metadata,
         stepNumber,
         stepName,
@@ -164,14 +164,19 @@ class ConversionTrackingService {
     },
 
     /**
-     * Track application submission
+     * Track application submission - LeadComplete
+     * Página: /escritorio/aplicacion
+     * Cuándo: Usuario envía su solicitud de financiamiento completa
      */
     submitted: (metadata: ConversionMetadata = {}): void => {
-      this.track('Lead', 'Application Submitted', {
+      this.track('LeadComplete', 'Lead Complete', {
         ...metadata,
+        page: '/escritorio/aplicacion',
         applicationStage: 'submitted',
         value: metadata.vehiclePrice || 0,
-        currency: 'MXN'
+        currency: 'MXN',
+        content_name: 'Lead Complete',
+        status: 'completed'
       });
     },
 
@@ -198,23 +203,33 @@ class ConversionTrackingService {
     },
 
     /**
-     * Track OTP verification
+     * Track OTP verification - InitialRegistration
+     * Página: /acceder
+     * Cuándo: Usuario verifica código OTP exitosamente
      */
     otpVerified: (userId: string, metadata: ConversionMetadata = {}): void => {
-      this.trackRegistration({
+      this.track('InitialRegistration', 'Initial Registration', {
         ...metadata,
+        page: '/acceder',
         userId,
-        method: 'email_otp'
+        method: 'email_otp',
+        content_name: 'Initial Registration',
+        status: 'completed'
       });
     },
 
     /**
-     * Track Google sign-in
+     * Track Google sign-in - InitialRegistration
+     * Página: /acceder
+     * Cuándo: Usuario inicia sesión con Google
      */
     googleSignIn: (metadata: ConversionMetadata = {}): void => {
-      this.trackRegistration({
+      this.track('InitialRegistration', 'Initial Registration', {
         ...metadata,
-        method: 'google_oauth'
+        page: '/acceder',
+        method: 'google_oauth',
+        content_name: 'Initial Registration',
+        status: 'completed'
       });
     },
 
@@ -231,25 +246,31 @@ class ConversionTrackingService {
    */
   trackProfile = {
     /**
-     * Track profile update
-     * This sends CompleteRegistration event to Facebook when user completes their profile
+     * Track profile update - PersonalInformationComplete
+     * Página: /escritorio/profile
+     * Cuándo: Usuario guarda su información personal
      */
     updated: (metadata: ConversionMetadata = {}): void => {
-      // Send CompleteRegistration to Facebook Pixel
-      this.track('CompleteRegistration', 'Profile Information Completed', {
+      this.track('PersonalInformationComplete', 'Personal Information Complete', {
         ...metadata,
-        content_name: 'Profile Completed',
+        page: '/escritorio/profile',
+        content_name: 'Personal Information Complete',
         status: 'completed'
       });
     },
 
     /**
-     * Track bank profiling completion
+     * Track bank profiling completion - PerfilacionBancariaComplete
+     * Página: /escritorio/perfilacion-bancaria
+     * Cuándo: Usuario completa el cuestionario de perfilación bancaria
      */
     bankProfilingCompleted: (recommendedBank: string, metadata: ConversionMetadata = {}): void => {
-      this.track('Lead', 'Bank Profiling Completed', {
+      this.track('PerfilacionBancariaComplete', 'Perfilacion Bancaria Complete', {
         ...metadata,
-        recommendedBank
+        page: '/escritorio/perfilacion-bancaria',
+        recommendedBank,
+        content_name: 'Perfilacion Bancaria Complete',
+        status: 'completed'
       });
     }
   };

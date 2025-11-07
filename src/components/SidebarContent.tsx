@@ -31,7 +31,11 @@ import {
     Loader2,
     BookOpen,
     ShoppingCart,
-    UserCog
+    UserCog,
+    TrendingUp,
+    TrendingDown,
+    Grid3x3,
+    HelpCircle
 } from 'lucide-react';
 
 // @ts-ignore
@@ -73,31 +77,40 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
     };
 
     const navItems = [
-        { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true },
-        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
-        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart },
-        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
-        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2 },
-        { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon },
-        { to: '/escritorio/autos', label: 'Inventario', icon: Car },
-        { to: '/escritorio/vende-tu-auto', label: 'Vender mi Auto', icon: Car },
+        // Dashboard first for admin/sales roles
+        ...((isAdmin || isSales) ? [
+            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, iconColor: 'text-blue-600' }
+        ] : []),
+        // Regular user items
+        ...(!isAdmin && !isSales ? [
+            { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true, iconColor: 'text-blue-600' }
+        ] : []),
+        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, iconColor: 'text-gray-600' },
+        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart, iconColor: 'text-red-500' },
+        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText, iconColor: 'text-gray-600' },
+        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2, iconColor: 'text-gray-600' },
+        { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon, iconColor: 'text-gray-600' },
+        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: TrendingUp, iconColor: 'text-green-600' },
+        { to: '/escritorio/autos', label: 'Comprar', icon: TrendingDown, iconColor: 'text-blue-600' },
         // Sales role specific links
         ...((isSales && !isAdmin) ? [
-            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users },
-            { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users },
+            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600' },
+            { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, iconColor: 'text-gray-600' },
         ] : []),
         // Admin role specific links
         ...((isAdmin) ? [
-            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart },
-            { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon },
-            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
-            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users },
-            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog },
-            { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
-            { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera },
-            { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText },
-            { to: '/changelog', label: 'Registro de Cambios', icon: BookOpen },
+            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart, iconColor: 'text-gray-600' },
+            { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon, iconColor: 'text-gray-600' },
+            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users, iconColor: 'text-gray-600' },
+            { to: '/escritorio/admin/leads', label: 'Leads Dashboard', icon: Users, iconColor: 'text-gray-600' },
+            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog, iconColor: 'text-gray-600' },
+            { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings, iconColor: 'text-gray-600' },
+            { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera, iconColor: 'text-gray-600' },
+            { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText, iconColor: 'text-gray-600' },
+            { to: '/changelog', label: 'Registro de Cambios', icon: BookOpen, iconColor: 'text-gray-600' },
         ] : []),
+        // Help/FAQ for everyone at the end
+        { to: '/faq', label: 'Ayuda', icon: HelpCircle, iconColor: 'text-gray-400' },
     ];
 
     const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
@@ -126,7 +139,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                             className={navLinkClasses}
                             title={isCollapsed ? item.label : undefined}
                         >
-                            <item.icon className={`w-5 h-5 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
+                            <item.icon className={`w-5 h-5 flex-shrink-0 ${item.iconColor || 'text-gray-600'} ${isCollapsed ? '' : 'mr-3'}`} />
                             <span className={`transition-opacity duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>{item.label}</span>
                         </NavLink>
                     ))}

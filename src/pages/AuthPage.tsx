@@ -67,7 +67,7 @@ const AuthPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [view, setView] = useState<'signIn' | 'verifyOtp'>('signIn');
     const navigate = useNavigate();
-    const { session } = useAuth();
+    const { session, profile } = useAuth();
     const [searchParams] = useSearchParams();
     const [vehicleToFinance, setVehicleToFinance] = useState<WordPressVehicle | null>(null);
     const [isLoadingVehicle, setIsLoadingVehicle] = useState(false);
@@ -95,7 +95,18 @@ const AuthPage: React.FC = () => {
         }
 
         if (session) {
-            const redirectPath = localStorage.getItem('loginRedirect') || '/escritorio';
+            // Check if there's a pending redirect
+            let redirectPath = localStorage.getItem('loginRedirect');
+
+            // If no redirect is set, determine default based on role
+            if (!redirectPath) {
+                if (profile?.role === 'admin' || profile?.role === 'sales') {
+                    redirectPath = '/escritorio/dashboard';
+                } else {
+                    redirectPath = '/escritorio';
+                }
+            }
+
             localStorage.removeItem('loginRedirect'); // Clean up after use
             navigate(redirectPath, { replace: true });
         }
@@ -121,6 +132,7 @@ const AuthPage: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
+            // Set default redirect if not already set (will be adjusted after login based on role)
             if (!localStorage.getItem('loginRedirect')) {
                 localStorage.setItem('loginRedirect', '/escritorio');
             }
@@ -187,7 +199,13 @@ const AuthPage: React.FC = () => {
                 vehicleId: searchParams.get('ordencompra') || undefined
             });
 
-            const redirectPath = localStorage.getItem('loginRedirect') || '/escritorio';
+            // Redirect path will be determined by the useEffect above based on profile role
+            // But we'll check here in case the profile is already loaded
+            let redirectPath = localStorage.getItem('loginRedirect');
+            if (!redirectPath) {
+                // Note: profile might not be loaded yet, so the useEffect will handle the redirect
+                redirectPath = '/escritorio';
+            }
             localStorage.removeItem('loginRedirect');
             navigate(redirectPath, { replace: true });
 

@@ -130,6 +130,10 @@ function App(): React.JSX.Element {
             <Route path="/escritorio" element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 <Route index element={<DashboardPage />} />
+                {/* Dashboard route for admin/sales roles */}
+                <Route element={<SalesRoute />}>
+                  <Route path="dashboard" element={<AdminSalesDashboard />} />
+                </Route>
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
                 <Route path="aplicacion" element={<Application />} />

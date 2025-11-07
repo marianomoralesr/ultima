@@ -42,6 +42,14 @@ const CALENDLY_URL_TMPS = env.VITE_CALENDLY_URL_TMPS || 'https://calendly.com/tr
 const CALENDLY_URL_COAH = env.VITE_CALENDLY_URL_COAH || 'https://calendly.com/trefa-saltillo/cita-saltillo?month=2025-09';
 const CALENDLY_URL_GPE = env.VITE_CALENDLY_URL_GPE || 'https://calendly.com/trefa-guadalupe/cita-guadalupe?month=2025-09';
 
+// --- Kommo CRM Configuration ---
+const KOMMO_INTEGRATION_ID = env.VITE_KOMMO_INTEGRATION_ID || '';
+const KOMMO_SECRET_KEY = env.VITE_KOMMO_SECRET_KEY || '';
+const KOMMO_SUBDOMAIN = env.VITE_KOMMO_SUBDOMAIN || '';
+const KOMMO_ACCESS_TOKEN = env.VITE_KOMMO_ACCESS_TOKEN || '';
+const KOMMO_REFRESH_TOKEN = env.VITE_KOMMO_REFRESH_TOKEN || '';
+const KOMMO_REDIRECT_URI = env.VITE_KOMMO_REDIRECT_URI || `${typeof window !== 'undefined' ? window.location.origin : ''}/oauth/kommo/callback`;
+
 export const config = {
     supabase: {
         url: SUPABASE_URL,
@@ -84,6 +92,14 @@ export const config = {
         TMPS: CALENDLY_URL_TMPS,
         COAH: CALENDLY_URL_COAH,
         GPE: CALENDLY_URL_GPE,
+    },
+    kommo: {
+        integrationId: KOMMO_INTEGRATION_ID,
+        secretKey: KOMMO_SECRET_KEY,
+        subdomain: KOMMO_SUBDOMAIN,
+        accessToken: KOMMO_ACCESS_TOKEN,
+        refreshToken: KOMMO_REFRESH_TOKEN,
+        redirectUri: KOMMO_REDIRECT_URI,
     }
 };
 

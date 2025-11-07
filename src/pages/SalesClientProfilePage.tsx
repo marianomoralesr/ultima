@@ -305,14 +305,28 @@ const SalesClientProfilePage: React.FC = () => {
         if (!clientData) return;
         setIsSyncing(true);
         setSyncMessage('');
-        const result = await KommoService.syncLead(clientData.profile);
+
+        const result = await KommoService.syncLeadWithKommo(clientData.profile);
+
         if (result.success) {
-            setSyncMessage('¡Sincronizado con Kommo!');
+            if (result.action === 'found') {
+                setSyncMessage(`✓ Lead encontrado en Kommo - ${result.kommoData?.pipeline_name} / ${result.kommoData?.status_name}`);
+            } else if (result.action === 'created') {
+                setSyncMessage(`✓ Lead creado en Kommo exitosamente`);
+            }
+
+            // If we got Kommo data, update the local profile (you'll need to implement this API call)
+            if (result.kommoData) {
+                console.log('[Kommo Data]', result.kommoData);
+                // Optionally reload the page to show updated data
+                // window.location.reload();
+            }
         } else {
             setSyncMessage(`Error: ${result.message}`);
         }
+
         setIsSyncing(false);
-        setTimeout(() => setSyncMessage(''), 3000);
+        setTimeout(() => setSyncMessage(''), 5000);
     };
 
     const handleStatusChange = async (appId: string, status: string) => {
@@ -389,10 +403,18 @@ const SalesClientProfilePage: React.FC = () => {
                             <ProfileDataItem label="Acceso Autorizado" value={profile.autorizar_asesor_acceso ? 'Sí' : 'No'} />
                         </div>
                         <div className="mt-6 border-t pt-4">
-                            <button onClick={handleSyncToKommo} disabled={isSyncing} className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-60">
+                            <button
+                                onClick={handleSyncToKommo}
+                                disabled={isSyncing || !profile.phone}
+                                className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                                title={!profile.phone ? 'Se requiere número de teléfono para sincronizar' : 'Sincronizar con Kommo CRM'}
+                            >
                                 {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sincronizar a Kommo'}
                             </button>
-                            {syncMessage && <p className="text-xs text-center mt-2">{syncMessage}</p>}
+                            {!profile.phone && !isSyncing && (
+                                <p className="text-xs text-center mt-2 text-gray-500">⚠️ Requiere número de teléfono</p>
+                            )}
+                            {syncMessage && <p className="text-xs text-center mt-2 text-gray-700">{syncMessage}</p>}
                         </div>
                     </div>
 

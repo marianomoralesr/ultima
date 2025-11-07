@@ -150,7 +150,7 @@ class KommoService {
     private static readonly TOKEN_URL = `https://${subdomain}.kommo.com/oauth2/access_token`;
 
     // Safety flag - must be explicitly set to true to allow ANY write operations
-    private static readonly ALLOW_WRITES = false;
+    private static readonly ALLOW_WRITES = true;
 
     // Safety flag - when true, only allows creating NEW leads (never updating existing ones)
     private static readonly SAFE_MODE = true;
@@ -614,6 +614,139 @@ class KommoService {
             'SAFETY: Delete operations are completely disabled to protect existing Kommo data. ' +
             'If you need to delete leads, use the Kommo interface directly.'
         );
+    }
+
+    // ============================================
+    // COMPREHENSIVE SYNC OPERATION
+    // ============================================
+
+    /**
+     * Comprehensive sync operation for TREFA leads
+     * - Checks if lead exists in Kommo by phone number
+     * - If exists: Returns Kommo data (pipeline, stage, assigned user)
+     * - If not exists: Creates new lead in Kommo with TREFA.mx source tag
+     */
+    static async syncLeadWithKommo(profile: {
+        id: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone?: string;
+        rfc?: string;
+        source?: string;
+    }): Promise<{
+        success: boolean;
+        action: 'found' | 'created' | 'error';
+        message: string;
+        kommoData?: {
+            kommo_id: number;
+            pipeline_id: number;
+            pipeline_name: string;
+            status_id: number;
+            status_name: string;
+            responsible_user_id: number;
+            price: number;
+            tags: string[];
+        };
+    }> {
+        try {
+            // Check if phone number exists
+            if (!profile.phone || profile.phone.trim() === '') {
+                return {
+                    success: false,
+                    action: 'error',
+                    message: 'No se puede sincronizar: el lead no tiene número de teléfono'
+                };
+            }
+
+            console.log('[Kommo Sync] Searching for lead with phone:', profile.phone);
+
+            // Search for existing lead by phone number
+            const existingLead = await this.searchLeadByContact(profile.email, profile.phone);
+
+            if (existingLead) {
+                console.log('[Kommo Sync] Found existing lead in Kommo:', existingLead.id);
+
+                // Get pipeline details to get names
+                const pipeline = await this.getPipelineById(existingLead.pipeline_id);
+                const status = pipeline._embedded.statuses.find(s => s.id === existingLead.status_id);
+
+                return {
+                    success: true,
+                    action: 'found',
+                    message: `Lead encontrado en Kommo (ID: ${existingLead.id})`,
+                    kommoData: {
+                        kommo_id: existingLead.id,
+                        pipeline_id: existingLead.pipeline_id,
+                        pipeline_name: pipeline.name,
+                        status_id: existingLead.status_id,
+                        status_name: status?.name || 'Desconocido',
+                        responsible_user_id: existingLead.responsible_user_id,
+                        price: existingLead.price,
+                        tags: existingLead._embedded?.tags?.map(t => t.name) || []
+                    }
+                };
+            }
+
+            // Lead doesn't exist - create new one
+            console.log('[Kommo Sync] Lead not found, creating new lead in Kommo');
+
+            const newLead = await this.createLead({
+                name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || `Lead TREFA ${profile.id}`,
+                price: 0,
+                contact: {
+                    first_name: profile.first_name,
+                    last_name: profile.last_name,
+                    email: profile.email,
+                    phone: profile.phone
+                },
+                tags: ['TREFA.mx', profile.source || 'Portal Web'],
+                custom_fields: profile.rfc ? [{
+                    field_id: 0, // You'll need to find the actual RFC field ID in Kommo
+                    values: [{ value: profile.rfc }]
+                }] : undefined
+            });
+
+            console.log('[Kommo Sync] New lead created in Kommo:', newLead.id);
+
+            // Get pipeline details
+            const pipeline = await this.getPipelineById(newLead.pipeline_id);
+            const status = pipeline._embedded.statuses.find(s => s.id === newLead.status_id);
+
+            return {
+                success: true,
+                action: 'created',
+                message: `Lead creado en Kommo exitosamente (ID: ${newLead.id})`,
+                kommoData: {
+                    kommo_id: newLead.id,
+                    pipeline_id: newLead.pipeline_id,
+                    pipeline_name: pipeline.name,
+                    status_id: newLead.status_id,
+                    status_name: status?.name || 'Leads Entrantes',
+                    responsible_user_id: newLead.responsible_user_id,
+                    price: newLead.price,
+                    tags: newLead._embedded?.tags?.map(t => t.name) || ['TREFA.mx']
+                }
+            };
+
+        } catch (error: any) {
+            console.error('[Kommo Sync] Error during sync:', error);
+
+            // Check if it's a safety error (lead already exists)
+            if (error.message && error.message.includes('SAFETY')) {
+                return {
+                    success: false,
+                    action: 'error',
+                    message: 'El lead ya existe en Kommo. Usa la búsqueda manual para verificar.'
+                };
+            }
+
+            return {
+                success: false,
+                action: 'error',
+                message: `Error al sincronizar con Kommo: ${error.message || 'Error desconocido'}`
+            };
+        }
     }
 
     // ============================================

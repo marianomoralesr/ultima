@@ -6,8 +6,8 @@ import DynamicRoadmapDisplay from '../components/DynamicRoadmapDisplay';
 
 const ChangelogPage: React.FC = () => {
   useSEO({
-    title: 'Registro de Cambios y Roadmap - Trefa Autos',
-    description: 'Historial de actualizaciones y plan de desarrollo de la plataforma Trefa',
+    title: 'Registro de Cambios y Roadmap - Autos TREFA',
+    description: 'Historial de actualizaciones y plan de desarrollo de la plataforma TREFA',
   });
 
   return (
@@ -1761,7 +1761,7 @@ const ChangelogPage: React.FC = () => {
                       <strong>Template HTML para notificaciones administrativas</strong>
                       <p className="text-gray-600 text-sm mt-1">
                         Se añadió un nuevo template "admin_notification" en la Edge Function send-brevo-email con diseño
-                        responsive y branded de Trefa. El template incluye información del cliente, vehículo de interés,
+                        responsive y branded de TREFA. El template incluye información del cliente, vehículo de interés,
                         asesor asignado, próximas acciones recomendadas, y botón de acceso directo al perfil.
                       </p>
                     </div>

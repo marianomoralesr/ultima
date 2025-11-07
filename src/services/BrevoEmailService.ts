@@ -54,7 +54,7 @@ export const BrevoEmailService = {
         return this.sendEmail({
             to: clientEmail,
             toName: clientName,
-            subject: '✅ Solicitud de Financiamiento Recibida - Trefa',
+            subject: '✅ Solicitud de Financiamiento Recibida - TREFA',
             templateType: 'application_submitted',
             templateData: {
                 clientName,
@@ -82,7 +82,7 @@ export const BrevoEmailService = {
         const promises = ADMIN_EMAILS.map(adminEmail =>
             this.sendEmail({
                 to: adminEmail,
-                toName: 'Administrador Trefa',
+                toName: 'Administrador TREFA',
                 subject: `🔔 Nueva Solicitud de Financiamiento - ${clientName}`,
                 templateType: 'admin_notification' as any, // We'll add this template type
                 templateData: {
@@ -149,7 +149,7 @@ export const BrevoEmailService = {
         return this.sendEmail({
             to: clientEmail,
             toName: clientName,
-            subject: `📋 Actualización de tu Solicitud - Trefa`,
+            subject: `📋 Actualización de tu Solicitud - TREFA`,
             templateType: 'status_changed',
             templateData: {
                 clientName,

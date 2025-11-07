@@ -16,8 +16,8 @@ interface DocSectionData {
 
 const IntelPage: React.FC = () => {
   useSEO({
-    title: 'Centro de Documentación - Trefa Autos',
-    description: 'Guías completas para usuarios, colaboradores y administradores de la plataforma Trefa',
+    title: 'Centro de Documentación - Autos TREFA',
+    description: 'Guías completas para usuarios, colaboradores y administradores de la plataforma TREFA',
   });
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -162,7 +162,7 @@ const IntelPage: React.FC = () => {
       items: [
         {
           title: '¿Qué es Kommo?',
-          content: 'Kommo es el CRM externo donde se gestionan contactos, deals y comunicaciones. La plataforma Trefa se sincroniza automáticamente con Kommo.',
+          content: 'Kommo es el CRM externo donde se gestionan contactos, deals y comunicaciones. La plataforma TREFA se sincroniza automáticamente con Kommo.',
         },
         {
           title: '¿Cómo sincronizar un lead?',
@@ -344,7 +344,7 @@ const IntelPage: React.FC = () => {
   const categoryData = {
     usuario: {
       title: '👤 Guía de Usuario',
-      subtitle: 'Para clientes de Trefa',
+      subtitle: 'Para clientes de TREFA',
       icon: Users,
       gradient: 'from-green-500 to-green-600',
       sections: usuarioSections,
@@ -373,7 +373,7 @@ const IntelPage: React.FC = () => {
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-12 text-center">
             <BookOpen className="w-16 h-16 mx-auto mb-4" />
             <h1 className="text-4xl font-bold mb-3">📚 Centro de Documentación</h1>
-            <p className="text-lg opacity-95">Guías Completas para Trefa Autos</p>
+            <p className="text-lg opacity-95">Guías Completas para Autos TREFA</p>
             <p className="text-sm mt-2 opacity-90">trefa.mx</p>
           </div>
 

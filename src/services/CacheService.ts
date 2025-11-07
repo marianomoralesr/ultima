@@ -14,7 +14,7 @@ interface CacheEntry<T> {
 }
 
 class CacheService {
-  private static readonly DB_NAME = 'TrefaVehiclesDB';
+  private static readonly DB_NAME = 'TREFAVehiclesDB';
   private static readonly DB_VERSION = 1;
   private static readonly STORE_NAME = 'vehiclesCache';
   private static readonly CACHE_VERSION = 'v2.0'; // Bumped to invalidate old cache with missing images

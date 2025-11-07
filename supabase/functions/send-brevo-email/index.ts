@@ -56,7 +56,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Trefa" class="logo" />
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
             </div>
             <div class="content">
               <h1 class="title">¡Solicitud Recibida con Éxito!</h1>
@@ -89,9 +89,9 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               </p>
             </div>
             <div class="footer">
-              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Trefa Autos</p>
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
               <p class="footer-text">Financiamiento de vehículos confiable y transparente</p>
-              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Trefa. Todos los derechos reservados.</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -148,7 +148,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Trefa" class="logo" />
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
             </div>
             <div class="content">
               <h1 class="title">${statusInfo.title}</h1>
@@ -176,9 +176,9 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               </div>
             </div>
             <div class="footer">
-              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Trefa Autos</p>
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
               <p class="footer-text">Financiamiento de vehículos confiable y transparente</p>
-              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Trefa. Todos los derechos reservados.</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -214,7 +214,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Trefa" class="logo" />
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
             </div>
             <div class="content">
               <h1 class="title">${docInfo.icon} ${docInfo.title}</h1>
@@ -245,9 +245,9 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               </div>
             </div>
             <div class="footer">
-              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Trefa Autos</p>
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
               <p class="footer-text">Financiamiento de vehículos confiable y transparente</p>
-              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Trefa. Todos los derechos reservados.</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -262,7 +262,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Trefa" class="logo" />
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
             </div>
             <div class="content">
               <h1 class="title">🔔 Nueva Solicitud Recibida</h1>
@@ -295,9 +295,9 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               </div>
             </div>
             <div class="footer">
-              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Trefa Autos - Panel Administrativo</p>
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA - Panel Administrativo</p>
               <p class="footer-text">Gestión de solicitudes y clientes</p>
-              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Trefa. Todos los derechos reservados.</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -385,7 +385,7 @@ const sendBrevoEmail = async (to: string, toName: string, subject: string, htmlC
     },
     body: JSON.stringify({
       sender: {
-        name: 'Trefa',
+        name: 'TREFA',
         email: 'hola@trefa.mx'
       },
       to: [{

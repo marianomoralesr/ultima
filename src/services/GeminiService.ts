@@ -18,7 +18,7 @@ class GeminiService {
     try {
       const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-      const prompt = `Eres un experto en producto y desarrollo de software para una plataforma de ventas de autos usados llamada Trefa.
+      const prompt = `Eres un experto en producto y desarrollo de software para una plataforma de ventas de autos usados llamada TREFA.
 
 Tu tarea es tomar la siguiente descripción básica de una funcionalidad y crear una descripción mejorada, detallada y creativa que incluya:
 1. **Título atractivo y descriptivo** (máximo 60 caracteres)
@@ -73,7 +73,7 @@ Responde SOLO con el formato indicado, sin texto adicional.`;
     try {
       const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-      const prompt = `Eres un product manager experto para Trefa, una plataforma de ventas de autos usados.
+      const prompt = `Eres un product manager experto para TREFA, una plataforma de ventas de autos usados.
 
 Convierte la siguiente idea básica en un item de roadmap completo y estructurado:
 

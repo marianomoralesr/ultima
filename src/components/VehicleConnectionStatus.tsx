@@ -16,7 +16,7 @@ const VehicleConnectionStatus: React.FC<VehicleConnectionStatusProps> = ({ showD
                 {isConnected ? <CheckCircle className="w-5 h-5 text-green-600 mr-3" /> : <AlertTriangle className="w-5 h-5 text-red-600 mr-3" />}
                 <div>
                     <p className={`font-semibold ${isConnected ? 'text-green-800' : 'text-red-800'}`}>
-                        {isConnected ? 'Conectado a Trefa' : 'Error de Conexión'}
+                        {isConnected ? 'Conectado a TREFA' : 'Error de Conexión'}
                     </p>
                     <p className={`text-xs ${isConnected ? 'text-green-700' : 'text-red-700'}`}>
                         {isConnected ? 'Sincronización activa' : (error || 'No se pudo conectar')}

@@ -32,7 +32,7 @@ const branchData = [
         phone: '8442123399',
         address: 'Blvd. Nazario Ortiz #2060, Local 132, Col 16 | Saltillo, COAH 25253',
         imageUrl: proxyImage('http://5.183.8.48/wp-content/uploads/2025/02/Saltillo-Autos-TREFA.jpeg'),
-        directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Trefa+Saltillo',
+        directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=TREFA+Saltillo',
     },
 ];
 

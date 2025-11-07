@@ -47,7 +47,7 @@ const branchData: { [key: string]: { name: string; address: string; mapUrl: stri
         name: 'Saltillo',
         address: 'Blvd. Venustiano Carranza 5800, Saltillo, Coahuila',
         mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3602.810577905786!2d-100.99913802595996!3d25.44458312076059!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86880d60393303c9%3A0x33b5413345239534!2sTrefa%20Saltillo!5e0!3m2!1ses-419!2smx!4v1709660339301!5m2!1ses-419!2smx',
-        directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Trefa+Saltillo'
+        directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=TREFA+Saltillo'
     },
 };
 

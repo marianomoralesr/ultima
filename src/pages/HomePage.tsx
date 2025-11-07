@@ -577,7 +577,7 @@ const CTACardsSection: React.FC = () => {
             </div>
             <img
               src="/images/fer-help.png"
-              alt="Trefa Fernando"
+              alt="TREFA Fernando"
               className="absolute bottom-0 right-0 w-1/2 max-w-[200px] object-contain pointer-events-none opacity-100 group-hover:opacity-90 transition-all duration-300 group-hover:scale-110"
             />
           </div>

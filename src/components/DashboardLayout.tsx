@@ -346,7 +346,21 @@ const DashboardLayout: React.FC = () => {
 
             <div className="flex-1 flex flex-col overflow-hidden">
 
-
+                {/* Mobile Hamburger Menu Button */}
+                <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                    <button
+                        type="button"
+                        className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+                        onClick={() => setSidebarOpen(true)}
+                    >
+                        <span className="sr-only">Abrir menú</span>
+                        <Menu className="h-6 w-6" aria-hidden="true" />
+                    </button>
+                    <Link to="/escritorio" className="flex items-center">
+                        <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-6" />
+                    </Link>
+                    <div className="w-10"></div> {/* Spacer for center alignment */}
+                </div>
 
                 <main ref={mainContentRef} className="flex-1 relative overflow-y-auto focus:outline-none">
 

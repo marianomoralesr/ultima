@@ -1,4 +1,5 @@
 import { config } from '../pages/config';
+import { supabase } from '../../supabaseClient';
 
 /**
  * SAFETY NOTE: This service is designed to be READ-ONLY for existing Kommo data.
@@ -136,10 +137,11 @@ const {
     refreshToken: initialRefreshToken,
 } = config.kommo;
 
-// Token storage (in production, this should be stored in a secure backend/database)
+// Token storage - loaded from database on initialization
 let currentAccessToken = initialAccessToken;
 let currentRefreshToken = initialRefreshToken;
 let tokenExpiresAt = 0;
+let tokensLoaded = false;
 
 // ============================================
 // KOMMO SERVICE CLASS
@@ -158,6 +160,67 @@ class KommoService {
     // ============================================
     // TOKEN MANAGEMENT (OAuth 2.0)
     // ============================================
+
+    /**
+     * Loads OAuth tokens from the database
+     * This is called on initialization to restore persisted tokens
+     */
+    private static async loadTokensFromDatabase(): Promise<void> {
+        try {
+            const { data, error } = await supabase
+                .from('oauth_tokens')
+                .select('*')
+                .eq('provider', 'kommo')
+                .single();
+
+            if (error) {
+                console.warn('[Kommo] No tokens found in database, using config defaults');
+                return;
+            }
+
+            if (data && data.access_token && data.refresh_token) {
+                currentAccessToken = data.access_token;
+                currentRefreshToken = data.refresh_token;
+                tokenExpiresAt = data.expires_at || 0;
+                tokensLoaded = true;
+                console.log('[Kommo] Tokens loaded from database successfully');
+            } else {
+                console.log('[Kommo] Empty tokens in database, will refresh on first API call');
+            }
+        } catch (error) {
+            console.error('[Kommo] Error loading tokens from database:', error);
+        }
+    }
+
+    /**
+     * Saves OAuth tokens to the database
+     * This is called after successfully refreshing tokens
+     */
+    private static async saveTokensToDatabase(
+        accessToken: string,
+        refreshToken: string,
+        expiresAt: number
+    ): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('oauth_tokens')
+                .update({
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    expires_at: expiresAt,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('provider', 'kommo');
+
+            if (error) {
+                console.error('[Kommo] Error saving tokens to database:', error);
+            } else {
+                console.log('[Kommo] Tokens saved to database successfully');
+            }
+        } catch (error) {
+            console.error('[Kommo] Error saving tokens to database:', error);
+        }
+    }
 
     /**
      * Refreshes the access token using the refresh token
@@ -191,15 +254,19 @@ class KommoService {
 
             const tokenData: KommoTokenResponse = await response.json();
 
-            // Update tokens
+            // Update tokens in memory
             currentAccessToken = tokenData.access_token;
             currentRefreshToken = tokenData.refresh_token;
             tokenExpiresAt = Date.now() + (tokenData.expires_in * 1000) - 60000; // 1 minute buffer
 
             console.log('[Kommo] Access token refreshed successfully');
 
-            // TODO: Store new tokens in secure backend/database
-            // This is critical for production - tokens should be persisted
+            // Save tokens to database for persistence
+            await this.saveTokensToDatabase(
+                currentAccessToken,
+                currentRefreshToken,
+                tokenExpiresAt
+            );
         } catch (error) {
             console.error('[Kommo] Failed to refresh access token:', error);
             throw new Error('Failed to refresh Kommo access token. Please re-authenticate.');
@@ -210,6 +277,13 @@ class KommoService {
      * Ensures we have a valid access token before making API calls
      */
     private static async ensureValidToken(): Promise<void> {
+        // Load tokens from database on first call
+        if (!tokensLoaded) {
+            await this.loadTokensFromDatabase();
+            tokensLoaded = true;
+        }
+
+        // Refresh if expired
         if (Date.now() >= tokenExpiresAt) {
             await this.refreshAccessToken();
         }

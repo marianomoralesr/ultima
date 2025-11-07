@@ -219,7 +219,7 @@ export default function AdminSalesDashboard() {
                 </div>
 
                 {/* Key Metrics Cards - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                     {/* Total Applications */}
                     <MetricCard
                         title="Solicitudes Totales"
@@ -258,7 +258,7 @@ export default function AdminSalesDashboard() {
                 </div>
 
                 {/* Lead Metrics - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                     <MetricCard
                         title="Total de Leads"
                         value={metrics.totalLeads}
@@ -286,8 +286,8 @@ export default function AdminSalesDashboard() {
                 </div>
 
                 {/* Performance Metrics - COMPACT */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-200">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-base font-semibold text-gray-900">Tasa de Conversión</h3>
                             <TrendingUp className="w-5 h-5 text-blue-600" />
@@ -315,7 +315,7 @@ export default function AdminSalesDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                    <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-200">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-base font-semibold text-gray-900">Tasa de Aprobación</h3>
                             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -345,9 +345,9 @@ export default function AdminSalesDashboard() {
                 </div>
 
                 {/* Source Attribution - COMPACT */}
-                <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 mb-6">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Atribución por Fuente</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-200 mb-4">
+                    <h3 className="text-base font-semibold text-gray-900 mb-3">Atribución por Fuente</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                         <SourceCard
                             name="Facebook"
                             count={metrics.sourceBreakdown.facebook}
@@ -387,12 +387,12 @@ export default function AdminSalesDashboard() {
                 </div>
 
                 {/* Tabs for Charts, Recent Activity, and Email History */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
                     {/* Tab Headers */}
                     <div className="flex border-b border-gray-200">
                         <button
                             onClick={() => setActiveTab('charts')}
-                            className={`px-6 py-3 text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 text-sm font-medium transition-colors ${
                                 activeTab === 'charts'
                                     ? 'border-b-2 border-blue-600 text-blue-600'
                                     : 'text-gray-500 hover:text-gray-700'
@@ -402,7 +402,7 @@ export default function AdminSalesDashboard() {
                         </button>
                         <button
                             onClick={() => setActiveTab('activity')}
-                            className={`px-6 py-3 text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 text-sm font-medium transition-colors ${
                                 activeTab === 'activity'
                                     ? 'border-b-2 border-blue-600 text-blue-600'
                                     : 'text-gray-500 hover:text-gray-700'
@@ -412,7 +412,7 @@ export default function AdminSalesDashboard() {
                         </button>
                         <button
                             onClick={() => setActiveTab('emails')}
-                            className={`px-6 py-3 text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 text-sm font-medium transition-colors ${
                                 activeTab === 'emails'
                                     ? 'border-b-2 border-blue-600 text-blue-600'
                                     : 'text-gray-500 hover:text-gray-700'
@@ -426,7 +426,7 @@ export default function AdminSalesDashboard() {
                     <div className="p-4">
                         {/* Charts Tab */}
                         {activeTab === 'charts' && (
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {/* 30-Day Trends Chart - COMPACT */}
                                 <div>
                                     <h3 className="text-base font-semibold text-gray-900 mb-3">Tendencia de 30 Días</h3>
@@ -463,7 +463,7 @@ export default function AdminSalesDashboard() {
 
                         {/* Activity Tab */}
                         {activeTab === 'activity' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {/* Recent Leads */}
                                 <div>
                                     <h3 className="text-base font-semibold text-gray-900 mb-3">Leads Recientes</h3>
@@ -475,7 +475,7 @@ export default function AdminSalesDashboard() {
                                                 <div
                                                     key={lead.id}
                                                     onClick={() => navigate(`/client/${lead.id}`)}
-                                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                    className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                                                 >
                                                     <div className="flex-1">
                                                         <p className="font-medium text-gray-900 text-sm">
@@ -511,7 +511,7 @@ export default function AdminSalesDashboard() {
                                                 <div
                                                     key={app.id}
                                                     onClick={() => navigate(`/application/${app.id}`)}
-                                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                                                    className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                                                 >
                                                     <div className="flex-1">
                                                         <p className="font-medium text-gray-900 text-sm">
@@ -714,12 +714,12 @@ function MetricCard({ title, value, icon, color, subtitle, urgent, onClick, tren
     return (
         <div
             onClick={onClick}
-            className={`bg-white rounded-lg shadow-sm p-4 border ${
+            className={`bg-white rounded-lg shadow-sm p-3 border ${
                 urgent ? 'border-red-300 ring-2 ring-red-200' : 'border-gray-200'
             } ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
         >
-            <div className="flex items-center justify-between mb-3">
-                <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+            <div className="flex items-center justify-between mb-2">
+                <div className={`p-1.5 rounded-lg ${colorClasses[color]}`}>
                     {icon}
                 </div>
             </div>
@@ -759,7 +759,7 @@ function SourceCard({ name, count, total, icon, color }: SourceCardProps) {
 
     return (
         <div className="text-center">
-            <div className={`inline-flex p-2 rounded-full ${colorClasses[color]} mb-1`}>
+            <div className={`inline-flex p-1.5 rounded-full ${colorClasses[color]} mb-1`}>
                 {icon}
             </div>
             <p className="text-xl font-bold text-gray-900">{count}</p>

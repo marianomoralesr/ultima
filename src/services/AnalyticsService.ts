@@ -253,8 +253,11 @@ export class AnalyticsService {
                 return reminderDate >= today && reminderDate < tomorrow;
             }).length;
 
+            // Filter out draft applications from total count
+            const submittedApplications = applications.filter(app => app.status !== 'draft');
+
             return {
-                totalApplications: applications.length,
+                totalApplications: submittedApplications.length,
                 pendingApplications: pendingApps.length,
                 processedApplications: processedApps.length,
                 approvedApplications: approvedApps.length,

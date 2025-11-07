@@ -71,85 +71,59 @@ const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ metrics }) => {
     const maxCount = Math.max(...stages.map(s => s.count), 1);
 
     return (
-        <div className="space-y-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2">
             {stages.map((stage, index) => {
                 const widthPercentage = (stage.count / maxCount) * 100;
                 const dropOff = index > 0 ? stages[index - 1].count - stage.count : 0;
                 const showWarning = stage.conversionRate && parseFloat(stage.conversionRate) < 50;
 
                 return (
-                    <div key={stage.name} className="relative">
+                    <React.Fragment key={stage.name}>
                         {/* Stage Container */}
-                        <div className={`${stage.bgLight} rounded-lg p-4 border-2 border-gray-100 hover:border-gray-200 transition-all`}>
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-3">
-                                    <div className={`${stage.color} p-2 rounded-lg text-white`}>
-                                        {stage.icon}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900">{stage.name}</h4>
-                                        {stage.conversionRate && (
-                                            <p className="text-xs text-gray-500">
-                                                {stage.conversionRate}% de la etapa anterior
-                                                {showWarning && (
-                                                    <span className="ml-1 text-red-600">⚠️</span>
-                                                )}
-                                            </p>
-                                        )}
-                                    </div>
+                        <div className={`${stage.bgLight} rounded-lg p-2 border border-gray-200 hover:border-gray-300 transition-all flex-shrink-0 w-32`}>
+                            <div className="flex flex-col items-center text-center">
+                                <div className={`${stage.color} p-1.5 rounded-lg text-white mb-1.5`}>
+                                    {stage.icon}
                                 </div>
-                                <div className="text-right">
-                                    <p className={`text-2xl font-bold ${stage.textColor}`}>{stage.count}</p>
-                                    {dropOff > 0 && (
-                                        <p className="text-xs text-red-600 flex items-center gap-1 justify-end">
-                                            <TrendingDown className="w-3 h-3" />
-                                            -{dropOff}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
+                                <h4 className="font-semibold text-xs text-gray-900 mb-1">{stage.name}</h4>
+                                <p className={`text-xl font-bold ${stage.textColor} mb-1`}>{stage.count}</p>
 
-                            {/* Progress Bar */}
-                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                <div
-                                    className={`${stage.color} h-2 rounded-full transition-all duration-500`}
-                                    style={{ width: `${widthPercentage}%` }}
-                                />
+                                {stage.conversionRate && (
+                                    <p className="text-[10px] text-gray-500 mb-1">
+                                        {stage.conversionRate}%
+                                        {showWarning && (
+                                            <span className="ml-0.5 text-red-600">⚠️</span>
+                                        )}
+                                    </p>
+                                )}
+
+                                {dropOff > 0 && (
+                                    <p className="text-[10px] text-red-600 flex items-center gap-0.5">
+                                        <TrendingDown className="w-2.5 h-2.5" />
+                                        -{dropOff}
+                                    </p>
+                                )}
+
+                                {/* Progress Bar */}
+                                <div className="w-full bg-gray-200 rounded-full h-1 mt-1.5">
+                                    <div
+                                        className={`${stage.color} h-1 rounded-full transition-all duration-500`}
+                                        style={{ width: `${widthPercentage}%` }}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        {/* Connector Arrow */}
+                        {/* Connector Arrow - Horizontal */}
                         {index < stages.length - 1 && (
-                            <div className="flex justify-center my-1">
-                                <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-gray-300" />
+                            <div className="flex items-center flex-shrink-0">
+                                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[10px] border-l-gray-300" />
                             </div>
                         )}
-                    </div>
+                    </React.Fragment>
                 );
             })}
 
-            {/* Overall Conversion Summary */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                <h4 className="font-semibold text-gray-900 mb-2">📊 Resumen de Conversión</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p className="text-gray-600">Lead → Solicitud</p>
-                        <p className="text-xl font-bold text-blue-700">
-                            {metrics.totalLeads > 0
-                                ? ((metrics.totalApplications / metrics.totalLeads) * 100).toFixed(1)
-                                : '0'}%
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-gray-600">Solicitud → Aprobación</p>
-                        <p className="text-xl font-bold text-green-700">
-                            {metrics.totalApplications > 0
-                                ? ((metrics.approvedApplications / metrics.totalApplications) * 100).toFixed(1)
-                                : '0'}%
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

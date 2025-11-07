@@ -1,10 +1,12 @@
 import { config } from '../pages/config';
-import { supabase } from '../../supabaseClient';
 
 /**
  * SAFETY NOTE: This service is designed to be READ-ONLY for existing Kommo data.
  * It will ONLY create NEW leads and will NEVER modify existing leads, pipelines, or stages.
  * All update operations are commented out and require explicit admin approval to enable.
+ *
+ * OAuth Security: All token management happens server-side via Supabase Edge Function.
+ * Tokens are never exposed to the browser.
  */
 
 // ============================================
@@ -129,28 +131,16 @@ export interface KommoPipelinesResponse {
 // CONFIGURATION
 // ============================================
 
-const {
-    integrationId,
-    secretKey,
-    subdomain,
-    accessToken: initialAccessToken,
-    refreshToken: initialRefreshToken,
-} = config.kommo;
+const { subdomain } = config.kommo;
 
-// Token storage - loaded from database on initialization
-let currentAccessToken = initialAccessToken;
-let currentRefreshToken = initialRefreshToken;
-let tokenExpiresAt = 0;
-let tokensLoaded = false;
+// Edge Function URL for secure OAuth token management
+const OAUTH_EDGE_FUNCTION_URL = `${config.supabase.url}/functions/v1/kommo-oauth`;
 
 // ============================================
 // KOMMO SERVICE CLASS
 // ============================================
 
 class KommoService {
-    private static readonly BASE_URL = `https://${subdomain}.kommo.com/api/v4`;
-    private static readonly TOKEN_URL = `https://${subdomain}.kommo.com/oauth2/access_token`;
-
     // Safety flag - must be explicitly set to true to allow ANY write operations
     private static readonly ALLOW_WRITES = true;
 
@@ -158,183 +148,55 @@ class KommoService {
     private static readonly SAFE_MODE = true;
 
     // ============================================
-    // TOKEN MANAGEMENT (OAuth 2.0)
+    // TOKEN MANAGEMENT (OAuth 2.0) - Server-Side via Edge Function
     // ============================================
 
     /**
-     * Loads OAuth tokens from the database
-     * This is called on initialization to restore persisted tokens
-     */
-    private static async loadTokensFromDatabase(): Promise<void> {
-        try {
-            const { data, error } = await supabase
-                .from('oauth_tokens')
-                .select('*')
-                .eq('provider', 'kommo')
-                .single();
-
-            if (error) {
-                console.warn('[Kommo] No tokens found in database, using config defaults');
-                return;
-            }
-
-            if (data && data.access_token && data.refresh_token) {
-                currentAccessToken = data.access_token;
-                currentRefreshToken = data.refresh_token;
-                tokenExpiresAt = data.expires_at || 0;
-                tokensLoaded = true;
-                console.log('[Kommo] Tokens loaded from database successfully');
-            } else {
-                console.log('[Kommo] Empty tokens in database, will refresh on first API call');
-            }
-        } catch (error) {
-            console.error('[Kommo] Error loading tokens from database:', error);
-        }
-    }
-
-    /**
-     * Saves OAuth tokens to the database
-     * This is called after successfully refreshing tokens
-     */
-    private static async saveTokensToDatabase(
-        accessToken: string,
-        refreshToken: string,
-        expiresAt: number
-    ): Promise<void> {
-        try {
-            const { error } = await supabase
-                .from('oauth_tokens')
-                .update({
-                    access_token: accessToken,
-                    refresh_token: refreshToken,
-                    expires_at: expiresAt,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('provider', 'kommo');
-
-            if (error) {
-                console.error('[Kommo] Error saving tokens to database:', error);
-            } else {
-                console.log('[Kommo] Tokens saved to database successfully');
-            }
-        } catch (error) {
-            console.error('[Kommo] Error saving tokens to database:', error);
-        }
-    }
-
-    /**
-     * Refreshes the access token using the refresh token
-     * This is called automatically when the access token expires
-     */
-    private static async refreshAccessToken(): Promise<void> {
-        try {
-            console.log('[Kommo] Refreshing access token...');
-
-            const payload = {
-                client_id: integrationId,
-                client_secret: secretKey,
-                grant_type: 'refresh_token',
-                refresh_token: currentRefreshToken,
-                redirect_uri: config.kommo.redirectUri, // Required even for refresh
-            };
-
-            const response = await fetch(this.TOKEN_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('[Kommo] Token refresh failed:', errorData);
-                throw new Error(`Token refresh failed: ${response.status} ${response.statusText}`);
-            }
-
-            const tokenData: KommoTokenResponse = await response.json();
-
-            // Update tokens in memory
-            currentAccessToken = tokenData.access_token;
-            currentRefreshToken = tokenData.refresh_token;
-            tokenExpiresAt = Date.now() + (tokenData.expires_in * 1000) - 60000; // 1 minute buffer
-
-            console.log('[Kommo] Access token refreshed successfully');
-
-            // Save tokens to database for persistence
-            await this.saveTokensToDatabase(
-                currentAccessToken,
-                currentRefreshToken,
-                tokenExpiresAt
-            );
-        } catch (error) {
-            console.error('[Kommo] Failed to refresh access token:', error);
-            throw new Error('Failed to refresh Kommo access token. Please re-authenticate.');
-        }
-    }
-
-    /**
-     * Ensures we have a valid access token before making API calls
-     */
-    private static async ensureValidToken(): Promise<void> {
-        // Load tokens from database on first call
-        if (!tokensLoaded) {
-            await this.loadTokensFromDatabase();
-            tokensLoaded = true;
-        }
-
-        // Refresh if expired
-        if (Date.now() >= tokenExpiresAt) {
-            await this.refreshAccessToken();
-        }
-    }
-
-    /**
-     * Makes an authenticated API request to Kommo
+     * Makes an authenticated API request to Kommo via Edge Function
+     * All OAuth token management happens server-side for security
      */
     private static async apiRequest<T>(
         endpoint: string,
         method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
         body?: any
     ): Promise<T> {
-        await this.ensureValidToken();
-
-        const url = `${this.BASE_URL}${endpoint}`;
-
         console.log(`[Kommo API] ${method} ${endpoint}`);
 
-        const options: RequestInit = {
-            method,
-            headers: {
-                'Authorization': `Bearer ${currentAccessToken}`,
-                'Content-Type': 'application/json',
-            },
-        };
-
-        if (body && (method === 'POST' || method === 'PATCH')) {
-            options.body = JSON.stringify(body);
-        }
-
-        const response = await fetch(url, options);
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('[Kommo API Error]:', {
-                status: response.status,
-                statusText: response.statusText,
-                endpoint,
-                error: errorData,
+        try {
+            const response = await fetch(`${OAUTH_EDGE_FUNCTION_URL}?action=api-request`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': config.supabase.anonKey,
+                },
+                body: JSON.stringify({
+                    endpoint,
+                    method,
+                    body,
+                }),
             });
 
-            this.handleApiError(response.status, errorData);
-        }
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('[Kommo API Error]:', {
+                    status: response.status,
+                    endpoint,
+                    error: errorData,
+                });
 
-        // Handle 204 No Content responses
-        if (response.status === 204) {
-            return {} as T;
-        }
+                // If it's a Kommo API error, handle it
+                if (errorData.details) {
+                    this.handleApiError(response.status, errorData.details);
+                }
 
-        return await response.json();
+                throw new Error(errorData.error || 'API request failed');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('[Kommo API] Request failed:', error);
+            throw error;
+        }
     }
 
     /**
@@ -863,13 +725,11 @@ class KommoService {
         configured: boolean;
         safeMode: boolean;
         writesAllowed: boolean;
-        hasCredentials: boolean;
     } {
         return {
-            configured: !!(subdomain && integrationId && secretKey),
+            configured: !!subdomain,
             safeMode: this.SAFE_MODE,
             writesAllowed: this.ALLOW_WRITES,
-            hasCredentials: !!(currentAccessToken && currentRefreshToken),
         };
     }
 }

@@ -238,7 +238,7 @@ const SimpleCRMPage: React.FC = () => {
             if (error) throw error;
 
             // Update local state
-            setLeads(prev => prev.map(l => {
+            setClients(prev => prev.map(l => {
                 if (l.id === leadId) {
                     const asesor = asesores.find(a => a.id === asesorId);
                     return {
@@ -265,7 +265,7 @@ const SimpleCRMPage: React.FC = () => {
 
             if (error) throw error;
 
-            setLeads(prev => prev.map(l =>
+            setClients(prev => prev.map(l =>
                 l.id === leadId ? { ...l, contactado: !currentValue } : l
             ));
 
@@ -289,7 +289,7 @@ const SimpleCRMPage: React.FC = () => {
 
             if (error) throw error;
 
-            setLeads(prev => prev.map(l =>
+            setClients(prev => prev.map(l =>
                 l.id === leadId ? { ...l, source: tempSource || null } : l
             ));
 

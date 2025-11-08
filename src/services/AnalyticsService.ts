@@ -233,14 +233,14 @@ export class AnalyticsService {
                 app.status === 'approved'
             );
 
-            // NEW: Calculate completed applications in last 24 hours
-            // BUG FIX: Check when app was UPDATED (approved/completed), not when it was created
+            // Calculate submitted applications in last 24 hours (excluding drafts)
             const twentyFourHoursAgo = new Date();
             twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
             const completedLast24Hours = applications.filter(app => {
-                const isCompletedStatus = app.status === 'approved' || app.status === 'completed';
-                const updatedAt = new Date(app.updated_at || app.created_at); // Use updated_at to check when it was approved
-                return isCompletedStatus && updatedAt >= twentyFourHoursAgo;
+                // Count all non-draft applications created in last 24 hours
+                const isSubmitted = app.status !== 'draft';
+                const createdAt = new Date(app.created_at);
+                return isSubmitted && createdAt >= twentyFourHoursAgo;
             }).length;
 
             // Calculate lead metrics

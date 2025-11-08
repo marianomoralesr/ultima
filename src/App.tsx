@@ -46,6 +46,7 @@ const IntelPage = lazy(() => import('./pages/IntelPage'));
 const AdminLeadsDashboardPage = lazy(() => import('./pages/AdminLeadsDashboardPage'));
 const AdminClientProfilePage = lazy(() => import('./pages/AdminClientProfilePage'));
 const AdminAirtableConfigPage = lazy(() => import('./pages/AdminAirtableConfigPage'));
+const AdminValuationPage = lazy(() => import('./pages/AdminValuationPage'));
 const SalesLeadsDashboardPage = lazy(() => import('./pages/SalesLeadsDashboardPage'));
 const SalesClientProfilePage = lazy(() => import('./pages/SalesClientProfilePage'));
 const VacanciesListPage = lazy(() => import('./pages/VacanciesListPage'));
@@ -166,6 +167,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/compras" element={<AdminComprasDashboardPage />} />
                   <Route path="admin/compras/:listingId" element={<AutosConOfertaPage />} />
                   <Route path="admin/airtable" element={<AdminAirtableConfigPage />} />
+                  <Route path="admin/valuation" element={<AdminValuationPage />} />
                   <Route path="admin/inspections" element={<AdminInspectionsListPage />} />
                   <Route path="admin/inspections/:id" element={<AdminInspectionPage />} />
                   <Route path="admin/vacantes" element={<AdminVacanciesPage />} />

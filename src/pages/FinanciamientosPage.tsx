@@ -647,9 +647,9 @@ const FinanciamientosPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="font-heading text-[24px] sm:text-[34px] md:text-[46px] lg:text-[54px] xl:text-[66px] font-black mb-6 sm:mb-8 px-4"
-              style={{ letterSpacing: '-0.025em', lineHeight: '1.1' }}
+              style={{ letterSpacing: '-0.05em', lineHeight: '1.1', WebkitTextStroke: '0.5px currentColor' }}
             >
-              <span className="block text-gray-900 drop-shadow-lg">
+              <span className="block text-gray-900 drop-shadow-lg xl:whitespace-nowrap">
                 Estrena un auto seminuevo en 24 horas
               </span>
               <span className="block text-gray-900 drop-shadow-lg mt-1 sm:mt-2">
@@ -715,9 +715,9 @@ const FinanciamientosPage: React.FC = () => {
                     </div>
                   ) : (
                     <iframe
-                      src="https://www.youtube.com/embed/p-nMlle-xfw?rel=0&autoplay=1"
+                      src="https://www.youtube-nocookie.com/embed/p-nMlle-xfw?rel=0&autoplay=1&enablejsapi=1"
                       className="w-full h-full rounded-lg"
-                      allow="autoplay; encrypted-media"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       title="TREFA - Proceso de Financiamiento"
                     />

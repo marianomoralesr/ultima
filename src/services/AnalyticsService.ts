@@ -249,11 +249,13 @@ export class AnalyticsService {
 
             // Source attribution - IMPROVED MATCHING LOGIC
             // BUG FIX: Make source matching more flexible and handle empty/null values better
+            // CHECK BOTH: Direct UTM fields on profile AND metadata.utm_source
             const sourceBreakdown = {
                 facebook: leads.filter(l => {
                     const source = String(l.source || '').toLowerCase().trim();
-                    const utmSource = String(l.metadata?.utm_source || '').toLowerCase().trim();
-                    const utmMedium = String(l.metadata?.utm_medium || '').toLowerCase().trim();
+                    // Check both direct UTM fields and metadata
+                    const utmSource = String(l.utm_source || l.metadata?.utm_source || '').toLowerCase().trim();
+                    const utmMedium = String(l.utm_medium || l.metadata?.utm_medium || '').toLowerCase().trim();
                     const fbclid = l.metadata?.fbclid;
 
                     // Match Facebook in multiple ways
@@ -270,8 +272,9 @@ export class AnalyticsService {
                 }).length,
                 google: leads.filter(l => {
                     const source = String(l.source || '').toLowerCase().trim();
-                    const utmSource = String(l.metadata?.utm_source || '').toLowerCase().trim();
-                    const utmMedium = String(l.metadata?.utm_medium || '').toLowerCase().trim();
+                    // Check both direct UTM fields and metadata
+                    const utmSource = String(l.utm_source || l.metadata?.utm_source || '').toLowerCase().trim();
+                    const utmMedium = String(l.utm_medium || l.metadata?.utm_medium || '').toLowerCase().trim();
                     const gclid = l.metadata?.gclid;
 
                     return source.includes('google') ||
@@ -285,7 +288,8 @@ export class AnalyticsService {
                 }).length,
                 bot: leads.filter(l => {
                     const source = String(l.source || '').toLowerCase().trim();
-                    const utmSource = String(l.metadata?.utm_source || '').toLowerCase().trim();
+                    // Check both direct UTM fields and metadata
+                    const utmSource = String(l.utm_source || l.metadata?.utm_source || '').toLowerCase().trim();
 
                     return source.includes('bot') ||
                            source.includes('whatsapp') ||
@@ -329,6 +333,9 @@ export class AnalyticsService {
             console.log(`[Analytics] Source breakdown:`, sourceBreakdown);
             console.log(`[Analytics] Sample lead sources (first 5):`, leads.slice(0, 5).map(l => ({
                 source: l.source,
+                utm_source: l.utm_source,
+                utm_medium: l.utm_medium,
+                utm_campaign: l.utm_campaign,
                 metadata: l.metadata
             })));
 

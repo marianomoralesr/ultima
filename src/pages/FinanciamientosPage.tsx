@@ -636,7 +636,7 @@ const FinanciamientosPage: React.FC = () => {
             <img
               src="/images/trefalogo.png"
               alt="TREFA Logo"
-              className="h-16 sm:h-20 md:h-24 w-auto"
+              className="h-14 sm:h-16 md:h-20 w-auto"
             />
           </motion.div>
 
@@ -650,7 +650,7 @@ const FinanciamientosPage: React.FC = () => {
               style={{ letterSpacing: '-0.025em', lineHeight: '1.1' }}
             >
               <span className="block text-gray-900 drop-shadow-lg">
-                Estrena un auto seminuevo en 24h
+                Estrena un auto seminuevo en 24 horas
               </span>
               <span className="block text-gray-900 drop-shadow-lg mt-1 sm:mt-2">
                 Desde aquí{' '}
@@ -981,7 +981,7 @@ const FinanciamientosPage: React.FC = () => {
               to={`/acceder${urlParams ? `?${urlParams}` : ''}`}
               className="inline-flex items-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-4 rounded-lg font-black text-lg shadow-lg hover:shadow-xl transition-all"
             >
-              Accede a Tu Cuenta
+              Crear mi cuenta
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -1472,7 +1472,7 @@ const FinanciamientosPage: React.FC = () => {
                 to={`/acceder${urlParams ? `?${urlParams}` : ''}`}
                 className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border-2 border-white text-white px-8 py-4 rounded-xl font-black transition-all hover:scale-105 text-lg"
               >
-                Accede a Tu Cuenta
+                Crear mi cuenta
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>

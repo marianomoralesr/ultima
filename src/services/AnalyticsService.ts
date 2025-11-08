@@ -147,7 +147,7 @@ export class AnalyticsService {
 
             // Filter profiles to only include website leads (users who registered directly, not created by admin)
             // We identify website leads by checking if they have a role of null or 'customer' and have source data
-            const leads = allProfiles.filter(profile => {
+            let leads = allProfiles.filter(profile => {
                 // Exclude admin and sales users
                 if (profile.role === 'admin' || profile.role === 'sales') return false;
                 // Include profiles that likely registered via website (have source or came through auth)

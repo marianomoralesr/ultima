@@ -505,7 +505,7 @@ const SalesClientProfilePage: React.FC = () => {
                             <ProfileDataItem label="Fuente" value={profile.source} />
                             <ProfileDataItem label="RFC" value={profile.rfc} />
                             <ProfileDataItem label="Contactado" value={profile.contactado ? 'Sí' : 'No'} />
-                            <ProfileDataItem label="Acceso Autorizado" value={profile.autorizar_asesor_acceso ? 'Sí' : 'No'} />
+                            <ProfileDataItem label="Acceso Autorizado" value={profile.asesor_autorizado_acceso ? 'Sí' : 'No'} />
                         </div>
                         <div className="mt-6 border-t pt-4">
                             <button

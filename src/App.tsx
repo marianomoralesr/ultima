@@ -102,6 +102,11 @@ function App(): React.JSX.Element {
             <Route path="explorar" element={<ExplorarPage />} />
           </Route>
 
+          {/* Standalone Financiamientos landing page (no header/footer) */}
+          <Route element={<InventoryLayout />}>
+            <Route path="financiamientos" element={<FinanciamientosPage />} />
+          </Route>
+
           {/* Routes that need vehicle and filter context */}
           <Route element={<InventoryLayout />}>
             <Route path="/" element={<MainLayout />}>
@@ -124,7 +129,6 @@ function App(): React.JSX.Element {
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
               <Route path="landing" element={<LandingPage />} />
-              <Route path="financiamientos" element={<FinanciamientosPage />} />
               {/* Dynamic landing pages - must be before the * route */}
               <Route path=":slug" element={<DynamicLandingPage />} />
               <Route path="*" element={<NotFoundPage />} />

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { AdminService } from '../services/AdminService';
+import { SalesService } from '../services/SalesService';
 import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Filter } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import StatsCard from '../components/StatsCard';
@@ -15,42 +15,19 @@ const SalesLeadsDashboardPage: React.FC = () => {
     const [filterContactado, setFilterContactado] = useState<string>('all');
     const queryClient = useQueryClient();
 
-    // Use the same function as Admin (get_leads_for_dashboard works for both admin and sales)
-    const { data: allClients = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
-        queryKey: ['leads'],
-        queryFn: AdminService.getAllLeads,
+    // Fetch only assigned leads (server-side filtering)
+    const { data: myClients = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
+        queryKey: ['salesAssignedLeads', user?.id],
+        queryFn: () => SalesService.getMyAssignedLeads(user?.id || ''),
+        enabled: !!user?.id,
     });
 
-    const { data: allStats = {}, isLoading: isLoadingStats, isError: isErrorStats, error: errorStats } = useQuery<any, Error>({
-        queryKey: ['dashboardStats'],
-        queryFn: AdminService.getDashboardStats,
+    // Fetch stats for assigned leads only (server-side calculation)
+    const { data: stats = {}, isLoading: isLoadingStats, isError: isErrorStats, error: errorStats } = useQuery<any, Error>({
+        queryKey: ['salesDashboardStats', user?.id],
+        queryFn: () => SalesService.getMyLeadsStats(user?.id || ''),
+        enabled: !!user?.id,
     });
-
-    // Filter to show only clients assigned to this sales user
-    const myClients = useMemo(() => {
-        if (!user?.id) return [];
-        return allClients.filter(client =>
-            client.asesor_asignado_id === user.id &&
-            client.asesor_autorizado_acceso === true
-        );
-    }, [allClients, user?.id]);
-
-    // Calculate stats for this sales user's clients only
-    const stats = useMemo(() => {
-        const total_leads = myClients.length;
-        const leads_with_active_app = myClients.filter(c =>
-            c.latest_app_status && c.latest_app_status !== 'draft'
-        ).length;
-        const leads_not_contacted = myClients.filter(c => !c.contactado).length;
-        const leads_needing_follow_up = myClients.filter(c => !c.contactado).length;
-
-        return {
-            total_leads,
-            leads_with_active_app,
-            leads_not_contacted,
-            leads_needing_follow_up,
-        };
-    }, [myClients]);
 
     const filteredLeads = useMemo(() => {
         let filtered = myClients;
@@ -93,7 +70,8 @@ const SalesLeadsDashboardPage: React.FC = () => {
             if (error) throw error;
 
             // Invalidate and refetch
-            await queryClient.invalidateQueries({ queryKey: ['leads'] });
+            await queryClient.invalidateQueries({ queryKey: ['salesAssignedLeads', user?.id] });
+            await queryClient.invalidateQueries({ queryKey: ['salesDashboardStats', user?.id] });
 
             toast.success(`Marcado como ${!currentValue ? 'contactado' : 'no contactado'}`);
         } catch (err: any) {

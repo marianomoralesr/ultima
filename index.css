@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -42,10 +42,11 @@ h4 {
   font-style: normal;
 }
 
-h1-be-vietnam-pro-black {
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-weight: 800;
+h1-racing-sans-one {
+  font-family: "Racing Sans One", sans-serif;
+  font-weight: 400;
   font-style: normal;
+  letter-spacing: 0.04em;
 }
 
 h1-be-vietnam-pro-black {

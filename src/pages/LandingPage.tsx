@@ -346,30 +346,44 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Original Hero Section */}
-      <section className="relative overflow-hidden flex items-center" style={{ minHeight: '88dvh' }}>
+      <section className="relative overflow-hidden flex items-center bg-gradient-to-br from-gray-50 via-white to-orange-50/30" style={{ minHeight: '88dvh' }}>
+        {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-primary/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/10 to-yellow-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+
           {/* Right vehicle - visible on desktop */}
           <div className="hidden lg:block absolute right-0 xl:right-16 bottom-0">
-            <img
+            <motion.img
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 0.4, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               src="https://r2.trefa.mx/Frame%2040%20(1).png"
               alt="TREFA Vehicle"
-              className="w-[425px] xl:w-[510px] h-auto object-contain opacity-40"
+              className="w-[425px] xl:w-[510px] h-auto object-contain"
             />
           </div>
           {/* Left vehicle - visible on desktop */}
           <div className="hidden lg:block absolute left-0 xl:left-16 bottom-0">
-            <img
+            <motion.img
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 0.4, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
               alt="TREFA Vehicle"
-              className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1] opacity-40"
+              className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1]"
             />
           </div>
           {/* Mobile: Single vehicle as subtle background */}
           <div className="lg:hidden absolute right-0 bottom-0">
-            <img
+            <motion.img
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.2 }}
+              transition={{ duration: 0.8 }}
               src="https://r2.trefa.mx/Frame%2040%20(1).png"
               alt="TREFA Vehicle"
-              className="w-[218px] h-auto object-contain opacity-20"
+              className="w-[218px] h-auto object-contain"
             />
           </div>
         </div>
@@ -377,66 +391,123 @@ const LandingPage: React.FC = () => {
 
         <div className="container mx-auto px-4 lg:px-6 relative z-10 pb-20 pt-0 -mt-8">
           <div className="flex flex-col items-center text-center space-y-6">
-            <span className="px-4 py-1 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2">
-              <ShieldCheck className="w-3 h-3 text-primary" />
-              <span className="text-sm font-medium">Autos Seminuevos Certificados</span>
-            </span>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="px-4 py-1.5 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2"
+            >
+              <ShieldCheck className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold">Autos Seminuevos Certificados</span>
+            </motion.span>
 
-            <motion.h1 className="font-heading text-4xl md:text-6xl font-bold tracking-tight max-w-4xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              className="font-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight max-w-4xl leading-tight"
+            >
               Tu próximo auto seminuevo te está esperando
             </motion.h1>
 
-            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+              className="text-lg md:text-xl lg:text-2xl text-gray-700 max-w-3xl leading-relaxed font-medium"
+            >
               Encuentra el auto perfecto en nuestra selección de vehículos seminuevos 2019 en
-              adelante. SUVs, Sedanes, Hatchbacks y Pick Ups con garantía y financiamiento
-              disponible.
-            </p>
+              adelante. SUVs, Sedanes, Hatchbacks y Pick Ups con{' '}
+              <span className="text-primary font-black">garantía y financiamiento disponible</span>.
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-background text-foreground border-2 border-input hover:bg-accent hover:text-accent-foreground px-8 py-3 rounded-lg font-semibold transition-all">
-                Ver Inventario
-                <Car className="w-4 h-4" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 pt-4"
+            >
+              <Link to="/autos" className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-background text-foreground border-2 border-input hover:bg-accent hover:text-accent-foreground px-8 py-3 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-md hover:shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <span className="relative">Ver Inventario</span>
+                <Car className="w-5 h-5 relative group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a href="#comparacion" className="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-3 rounded-lg font-semibold shadow-lg transition-all">
-                Conoce el Kit de Seguridad
-                <ArrowRight className="w-4 h-4" />
+              <a href="#comparacion" className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary via-orange-500 to-yellow-500 text-white hover:shadow-2xl px-8 py-3 rounded-xl font-black text-lg transition-all hover:scale-105 shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <span className="relative">Conoce el Kit de Seguridad</span>
+                <ArrowRight className="w-5 h-5 relative group-hover:translate-x-1 transition-transform" />
               </a>
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col items-center space-y-4 mt-10">
-              <p className="text-sm text-muted-foreground">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.8 }}
+              className="flex flex-col items-center space-y-4 mt-10"
+            >
+              <p className="text-sm font-bold text-gray-700">
                 Más de 500 autos vendidos y clientes satisfechos
               </p>
-              <div className="flex items-center space-x-6 opacity-60 flex-wrap justify-center gap-y-4 gap-x-4 mt-4">
-                <div className="flex items-center space-x-2">
-                  <img src="/images/Honda.png" alt="Honda" className="h-7 w-auto opacity-70" />
-                  <span className="text-base font-semibold hidden sm:inline">Honda</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <img src="/images/Toyota.png" alt="Toyota" className="h-7 w-auto opacity-70" />
-                  <span className="text-base font-semibold hidden sm:inline">Toyota</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <img src="/images/Nissan.png" alt="Nissan" className="h-7 w-auto opacity-70" />
-                  <span className="text-base font-semibold hidden sm:inline">Nissan</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <img src="/images/Mazda.png" alt="Mazda" className="h-7 w-auto opacity-70" />
-                  <span className="text-base font-semibold hidden sm:inline">Mazda</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <img src="/images/Hyundai.png" alt="Hyundai" className="h-7 w-auto opacity-70" />
-                  <span className="text-base font-semibold hidden sm:inline">Hyundai</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <img src="/images/Kia.png" alt="Kia" className="h-7 w-auto opacity-70" />
-                  <span className="text-base font-semibold hidden sm:inline">Kia</span>
-                </div>
+              <div className="flex items-center space-x-6 opacity-70 hover:opacity-100 transition-opacity flex-wrap justify-center gap-y-4 gap-x-6 mt-4">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.9 }}
+                  className="flex items-center space-x-2 hover:scale-110 transition-transform"
+                >
+                  <img src="/images/Honda.png" alt="Honda" className="h-7 w-auto grayscale hover:grayscale-0 transition-all" />
+                  <span className="text-base font-bold hidden sm:inline text-gray-700">Honda</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.0 }}
+                  className="flex items-center space-x-2 hover:scale-110 transition-transform"
+                >
+                  <img src="/images/Toyota.png" alt="Toyota" className="h-7 w-auto grayscale hover:grayscale-0 transition-all" />
+                  <span className="text-base font-bold hidden sm:inline text-gray-700">Toyota</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.1 }}
+                  className="flex items-center space-x-2 hover:scale-110 transition-transform"
+                >
+                  <img src="/images/Nissan.png" alt="Nissan" className="h-7 w-auto grayscale hover:grayscale-0 transition-all" />
+                  <span className="text-base font-bold hidden sm:inline text-gray-700">Nissan</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.2 }}
+                  className="flex items-center space-x-2 hover:scale-110 transition-transform"
+                >
+                  <img src="/images/Mazda.png" alt="Mazda" className="h-7 w-auto grayscale hover:grayscale-0 transition-all" />
+                  <span className="text-base font-bold hidden sm:inline text-gray-700">Mazda</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.3 }}
+                  className="flex items-center space-x-2 hover:scale-110 transition-transform"
+                >
+                  <img src="/images/Hyundai.png" alt="Hyundai" className="h-7 w-auto grayscale hover:grayscale-0 transition-all" />
+                  <span className="text-base font-bold hidden sm:inline text-gray-700">Hyundai</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.4 }}
+                  className="flex items-center space-x-2 hover:scale-110 transition-transform"
+                >
+                  <img src="/images/Kia.png" alt="Kia" className="h-7 w-auto grayscale hover:grayscale-0 transition-all" />
+                  <span className="text-base font-bold hidden sm:inline text-gray-700">Kia</span>
+                </motion.div>
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm font-bold text-gray-700 mt-2">
                 y 15 de las mejores marcas más...
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -450,7 +521,13 @@ const LandingPage: React.FC = () => {
         </div>
 
         <div className="container mx-auto px-4 lg:px-6 relative z-10 text-center my-16">
-          <motion.h2 className="font-heading text-4xl md:text-6xl font-bold tracking-tight">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="font-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-gray-900"
+          >
             Encuentra tu próximo auto
           </motion.h2>
         </div>
@@ -471,23 +548,36 @@ const LandingPage: React.FC = () => {
           </div>
         )}
 
-        <div className="container mx-auto px-4 lg:px-6 relative z-10 text-center">
-          <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-3 rounded-lg font-semibold shadow-lg transition-all text-lg">
-            Ver el inventario completo
-            <ArrowRight className="w-5 h-5" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="container mx-auto px-4 lg:px-6 relative z-10 text-center"
+        >
+          <Link to="/autos" className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary via-orange-500 to-yellow-500 text-white hover:shadow-2xl px-8 py-4 rounded-xl font-black shadow-lg transition-all hover:scale-105 text-lg">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+            <span className="relative">Ver el inventario completo</span>
+            <ArrowRight className="w-5 h-5 relative group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
       </section>
 
       {/* Video Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-gradient-to-br from-muted/30 via-white to-orange-50/20">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">Conoce Autos TREFA</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-4 mb-12"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">Conoce Autos TREFA</h2>
+            <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto font-medium">
               Descubre por qué somos la mejor opción para tu próximo auto seminuevo
             </p>
-          </div>
+          </motion.div>
           <div className="max-w-4xl mx-auto">
             <div className="overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/5 shadow-xl rounded-xl">
               <div className="aspect-video bg-muted/50 flex items-center justify-center">
@@ -508,14 +598,21 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Inventory Section */}
-      <section id="inventario" className="border-t bg-muted/50 py-20 md:py-32">
+      <section id="inventario" className="border-t bg-gradient-to-br from-muted/50 via-white to-gray-50 py-20 md:py-32">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">Nuestro Inventario TREFA</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Vehículos seminuevos 2019 en adelante con inspección de 150 puntos, garantía blindada y el Kit de Seguridad TREFA incluido
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-4 mb-16"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">Nuestro Inventario TREFA</h2>
+            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+              Vehículos seminuevos 2019 en adelante con inspección de 150 puntos,{' '}
+              <span className="text-primary font-black">garantía blindada</span> y el Kit de Seguridad TREFA incluido
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* SUVs Premium - Single Card Slider */}
@@ -611,14 +708,21 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Garantía TREFA Section */}
-      <section className="py-20 md:py-32 bg-background">
+      <section className="py-20 md:py-32 bg-gradient-to-br from-white via-orange-50/20 to-gray-50">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">Kit de Seguridad TREFA</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Cada auto incluye sin costo adicional nuestro Kit de Seguridad valorado en $123,500 MXN
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-4 mb-16"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">Kit de Seguridad TREFA</h2>
+            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+              Cada auto incluye sin costo adicional nuestro Kit de Seguridad valorado en{' '}
+              <span className="text-primary font-black">$123,500 MXN</span>
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
             {/* Garantía Blindada */}
@@ -672,16 +776,23 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Comparison Section */}
-      <section id="comparacion" className="py-20 md:py-32">
+      <section id="comparacion" className="py-20 md:py-32 bg-gradient-to-br from-gray-50 via-white to-muted/30">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-4 mb-16"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">
               ¿Por Qué Elegir Autos TREFA?
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Comparamos las opciones para que tomes la mejor decisión al comprar tu auto seminuevo
+            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+              Comparamos las opciones para que tomes la{' '}
+              <span className="text-primary font-black">mejor decisión</span> al comprar tu auto seminuevo
             </p>
-          </div>
+          </motion.div>
           <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16">
             {/* Loteros Tradicionales Card */}
             <div className="relative border-2 bg-gradient-to-br from-red-50 to-red-100 border-red-300 rounded-xl p-6">
@@ -911,16 +1022,23 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-muted/50 md:py-32">
+      <section className="py-20 bg-gradient-to-br from-muted/50 via-white to-gray-50 md:py-32">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-4 mb-16"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">
               Lo Que Dicen Nuestros Clientes
             </h2>
-            <p className="text-xl text-muted-foreground mx-auto">
-              Más de 500 familias han encontrado su auto ideal con nosotros
+            <p className="text-lg md:text-xl text-gray-700 mx-auto font-medium max-w-2xl">
+              Más de{' '}
+              <span className="text-primary font-black">500 familias</span> han encontrado su auto ideal con nosotros
             </p>
-          </div>
+          </motion.div>
           <div className="grid gap-8">
             <div className="grid lg:grid-cols-3 gap-8">
               {[
@@ -966,14 +1084,21 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 md:py-32">
+      <section className="py-20 md:py-32 bg-gradient-to-br from-white via-orange-50/10 to-gray-50">
         <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">Preguntas Frecuentes</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Todo lo que necesitas saber sobre comprar tu auto seminuevo en TREFA
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-4 mb-16"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">Preguntas Frecuentes</h2>
+            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto font-medium">
+              Todo lo que necesitas saber sobre comprar tu{' '}
+              <span className="text-primary font-black">auto seminuevo en TREFA</span>
             </p>
-          </div>
+          </motion.div>
           <div className="max-w-3xl mx-auto space-y-4">
             {faqData.map((faq, index) => (
               <div key={index} className="border rounded-lg overflow-hidden">
@@ -1000,32 +1125,43 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-primary text-primary-foreground md:py-32 relative overflow-hidden">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="text-center space-y-8 max-w-3xl mx-auto">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold">
+      <section className="py-20 md:py-32 relative overflow-hidden bg-gradient-to-br from-primary via-orange-600 to-yellow-600">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-orange-600 to-yellow-600 opacity-90"></div>
+
+        <div className="container mx-auto px-4 lg:px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center space-y-8 max-w-4xl mx-auto"
+          >
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight">
               ¿Listo Para Encontrar Tu Auto Ideal?
             </h2>
-            <p className="text-xl opacity-90 leading-relaxed">
+            <p className="text-lg md:text-xl text-white/95 leading-relaxed font-bold">
               Visita nuestro showroom o agenda una cita para conocer nuestro inventario de autos
               seminuevos. Te ayudamos a encontrar el vehículo perfecto para ti y tu familia.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link to="/autos" className="inline-flex items-center justify-center gap-2 bg-background text-foreground hover:bg-background/90 px-8 py-3 rounded-lg font-semibold shadow-xl">
-                Ver Inventario
-                <Car className="w-4 h-4" />
+              <Link to="/autos" className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-white text-primary hover:bg-white/95 px-8 py-4 rounded-xl font-black shadow-2xl transition-all hover:scale-105 text-lg">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <span className="relative">Ver Inventario</span>
+                <Car className="w-5 h-5 relative group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link to="/contacto" className="inline-flex items-center justify-center gap-2 bg-primary-foreground/10 hover:bg-primary-foreground/20 border-2 border-primary-foreground px-8 py-3 rounded-lg font-semibold">
-                Agendar Cita
-                <Calendar className="w-4 h-4" />
+              <Link to="/contacto" className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border-2 border-white text-white px-8 py-4 rounded-xl font-black transition-all hover:scale-105 text-lg">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <span className="relative">Agendar Cita</span>
+                <Calendar className="w-5 h-5 relative group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
-            <p className="text-sm opacity-75">
-              Financiamiento disponible • Garantía incluida • Intercambios aceptados
+            <p className="text-sm text-white/90 pt-4 font-bold">
+              Financiamiento disponible • Garantía incluida • Inspección de 150 puntos • Intercambios aceptados
             </p>
-          </div>
+          </motion.div>
         </div>
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-primary-foreground/20 w-210 translate-y-1/2 h-64" />
+
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-white/10 w-[80%] translate-y-1/2 h-64"></div>
       </section>
     </div>
   );

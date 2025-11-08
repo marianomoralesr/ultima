@@ -160,6 +160,28 @@ const FinanciamientosPage: React.FC = () => {
     }
   }, [allVehicles]);
 
+  // Track page view on mount
+  useEffect(() => {
+    // Track with Facebook Pixel
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'ViewContent', {
+        content_name: 'Financiamientos Landing Page',
+        content_category: 'Financial Services',
+        content_type: 'product'
+      });
+    }
+
+    // Track with Google Tag Manager
+    if (typeof window !== 'undefined' && (window as any).dataLayer) {
+      (window as any).dataLayer.push({
+        event: 'page_view',
+        pageType: 'financing_landing',
+        pageName: 'Financiamientos',
+        pageCategory: 'Lead Generation'
+      });
+    }
+  }, []);
+
   // Filter vehicles by body type
   const suvVehicles = useMemo(() =>
     displayVehicles.filter(v => {
@@ -211,6 +233,26 @@ const FinanciamientosPage: React.FC = () => {
     try {
       console.log('📝 Submitting financing request form:', data);
 
+      // Track form submission start with Facebook Pixel
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'InitiateCheckout', {
+          content_name: 'Financing Request',
+          content_category: 'Lead Generation',
+          value: parseFloat(data.monthlyIncome),
+          currency: 'MXN'
+        });
+      }
+
+      // Track with Google Tag Manager
+      if (typeof window !== 'undefined' && (window as any).dataLayer) {
+        (window as any).dataLayer.push({
+          event: 'financing_form_submit_start',
+          formType: 'financing_request',
+          monthlyIncome: data.monthlyIncome,
+          source: 'financiamientos-landing'
+        });
+      }
+
       // Save to Supabase leads table
       const { data: leadData, error: leadError } = await supabase
         .from('leads')
@@ -235,11 +277,51 @@ const FinanciamientosPage: React.FC = () => {
 
       if (leadError) {
         console.error('❌ Supabase error:', leadError);
+
+        // Track error with Facebook Pixel
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          (window as any).fbq('track', 'CustomizeProduct', {
+            content_name: 'Form Error',
+            status: 'failed'
+          });
+        }
+
+        // Track error with GTM
+        if (typeof window !== 'undefined' && (window as any).dataLayer) {
+          (window as any).dataLayer.push({
+            event: 'financing_form_error',
+            errorType: 'database_error',
+            formType: 'financing_request'
+          });
+        }
+
         setSubmissionStatus('error');
         return;
       }
 
       console.log('✅ Lead saved successfully:', leadData);
+
+      // Track successful lead creation with Facebook Pixel
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Lead', {
+          content_name: 'Financing Request Lead',
+          content_category: 'Financial Services',
+          value: parseFloat(data.monthlyIncome) * 0.1,
+          currency: 'MXN',
+          lead_id: leadData.id
+        });
+      }
+
+      // Track successful lead creation with GTM
+      if (typeof window !== 'undefined' && (window as any).dataLayer) {
+        (window as any).dataLayer.push({
+          event: 'financing_form_success',
+          leadId: leadData.id,
+          formType: 'financing_request',
+          monthlyIncome: data.monthlyIncome,
+          source: 'financiamientos-landing'
+        });
+      }
 
       // Also send to webhook for immediate notification
       try {
@@ -271,6 +353,24 @@ const FinanciamientosPage: React.FC = () => {
 
     } catch (error) {
       console.error('Error submitting form:', error);
+
+      // Track general error with Facebook Pixel
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'CustomizeProduct', {
+          content_name: 'Form Error',
+          status: 'failed'
+        });
+      }
+
+      // Track general error with GTM
+      if (typeof window !== 'undefined' && (window as any).dataLayer) {
+        (window as any).dataLayer.push({
+          event: 'financing_form_error',
+          errorType: 'general_error',
+          formType: 'financing_request'
+        });
+      }
+
       setSubmissionStatus('error');
     }
   };
@@ -310,6 +410,26 @@ const FinanciamientosPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background font-['Be_Vietnam_Pro']">
+      <style>{`
+        .financiamientos-page h3,
+        .financiamientos-page h4,
+        .financiamientos-page h5,
+        .financiamientos-page h6 {
+          font-family: 'DM Sans', sans-serif !important;
+          font-weight: 700 !important;
+          letter-spacing: -0.025em !important;
+        }
+        .financiamientos-page h1 {
+          font-family: 'DM Sans', sans-serif !important;
+          font-weight: 900 !important;
+        }
+        .financiamientos-page h2 {
+          font-family: 'DM Sans', sans-serif !important;
+          font-weight: 800 !important;
+          letter-spacing: -0.035em !important;
+        }
+      `}</style>
+      <div className="financiamientos-page">
       {/* Hero Section with Form */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-orange-50/30 py-12 sm:py-16 lg:py-20">
         {/* Animated Background Elements */}
@@ -320,19 +440,37 @@ const FinanciamientosPage: React.FC = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Logo with Animation */}
+          <motion.div
+            initial={{ opacity: 0, scale: 1.2 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex justify-center mb-8"
+          >
+            <img
+              src="/images/trefalogo.png"
+              alt="TREFA Logo"
+              className="h-20 md:h-24 w-auto"
+            />
+          </motion.div>
+
           {/* Massive Headline */}
           <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight tracking-tight mb-6 sm:mb-8"
+              className="font-heading text-[28px] sm:text-[34px] md:text-[46px] lg:text-[54px] xl:text-[66px] font-black mb-6 sm:mb-8"
+              style={{ letterSpacing: '-0.025em', lineHeight: '1.0' }}
             >
-              <span className="block text-gray-900 drop-shadow-lg mb-2 sm:mb-4">
-                El financiamiento ideal para tu nuevo auto
+              <span className="block text-gray-900 drop-shadow-lg">
+                Estrena un auto seminuevo en 24h
               </span>
-              <span className="block bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
-                en 24 horas o menos
+              <span className="block text-gray-900 drop-shadow-lg mt-2">
+                Desde aquí{' '}
+                <span className="bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
+                  es posible
+                </span>
               </span>
             </motion.h1>
 
@@ -340,7 +478,8 @@ const FinanciamientosPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium mt-6"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed mt-6"
+              style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, letterSpacing: 'normal' }}
             >
               Conectamos tu perfil con el banco que te ofrece{' '}
               <span className="text-primary font-black">la mejor tasa de interés</span>{' '}
@@ -408,7 +547,7 @@ const FinanciamientosPage: React.FC = () => {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
               className="relative"
             >
-              <div className="backdrop-blur-xl bg-white/90 border-2 border-white/60 rounded-2xl p-6 sm:p-8 shadow-2xl">
+              <div className="backdrop-blur-xl bg-white/90 border-2 border-white/60 rounded-2xl p-8 sm:p-10 md:p-12 shadow-2xl">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" id="registration-form">
                   <div className="text-center mb-6">
                     <h2 className="font-heading text-2xl sm:text-3xl font-black text-gray-900 mb-2">
@@ -626,7 +765,7 @@ const FinanciamientosPage: React.FC = () => {
             viewport={{ once: true }}
             className="text-center space-y-4 mb-12"
           >
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">
+            <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-black text-gray-900">
               Todos Nuestros Autos Incluyen el Kit
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto font-bold">
@@ -654,11 +793,11 @@ const FinanciamientosPage: React.FC = () => {
 
           <div className="text-center mt-8">
             <Link
-              to="/autos"
+              to="/acceder"
               className="inline-flex items-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-4 rounded-lg font-black text-lg shadow-lg hover:shadow-xl transition-all"
             >
-              Ver Todos los Vehículos
-              <Car className="w-5 h-5" />
+              Accede a Tu Cuenta
+              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
@@ -760,37 +899,27 @@ const FinanciamientosPage: React.FC = () => {
       </section>
 
       {/* Guarantees Section - "LLÉVATE TRANQUILIDAD" */}
-      <section className="relative py-12 md:py-16 bg-gradient-to-br from-white via-orange-50/30 to-yellow-50/20">
+      <section className="relative py-16 md:py-20 bg-gradient-to-br from-white via-orange-50/30 to-yellow-50/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="space-y-8"
+              className="space-y-8 lg:pr-8"
             >
-              <div>
-                <h3 className="text-xl font-black mb-4 text-orange-600 tracking-wider uppercase">
+              <div className="space-y-6 mb-12">
+                <h3 className="text-xl md:text-2xl font-black text-orange-600 tracking-wider uppercase mt-8">
                   LLÉVATE TRANQUILIDAD.
                 </h3>
-                <h2 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 leading-tight mb-8">
+                <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
                   Garantías de defensa a defensa a donde vayas.
                 </h2>
               </div>
 
               <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                  <p className="text-lg text-gray-700 leading-relaxed font-medium">
-                    Si tu auto falla en los primeros 30 días, elige otro de valor igual o inferior, o recibe el{' '}
-                    <span className="font-black text-gray-900">100% de reembolso</span>
-                  </p>
-                </div>
-
                 <div className="flex items-start space-x-4">
                   <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 mt-1">
                     <Check className="w-4 h-4 text-white" />
@@ -839,44 +968,35 @@ const FinanciamientosPage: React.FC = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="relative"
+              className="relative lg:pl-8"
             >
-              <div className="absolute -inset-4 bg-gradient-to-r from-orange-400/40 to-yellow-400/40 rounded-3xl blur-2xl animate-pulse"></div>
-              <div className="relative bg-white/80 border-2 border-orange-200/50 rounded-3xl p-8 shadow-2xl">
-                <img
-                  src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
-                  alt="Garantías TREFA"
-                  className="w-full h-auto rounded-2xl"
-                />
-              </div>
+              <img
+                src="https://r2.trefa.mx/TREFA%20-%20Cuadradas%2010.png"
+                alt="Garantías TREFA"
+                className="w-full h-auto object-contain"
+              />
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Financial Commitment Section */}
-      <section className="relative py-12 md:py-16 bg-gradient-to-br from-blue-50 via-white to-orange-50/30">
+      <section className="relative py-16 md:py-20 bg-gradient-to-br from-blue-50 via-white to-orange-50/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Video/Image */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            {/* Left Image */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="relative"
+              className="relative lg:pr-8"
             >
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-3xl blur-2xl animate-pulse"></div>
-              <div className="relative bg-white/90 border-2 border-blue-200/50 rounded-3xl p-6 shadow-2xl">
-                <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <h4 className="text-4xl font-black mb-2">TREFA</h4>
-                      <p className="text-xl font-bold opacity-90">UNA EMPRESA SÓLIDA</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="https://r2.trefa.mx/WEB9.png"
+                alt="TREFA - Tu auto ideal"
+                className="w-full h-auto object-contain"
+              />
             </motion.div>
 
             {/* Right Content */}
@@ -885,13 +1005,13 @@ const FinanciamientosPage: React.FC = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="space-y-8"
+              className="space-y-8 lg:pl-8"
             >
-              <div>
-                <h3 className="text-xl font-black mb-4 text-orange-600 tracking-wider uppercase">
+              <div className="space-y-6 mb-12">
+                <h3 className="text-xl md:text-2xl font-black text-orange-600 tracking-wider uppercase mt-8">
                   NUESTRO COMPROMISO
                 </h3>
-                <h2 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 leading-tight mb-8">
+                <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
                   Te garantizamos el respaldo financiero que mereces
                 </h2>
               </div>
@@ -902,21 +1022,31 @@ const FinanciamientosPage: React.FC = () => {
 
               {/* Bank logos */}
               <div className="grid grid-cols-3 gap-4 mb-8">
-                {['BBVA', 'Scotiabank', 'AFIRME', 'BANORTE', 'banregio', 'Hey Banco'].map((bank, index) => (
+                {[
+                  { name: 'BBVA', logo: 'https://www.carlogos.org/logo/BBVA-logo-2019-640x480.png' },
+                  { name: 'Scotiabank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Scotiabank_logo.svg/320px-Scotiabank_logo.svg.png' },
+                  { name: 'AFIRME', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Logo_Banco_Afirme.svg/320px-Logo_Banco_Afirme.svg.png' },
+                  { name: 'BANORTE', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Banorte_logo.svg/320px-Banorte_logo.svg.png' },
+                  { name: 'Banregio', logo: 'https://www.banregio.com/img/logo-banregio.svg' },
+                  { name: 'Hey Banco', logo: 'https://heybanco.com/assets/images/logo.svg' }
+                ].map((bank, index) => (
                   <div
-                    key={bank}
-                    className="bg-white border-2 border-gray-100 rounded-xl p-4 shadow-lg flex items-center justify-center"
+                    key={bank.name}
+                    className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-xl p-4 shadow-lg flex items-center justify-center hover:shadow-xl hover:border-orange-300 transition-all"
                   >
-                    <span className={`font-black text-base ${
-                      bank === 'BBVA' ? 'text-blue-600' :
-                      bank === 'Scotiabank' ? 'text-red-600' :
-                      bank === 'AFIRME' ? 'text-green-600' :
-                      bank === 'BANORTE' ? 'text-orange-600' :
-                      bank === 'banregio' ? 'text-orange-500' :
-                      'text-purple-600'
-                    }`}>
-                      {bank}
-                    </span>
+                    <img
+                      src={bank.logo}
+                      alt={`${bank.name} logo`}
+                      className="h-8 w-auto object-contain grayscale hover:grayscale-0 transition-all"
+                      onError={(e) => {
+                        // Fallback to text if image fails to load
+                        e.currentTarget.style.display = 'none';
+                        const span = document.createElement('span');
+                        span.className = 'font-black text-sm text-gray-700';
+                        span.textContent = bank.name;
+                        e.currentTarget.parentElement?.appendChild(span);
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -934,15 +1064,21 @@ const FinanciamientosPage: React.FC = () => {
       </section>
 
       {/* Digital Financing Benefits */}
-      <section className="relative py-12 md:py-16 bg-white">
+      <section className="relative py-16 md:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-6 mt-8">
               ¿Por qué elegir nuestro financiamiento digital?
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             {/* Left Content */}
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
@@ -982,19 +1118,20 @@ const FinanciamientosPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Shield Graphic */}
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/40 to-orange-500/40 rounded-3xl blur-2xl animate-pulse"></div>
-              <div className="relative bg-white border-2 border-gray-100 rounded-3xl p-12 shadow-2xl text-center">
-                <div className="text-7xl font-black text-gray-900 mb-8 tracking-wider">
-                  TREFA
-                </div>
-                <Shield className="w-32 h-32 text-primary mx-auto mb-6" />
-                <p className="text-xl font-black text-gray-700">
-                  Tu Confianza, Nuestra Prioridad
-                </p>
-              </div>
-            </div>
+            {/* Right Image */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="relative lg:pl-8"
+            >
+              <img
+                src="https://r2.trefa.mx/Banner%20127.png"
+                alt="TREFA - Financiamiento digital"
+                className="w-full h-auto object-contain rounded-2xl shadow-2xl"
+              />
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1003,7 +1140,7 @@ const FinanciamientosPage: React.FC = () => {
       <section className="py-12 md:py-16 bg-muted/50">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">
+            <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-black text-gray-900">
               El Kit de Seguridad TREFA Incluido
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto font-bold">
@@ -1147,10 +1284,10 @@ const FinanciamientosPage: React.FC = () => {
               </button>
 
               <Link
-                to="/autos"
+                to="/acceder"
                 className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border-2 border-white text-white px-8 py-4 rounded-xl font-black transition-all hover:scale-105 text-lg"
               >
-                Ver Inventario Completo
+                Accede a Tu Cuenta
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
@@ -1163,6 +1300,7 @@ const FinanciamientosPage: React.FC = () => {
 
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-white/10 w-[80%] translate-y-1/2 h-64"></div>
       </section>
+      </div>
     </div>
   );
 };

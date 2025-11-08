@@ -33,7 +33,7 @@ import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 import LazyImage from '../components/LazyImage';
 import { formatPrice } from '../utils/formatters';
 
-// Form validation schema
+// Form validation schema - checkboxes validate but don't save to database
 const formSchema = z.object({
   fullName: z.string().min(2, 'Nombre completo requerido'),
   email: z.string().email('Email inválido'),
@@ -44,6 +44,14 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+// Data type for profile - only fields to save
+type ProfileData = {
+  nombre: string;
+  email: string;
+  telefono: string;
+  ingreso_mensual: number;
+};
 
 // Vehicle Card Component
 const MasonryVehicleCard: React.FC<{ vehicle: Vehicle }> = ({ vehicle }) => {
@@ -139,10 +147,12 @@ const FinanciamientosPage: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'otp'>('idle');
   const [videoPlaying, setVideoPlaying] = useState(false);
   const { vehicles: allVehicles } = useVehicles();
   const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
+  const [otp, setOtp] = useState('');
+  const [formDataCache, setFormDataCache] = useState<FormData | null>(null);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(formSchema)
@@ -227,11 +237,13 @@ const FinanciamientosPage: React.FC = () => {
     return all.sort(() => Math.random() - 0.5).slice(0, 20);
   }, [suvVehicles, sedanVehicles, hatchbackVehicles, pickupVehicles]);
 
+  // Step 1: Send OTP to user's email
   const onSubmit = async (data: FormData) => {
     setSubmissionStatus('submitting');
+    setFormDataCache(data); // Cache form data for after OTP verification
 
     try {
-      console.log('📝 Submitting financing request form:', data);
+      console.log('📧 Sending OTP to:', data.email);
 
       // Track form submission start with Facebook Pixel
       if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -253,18 +265,93 @@ const FinanciamientosPage: React.FC = () => {
         });
       }
 
-      // Save to Supabase leads table
-      const { data: leadData, error: leadError } = await supabase
+      // Send OTP via Supabase Auth
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: data.email,
+        options: {
+          shouldCreateUser: true,
+          data: {
+            full_name: data.fullName,
+            phone: data.phone,
+            monthly_income: parseInt(data.monthlyIncome),
+            source: 'financiamientos-landing'
+          }
+        }
+      });
+
+      if (otpError) {
+        console.error('❌ OTP Error:', otpError);
+        setSubmissionStatus('error');
+        return;
+      }
+
+      console.log('✅ OTP sent successfully');
+      setSubmissionStatus('otp'); // Show OTP verification form
+
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      setSubmissionStatus('error');
+    }
+  };
+
+  // Step 2: Verify OTP and create/update profile
+  const handleOtpVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formDataCache) return;
+
+    setSubmissionStatus('submitting');
+
+    try {
+      console.log('🔐 Verifying OTP...');
+
+      // Verify OTP
+      const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
+        email: formDataCache.email,
+        token: otp,
+        type: 'email'
+      });
+
+      if (verifyError) {
+        console.error('❌ OTP Verification Error:', verifyError);
+        setSubmissionStatus('error');
+        return;
+      }
+
+      console.log('✅ OTP verified successfully, user authenticated');
+
+      // Now update/create the user's profile
+      const profileData: ProfileData = {
+        nombre: formDataCache.fullName,
+        email: formDataCache.email,
+        telefono: formDataCache.phone,
+        ingreso_mensual: parseInt(formDataCache.monthlyIncome)
+      };
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: authData.user?.id,
+          ...profileData,
+          updated_at: new Date().toISOString()
+        });
+
+      if (profileError) {
+        console.error('❌ Profile update error:', profileError);
+      } else {
+        console.log('✅ Profile updated successfully');
+      }
+
+      // Also save to leads table for tracking
+      const { data: leadData } = await supabase
         .from('leads')
         .insert([
           {
-            nombre: data.fullName,
-            email: data.email,
-            telefono: data.phone,
-            ingreso_mensual: parseInt(data.monthlyIncome),
+            user_id: authData.user?.id,
+            nombre: formDataCache.fullName,
+            email: formDataCache.email,
+            telefono: formDataCache.phone,
+            ingreso_mensual: parseInt(formDataCache.monthlyIncome),
             source: 'financiamientos-landing',
-            acepta_terminos: data.acceptTerms,
-            mayor_21: data.isOver21,
             metadata: {
               timestamp: new Date().toISOString(),
               userAgent: navigator.userAgent,
@@ -275,40 +362,14 @@ const FinanciamientosPage: React.FC = () => {
         .select()
         .single();
 
-      if (leadError) {
-        console.error('❌ Supabase error:', leadError);
-
-        // Track error with Facebook Pixel
-        if (typeof window !== 'undefined' && (window as any).fbq) {
-          (window as any).fbq('track', 'CustomizeProduct', {
-            content_name: 'Form Error',
-            status: 'failed'
-          });
-        }
-
-        // Track error with GTM
-        if (typeof window !== 'undefined' && (window as any).dataLayer) {
-          (window as any).dataLayer.push({
-            event: 'financing_form_error',
-            errorType: 'database_error',
-            formType: 'financing_request'
-          });
-        }
-
-        setSubmissionStatus('error');
-        return;
-      }
-
-      console.log('✅ Lead saved successfully:', leadData);
-
       // Track successful lead creation with Facebook Pixel
       if (typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'Lead', {
           content_name: 'Financing Request Lead',
           content_category: 'Financial Services',
-          value: parseFloat(data.monthlyIncome) * 0.1,
+          value: parseFloat(formDataCache.monthlyIncome) * 0.1,
           currency: 'MXN',
-          lead_id: leadData.id
+          lead_id: leadData?.id
         });
       }
 
@@ -316,14 +377,14 @@ const FinanciamientosPage: React.FC = () => {
       if (typeof window !== 'undefined' && (window as any).dataLayer) {
         (window as any).dataLayer.push({
           event: 'financing_form_success',
-          leadId: leadData.id,
+          leadId: leadData?.id,
           formType: 'financing_request',
-          monthlyIncome: data.monthlyIncome,
+          monthlyIncome: formDataCache.monthlyIncome,
           source: 'financiamientos-landing'
         });
       }
 
-      // Also send to webhook for immediate notification
+      // Send webhook notification
       try {
         await fetch('https://services.leadconnectorhq.com/hooks/LJhjk6eFZEHwptjuIF0a/webhook-trigger/eprKrEBZDa2DNegPGQ3T', {
           method: 'POST',
@@ -333,8 +394,9 @@ const FinanciamientosPage: React.FC = () => {
             'X-Source': 'TREFA-Financiamientos-Landing'
           },
           body: JSON.stringify({
-            ...data,
-            leadId: leadData.id,
+            ...profileData,
+            leadId: leadData?.id,
+            userId: authData.user?.id,
             source: 'financiamientos-landing',
             timestamp: new Date().toISOString()
           })
@@ -345,14 +407,15 @@ const FinanciamientosPage: React.FC = () => {
 
       setSubmissionStatus('success');
       reset();
+      setFormDataCache(null);
 
-      // Redirect after 3 seconds
+      // Redirect to application page after 2 seconds
       setTimeout(() => {
         window.location.href = '/escritorio/aplicacion';
-      }, 3000);
+      }, 2000);
 
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error verifying OTP:', error);
 
       // Track general error with Facebook Pixel
       if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -366,7 +429,7 @@ const FinanciamientosPage: React.FC = () => {
       if (typeof window !== 'undefined' && (window as any).dataLayer) {
         (window as any).dataLayer.push({
           event: 'financing_form_error',
-          errorType: 'general_error',
+          errorType: 'otp_verification_error',
           formType: 'financing_request'
         });
       }
@@ -378,6 +441,83 @@ const FinanciamientosPage: React.FC = () => {
   const handleVideoPlay = () => {
     setVideoPlaying(true);
   };
+
+  // OTP Verification View
+  if (submissionStatus === 'otp') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50/30 relative overflow-hidden flex items-center justify-center py-12 px-4">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-primary/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"></div>
+        </div>
+
+        <div className="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="font-heading text-2xl font-black text-gray-900 mb-2">
+              Verifica tu correo
+            </h2>
+            <p className="text-gray-600 text-sm">
+              Hemos enviado un código de 6 dígitos a <strong>{formDataCache?.email}</strong>
+            </p>
+            <p className="text-xs text-gray-500 mt-1">(Revisa tu buzón de correo no deseado)</p>
+          </div>
+
+          <form onSubmit={handleOtpVerification} className="space-y-4">
+            <div>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                placeholder="------"
+                maxLength={6}
+                className="w-full px-4 py-4 bg-gray-50 border-2 border-gray-200 text-gray-900 rounded-xl text-center tracking-[0.5em] font-mono text-2xl focus:ring-2 focus:ring-primary focus:border-primary shadow-md"
+                required
+              />
+            </div>
+
+            {submissionStatus === 'error' && (
+              <div className="p-3 bg-red-100 border-2 border-red-400 rounded-lg text-center">
+                <p className="text-red-800 font-bold text-sm">
+                  Código inválido o expirado. Inténtalo de nuevo.
+                </p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={otp.length < 6 || submissionStatus === 'submitting'}
+              className="w-full bg-gradient-to-r from-primary via-orange-500 to-yellow-500 text-white py-4 px-6 rounded-xl font-black text-base hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+            >
+              {submissionStatus === 'submitting' ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Verificando...</span>
+                </div>
+              ) : (
+                'Verificar y Continuar'
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSubmissionStatus('idle');
+                setFormDataCache(null);
+                setOtp('');
+              }}
+              className="w-full text-sm text-gray-500 hover:text-primary font-medium"
+            >
+              Cambiar correo electrónico
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // Success State
   if (submissionStatus === 'success') {
@@ -394,7 +534,7 @@ const FinanciamientosPage: React.FC = () => {
           </div>
 
           <h1 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 mb-4">
-            ¡Solicitud Recibida!
+            ¡Cuenta Creada y Solicitud Recibida!
           </h1>
 
           <p className="text-xl text-gray-700 mb-8 leading-relaxed">
@@ -440,35 +580,35 @@ const FinanciamientosPage: React.FC = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Logo with Animation */}
+          {/* Logo with Animation - Optimized for Mobile */}
           <motion.div
             initial={{ opacity: 0, scale: 1.2 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex justify-center mb-8"
+            className="flex justify-center mb-6 sm:mb-8"
           >
             <img
               src="/images/trefalogo.png"
               alt="TREFA Logo"
-              className="h-20 md:h-24 w-auto"
+              className="h-16 sm:h-20 md:h-24 w-auto"
             />
           </motion.div>
 
-          {/* Massive Headline */}
+          {/* Massive Headline - Optimized for Mobile */}
           <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="font-heading text-[28px] sm:text-[34px] md:text-[46px] lg:text-[54px] xl:text-[66px] font-black mb-6 sm:mb-8"
-              style={{ letterSpacing: '-0.025em', lineHeight: '1.0' }}
+              className="font-heading text-[24px] sm:text-[34px] md:text-[46px] lg:text-[54px] xl:text-[66px] font-black mb-6 sm:mb-8 px-4"
+              style={{ letterSpacing: '-0.025em', lineHeight: '1.1' }}
             >
               <span className="block text-gray-900 drop-shadow-lg">
                 Estrena un auto seminuevo en 24h
               </span>
-              <span className="block text-gray-900 drop-shadow-lg mt-2">
+              <span className="block text-gray-900 drop-shadow-lg mt-1 sm:mt-2">
                 Desde aquí{' '}
-                <span className="bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%]">
+                <span className="bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-clip-text text-transparent animate-shimmer bg-[length:200%_100%] whitespace-nowrap">
                   es posible
                 </span>
               </span>
@@ -598,11 +738,10 @@ const FinanciamientosPage: React.FC = () => {
                       className="w-full px-4 py-3 backdrop-blur-md bg-white/90 border-2 border-gray-200 text-gray-900 rounded-xl transition-all focus:bg-white focus:ring-2 focus:ring-primary focus:border-primary shadow-md font-medium"
                     >
                       <option value="">Selecciona tu ingreso mensual</option>
-                      <option value="15000">$15,000 - $25,000</option>
-                      <option value="30000">$25,000 - $40,000</option>
-                      <option value="50000">$40,000 - $60,000</option>
-                      <option value="75000">$60,000 - $100,000</option>
-                      <option value="100000">$100,000+</option>
+                      <option value="10000">Menos de $15,000</option>
+                      <option value="17500">$15,000 - $20,000</option>
+                      <option value="22500">$20,000 - $25,000</option>
+                      <option value="30000">$25,000 y más</option>
                     </select>
                     {errors.monthlyIncome && (
                       <p className="text-red-600 text-xs mt-2 ml-2 font-medium">{errors.monthlyIncome.message}</p>

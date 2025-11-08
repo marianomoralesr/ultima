@@ -79,7 +79,7 @@ export class AnalyticsService {
         try {
             const isAdmin = role === 'admin';
             const baseLeadQuery = supabase.from('profiles').select('*');
-            const baseAppQuery = supabase.from('applications').select('*');
+            const baseAppQuery = supabase.from('financing_applications').select('*');
 
             // Filter by sales rep if not admin
             let leadQuery = isAdmin ? baseLeadQuery : baseLeadQuery.eq('asesor_asignado_id', userId);
@@ -95,6 +95,18 @@ export class AnalyticsService {
                 appQuery = appQuery.lte('created_at', filters.endDate.toISOString());
             }
 
+            // Build reminders query based on role
+            let remindersQuery = supabase
+                .from('lead_reminders')
+                .select('*')
+                .gte('reminder_date', new Date().toISOString())
+                .order('reminder_date', { ascending: true });
+
+            // For sales users, filter by agent_id. For admins, show all reminders.
+            if (!isAdmin && userId) {
+                remindersQuery = remindersQuery.eq('agent_id', userId);
+            }
+
             // Fetch all data in parallel
             const [
                 leadsResult,
@@ -103,12 +115,7 @@ export class AnalyticsService {
             ] = await Promise.all([
                 leadQuery,
                 appQuery,
-                supabase
-                    .from('lead_reminders')
-                    .select('*')
-                    .eq(isAdmin ? 'id' : 'agent_id', isAdmin ? undefined : userId)
-                    .gte('reminder_date', new Date().toISOString())
-                    .order('reminder_date', { ascending: true })
+                remindersQuery
                     .then(result => result)
                     .catch(error => {
                         console.warn('[Analytics] lead_reminders table not found, skipping reminders:', error);
@@ -144,6 +151,22 @@ export class AnalyticsService {
             let allProfiles = leadsResult.data || [];
             let applications = applicationsResult.data || [];
             const reminders = remindersResult.data || [];
+
+            // DEBUG: Log raw data counts
+            console.log(`[Analytics] Raw data counts - Profiles: ${allProfiles.length}, Applications: ${applications.length}, Reminders: ${reminders.length}`);
+
+            // DEBUG: Log unique application statuses
+            const uniqueStatuses = [...new Set(applications.map(app => app.status))];
+            console.log(`[Analytics] Unique application statuses:`, uniqueStatuses);
+            console.log(`[Analytics] Application status breakdown:`, {
+                total: applications.length,
+                draft: applications.filter(a => a.status === 'draft').length,
+                submitted: applications.filter(a => a.status === 'submitted').length,
+                pending: applications.filter(a => a.status === 'pending').length,
+                processed: applications.filter(a => a.status === 'processed').length,
+                approved: applications.filter(a => a.status === 'approved').length,
+                completed: applications.filter(a => a.status === 'completed').length,
+            });
 
             // Filter profiles to only include website leads (users who registered directly, not created by admin)
             // We identify website leads by checking if they have a role of null or 'customer' and have source data
@@ -211,12 +234,13 @@ export class AnalyticsService {
             );
 
             // NEW: Calculate completed applications in last 24 hours
+            // BUG FIX: Check when app was UPDATED (approved/completed), not when it was created
             const twentyFourHoursAgo = new Date();
             twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
             const completedLast24Hours = applications.filter(app => {
                 const isCompletedStatus = app.status === 'approved' || app.status === 'completed';
-                const createdAt = new Date(app.created_at);
-                return isCompletedStatus && createdAt >= twentyFourHoursAgo;
+                const updatedAt = new Date(app.updated_at || app.created_at); // Use updated_at to check when it was approved
+                return isCompletedStatus && updatedAt >= twentyFourHoursAgo;
             }).length;
 
             // Calculate lead metrics
@@ -224,48 +248,71 @@ export class AnalyticsService {
             const uncontactedLeads = leads.filter(lead => !lead.contactado);
 
             // Source attribution - IMPROVED MATCHING LOGIC
+            // BUG FIX: Make source matching more flexible and handle empty/null values better
             const sourceBreakdown = {
                 facebook: leads.filter(l => {
-                    const source = (l.source || '').toLowerCase();
-                    const utmSource = (l.metadata?.utm_source || '').toLowerCase();
-                    const utmMedium = (l.metadata?.utm_medium || '').toLowerCase();
+                    const source = String(l.source || '').toLowerCase().trim();
+                    const utmSource = String(l.metadata?.utm_source || '').toLowerCase().trim();
+                    const utmMedium = String(l.metadata?.utm_medium || '').toLowerCase().trim();
+                    const fbclid = l.metadata?.fbclid;
+
+                    // Match Facebook in multiple ways
                     return source.includes('facebook') ||
                            source.includes('fb') ||
-                           source === 'meta' ||
+                           source.includes('meta') ||
                            utmSource.includes('facebook') ||
                            utmSource.includes('fb') ||
-                           utmMedium.includes('facebook');
+                           utmSource.includes('meta') ||
+                           utmMedium.includes('facebook') ||
+                           utmMedium.includes('fb-ads') ||
+                           utmMedium.includes('social') ||
+                           !!fbclid; // If fbclid exists, it's from Facebook
                 }).length,
                 google: leads.filter(l => {
-                    const source = (l.source || '').toLowerCase();
-                    const utmSource = (l.metadata?.utm_source || '').toLowerCase();
-                    const utmMedium = (l.metadata?.utm_medium || '').toLowerCase();
+                    const source = String(l.source || '').toLowerCase().trim();
+                    const utmSource = String(l.metadata?.utm_source || '').toLowerCase().trim();
+                    const utmMedium = String(l.metadata?.utm_medium || '').toLowerCase().trim();
+                    const gclid = l.metadata?.gclid;
+
                     return source.includes('google') ||
                            source.includes('adwords') ||
                            source.includes('gads') ||
                            utmSource.includes('google') ||
                            utmMedium.includes('cpc') ||
-                           utmMedium.includes('ppc');
+                           utmMedium.includes('ppc') ||
+                           utmMedium.includes('paid') ||
+                           !!gclid; // If gclid exists, it's from Google Ads
                 }).length,
                 bot: leads.filter(l => {
-                    const source = (l.source || '').toLowerCase();
-                    const utmSource = (l.metadata?.utm_source || '').toLowerCase();
+                    const source = String(l.source || '').toLowerCase().trim();
+                    const utmSource = String(l.metadata?.utm_source || '').toLowerCase().trim();
+
                     return source.includes('bot') ||
                            source.includes('whatsapp') ||
                            source.includes('wa') ||
                            source.includes('chatbot') ||
+                           source.includes('wechat') ||
+                           source.includes('telegram') ||
                            utmSource.includes('whatsapp') ||
-                           utmSource.includes('bot');
+                           utmSource.includes('bot') ||
+                           utmSource.includes('wa');
                 }).length,
                 direct: leads.filter(l => {
-                    const source = (l.source || '').toLowerCase();
-                    return source.includes('direct') ||
-                           source.includes('directo') ||
+                    const source = String(l.source || '').toLowerCase().trim();
+
+                    // Match various forms of direct traffic
+                    return !source || // Empty source is direct
+                           source === '' ||
+                           source === 'direct' ||
+                           source === 'directo' ||
                            source === 'portal trefa' ||
                            source === 'trefa.mx' ||
                            source === 'trefa' ||
                            source === 'website' ||
-                           source === 'web';
+                           source === 'web' ||
+                           source === 'none' ||
+                           source === '(none)' ||
+                           source === 'organic';
                 }).length,
                 other: 0
             };
@@ -277,6 +324,13 @@ export class AnalyticsService {
                 sourceBreakdown.bot +
                 sourceBreakdown.direct
             );
+
+            // DEBUG: Log source breakdown and sample data
+            console.log(`[Analytics] Source breakdown:`, sourceBreakdown);
+            console.log(`[Analytics] Sample lead sources (first 5):`, leads.slice(0, 5).map(l => ({
+                source: l.source,
+                metadata: l.metadata
+            })));
 
             // Calculate rates
             const conversionRate = leads.length > 0
@@ -386,7 +440,7 @@ export class AnalyticsService {
                 .gte('created_at', thirtyDaysAgo.toISOString());
 
             const appQuery = supabase
-                .from('applications')
+                .from('financing_applications')
                 .select('created_at')
                 .gte('created_at', thirtyDaysAgo.toISOString());
 
@@ -466,7 +520,7 @@ export class AnalyticsService {
                 .lte('created_at', now.toISOString());
 
             const currentAppQuery = supabase
-                .from('applications')
+                .from('financing_applications')
                 .select('id, status, created_at')
                 .gte('created_at', currentPeriodStart.toISOString())
                 .lte('created_at', now.toISOString());
@@ -479,7 +533,7 @@ export class AnalyticsService {
                 .lte('created_at', previousPeriodEnd.toISOString());
 
             const previousAppQuery = supabase
-                .from('applications')
+                .from('financing_applications')
                 .select('id, status, created_at')
                 .gte('created_at', previousPeriodStart.toISOString())
                 .lte('created_at', previousPeriodEnd.toISOString());

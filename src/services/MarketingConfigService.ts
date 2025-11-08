@@ -14,7 +14,7 @@ export interface MarketingConfig {
 export interface ConversionEvent {
   id: string;
   name: string;
-  event_type: 'Lead' | 'PageView' | 'ViewContent' | 'CompleteRegistration' | 'Purchase' | 'AddToCart' | 'InitiateCheckout';
+  event_type: 'PageView' | 'ViewContent' | 'InitialRegistration' | 'PersonalInformationComplete' | 'LeadComplete' | 'ConversionLandingPage' | 'PerfilacionBancariaComplete';
   trigger_location: string;
   enabled: boolean;
   fb_enabled: boolean;
@@ -39,14 +39,48 @@ class MarketingConfigService {
   private config: MarketingConfig | null = null;
 
   /**
+   * Default conversion events
+   */
+  private readonly DEFAULT_EVENTS: ConversionEvent[] = [
+    { id: 'pageview', name: 'Vista de Página', event_type: 'PageView', trigger_location: 'Todas las páginas', enabled: true, fb_enabled: true, gtm_enabled: true },
+    { id: 'viewcontent', name: 'Ver Contenido', event_type: 'ViewContent', trigger_location: 'Páginas de vehículos', enabled: true, fb_enabled: true, gtm_enabled: true },
+    { id: 'initialregistration', name: 'Registro Inicial', event_type: 'InitialRegistration', trigger_location: 'Página de autenticación', enabled: true, fb_enabled: true, gtm_enabled: true },
+    { id: 'personalinfocomplete', name: 'Información Personal Completa', event_type: 'PersonalInformationComplete', trigger_location: 'Página de perfil', enabled: true, fb_enabled: true, gtm_enabled: true },
+    { id: 'leadcomplete', name: 'Lead Completo', event_type: 'LeadComplete', trigger_location: 'Aplicación de financiamiento', enabled: true, fb_enabled: true, gtm_enabled: true },
+    { id: 'conversionlandingpage', name: 'Conversión Landing Page', event_type: 'ConversionLandingPage', trigger_location: 'Página de financiamientos', enabled: true, fb_enabled: true, gtm_enabled: true },
+  ];
+
+  /**
+   * Default configuration values
+   */
+  private readonly DEFAULT_CONFIG: Partial<MarketingConfig> = {
+    gtm_container_id: 'GTM-KDVDMB4X',
+    facebook_pixel_id: '846689825695126',
+    google_analytics_id: 'G-E580PSBCHH',
+    conversion_events: this.DEFAULT_EVENTS,
+    active: true,
+  };
+
+  /**
    * Get marketing configuration from localStorage and Supabase
    */
   async getConfig(): Promise<MarketingConfig | null> {
-    // Try localStorage first for performance
+    // Clear stale cache (if config version is old or missing conversion_events)
     const localConfig = localStorage.getItem('marketing_config');
     if (localConfig) {
-      this.config = JSON.parse(localConfig);
-      return this.config;
+      try {
+        const parsed = JSON.parse(localConfig);
+        // Check if config has all required fields and events
+        if (!parsed.conversion_events || parsed.conversion_events.length < 6) {
+          console.log('🔄 Clearing stale marketing config cache');
+          localStorage.removeItem('marketing_config');
+        } else {
+          this.config = parsed;
+          return this.config;
+        }
+      } catch (e) {
+        localStorage.removeItem('marketing_config');
+      }
     }
 
     // Fallback to Supabase
@@ -59,7 +93,15 @@ class MarketingConfigService {
     if (error) {
       // Check if it's a table not found error
       if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        console.warn('⚠️ La tabla marketing_config no existe. Ejecuta: supabase db push');
+        console.warn('⚠️ La tabla marketing_config no existe. Usando configuración por defecto.');
+        // Return default config
+        this.config = this.DEFAULT_CONFIG as MarketingConfig;
+        return this.config;
+      } else if (error.code === 'PGRST116') {
+        // No rows found - use default config
+        console.log('No config found in database, using defaults');
+        this.config = this.DEFAULT_CONFIG as MarketingConfig;
+        return this.config;
       } else {
         console.error('Error fetching marketing config:', error);
       }
@@ -370,7 +412,7 @@ class MarketingConfigService {
       let query = supabase
         .from('tracking_events')
         .select('utm_source, utm_medium, utm_campaign, event_type, created_at')
-        .eq('event_type', 'Lead')
+        .in('event_type', ['LeadComplete', 'InitialRegistration', 'ConversionLandingPage', 'PersonalInformationComplete'])
         .order('created_at', { ascending: false });
 
       if (startDate) {

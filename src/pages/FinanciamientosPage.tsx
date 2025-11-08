@@ -673,17 +673,19 @@ const FinanciamientosPage: React.FC = () => {
             </motion.p>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            {/* Video Player */}
+          {/* Main Content Grid - 3/5 Video, 2/5 Form */}
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8 xl:gap-10 items-start max-w-[95%] mx-auto">
+            {/* Video Player with Animated Gradient Border */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
               className="relative"
             >
-              <div className="relative bg-white border-2 border-gray-200 rounded-xl p-2 shadow-lg">
-                <div className="relative aspect-video bg-gray-900 rounded-xl overflow-hidden">
+              {/* Animated Gradient Border Container */}
+              <div className="relative p-[3px] rounded-xl bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-[length:200%_200%] animate-shimmer shadow-2xl">
+                <div className="relative bg-white rounded-xl p-2">
+                  <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
                   {!videoPlaying ? (
                     <div
                       className="absolute inset-0 flex items-center justify-center cursor-pointer group/play"
@@ -722,6 +724,7 @@ const FinanciamientosPage: React.FC = () => {
                       title="TREFA - Proceso de Financiamiento"
                     />
                   )}
+                  </div>
                 </div>
               </div>
             </motion.div>

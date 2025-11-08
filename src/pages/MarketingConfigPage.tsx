@@ -37,16 +37,65 @@ const configSchema = z.object({
 
 type ConfigFormData = z.infer<typeof configSchema>;
 
+// Helper function to get URL for each event type
+const getEventUrl = (eventType: string): string => {
+  const urlMap: Record<string, string> = {
+    'PageView': 'https://trefa.mx/*',
+    'ViewContent': 'https://trefa.mx/autos/*',
+    'InitialRegistration': 'https://trefa.mx/acceder',
+    'PersonalInformationComplete': 'https://trefa.mx/escritorio/profile/',
+    'LeadComplete': 'https://trefa.mx/escritorio/aplicacion/*',
+    'ConversionLandingPage': 'https://trefa.mx/financiamientos',
+    'PerfilacionBancariaComplete': 'https://trefa.mx/escritorio/perfilacion-bancaria',
+  };
+  return urlMap[eventType] || 'https://trefa.mx';
+};
+
+// Helper function to get event parameters for each event type (DLV format)
+const getEventParameters = (eventType: string): Record<string, string> => {
+  const paramsMap: Record<string, Record<string, string>> = {
+    'PageView': {
+      'url': '{{DLV - Page URL}}',
+      'pageTitle': '{{DLV - Page Title}}',
+      'userId': '{{DLV - User ID}}',
+    },
+    'ViewContent': {
+      'contentType': '{{DLV - Content Type}}',
+      'vehicleId': '{{DLV - Vehicle ID}}',
+      'vehiclePrice': '{{DLV - Vehicle Price}}',
+      'vehicleName': '{{DLV - Vehicle Name}}',
+    },
+    'InitialRegistration': {
+      'userId': '{{DLV - User ID}}',
+      'email': '{{DLV - User Email}}',
+      'registrationMethod': '{{DLV - Registration Method}}',
+    },
+    'PersonalInformationComplete': {
+      'userId': '{{DLV - User ID}}',
+      'email': '{{DLV - User Email}}',
+      'profileStatus': '{{DLV - Profile Status}}',
+    },
+    'LeadComplete': {
+      'userId': '{{DLV - User ID}}',
+      'email': '{{DLV - User Email}}',
+      'applicationId': '{{DLV - Application ID}}',
+      'loanAmount': '{{DLV - Loan Amount}}',
+    },
+    'ConversionLandingPage': {
+      'formType': '{{DLV - Form Type}}',
+      'source': '{{DLV - Lead Source}}',
+      'email': '{{DLV - User Email}}',
+    },
+    'PerfilacionBancariaComplete': {
+      'userId': '{{DLV - User ID}}',
+      'email': '{{DLV - User Email}}',
+      'bankProfileStatus': '{{DLV - Bank Profile Status}}',
+    },
+  };
+  return paramsMap[eventType] || {};
+};
+
 const defaultConversionEvents: ConversionEvent[] = [
-  {
-    id: 'lead',
-    name: 'Lead Capturado',
-    event_type: 'Lead',
-    trigger_location: 'Formulario de contacto, aplicación',
-    enabled: true,
-    fb_enabled: true,
-    gtm_enabled: true,
-  },
   {
     id: 'pageview',
     name: 'Vista de Página',
@@ -66,10 +115,37 @@ const defaultConversionEvents: ConversionEvent[] = [
     gtm_enabled: true,
   },
   {
-    id: 'registration',
-    name: 'Registro Completo',
-    event_type: 'CompleteRegistration',
+    id: 'initialregistration',
+    name: 'Registro Inicial',
+    event_type: 'InitialRegistration',
     trigger_location: 'Página de autenticación',
+    enabled: true,
+    fb_enabled: true,
+    gtm_enabled: true,
+  },
+  {
+    id: 'personalinfocomplete',
+    name: 'Información Personal Completa',
+    event_type: 'PersonalInformationComplete',
+    trigger_location: 'Página de perfil',
+    enabled: true,
+    fb_enabled: true,
+    gtm_enabled: true,
+  },
+  {
+    id: 'leadcomplete',
+    name: 'Lead Completo',
+    event_type: 'LeadComplete',
+    trigger_location: 'Aplicación de financiamiento',
+    enabled: true,
+    fb_enabled: true,
+    gtm_enabled: true,
+  },
+  {
+    id: 'conversionlandingpage',
+    name: 'Conversión Landing Page',
+    event_type: 'ConversionLandingPage',
+    trigger_location: 'Página de financiamientos',
     enabled: true,
     fb_enabled: true,
     gtm_enabled: true,
@@ -114,9 +190,9 @@ export default function MarketingConfigPage() {
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<ConfigFormData>({
     resolver: zodResolver(configSchema),
     defaultValues: {
-      gtm_container_id: '',
-      facebook_pixel_id: '',
-      google_analytics_id: '',
+      gtm_container_id: 'GTM-KDVDMB4X',
+      facebook_pixel_id: '846689825695126',
+      google_analytics_id: 'G-E580PSBCHH',
     }
   });
 
@@ -148,8 +224,33 @@ export default function MarketingConfigPage() {
       setValue('gtm_container_id', loadedConfig.gtm_container_id);
       setValue('facebook_pixel_id', loadedConfig.facebook_pixel_id);
       setValue('google_analytics_id', loadedConfig.google_analytics_id || '');
-      if (loadedConfig.conversion_events) {
-        setConversionEvents(loadedConfig.conversion_events);
+
+      // Always start with default events and merge settings from saved config
+      if (loadedConfig.conversion_events && loadedConfig.conversion_events.length > 0) {
+        // Create a map of saved events by event_type for matching
+        const savedEventsMap = new Map(
+          loadedConfig.conversion_events.map(e => [e.event_type, e])
+        );
+
+        // Merge: keep default structure but use saved enabled states if they exist
+        const mergedEvents = defaultConversionEvents.map(defaultEvent => {
+          const savedEvent = savedEventsMap.get(defaultEvent.event_type);
+          if (savedEvent) {
+            // Use saved enabled states but keep default id and other properties
+            return {
+              ...defaultEvent,
+              enabled: savedEvent.enabled,
+              fb_enabled: savedEvent.fb_enabled,
+              gtm_enabled: savedEvent.gtm_enabled,
+            };
+          }
+          return defaultEvent;
+        });
+
+        setConversionEvents(mergedEvents);
+      } else {
+        // No saved events, use defaults
+        setConversionEvents(defaultConversionEvents);
       }
     }
   };
@@ -235,6 +336,13 @@ export default function MarketingConfigPage() {
 
     setEventStats(stats);
   }, [recentEvents]);
+
+  // Calculate stats when events change or when viewing analytics/monitor tabs
+  useEffect(() => {
+    if (recentEvents.length > 0 && (activeTab === 'analytics' || activeTab === 'monitor')) {
+      calculateEventStats();
+    }
+  }, [recentEvents, activeTab, calculateEventStats]);
 
   const onSubmit = async (data: ConfigFormData) => {
     setIsSaving(true);
@@ -709,12 +817,26 @@ export default function MarketingConfigPage() {
                 {conversionEvents.map((event) => (
                   <div key={event.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
-                      <div>
+                      <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{event.name}</h3>
-                        <p className="text-sm text-gray-500">Tipo: {event.event_type}</p>
+                        <p className="text-sm text-gray-500">Evento: {event.event_type}</p>
                         <p className="text-xs text-gray-400">Ubicación: {event.trigger_location}</p>
+                        <p className="text-xs text-blue-600 mt-1">
+                          <Globe className="w-3 h-3 inline mr-1" />
+                          URL: <a href={getEventUrl(event.event_type)} target="_blank" rel="noopener noreferrer" className="hover:underline">{getEventUrl(event.event_type)}</a>
+                        </p>
+                        <div className="mt-2">
+                          <p className="text-xs font-medium text-gray-600">Parámetros del evento:</p>
+                          <div className="mt-1 bg-gray-50 rounded p-2 text-xs text-gray-700">
+                            {Object.entries(getEventParameters(event.event_type)).map(([key, value]) => (
+                              <div key={key} className="mb-1">
+                                <span className="font-mono text-blue-600">{key}</span>: <span className="text-gray-600">{value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <label className="flex items-center gap-2">
+                      <label className="flex items-center gap-2 ml-4">
                         <input
                           type="checkbox"
                           checked={event.enabled}

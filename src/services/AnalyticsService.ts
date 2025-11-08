@@ -249,10 +249,11 @@ export class AnalyticsService {
 
             // Source attribution - IMPROVED MATCHING LOGIC
             // BUG FIX: Make source matching more flexible and handle empty/null values better
-            // CHECK BOTH: Direct UTM fields on profile AND metadata.utm_source
+            // CHECK: source, utm_source, utm_medium, rfdm, and metadata fields
             const sourceBreakdown = {
                 facebook: leads.filter(l => {
                     const source = String(l.source || '').toLowerCase().trim();
+                    const rfdm = String(l.rfdm || '').toLowerCase().trim();
                     // Check both direct UTM fields and metadata
                     const utmSource = String(l.utm_source || l.metadata?.utm_source || '').toLowerCase().trim();
                     const utmMedium = String(l.utm_medium || l.metadata?.utm_medium || '').toLowerCase().trim();
@@ -262,6 +263,9 @@ export class AnalyticsService {
                     return source.includes('facebook') ||
                            source.includes('fb') ||
                            source.includes('meta') ||
+                           rfdm.includes('facebook') ||
+                           rfdm.includes('fb') ||
+                           rfdm.includes('meta') ||
                            utmSource.includes('facebook') ||
                            utmSource.includes('fb') ||
                            utmSource.includes('meta') ||
@@ -272,6 +276,7 @@ export class AnalyticsService {
                 }).length,
                 google: leads.filter(l => {
                     const source = String(l.source || '').toLowerCase().trim();
+                    const rfdm = String(l.rfdm || '').toLowerCase().trim();
                     // Check both direct UTM fields and metadata
                     const utmSource = String(l.utm_source || l.metadata?.utm_source || '').toLowerCase().trim();
                     const utmMedium = String(l.utm_medium || l.metadata?.utm_medium || '').toLowerCase().trim();
@@ -280,6 +285,8 @@ export class AnalyticsService {
                     return source.includes('google') ||
                            source.includes('adwords') ||
                            source.includes('gads') ||
+                           rfdm.includes('google') ||
+                           rfdm.includes('adwords') ||
                            utmSource.includes('google') ||
                            utmMedium.includes('cpc') ||
                            utmMedium.includes('ppc') ||
@@ -288,6 +295,7 @@ export class AnalyticsService {
                 }).length,
                 bot: leads.filter(l => {
                     const source = String(l.source || '').toLowerCase().trim();
+                    const rfdm = String(l.rfdm || '').toLowerCase().trim();
                     // Check both direct UTM fields and metadata
                     const utmSource = String(l.utm_source || l.metadata?.utm_source || '').toLowerCase().trim();
 
@@ -297,6 +305,9 @@ export class AnalyticsService {
                            source.includes('chatbot') ||
                            source.includes('wechat') ||
                            source.includes('telegram') ||
+                           rfdm.includes('bot') ||
+                           rfdm.includes('whatsapp') ||
+                           rfdm.includes('wa') ||
                            utmSource.includes('whatsapp') ||
                            utmSource.includes('bot') ||
                            utmSource.includes('wa');
@@ -333,9 +344,11 @@ export class AnalyticsService {
             console.log(`[Analytics] Source breakdown:`, sourceBreakdown);
             console.log(`[Analytics] Sample lead sources (first 5):`, leads.slice(0, 5).map(l => ({
                 source: l.source,
+                rfdm: l.rfdm,
                 utm_source: l.utm_source,
                 utm_medium: l.utm_medium,
                 utm_campaign: l.utm_campaign,
+                referrer: l.referrer,
                 metadata: l.metadata
             })));
 

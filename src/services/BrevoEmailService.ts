@@ -202,11 +202,19 @@ export const BrevoEmailService = {
     /**
      * Get recent email history (last 15 emails sent)
      * This fetches from the email_notification_logs table in Supabase
-     * If the table doesn't exist, it will return an empty array
+     * If the table doesn't exist or RLS blocks access, it will return an empty array
      */
     async getRecentEmailHistory(limit: number = 15): Promise<any[]> {
         try {
-            // Try to fetch from email_notification_logs table
+            // Get current user session to ensure authenticated request
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                console.warn('[BrevoEmailService] No active session, cannot fetch email logs');
+                return [];
+            }
+
+            // Try to fetch from email_notification_logs table with explicit headers
             const { data, error } = await supabase
                 .from('email_notification_logs')
                 .select('*')
@@ -214,7 +222,14 @@ export const BrevoEmailService = {
                 .limit(limit);
 
             if (error) {
-                console.warn('[BrevoEmailService] No email_notification_logs table found or error fetching:', error);
+                // Handle specific error cases
+                if (error.code === '42P01') {
+                    console.warn('[BrevoEmailService] Table email_notification_logs does not exist');
+                } else if (error.message?.includes('apikey')) {
+                    console.warn('[BrevoEmailService] API key error - this might be an RLS policy issue:', error);
+                } else {
+                    console.warn('[BrevoEmailService] Error fetching email logs:', error);
+                }
                 return [];
             }
 

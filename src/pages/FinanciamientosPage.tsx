@@ -6,7 +6,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../hooks/useSEO';
 import {
-  Play,
   CheckCircle,
   ArrowRight,
   Shield,
@@ -149,7 +148,6 @@ const FinanciamientosPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'otp'>('idle');
-  const [videoPlaying, setVideoPlaying] = useState(false);
   const { vehicles: allVehicles } = useVehicles();
   const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
   const [otp, setOtp] = useState('');
@@ -484,10 +482,6 @@ const FinanciamientosPage: React.FC = () => {
     }
   };
 
-  const handleVideoPlay = () => {
-    setVideoPlaying(true);
-  };
-
   // OTP Verification View
   if (submissionStatus === 'otp') {
     return (
@@ -686,44 +680,15 @@ const FinanciamientosPage: React.FC = () => {
               <div className="relative p-[3px] rounded-xl bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-[length:200%_200%] animate-shimmer shadow-2xl">
                 <div className="relative bg-white rounded-xl p-2">
                   <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
-                  {!videoPlaying ? (
-                    <div
-                      className="absolute inset-0 flex items-center justify-center cursor-pointer group/play"
-                      onClick={handleVideoPlay}
-                    >
-                      <img
-                        src="https://img.youtube.com/vi/p-nMlle-xfw/maxresdefault.jpg"
-                        alt="Video preview"
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40"></div>
-
-                      <div className="relative z-10">
-                        <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-xl group-hover/play:scale-110 transition-transform duration-300">
-                          <Play className="w-10 h-10 text-white ml-1" />
-                        </div>
-                      </div>
-
-                      <div className="absolute bottom-4 left-4 right-4 z-10">
-                        <div className="bg-white/95 rounded-lg p-3">
-                          <p className="text-gray-900 font-bold text-sm mb-1">
-                            ¿Por qué comprar un auto TREFA?
-                          </p>
-                          <p className="text-primary font-bold text-xs">
-                            ⏱️ 2 minutos • Beneficios, garantías y compromiso.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <iframe
-                      src="https://www.youtube-nocookie.com/embed/p-nMlle-xfw?rel=0&autoplay=1&enablejsapi=1"
-                      className="w-full h-full rounded-lg"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title="TREFA - Proceso de Financiamiento"
-                    />
-                  )}
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full rounded-lg"
+                    src="https://www.youtube.com/embed/p-nMlle-xfw?rel=0"
+                    title="TREFA - Proceso de Financiamiento"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  />
                   </div>
                 </div>
               </div>

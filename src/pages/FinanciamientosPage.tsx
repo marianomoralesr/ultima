@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../hooks/useSEO';
 import {
@@ -146,6 +146,7 @@ const FinanciamientosPage: React.FC = () => {
     keywords: 'financiamiento automotriz, crédito para auto, préstamo para coche, TREFA, financiamiento en 24 horas, mejor tasa de interés'
   });
 
+  const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'otp'>('idle');
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -153,6 +154,8 @@ const FinanciamientosPage: React.FC = () => {
   const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
   const [otp, setOtp] = useState('');
   const [formDataCache, setFormDataCache] = useState<FormData | null>(null);
+  const [urlParams, setUrlParams] = useState('');
+  const [leadSource, setLeadSource] = useState<string>('direct');
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(formSchema)
@@ -170,14 +173,45 @@ const FinanciamientosPage: React.FC = () => {
     }
   }, [allVehicles]);
 
-  // Track page view on mount
+  // Capture URL parameters and determine lead source
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paramString = params.toString();
+    setUrlParams(paramString);
+
+    // Determine lead source from URL parameters
+    let source = 'financiamientos-landing-direct';
+
+    if (params.get('utm_source')) {
+      const utmSource = params.get('utm_source');
+      const utmMedium = params.get('utm_medium');
+      const utmCampaign = params.get('utm_campaign');
+      source = `financiamientos-${utmSource}${utmMedium ? `-${utmMedium}` : ''}${utmCampaign ? `-${utmCampaign}` : ''}`;
+    } else if (params.get('fbclid')) {
+      source = 'financiamientos-facebook';
+    } else if (params.get('gclid')) {
+      source = 'financiamientos-google';
+    } else if (params.get('source')) {
+      source = `financiamientos-${params.get('source')}`;
+    } else if (document.referrer) {
+      try {
+        const referrerUrl = new URL(document.referrer);
+        const referrerDomain = referrerUrl.hostname.replace('www.', '');
+        source = `financiamientos-referrer-${referrerDomain}`;
+      } catch (e) {
+        // Invalid referrer URL
+      }
+    }
+
+    setLeadSource(source);
+
     // Track with Facebook Pixel
     if (typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'ViewContent', {
         content_name: 'Financiamientos Landing Page',
         content_category: 'Financial Services',
-        content_type: 'product'
+        content_type: 'product',
+        source: source
       });
     }
 
@@ -187,7 +221,12 @@ const FinanciamientosPage: React.FC = () => {
         event: 'page_view',
         pageType: 'financing_landing',
         pageName: 'Financiamientos',
-        pageCategory: 'Lead Generation'
+        pageCategory: 'Lead Generation',
+        source: source,
+        utm_source: params.get('utm_source') || undefined,
+        utm_medium: params.get('utm_medium') || undefined,
+        utm_campaign: params.get('utm_campaign') || undefined,
+        referrer: document.referrer || undefined
       });
     }
   }, []);
@@ -245,23 +284,26 @@ const FinanciamientosPage: React.FC = () => {
     try {
       console.log('📧 Sending OTP to:', data.email);
 
-      // Track form submission start with Facebook Pixel
+      // Track ConversionLandingPage event with Facebook Pixel
       if (typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'InitiateCheckout', {
           content_name: 'Financing Request',
           content_category: 'Lead Generation',
           value: parseFloat(data.monthlyIncome),
-          currency: 'MXN'
+          currency: 'MXN',
+          source: leadSource
         });
       }
 
-      // Track with Google Tag Manager
+      // Track ConversionLandingPage event with Google Tag Manager
       if (typeof window !== 'undefined' && (window as any).dataLayer) {
         (window as any).dataLayer.push({
-          event: 'financing_form_submit_start',
+          event: 'ConversionLandingPage',
           formType: 'financing_request',
           monthlyIncome: data.monthlyIncome,
-          source: 'financiamientos-landing'
+          source: leadSource,
+          email: data.email,
+          phone: data.phone
         });
       }
 
@@ -351,11 +393,15 @@ const FinanciamientosPage: React.FC = () => {
             email: formDataCache.email,
             telefono: formDataCache.phone,
             ingreso_mensual: parseInt(formDataCache.monthlyIncome),
-            source: 'financiamientos-landing',
+            source: leadSource,
             metadata: {
               timestamp: new Date().toISOString(),
               userAgent: navigator.userAgent,
-              referrer: document.referrer || window.location.href
+              referrer: document.referrer || window.location.href,
+              urlParams: urlParams,
+              utm_source: new URLSearchParams(window.location.search).get('utm_source') || undefined,
+              utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || undefined,
+              utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || undefined
             }
           }
         ])
@@ -932,7 +978,7 @@ const FinanciamientosPage: React.FC = () => {
 
           <div className="text-center mt-8">
             <Link
-              to="/acceder"
+              to={`/acceder${urlParams ? `?${urlParams}` : ''}`}
               className="inline-flex items-center gap-2 bg-primary text-white hover:bg-primary/90 px-8 py-4 rounded-lg font-black text-lg shadow-lg hover:shadow-xl transition-all"
             >
               Accede a Tu Cuenta
@@ -1423,7 +1469,7 @@ const FinanciamientosPage: React.FC = () => {
               </button>
 
               <Link
-                to="/acceder"
+                to={`/acceder${urlParams ? `?${urlParams}` : ''}`}
                 className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border-2 border-white text-white px-8 py-4 rounded-xl font-black transition-all hover:scale-105 text-lg"
               >
                 Accede a Tu Cuenta

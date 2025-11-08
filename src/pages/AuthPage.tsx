@@ -12,6 +12,20 @@ import { getEmailRedirectUrl } from './config';
 import { proxyImage } from '../utils/proxyImage';
 import { conversionTracking } from '../services/ConversionTrackingService';
 
+// Admin email addresses that should be redirected to admin dashboard
+const ADMIN_EMAILS = [
+    'mariano.morales@autostrefa.mx',
+    'alejandro.trevino@autostrefa.mx',
+    'evelia.castillo@autostrefa.mx',
+    'fernando.trevino@autostrefa.mx'
+];
+
+// Check if an email is an admin email
+const isAdminEmail = (email: string | undefined): boolean => {
+    if (!email) return false;
+    return ADMIN_EMAILS.includes(email.toLowerCase().trim());
+};
+
 const VehicleFinanceCard: React.FC<{ vehicle: WordPressVehicle }> = ({ vehicle }) => (
   <div className="mb-6 bg-gray-100 p-4 rounded-lg border border-gray-200">
     <p className="text-sm font-semibold text-gray-700 mb-2">Para continuar con tu solicitud por:</p>
@@ -98,9 +112,12 @@ const AuthPage: React.FC = () => {
             // Check if there's a pending redirect
             let redirectPath = localStorage.getItem('loginRedirect');
 
-            // If no redirect is set, determine default based on role
+            // If no redirect is set, determine default based on email or role
             if (!redirectPath) {
-                if (profile?.role === 'admin' || profile?.role === 'sales') {
+                // Check if user email is an admin email (takes priority)
+                if (isAdminEmail(session.user?.email)) {
+                    redirectPath = '/escritorio/dashboard';
+                } else if (profile?.role === 'admin' || profile?.role === 'sales') {
                     redirectPath = '/escritorio/dashboard';
                 } else {
                     redirectPath = '/escritorio';
@@ -215,8 +232,13 @@ const AuthPage: React.FC = () => {
             // But we'll check here in case the profile is already loaded
             let redirectPath = localStorage.getItem('loginRedirect');
             if (!redirectPath) {
-                // Note: profile might not be loaded yet, so the useEffect will handle the redirect
-                redirectPath = '/escritorio';
+                // Check if this is an admin email (takes priority)
+                if (isAdminEmail(data.user?.email)) {
+                    redirectPath = '/escritorio/dashboard';
+                } else {
+                    // Note: profile might not be loaded yet, so the useEffect will handle the redirect
+                    redirectPath = '/escritorio';
+                }
             }
             localStorage.removeItem('loginRedirect');
             navigate(redirectPath, { replace: true });

@@ -49,9 +49,20 @@ class ConversionTrackingService {
     try {
       const config = await marketingConfigService.getConfig();
       if (config) {
+        // Initialize GTM if configured
+        if (config.gtm_container_id) {
+          marketingConfigService.initializeGTM(config.gtm_container_id);
+        }
+
+        // Initialize Facebook Pixel if configured
+        if (config.facebook_pixel_id) {
+          marketingConfigService.initializeFacebookPixel(config.facebook_pixel_id);
+        }
+
         console.log('✅ Conversion tracking initialized with config:', {
           gtm: config.gtm_container_id,
-          fb: config.facebook_pixel_id?.substring(0, 5) + '...'
+          fb: config.facebook_pixel_id?.substring(0, 5) + '...',
+          ga: config.google_analytics_id
         });
         this.initialized = true;
       } else {

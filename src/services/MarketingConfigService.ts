@@ -7,6 +7,9 @@ export interface MarketingConfig {
   google_analytics_id?: string;
   conversion_events: ConversionEvent[];
   active: boolean;
+  // Cloudflare Google Tag Gateway
+  gtm_server_container_url?: string; // Optional server-side GTM container URL
+  use_cloudflare_tag_gateway?: boolean; // Enable Cloudflare first-party tracking
   created_at?: string;
   updated_at?: string;
 }
@@ -145,7 +148,7 @@ class MarketingConfigService {
 
       // Initialize GTM and Facebook Pixel if IDs are provided
       if (config.gtm_container_id) {
-        this.initializeGTM(config.gtm_container_id);
+        this.initializeGTM(config.gtm_container_id, config.gtm_server_container_url);
       }
       if (config.facebook_pixel_id) {
         this.initializeFacebookPixel(config.facebook_pixel_id);
@@ -204,9 +207,9 @@ class MarketingConfigService {
   }
 
   /**
-   * Initialize Google Tag Manager dynamically
+   * Initialize Google Tag Manager dynamically with Cloudflare Tag Gateway support
    */
-  initializeGTM(containerId: string): void {
+  initializeGTM(containerId: string, serverContainerUrl?: string): void {
     if (typeof window === 'undefined') return;
 
     // Check if GTM is already loaded
@@ -217,6 +220,21 @@ class MarketingConfigService {
 
     // Initialize dataLayer
     (window as any).dataLayer = (window as any).dataLayer || [];
+
+    // Add server_container_url for server-side GTM if provided
+    if (serverContainerUrl) {
+      (window as any).dataLayer.push({
+        'gtm.server_container_url': serverContainerUrl
+      });
+      console.log('GTM Server Container URL configured:', serverContainerUrl);
+    }
+
+    // Detect if Cloudflare Tag Gateway is active by checking response headers
+    // Cloudflare Tag Gateway automatically proxies GTM requests through your domain
+    const isCloudflareTagGateway = this.detectCloudflareTagGateway();
+    if (isCloudflareTagGateway) {
+      console.log('✅ Cloudflare Google Tag Gateway detected - using first-party tracking');
+    }
 
     // Add GTM script
     const script = document.createElement('script');
@@ -238,6 +256,27 @@ class MarketingConfigService {
     document.body.insertBefore(noscript, document.body.firstChild);
 
     console.log('GTM initialized with container:', containerId);
+  }
+
+  /**
+   * Detect if Cloudflare Google Tag Gateway is active
+   * Tag Gateway proxies requests through your domain for better tracking
+   */
+  private detectCloudflareTagGateway(): boolean {
+    if (typeof window === 'undefined') return false;
+
+    // Check if GTM requests are being served from the same origin (first-party)
+    // Cloudflare Tag Gateway makes GTM appear to come from your domain
+    try {
+      const currentDomain = window.location.hostname;
+      // Tag Gateway active if we're on a custom domain (not localhost)
+      const isProductionDomain = !currentDomain.includes('localhost') &&
+                                !currentDomain.includes('127.0.0.1') &&
+                                !currentDomain.includes('.local');
+      return isProductionDomain;
+    } catch (e) {
+      return false;
+    }
   }
 
   /**

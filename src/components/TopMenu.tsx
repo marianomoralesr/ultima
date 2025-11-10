@@ -32,9 +32,6 @@ const TopMenu: React.FC = () => {
         ...(isSales ? [
             { to: '/escritorio/ventas/crm', label: 'Leads', icon: Users },
         ] : []),
-        ...(isSales || isAdmin ? [
-            { to: '/escritorio/seguimiento', label: 'Seguimiento', icon: ClipboardList },
-        ] : []),
         ...(isAdmin ? [
             { to: '/escritorio/admin/solicitudes', label: 'Análisis de Solicitudes', icon: BarChart3 },
             { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },

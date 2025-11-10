@@ -924,23 +924,6 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
 const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = ({ control, errors }) => {
     const { field: incomeField } = useController({ name: 'net_monthly_income', control });
 
-    const predefinedIncomeOptions = useMemo(() => ['Menos de $15,000', '$15,000 - $25,000', '$25,001 - $40,000'], []);
-    const OTHER_OPTION = 'Otro';
-    const allIncomeOptions = useMemo(() => [...predefinedIncomeOptions, OTHER_OPTION], [predefinedIncomeOptions]);
-    
-    const isOtherSelected = useMemo(() => {
-        return incomeField.value !== '' && !predefinedIncomeOptions.includes(incomeField.value);
-    }, [incomeField.value, predefinedIncomeOptions]);
-
-    const handleOptionClick = (option: string) => {
-        if (option === OTHER_OPTION) {
-            // Set to a placeholder value that triggers isOtherSelected but shows empty input
-            incomeField.onChange('$');
-        } else {
-            incomeField.onChange(option);
-        }
-    };
-    
     const formatNumberWithCommas = (value: string): string => {
         const numericValue = value.replace(/[^0-9]/g, '');
         if (numericValue === '') return '';
@@ -948,12 +931,12 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
         return number.toLocaleString('es-MX');
     };
 
-    const handleCustomIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const formattedValue = formatNumberWithCommas(e.target.value);
-        incomeField.onChange(`$${formattedValue}`);
+        incomeField.onChange(formattedValue);
     };
-    
-    const customIncomeDisplayValue = isOtherSelected ? (incomeField.value || '').replace(/^\$/, '') : '';
+
+    const incomeDisplayValue = incomeField.value || '';
 
     return (
         <div className="space-y-6">
@@ -970,32 +953,20 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
                 <FormInput control={control} name="company_industry" label="Sector o Industria" error={errors.company_industry?.message} />
                 <FormInput control={control} name="job_title" label="Nombre de tu Puesto" error={errors.job_title?.message} />
                 <FormRadio control={control} name="job_seniority" label="Antigüedad en el Puesto" options={['Menos de 1 año', '1-3 años', '3-5 años', 'Más de 5 años']} error={errors.job_seniority?.message} />
-                
+
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Salario Neto Mensual</label>
-                    <div className="flex flex-wrap gap-3">
-                        {allIncomeOptions.map(opt => {
-                             const isSelected = (opt === OTHER_OPTION && isOtherSelected) || incomeField.value === opt;
-                             return (
-                                <button type="button" key={opt} onClick={() => handleOptionClick(opt)} className={`px-4 py-2 text-sm font-semibold rounded-full border-2 ${isSelected ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'}`}>{opt}</button>
-                            );
-                        })}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Ingreso Mensual Neto</label>
+                    <div className="relative">
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-semibold">$</span>
+                        <input
+                            value={incomeDisplayValue}
+                            onChange={handleIncomeChange}
+                            placeholder="25,000"
+                            className="block w-full px-4 py-2 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7 font-semibold"
+                            inputMode="numeric"
+                        />
                     </div>
-                     {isOtherSelected && (
-                        <div className="mt-4">
-                            <label className="block text-sm font-medium text-gray-700">Monto exacto (mayor a $40,000)</label>
-                            <div className="relative mt-1">
-                                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
-                                <input 
-                                    value={customIncomeDisplayValue}
-                                    onChange={handleCustomIncomeChange}
-                                    placeholder="55,000"
-                                    className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7"
-                                    inputMode="numeric"
-                                />
-                            </div>
-                        </div>
-                    )}
+                    <p className="text-xs text-gray-500 mt-2">Ingresa tu salario neto mensual (después de impuestos)</p>
                     {errors.net_monthly_income && <p className="text-red-600 text-sm mt-1">{errors.net_monthly_income.message}</p>}
                 </div>
             </div>

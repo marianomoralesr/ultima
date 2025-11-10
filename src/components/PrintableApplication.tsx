@@ -235,7 +235,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
                     <DataRow label="Referencia Familiar - Nombre" value={appData.family_reference_name} />
                     <DataRow label="Referencia Familiar - Teléfono" value={appData.family_reference_phone} />
-                    <DataRow label="Referencia Familiar - Parentesco" value={appData.family_reference_relationship} />
+                    <DataRow label="Referencia Familiar - Parentesco" value={appData.parentesco || appData.family_reference_relationship} />
                     <DataRow label="Referencia Personal - Nombre" value={appData.friend_reference_name} />
                     <DataRow label="Referencia Personal - Teléfono" value={appData.friend_reference_phone} />
                     <DataRow label="Referencia Personal - Relación" value={appData.friend_reference_relationship} />

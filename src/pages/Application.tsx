@@ -58,6 +58,7 @@ const baseApplicationObject = z.object({
   parentesco: z.string().min(3, "El parentesco es obligatorio"),
   friend_reference_name: z.string().min(2, "El nombre de referencia de amistad es obligatorio"),
   friend_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de referencia de amistad debe tener 10 dígitos")),
+  friend_reference_relationship: z.string().min(2, "La relación de referencia de amistad es obligatoria"),
   family_reference_name: z.string().min(2, "El nombre de referencia familiar es obligatorio"),
   family_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de referencia familiar debe tener 10 dígitos")),
 
@@ -248,7 +249,7 @@ const Application: React.FC = () => {
     const steps = [
         { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
-        { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
+        { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },
         { title: 'Consentimiento', icon: PenSquare, fields: ['terms_and_conditions'] },
         { title: 'Resumen', icon: CheckCircle, fields: [] },
@@ -346,6 +347,24 @@ const Application: React.FC = () => {
             setSubmissionError("No has seleccionado un auto para tu solicitud.");
             setShowVehicleSelector(true);
             return;
+        }
+
+        // Validate that spouse is not used as a reference
+        if (profile?.spouse_name) {
+            const normalizeName = (name: string) => {
+                if (!name) return '';
+                return name.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            };
+
+            const normalizedSpouse = normalizeName(profile.spouse_name);
+            const normalizedFriend = normalizeName(data.friend_reference_name || '');
+            const normalizedFamily = normalizeName(data.family_reference_name || '');
+
+            if (normalizedSpouse && (normalizedSpouse === normalizedFriend || normalizedSpouse === normalizedFamily)) {
+                setSubmissionError("Tu cónyuge no puede ser usado como referencia. Por favor, corrige la información en el paso de Referencias.");
+                setCurrentStep(2); // Go back to references step
+                return;
+            }
         }
 
         // Documents are optional - users can upload later from dashboard
@@ -596,7 +615,7 @@ const Application: React.FC = () => {
                                 <div className="bg-white p-8 rounded-xl shadow-sm border">
                                     {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
                                     {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
-                                    {currentStep === 2 && <ReferencesStep control={control} errors={errors} />}
+                                    {currentStep === 2 && <ReferencesStep control={control} errors={errors} profile={profile} getValues={getValues} />}
                                     {currentStep === 3 && applicationId && user && <DocumentUploadStep applicationId={applicationId} userId={user.id} onDocumentsChange={setUploadedDocuments} />}
                                     {currentStep === 4 && <ConsentStep control={control} errors={errors} setValue={setValue}/>}
                                     {currentStep === 5 && (
@@ -849,25 +868,92 @@ const FAMILY_RELATIONSHIPS = [
     'Nieto/Nieta'
 ];
 
-const ReferencesStep: React.FC<{ control: any, errors: any }> = ({ control, errors }) => (
-    <div className="space-y-8">
-        <div>
-            <h2 className="text-lg font-semibold">Referencia de Amistad</h2>
-            <div className="grid md:grid-cols-2 gap-6 mt-4">
-                <FormInput control={control} name="friend_reference_name" label="Nombre Completo" error={errors.friend_reference_name?.message} />
-                <FormInput control={control} name="friend_reference_phone" label="Teléfono" error={errors.friend_reference_phone?.message} />
+const FRIEND_RELATIONSHIPS = [
+    'Amistad',
+    'Laboral',
+    'Familia Política'
+];
+
+const ReferencesStep: React.FC<{ control: any, errors: any, profile: Profile | null, getValues: any }> = ({ control, errors, profile, getValues }) => {
+    const [spouseWarning, setSpouseWarning] = useState<string | null>(null);
+
+    // Function to normalize names for comparison (remove accents, lowercase, trim)
+    const normalizeName = (name: string) => {
+        if (!name) return '';
+        return name
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // Remove accents
+    };
+
+    // Check if a reference name matches the spouse name
+    const checkSpouseReference = useCallback(() => {
+        const spouseName = profile?.spouse_name || '';
+        if (!spouseName) return; // Not married or no spouse name
+
+        const friendRefName = getValues('friend_reference_name') || '';
+        const familyRefName = getValues('family_reference_name') || '';
+
+        const normalizedSpouse = normalizeName(spouseName);
+        const normalizedFriend = normalizeName(friendRefName);
+        const normalizedFamily = normalizeName(familyRefName);
+
+        if (normalizedSpouse && normalizedFriend && normalizedSpouse === normalizedFriend) {
+            setSpouseWarning('Tu cónyuge no puede ser usado como referencia de amistad.');
+            return;
+        }
+
+        if (normalizedSpouse && normalizedFamily && normalizedSpouse === normalizedFamily) {
+            setSpouseWarning('Tu cónyuge no puede ser usado como referencia familiar.');
+            return;
+        }
+
+        setSpouseWarning(null);
+    }, [profile, getValues]);
+
+    // Check on component mount and when names change
+    useEffect(() => {
+        checkSpouseReference();
+    }, [checkSpouseReference]);
+
+    return (
+        <div className="space-y-8">
+            {profile?.spouse_name && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                        <strong>Importante:</strong> Tu cónyuge ({profile.spouse_name}) no puede ser usado como referencia familiar o de amistad.
+                    </p>
+                </div>
+            )}
+
+            {spouseWarning && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800 font-semibold">
+                        ⚠️ {spouseWarning}
+                    </p>
+                </div>
+            )}
+
+            <div>
+                <h2 className="text-lg font-semibold">Referencia de Amistad</h2>
+                <div className="grid md:grid-cols-3 gap-6 mt-4">
+                    <FormInput control={control} name="friend_reference_name" label="Nombre Completo" error={errors.friend_reference_name?.message} />
+                    <FormInput control={control} name="friend_reference_phone" label="Teléfono" error={errors.friend_reference_phone?.message} />
+                    <FormSelect control={control} name="friend_reference_relationship" label="Relación" options={FRIEND_RELATIONSHIPS} error={errors.friend_reference_relationship?.message} />
+                </div>
+            </div>
+            <div>
+                <h2 className="text-lg font-semibold">Referencia Familiar</h2>
+                <div className="grid md:grid-cols-3 gap-6 mt-4">
+                    <FormInput control={control} name="family_reference_name" label="Nombre Completo" error={errors.family_reference_name?.message} />
+                    <FormInput control={control} name="family_reference_phone" label="Teléfono" error={errors.family_reference_phone?.message} />
+                    <FormSelect control={control} name="parentesco" label="Parentesco" options={FAMILY_RELATIONSHIPS} error={errors.parentesco?.message} />
+                </div>
             </div>
         </div>
-        <div>
-            <h2 className="text-lg font-semibold">Referencia Familiar</h2>
-            <div className="grid md:grid-cols-3 gap-6 mt-4">
-                <FormInput control={control} name="family_reference_name" label="Nombre Completo" error={errors.family_reference_name?.message} />
-                <FormInput control={control} name="family_reference_phone" label="Teléfono" error={errors.family_reference_phone?.message} />
-                <FormSelect control={control} name="parentesco" label="Parentesco" options={FAMILY_RELATIONSHIPS} error={errors.parentesco?.message} />
-            </div>
-        </div>
-    </div>
-);
+    );
+};
 
 const DocumentRequirements: React.FC = () => (
     <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">

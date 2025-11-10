@@ -28,6 +28,7 @@ const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California S
 
 const baseApplicationObject = z.object({
   // Step 1: Personal Info & Address
+  cellphone_company: z.string().min(1, 'La compañía telefónica es obligatoria'),
   current_address: z.string().optional(),
   current_colony: z.string().optional(),
   current_city: z.string().optional(),
@@ -247,7 +248,7 @@ const Application: React.FC = () => {
     };
 
     const steps = [
-        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
+        { title: 'Personal', icon: User, fields: ['cellphone_company', 'current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },
@@ -701,10 +702,54 @@ const MissingFields: React.FC<{ errors: any }> = ({ errors }) => {
 
 // --- STEP COMPONENTS ---
 
+const CELLPHONE_COMPANIES = [
+    'Telcel',
+    'AT&T',
+    'Movistar',
+    'Virgin Mobile',
+    'Unefon',
+    'Weex',
+    'Otro'
+];
+
+// Utility function to normalize names to proper case (Title Case)
+const normalizeNameToTitleCase = (name: string): string => {
+    if (!name) return '';
+
+    // List of Spanish prepositions and articles that should stay lowercase
+    const lowercaseWords = ['de', 'del', 'la', 'los', 'las', 'y', 'e', 'van', 'von', 'da', 'di'];
+
+    return name
+        .trim()
+        .toLowerCase()
+        .split(' ')
+        .map((word, index) => {
+            // First word should always be capitalized
+            if (index === 0) {
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            }
+            // Check if word should stay lowercase
+            if (lowercaseWords.includes(word)) {
+                return word;
+            }
+            // Capitalize first letter
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(' ');
+};
+
 const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean, profile: Profile | null, setValue: any, trigger: any }> = ({ control, errors, isMarried, profile, setValue, trigger }) => {
     const [useDifferentAddress, setUseDifferentAddress] = useState(
         () => !(profile?.address && profile.address.length >= 5)
     );
+
+    // Normalize profile names on mount
+    useEffect(() => {
+        if (profile) {
+            // Normalize names in profile display (this won't update the profile, just for display)
+            // The actual profile update would happen when they submit
+        }
+    }, [profile]);
 
     useEffect(() => {
         const profileAddressIsValid = profile?.address && profile.address.length >= 5;
@@ -724,51 +769,153 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
     }, [profile, setValue, useDifferentAddress, trigger]);
 
     return (
-    <div className="space-y-6">
-        <h2 className="text-lg font-semibold">Paso 1: Confirma tus Datos y Domicilio</h2>
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-                Hemos precargado la información de tu perfil. Por favor, revísala y actualízala si es necesario.
-                Tu RFC calculado es: <strong className="font-mono">{profile?.rfc || 'N/A'}</strong>
-            </p>
-        </div>
-        
-        <div className="space-y-4 p-4 border rounded-lg">
-             <div className="flex items-start">
-                <div className="flex items-center h-5">
-                    <input id="use_different_address_checkbox" type="checkbox" checked={useDifferentAddress} onChange={(e) => setUseDifferentAddress(e.target.checked)} className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded" />
-                </div>
-                <div className="ml-3 text-sm">
-                    <label htmlFor="use_different_address_checkbox" className="font-medium text-gray-700">Quiero usar otra dirección para mi solicitud</label>
-                    {errors.current_address && useDifferentAddress && <p className="text-red-600 text-xs mt-1">Tu dirección parece incompleta. Por favor, revisa todos los campos.</p>}
-                </div>
-            </div>
-            <p className="text-xs text-gray-500 -mt-2 ml-8">Esta debe ser la dirección de tu domicilio actual.</p>
-            
-            {useDifferentAddress ? (
-                <div className="grid md:grid-cols-2 gap-6 pt-4 border-t">
-                    <FormInput control={control} name="current_address" label="Calle y Número" error={errors.current_address?.message} />
-                    <FormInput control={control} name="current_colony" label="Colonia o Fraccionamiento" error={errors.current_colony?.message} />
-                    <FormInput control={control} name="current_city" label="Ciudad" error={errors.current_city?.message} />
-                    <FormSelect control={control} name="current_state" label="Estado" options={MEXICAN_STATES} error={errors.current_state?.message} />
-                    <FormInput control={control} name="current_zip_code" label="Código Postal" error={errors.current_zip_code?.message} />
-                </div>
-            ) : (
-                <div className="pt-4 border-t text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
-                    <p><strong>Dirección de tu perfil:</strong></p>
-                    <p>{profile?.address}, {profile?.colony}, {profile?.city}, {profile?.state} C.P. {profile?.zip_code}</p>
-                </div>
-            )}
+    <div className="space-y-8">
+        <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Información Personal</h2>
+            <p className="text-sm text-gray-600">Confirma que tu información personal esté correcta y actualizada.</p>
         </div>
 
-        <hr className="my-6"/>
-        <FormRadio control={control} name="time_at_address" label="Tiempo Viviendo en el Domicilio" options={['Menos de 1 año', '1-2 años', '3-5 años', '6-10 años', 'Más de 10 años']} error={errors.time_at_address?.message} />
-        <FormRadio control={control} name="housing_type" label="Tipo de Vivienda" options={['Propia', 'Rentada', 'Familiar']} error={errors.housing_type?.message} />
-        <FormRadio control={control} name="grado_de_estudios" label="Grado de Estudios" options={['Primaria', 'Secundaria', 'Preparatoria', 'Licenciatura', 'Posgrado']} error={errors.grado_de_estudios?.message} />
-        {/* Spouse name field removed - collected in Profile page instead */}
-        <div>
-            <FormRadio control={control} name="dependents" label="Número de Dependientes" options={['0', '1', '2', '3', '4+']} error={errors.dependents?.message} />
-            <p className="text-xs text-gray-500 mt-2">Un número menor de dependientes aumenta tus probabilidades de ser aprobado.</p>
+        {/* Profile Information Summary */}
+        <div className="bg-gradient-to-r from-blue-50 to-primary-50 border-2 border-blue-200 rounded-xl p-6">
+            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
+                <User className="w-4 h-4 mr-2" />
+                Datos Personales Registrados
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p className="text-xs text-gray-500">Nombre Completo</p>
+                    <p className="font-semibold text-gray-900">
+                        {normalizeNameToTitleCase(profile?.first_name || '')} {normalizeNameToTitleCase(profile?.last_name || '')} {normalizeNameToTitleCase(profile?.mother_last_name || '')}
+                    </p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">RFC</p>
+                    <p className="font-semibold text-gray-900 font-mono">{profile?.rfc || 'N/A'}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">Fecha de Nacimiento</p>
+                    <p className="font-semibold text-gray-900">{profile?.birth_date || 'N/A'}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">Teléfono</p>
+                    <p className="font-semibold text-gray-900">{profile?.phone || 'N/A'}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-gray-500">Estado Civil</p>
+                    <p className="font-semibold text-gray-900">{profile?.civil_status || 'N/A'}</p>
+                </div>
+                {profile?.spouse_name && (
+                    <div>
+                        <p className="text-xs text-gray-500">Nombre del Cónyuge</p>
+                        <p className="font-semibold text-gray-900">{normalizeNameToTitleCase(profile.spouse_name)}</p>
+                    </div>
+                )}
+            </div>
+            <div className="mt-4 pt-4 border-t border-blue-200">
+                <p className="text-xs text-blue-700">
+                    Si necesitas actualizar esta información, puedes hacerlo desde tu <a href="/escritorio/profile" className="underline font-semibold">perfil</a>.
+                </p>
+            </div>
+        </div>
+
+        {/* Cellphone Company */}
+        <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
+            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">Información de Contacto</h3>
+            <FormSelect
+                control={control}
+                name="cellphone_company"
+                label="Compañía Telefónica"
+                options={CELLPHONE_COMPANIES}
+                error={errors.cellphone_company?.message}
+            />
+            <p className="text-xs text-gray-500 mt-2">Selecciona la compañía de tu línea telefónica principal.</p>
+        </div>
+
+        {/* Address Section */}
+        <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
+            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">Domicilio Actual</h3>
+
+            <div className="space-y-4">
+                <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                        <input
+                            id="use_different_address_checkbox"
+                            type="checkbox"
+                            checked={useDifferentAddress}
+                            onChange={(e) => setUseDifferentAddress(e.target.checked)}
+                            className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
+                        />
+                    </div>
+                    <div className="ml-3 text-sm">
+                        <label htmlFor="use_different_address_checkbox" className="font-medium text-gray-700">
+                            Usar una dirección diferente a la de mi perfil
+                        </label>
+                        <p className="text-xs text-gray-500 mt-1">Esta debe ser la dirección de tu domicilio actual donde recibes correspondencia.</p>
+                        {errors.current_address && useDifferentAddress && (
+                            <p className="text-red-600 text-xs mt-1">⚠️ Tu dirección parece incompleta. Por favor, revisa todos los campos.</p>
+                        )}
+                    </div>
+                </div>
+
+                {useDifferentAddress ? (
+                    <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                        <FormInput control={control} name="current_address" label="Calle y Número" error={errors.current_address?.message} />
+                        <FormInput control={control} name="current_colony" label="Colonia o Fraccionamiento" error={errors.current_colony?.message} />
+                        <FormInput control={control} name="current_city" label="Ciudad o Municipio" error={errors.current_city?.message} />
+                        <FormSelect control={control} name="current_state" label="Estado" options={MEXICAN_STATES} error={errors.current_state?.message} />
+                        <FormInput control={control} name="current_zip_code" label="Código Postal" error={errors.current_zip_code?.message} />
+                    </div>
+                ) : (
+                    <div className="pt-4 border-t bg-gray-50 p-4 rounded-lg">
+                        <p className="text-xs text-gray-500 mb-2">Dirección registrada en tu perfil:</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                            {profile?.address}, {profile?.colony}, {profile?.city}, {profile?.state} C.P. {profile?.zip_code}
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
+
+        {/* Housing & Personal Info */}
+        <div className="bg-white border-2 border-gray-200 rounded-xl p-6 space-y-6">
+            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Información del Hogar</h3>
+
+            <FormRadio
+                control={control}
+                name="time_at_address"
+                label="Tiempo Viviendo en el Domicilio Actual"
+                options={['Menos de 1 año', '1-2 años', '3-5 años', '6-10 años', 'Más de 10 años']}
+                error={errors.time_at_address?.message}
+            />
+
+            <FormRadio
+                control={control}
+                name="housing_type"
+                label="Tipo de Vivienda"
+                options={['Propia', 'Rentada', 'Familiar']}
+                error={errors.housing_type?.message}
+            />
+
+            <div>
+                <FormRadio
+                    control={control}
+                    name="dependents"
+                    label="Número de Dependientes Económicos"
+                    options={['0', '1', '2', '3', '4+']}
+                    error={errors.dependents?.message}
+                />
+                <p className="text-xs text-gray-500 mt-2 ml-1">
+                    💡 Tip: Un menor número de dependientes puede mejorar tu aprobación crediticia.
+                </p>
+            </div>
+
+            <FormRadio
+                control={control}
+                name="grado_de_estudios"
+                label="Nivel de Estudios"
+                options={['Primaria', 'Secundaria', 'Preparatoria', 'Licenciatura', 'Posgrado']}
+                error={errors.grado_de_estudios?.message}
+            />
         </div>
     </div>
     )

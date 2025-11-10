@@ -54,13 +54,29 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(amount));
     };
 
-    // Capitalize names properly
+    // Capitalize names properly with Spanish grammar rules
     const capitalizeName = (name: string | undefined) => {
         if (!name) return 'N/A';
+
+        // List of Spanish prepositions and articles that should stay lowercase
+        const lowercaseWords = ['de', 'del', 'la', 'los', 'las', 'y', 'e', 'van', 'von', 'da', 'di'];
+
         return name
+            .trim()
             .toLowerCase()
             .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map((word, index) => {
+                // First word should always be capitalized
+                if (index === 0) {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }
+                // Check if word should stay lowercase
+                if (lowercaseWords.includes(word)) {
+                    return word;
+                }
+                // Capitalize first letter
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
             .join(' ');
     };
 
@@ -167,13 +183,14 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="Apellido Materno" value={capitalizeName(profile.mother_last_name)} />
                     <DataRow label="Email" value={profile.email} />
                     <DataRow label="Teléfono" value={profile.phone} />
+                    <DataRow label="Compañía Telefónica" value={appData.cellphone_company} />
                     <DataRow label="RFC" value={profile.rfc} />
                     <DataRow label="Fecha de Nacimiento" value={profile.birth_date} />
                     <DataRow label="Estado Civil" value={normalizeCivilStatus(profile.civil_status)} />
-                    <DataRow label="Nombre del Cónyuge" value={getSpouseName()} />
+                    <DataRow label="Nombre del Cónyuge" value={capitalizeName(getSpouseName())} />
                     <DataRow label="Género" value={profile.gender} />
-                    <DataRow label="Nivel de Estudios" value={profile.education_level || appData.education_level || 'N/A'} />
-                    <DataRow label="Número de Dependientes" value={profile.dependents || appData.dependents || appData.number_of_dependents || 'N/A'} />
+                    <DataRow label="Nivel de Estudios" value={appData.grado_de_estudios || profile.education_level || appData.education_level || 'N/A'} />
+                    <DataRow label="Número de Dependientes" value={appData.dependents || profile.dependents || appData.number_of_dependents || 'N/A'} />
                 </div>
 
                 {/* Current Address */}

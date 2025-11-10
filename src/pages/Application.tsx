@@ -6,9 +6,9 @@ import { useNavigate, Link, useSearchParams, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext';
 import { useVehicles } from '../context/VehicleContext';
 import { WordPressVehicle, Profile } from '../types/types';
-import { 
+import {
   FileText, CheckCircle, Building2, User, AlertTriangle, Loader2, Users, PenSquare,
-  ArrowLeft, ArrowRight, Edit, Info
+  ArrowLeft, ArrowRight, Edit, Info, DollarSign
 } from 'lucide-react';
 import StepIndicator from '../components/StepIndicator';
 import { ApplicationService } from '../services/ApplicationService';
@@ -53,14 +53,19 @@ const baseApplicationObject = z.object({
   job_title: z.string().min(2, "El puesto es obligatorio"),
   job_seniority: z.string().min(1, "La antigüedad es obligatoria"),
   net_monthly_income: z.string().min(1, "El salario neto es obligatorio"),
-  
+
   // Step 3: References
   parentesco: z.string().min(3, "El parentesco es obligatorio"),
   friend_reference_name: z.string().min(2, "El nombre de referencia de amistad es obligatorio"),
   friend_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de referencia de amistad debe tener 10 dígitos")),
   family_reference_name: z.string().min(2, "El nombre de referencia familiar es obligatorio"),
   family_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de referencia familiar debe tener 10 dígitos")),
-  
+
+  // Financing Preferences (optional fields, calculated dynamically)
+  loan_term_months: z.number().optional(),
+  down_payment_amount: z.number().optional(),
+  estimated_monthly_payment: z.number().optional(),
+
   // Step 5: Consent
   terms_and_conditions: z.boolean().refine(val => val === true, {
     message: "Debes aceptar los términos y condiciones para continuar."
@@ -93,11 +98,12 @@ const Application: React.FC = () => {
 
     const applicationSchema = baseApplicationSchema;
 
-    const form = useForm<ApplicationFormData>({ 
+    const form = useForm<ApplicationFormData>({
       resolver: zodResolver(applicationSchema),
       defaultValues: {
         terms_and_conditions: false,
         consent_survey: false,
+        loan_term_months: 60, // Default to 60 months
       }
     });
     const { control, handleSubmit, formState: { errors, isValid }, reset, trigger, getValues, setValue } = form;
@@ -182,7 +188,16 @@ const Application: React.FC = () => {
                         const vehicle = vehicles.find(v => v.ordencompra === finalOrdenCompra);
                         if (vehicle) {
                             const featureImage = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
-                            const carData = { _vehicleTitle: vehicle.titulo, _ordenCompra: vehicle.ordencompra, _featureImage: featureImage };
+                            const carData = {
+                                _vehicleTitle: vehicle.titulo,
+                                _ordenCompra: vehicle.ordencompra,
+                                _featureImage: featureImage,
+                                precio: vehicle.precio,
+                                enganche_recomendado: vehicle.enganche_recomendado,
+                                enganchemin: vehicle.enganchemin,
+                                mensualidad_recomendada: vehicle.mensualidad_recomendada,
+                                plazomax: vehicle.plazomax
+                            };
                             initialData.car_info = carData;
                             initialData.application_data = { ordencompra: finalOrdenCompra };
                             setVehicleInfo(carData);
@@ -214,7 +229,16 @@ const Application: React.FC = () => {
     const handleVehicleSelect = async (vehicle: WordPressVehicle) => {
         if (!applicationId) return;
         const featureImage = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
-        const carData = { _vehicleTitle: vehicle.titulo, _ordenCompra: vehicle.ordencompra, _featureImage: featureImage };
+        const carData = {
+            _vehicleTitle: vehicle.titulo,
+            _ordenCompra: vehicle.ordencompra,
+            _featureImage: featureImage,
+            precio: vehicle.precio,
+            enganche_recomendado: vehicle.enganche_recomendado,
+            enganchemin: vehicle.enganchemin,
+            mensualidad_recomendada: vehicle.mensualidad_recomendada,
+            plazomax: vehicle.plazomax
+        };
         setVehicleInfo(carData);
         setValue('ordencompra', vehicle.ordencompra);
         await ApplicationService.saveApplicationDraft(applicationId, { car_info: carData });
@@ -577,6 +601,7 @@ const Application: React.FC = () => {
                                     {currentStep === 4 && <ConsentStep control={control} errors={errors} setValue={setValue}/>}
                                     {currentStep === 5 && (
                                         <>
+                                            <FinancingPreferencesSection control={control} vehicleInfo={vehicleInfo} setValue={setValue} getValues={getValues} />
                                             <SummaryStep applicationData={getValues()} profile={profile} vehicleInfo={vehicleInfo} bank={recommendedBank} />
                                             {submissionError && (
                                                 <div className="mt-6 p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg text-center">
@@ -1109,5 +1134,153 @@ const SummarySection: React.FC<{title: string, icon: React.ElementType, children
         <div className="space-y-1">{children}</div>
     </div>
 );
+
+// --- FINANCING PREFERENCES SECTION ---
+const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; setValue: any; getValues: any }> = ({ control, vehicleInfo, setValue, getValues }) => {
+    const [loanTerm, setLoanTerm] = useState(60);
+    const [downPayment, setDownPayment] = useState(0);
+    const [monthlyPayment, setMonthlyPayment] = useState(0);
+
+    // Get vehicle pricing info
+    const vehiclePrice = vehicleInfo?.precio || vehicleInfo?._precio || 0;
+    const recommendedDownPayment = vehicleInfo?.enganche_recomendado || vehicleInfo?._enganche_recomendado || 0;
+    const minDownPayment = vehicleInfo?.enganchemin || vehicleInfo?._enganchemin || 0;
+
+    // Calculate monthly payment
+    const calculateMonthlyPayment = useCallback((price: number, down: number, termMonths: number) => {
+        const loanAmount = price - down;
+        if (loanAmount <= 0 || termMonths <= 0) return 0;
+
+        // Annual interest rate assumption: 15% (typical auto loan rate in Mexico)
+        const annualRate = 0.15;
+        const monthlyRate = annualRate / 12;
+
+        // Monthly payment formula: P = L * [r(1+r)^n] / [(1+r)^n - 1]
+        const payment = (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths))) /
+                       (Math.pow(1 + monthlyRate, termMonths) - 1);
+
+        return Math.round(payment);
+    }, []);
+
+    // Initialize down payment with recommended value
+    useEffect(() => {
+        if (recommendedDownPayment > 0 && downPayment === 0) {
+            setDownPayment(recommendedDownPayment);
+            setValue('down_payment_amount', recommendedDownPayment);
+        }
+    }, [recommendedDownPayment, downPayment, setValue]);
+
+    // Recalculate monthly payment when term or down payment changes
+    useEffect(() => {
+        const payment = calculateMonthlyPayment(vehiclePrice, downPayment, loanTerm);
+        setMonthlyPayment(payment);
+        setValue('loan_term_months', loanTerm);
+        setValue('down_payment_amount', downPayment);
+        setValue('estimated_monthly_payment', payment);
+    }, [loanTerm, downPayment, vehiclePrice, calculateMonthlyPayment, setValue]);
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0 }).format(amount);
+    };
+
+    const termOptions = [12, 24, 36, 48, 60, 72];
+
+    if (!vehiclePrice || vehiclePrice === 0) {
+        return null;
+    }
+
+    return (
+        <div className="mb-8 space-y-6">
+            <div className="pb-4 border-b">
+                <h2 className="text-xl font-semibold text-center flex items-center justify-center gap-2">
+                    <DollarSign className="w-6 h-6 text-primary-600" />
+                    Preferencias de Financiamiento
+                </h2>
+                <p className="text-sm text-gray-600 text-center mt-2">
+                    Selecciona el plazo y enganche para calcular tu mensualidad aproximada
+                </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+                {/* Loan Term Selection */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Plazo del Crédito (meses)
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                        {termOptions.map(term => (
+                            <button
+                                key={term}
+                                type="button"
+                                onClick={() => setLoanTerm(term)}
+                                className={`px-4 py-3 text-sm font-semibold rounded-lg border-2 transition-all ${
+                                    loanTerm === term
+                                        ? 'bg-primary-600 border-primary-600 text-white shadow-md'
+                                        : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'
+                                }`}
+                            >
+                                {term}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Down Payment Input */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Enganche
+                    </label>
+                    <div className="relative">
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
+                        <input
+                            type="number"
+                            value={downPayment}
+                            onChange={(e) => setDownPayment(Number(e.target.value))}
+                            min={minDownPayment}
+                            max={vehiclePrice}
+                            step={1000}
+                            className="block w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7"
+                        />
+                    </div>
+                    <div className="mt-2 flex justify-between text-xs text-gray-500">
+                        <span>Mínimo: {formatCurrency(minDownPayment)}</span>
+                        <button
+                            type="button"
+                            onClick={() => setDownPayment(recommendedDownPayment)}
+                            className="text-primary-600 hover:text-primary-700 font-semibold"
+                        >
+                            Recomendado: {formatCurrency(recommendedDownPayment)}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Monthly Payment Display */}
+            <div className="bg-gradient-to-r from-primary-50 to-orange-50 rounded-xl p-6 border-2 border-primary-200">
+                <div className="text-center">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Mensualidad Aproximada</p>
+                    <p className="text-4xl font-bold text-primary-700">{formatCurrency(monthlyPayment)}</p>
+                    <p className="text-xs text-gray-600 mt-3">
+                        *Cálculo estimado con tasa de interés promedio del 15% anual. La tasa final será determinada por el banco.
+                    </p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-primary-200 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p className="text-xs text-gray-600">Precio del Auto</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(vehiclePrice)}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-600">Enganche</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(downPayment)}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-600">Monto a Financiar</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(vehiclePrice - downPayment)}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default Application;

@@ -134,6 +134,21 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="ID del Auto" value={carInfo._ordenCompra} />
                 </div>
 
+                {/* Financing Preferences */}
+                {(appData.loan_term_months || appData.down_payment_amount || appData.estimated_monthly_payment) && (
+                    <>
+                        <SectionHeader title="Preferencias de Financiamiento" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
+                            <DataRow label="Plazo del Crédito" value={appData.loan_term_months ? `${appData.loan_term_months} meses` : 'N/A'} />
+                            <DataRow label="Enganche" value={formatCurrency(appData.down_payment_amount)} />
+                            <DataRow label="Mensualidad Estimada" value={formatCurrency(appData.estimated_monthly_payment)} />
+                        </div>
+                        <div className="py-2 px-3 border-b border-x border-gray-200 bg-yellow-50">
+                            <p className="text-xs text-gray-700">*Cálculo estimado con tasa de interés promedio del 15% anual. La tasa final será determinada por el banco.</p>
+                        </div>
+                    </>
+                )}
+
                 {/* Recommended Bank */}
                 {appData.recommended_bank && (
                     <>

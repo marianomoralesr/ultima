@@ -9,7 +9,9 @@ import {
     UserCog,
     TrendingUp,
     LogOut,
-    Activity
+    Activity,
+    ClipboardList,
+    BarChart3
 } from 'lucide-react';
 
 const TopMenu: React.FC = () => {
@@ -31,12 +33,13 @@ const TopMenu: React.FC = () => {
             { to: '/escritorio/ventas/crm', label: 'Leads', icon: Users },
         ] : []),
         ...(isSales || isAdmin ? [
-            { to: isSales ? '/escritorio/ventas/leads' : '/escritorio/admin/leads', label: 'Mis Leads', icon: TrendingUp },
+            { to: '/escritorio/seguimiento', label: 'Seguimiento', icon: ClipboardList },
         ] : []),
         ...(isAdmin ? [
+            { to: '/escritorio/admin/solicitudes', label: 'Análisis de Solicitudes', icon: BarChart3 },
             { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
             { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart },
-            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: UserCog },
+            { to: '/escritorio/admin/usuarios', label: 'Asesores', icon: UserCog },
             { to: '/escritorio/admin/logs', label: 'Logs', icon: Activity },
         ] : []),
     ];

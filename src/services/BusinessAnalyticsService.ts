@@ -1,4 +1,5 @@
 import { supabase } from '../../supabaseClient';
+import { config } from '../pages/config';
 
 export interface VehicleInsight {
     id: string;
@@ -104,7 +105,7 @@ export class BusinessAnalyticsService {
 
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, titulo, ordenstatus, precio, thumbnail')
+                .select('id, title, ordenstatus, precio, thumbnail')
                 .in('id', topVehicleIds);
 
             if (vehicleError) throw vehicleError;
@@ -113,7 +114,7 @@ export class BusinessAnalyticsService {
                 const stats = vehicleMap.get(vehicle.id);
                 return {
                     id: vehicle.id,
-                    titulo: vehicle.titulo || 'Sin título',
+                    titulo: vehicle.title || 'Sin título',
                     ordenstatus: vehicle.ordenstatus || 'Disponible',
                     precio: vehicle.precio || 0,
                     applicationCount: stats?.apps.length || 0,
@@ -136,7 +137,7 @@ export class BusinessAnalyticsService {
             console.log('[BusinessAnalytics] Fetching unavailable vehicle applications...');
             const { data: applications, error } = await supabase
                 .from('financing_applications')
-                .select('id, status, created_at, car_info, first_name, last_name, email')
+                .select('id, status, created_at, car_info, user_id')
                 .in('status', ['pending', 'submitted', 'processing'])
                 .order('created_at', { ascending: false })
                 .limit(100);
@@ -148,6 +149,28 @@ export class BusinessAnalyticsService {
 
             console.log(`[BusinessAnalytics] Found ${applications?.length || 0} active applications`);
             const unavailableApps: UnavailableVehicleApp[] = [];
+
+            // Get all unique user IDs to fetch profiles
+            const userIds = Array.from(new Set(
+                (applications || [])
+                    .map(app => app.user_id)
+                    .filter(Boolean)
+            ));
+
+            // Fetch user profiles for names and emails
+            let userProfiles: Record<string, any> = {};
+            if (userIds.length > 0) {
+                const { data: profiles, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('user_id, first_name, last_name, email')
+                    .in('user_id', userIds);
+
+                if (!profileError && profiles) {
+                    userProfiles = Object.fromEntries(
+                        profiles.map(p => [p.user_id, p])
+                    );
+                }
+            }
 
             // Get all unique vehicle IDs from applications
             const vehicleIds = Array.from(new Set(
@@ -183,14 +206,17 @@ export class BusinessAnalyticsService {
                 if (!carInfo || !carInfo.id) continue;
 
                 const vehicleStatus = vehicleStatusMap.get(carInfo.id);
+                const userProfile = userProfiles[app.user_id];
 
                 // Vehicle is unavailable if it's not in the map (deleted) or status is not "Disponible"
                 if (!vehicleStatus || vehicleStatus !== 'Disponible') {
                     unavailableApps.push({
                         applicationId: app.id,
-                        vehicleTitle: carInfo._vehicleTitle || carInfo.titulo || 'Sin título',
-                        applicantName: `${app.first_name || ''} ${app.last_name || ''}`.trim() || 'Sin nombre',
-                        applicantEmail: app.email || '',
+                        vehicleTitle: carInfo._vehicleTitle || carInfo.title || 'Sin título',
+                        applicantName: userProfile
+                            ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || 'Sin nombre'
+                            : 'Sin nombre',
+                        applicantEmail: userProfile?.email || '',
                         createdAt: new Date(app.created_at),
                         status: app.status
                     });
@@ -260,37 +286,40 @@ export class BusinessAnalyticsService {
     }
 
     /**
-     * Get lead persona insights
+     * Get lead persona insights - analyzing applications by status
+     * Note: Since civil_status and monthly_income don't exist in financing_applications,
+     * we'll analyze by application status instead
      */
     static async getLeadPersonaInsights(): Promise<LeadPersonaInsight[]> {
         try {
             const { data: applications, error } = await supabase
                 .from('financing_applications')
-                .select('civil_status, monthly_income, status')
+                .select('status')
                 .neq('status', 'draft');
 
             if (error) throw error;
 
-            const personaMap = new Map<string, { count: number; totalIncome: number; approved: number }>();
+            const statusMap = new Map<string, { count: number; totalIncome: number; approved: number }>();
 
             applications?.forEach(app => {
-                const status = app.civil_status || 'Sin especificar';
-                if (!personaMap.has(status)) {
-                    personaMap.set(status, { count: 0, totalIncome: 0, approved: 0 });
+                const status = app.status || 'Sin especificar';
+                if (!statusMap.has(status)) {
+                    statusMap.set(status, { count: 0, totalIncome: 0, approved: 0 });
                 }
 
-                const persona = personaMap.get(status)!;
+                const persona = statusMap.get(status)!;
                 persona.count++;
-                persona.totalIncome += app.monthly_income || 0;
+                // Since monthly_income doesn't exist, we set avgIncome to 0
+                // This field can be populated from profiles table if needed
                 if (app.status === 'approved' || app.status === 'completed') {
                     persona.approved++;
                 }
             });
 
-            return Array.from(personaMap.entries()).map(([status, data]) => ({
-                civilStatus: status,
+            return Array.from(statusMap.entries()).map(([status, data]) => ({
+                civilStatus: status,  // Using status field instead of civil_status
                 count: data.count,
-                avgIncome: data.count > 0 ? data.totalIncome / data.count : 0,
+                avgIncome: 0,  // Field not available in financing_applications
                 approvalRate: data.count > 0 ? (data.approved / data.count) * 100 : 0
             })).sort((a, b) => b.count - a.count);
         } catch (error) {
@@ -300,38 +329,140 @@ export class BusinessAnalyticsService {
     }
 
     /**
-     * Get sold vehicles history with edad en inventario
+     * Fetch sold vehicles from Airtable "Ventas" table
      */
-    static async getSoldVehiclesHistory(limit: number = 50): Promise<SoldVehicleHistory[]> {
+    static async fetchAirtableVentas(): Promise<SoldVehicleHistory[]> {
         try {
-            const { data: vehicles, error } = await supabase
-                .from('inventario_cache')
-                .select('id, titulo, precio, ordenstatus, fecha_ingreso_inventario, updated_at, thumbnail')
-                .or('ordenstatus.eq.Vendido,ordenstatus.eq.Comprado')
-                .order('updated_at', { ascending: false })
-                .limit(limit);
+            console.log('[BusinessAnalytics] Fetching Ventas from Airtable...');
+            const AIRTABLE_API_BASE = 'https://api.airtable.com/v0';
+            const AIRTABLE_BASE_ID = config.airtable.valuation.baseId;
+            const AIRTABLE_API_KEY = config.airtable.valuation.apiKey;
+            const AIRTABLE_VENTAS_TABLE = 'Ventas';  // Table name
 
-            if (error) throw error;
+            const allRecords: any[] = [];
+            let offset: string | undefined = undefined;
+            const maxPages = 5;
+            let pageCount = 0;
 
-            return vehicles?.map(vehicle => {
-                const fechaIngreso = vehicle.fecha_ingreso_inventario
-                    ? new Date(vehicle.fecha_ingreso_inventario)
-                    : new Date(vehicle.updated_at);
-                const fechaVenta = new Date(vehicle.updated_at);
-                const edadEnInventario = Math.floor(
+            do {
+                pageCount++;
+                const url = new URL(`${AIRTABLE_API_BASE}/${AIRTABLE_BASE_ID}/${AIRTABLE_VENTAS_TABLE}`);
+                url.searchParams.append('pageSize', '100');
+
+                if (offset) {
+                    url.searchParams.append('offset', offset);
+                }
+
+                const response = await fetch(url.toString(), {
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('[BusinessAnalytics] Airtable API error:', response.statusText);
+                    break;
+                }
+
+                const data = await response.json();
+                if (data.records && Array.isArray(data.records)) {
+                    allRecords.push(...data.records);
+                }
+
+                offset = data.offset;
+            } while (offset && pageCount < maxPages);
+
+            console.log(`[BusinessAnalytics] Fetched ${allRecords.length} records from Airtable Ventas`);
+
+            // Map Airtable records to SoldVehicleHistory format
+            return allRecords.map(record => {
+                const fields = record.fields;
+                const fechaVenta = fields.fecha_venta ? new Date(fields.fecha_venta) : new Date();
+                const fechaIngreso = fields.fecha_ingreso ? new Date(fields.fecha_ingreso) : fechaVenta;
+                const edadEnInventario = fields.edad_en_venta || Math.floor(
                     (fechaVenta.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)
                 );
 
                 return {
-                    id: vehicle.id,
-                    titulo: vehicle.titulo || 'Sin título',
-                    precio: vehicle.precio || 0,
+                    id: record.id,
+                    titulo: fields.titulo || fields.vehiculo || 'Sin título',
+                    precio: fields.precio || 0,
                     fechaVenta,
                     edadEnInventario: edadEnInventario >= 0 ? edadEnInventario : 0,
                     fechaIngreso,
-                    thumbnail: vehicle.thumbnail
+                    thumbnail: fields.thumbnail || fields.imagen
                 };
-            }) || [];
+            });
+        } catch (error) {
+            console.error('[BusinessAnalytics] Error fetching Airtable Ventas:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get sold vehicles history with edad en inventario
+     * Combines data from Supabase and Airtable Ventas table
+     */
+    static async getSoldVehiclesHistory(limit: number = 50): Promise<SoldVehicleHistory[]> {
+        try {
+            // Fetch from both sources in parallel
+            const [supabaseVehicles, airtableVentas] = await Promise.all([
+                // Supabase sold vehicles
+                (async () => {
+                    const { data, error } = await supabase
+                        .from('inventario_cache')
+                        .select('id, title, precio, ordenstatus, fecha_ingreso_inventario, updated_at, thumbnail')
+                        .or('ordenstatus.eq.Vendido,ordenstatus.eq.Comprado')
+                        .order('updated_at', { ascending: false })
+                        .limit(limit);
+
+                    if (error) {
+                        console.error('[BusinessAnalytics] Error fetching from Supabase:', error);
+                        return [];
+                    }
+
+                    return data?.map(vehicle => {
+                        const fechaIngreso = vehicle.fecha_ingreso_inventario
+                            ? new Date(vehicle.fecha_ingreso_inventario)
+                            : new Date(vehicle.updated_at);
+                        const fechaVenta = new Date(vehicle.updated_at);
+                        const edadEnInventario = Math.floor(
+                            (fechaVenta.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)
+                        );
+
+                        return {
+                            id: vehicle.id,
+                            titulo: vehicle.title || 'Sin título',
+                            precio: vehicle.precio || 0,
+                            fechaVenta,
+                            edadEnInventario: edadEnInventario >= 0 ? edadEnInventario : 0,
+                            fechaIngreso,
+                            thumbnail: vehicle.thumbnail
+                        };
+                    }) || [];
+                })(),
+                // Airtable Ventas
+                this.fetchAirtableVentas()
+            ]);
+
+            // Combine and deduplicate by ID (prefer Airtable data if duplicate)
+            const combinedMap = new Map<string, SoldVehicleHistory>();
+
+            // Add Supabase vehicles first
+            supabaseVehicles.forEach(v => combinedMap.set(v.id, v));
+
+            // Add/override with Airtable data
+            airtableVentas.forEach(v => combinedMap.set(v.id, v));
+
+            // Convert back to array and sort by fecha_venta descending
+            const combined = Array.from(combinedMap.values())
+                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime())
+                .slice(0, limit);
+
+            console.log(`[BusinessAnalytics] Combined sold vehicles: ${combined.length} (Supabase: ${supabaseVehicles.length}, Airtable: ${airtableVentas.length})`);
+
+            return combined;
         } catch (error) {
             console.error('Error fetching sold vehicles:', error);
             return [];

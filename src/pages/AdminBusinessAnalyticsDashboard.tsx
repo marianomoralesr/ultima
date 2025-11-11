@@ -114,10 +114,10 @@ export default function AdminBusinessAnalyticsDashboard() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900">
-                                Análisis de Negocio
+                                Datos
                             </h1>
                             <p className="text-sm text-gray-500 mt-1">
-                                Insights sobre vehículos, aplicaciones y tendencias de mercado
+                                Análisis de vehículos, ventas y tendencias de mercado
                             </p>
                         </div>
                         <div className="flex items-center gap-4">

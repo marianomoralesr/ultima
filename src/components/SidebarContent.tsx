@@ -37,7 +37,8 @@ import {
     Grid3x3,
     HelpCircle,
     Search,
-    DollarSign
+    DollarSign,
+    BarChart3
 } from 'lucide-react';
 
 // @ts-ignore
@@ -107,6 +108,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/escritorio/autos', label: 'Comprar', icon: ComprarIcon, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50', isCustomIcon: true },
         // Admin role specific links (items not in top menu)
         ...((isAdmin) ? [
+            { to: '/escritorio/admin/business-analytics', label: 'Análisis de Negocio', icon: BarChart3, iconColor: 'text-orange-600', bgColor: 'bg-orange-50/50' },
             { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
             { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
             { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },

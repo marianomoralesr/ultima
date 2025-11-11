@@ -76,6 +76,7 @@ const ApplicationAnalyticsPage = lazy(() => import('./pages/ApplicationAnalytics
 const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
 const AdminSalesDashboard = lazy(() => import('./pages/AdminSalesDashboard'));
 const AdminLogsPage = lazy(() => import('./pages/AdminLogsPage'));
+const AdminBusinessAnalyticsDashboard = lazy(() => import('./pages/AdminBusinessAnalyticsDashboard'));
 
 import ConfigService from './services/ConfigService';
 
@@ -161,6 +162,7 @@ function App(): React.JSX.Element {
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>
                   <Route path="admin/dashboard" element={<AdminSalesDashboard />} />
+                  <Route path="admin/business-analytics" element={<AdminBusinessAnalyticsDashboard />} />
                   <Route path="admin/crm" element={<SimpleCRMPage />} />
                   <Route path="admin/leads" element={<AdminLeadsDashboardPage />} />
                   <Route path="admin/client/:id" element={<AdminClientProfilePage />} />

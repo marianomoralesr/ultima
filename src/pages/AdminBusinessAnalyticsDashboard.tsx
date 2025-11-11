@@ -1,0 +1,523 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { BusinessAnalyticsService, BusinessMetrics } from '../services/BusinessAnalyticsService';
+import { BrevoEmailService } from '../services/BrevoEmailService';
+import {
+    TrendingUp,
+    TrendingDown,
+    Car,
+    DollarSign,
+    Users,
+    Clock,
+    AlertTriangle,
+    RefreshCw,
+    Mail,
+    CheckCircle2,
+    XCircle,
+    BarChart3,
+    PieChart,
+    Calendar,
+    Package
+} from 'lucide-react';
+import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Line, LineChart } from 'recharts';
+
+const COLORS = ['#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12', '#431407'];
+
+export default function AdminBusinessAnalyticsDashboard() {
+    const { user, profile } = useAuth();
+    const navigate = useNavigate();
+    const [metrics, setMetrics] = useState<BusinessMetrics | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+    const [refreshing, setRefreshing] = useState(false);
+    const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+
+    const isAdmin = profile?.role === 'admin';
+
+    useEffect(() => {
+        loadBusinessData();
+    }, []);
+
+    const loadBusinessData = async (silent = false) => {
+        try {
+            if (!silent) setLoading(true);
+            else setRefreshing(true);
+
+            const businessMetrics = await BusinessAnalyticsService.getBusinessMetrics();
+            setMetrics(businessMetrics);
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error('[Business Analytics] Error loading metrics:', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    const handleSendAvailabilityEmail = async (app: any) => {
+        if (!window.confirm(`¿Enviar email a ${app.applicantName} notificando que el vehículo ya no está disponible?`)) {
+            return;
+        }
+
+        try {
+            setSendingEmail(app.applicationId);
+            await BrevoEmailService.sendVehicleUnavailableEmail({
+                email: app.applicantEmail,
+                name: app.applicantName,
+                vehicleTitle: app.vehicleTitle
+            });
+            alert('Email enviado exitosamente');
+        } catch (error) {
+            console.error('Error sending email:', error);
+            alert('Error al enviar el email');
+        } finally {
+            setSendingEmail(null);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                <div className="text-center">
+                    <RefreshCw className="w-12 h-12 animate-spin text-orange-600 mx-auto mb-4" />
+                    <p className="text-gray-600">Cargando análisis de negocio...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!metrics) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                <div className="text-center">
+                    <p className="text-gray-600">No se pudieron cargar los datos</p>
+                    <button
+                        onClick={() => loadBusinessData(false)}
+                        className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                    >
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50 pb-12">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">
+                                Análisis de Negocio
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Insights sobre vehículos, aplicaciones y tendencias de mercado
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="text-right">
+                                <p className="text-xs text-gray-500">Última actualización</p>
+                                <p className="text-sm font-medium text-gray-700">
+                                    {lastUpdated.toLocaleTimeString('es-MX')}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => loadBusinessData(true)}
+                                disabled={refreshing}
+                                className="p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 disabled:opacity-50"
+                                title="Actualizar datos"
+                            >
+                                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <MetricCard
+                        title="Solicitudes Activas"
+                        value={metrics.totalActiveApplications}
+                        icon={<Package className="w-6 h-6" />}
+                        color="orange"
+                        subtitle="En proceso"
+                    />
+                    <MetricCard
+                        title="Promedio en Inventario"
+                        value={`${Math.round(metrics.avgDaysInInventory)} días`}
+                        icon={<Clock className="w-6 h-6" />}
+                        color="blue"
+                        subtitle="Vehículos vendidos"
+                    />
+                    <MetricCard
+                        title="Venta Más Rápida"
+                        value={`${metrics.fastestSale} días`}
+                        icon={<TrendingUp className="w-6 h-6" />}
+                        color="green"
+                        subtitle="Menor tiempo"
+                    />
+                    <MetricCard
+                        title="Venta Más Lenta"
+                        value={`${metrics.slowestSale} días`}
+                        icon={<TrendingDown className="w-6 h-6" />}
+                        color="red"
+                        subtitle="Mayor tiempo"
+                    />
+                </div>
+
+                {/* Unavailable Vehicle Applications - URGENT */}
+                {metrics.unavailableVehicleApplications.length > 0 && (
+                    <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <AlertTriangle className="w-6 h-6 text-red-600" />
+                            <div>
+                                <h3 className="text-lg font-bold text-red-900">
+                                    Solicitudes con Vehículos No Disponibles
+                                </h3>
+                                <p className="text-sm text-red-700">
+                                    {metrics.unavailableVehicleApplications.length} aplicaciones requieren acción inmediata
+                                </p>
+                            </div>
+                        </div>
+                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                            {metrics.unavailableVehicleApplications.map(app => (
+                                <div
+                                    key={app.applicationId}
+                                    className="bg-white rounded-lg p-4 flex items-center justify-between border border-red-200"
+                                >
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-gray-900">{app.vehicleTitle}</p>
+                                        <p className="text-sm text-gray-600">
+                                            Cliente: {app.applicantName} • {app.applicantEmail}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Solicitud: {new Date(app.createdAt).toLocaleDateString('es-MX')} •
+                                            Estado: {app.status}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleSendAvailabilityEmail(app)}
+                                        disabled={sendingEmail === app.applicationId}
+                                        className="ml-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 text-sm font-medium"
+                                    >
+                                        {sendingEmail === app.applicationId ? (
+                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <Mail className="w-4 h-4" />
+                                        )}
+                                        Notificar Cliente
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Vehicle Insights - Most Active Vehicles */}
+                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <Car className="w-6 h-6 text-orange-600" />
+                                Vehículos con Mayor Demanda
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                                Top 10 vehículos por cantidad de solicitudes activas
+                            </p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
+                            <div
+                                key={vehicle.id}
+                                className="bg-gradient-to-r from-orange-50 to-white rounded-lg p-4 border border-orange-200 hover:border-orange-300 transition-all"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0">
+                                        {vehicle.thumbnail ? (
+                                            <img
+                                                src={vehicle.thumbnail}
+                                                alt={vehicle.titulo}
+                                                className="w-20 h-20 rounded-lg object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
+                                                <Car className="w-8 h-8 text-gray-400" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <p className="font-semibold text-gray-900 text-sm line-clamp-2">
+                                                {vehicle.titulo}
+                                            </p>
+                                            <span className="flex-shrink-0 text-2xl font-bold text-orange-600">
+                                                #{index + 1}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            ${vehicle.precio.toLocaleString('es-MX')} MXN
+                                        </p>
+                                        <div className="flex items-center gap-4 mt-2">
+                                            <div className="flex items-center gap-1">
+                                                <BarChart3 className="w-4 h-4 text-orange-600" />
+                                                <span className="text-sm font-semibold text-gray-900">
+                                                    {vehicle.applicationCount}
+                                                </span>
+                                                <span className="text-xs text-gray-500">solicitudes</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                                <span className="text-sm font-semibold text-gray-900">
+                                                    {vehicle.activeApplications}
+                                                </span>
+                                                <span className="text-xs text-gray-500">activas</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-2">
+                                            <span className={`inline-block text-xs px-2 py-1 rounded ${
+                                                vehicle.ordenstatus === 'Disponible'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-gray-100 text-gray-700'
+                                            }`}>
+                                                {vehicle.ordenstatus}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Price Range Insights */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
+                            <DollarSign className="w-6 h-6 text-orange-600" />
+                            Distribución por Rango de Precio
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <RechartsPieChart>
+                                <Pie
+                                    data={metrics.priceRangeInsights}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={(entry) => `${entry.range}: ${entry.count}`}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="count"
+                                >
+                                    {metrics.priceRangeInsights.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                            </RechartsPieChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
+                            <BarChart3 className="w-6 h-6 text-orange-600" />
+                            Promedio de Solicitudes por Rango
+                        </h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <RechartsBarChart data={metrics.priceRangeInsights}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="avgApplications" fill="#f97316" name="Promedio de Solicitudes" />
+                            </RechartsBarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Lead Persona Insights */}
+                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
+                        <Users className="w-6 h-6 text-orange-600" />
+                        Perfil de Leads y Tasas de Aprobación
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {metrics.leadPersonaInsights.map(persona => (
+                            <div
+                                key={persona.civilStatus}
+                                className="bg-gradient-to-br from-orange-50 to-white rounded-lg p-4 border border-orange-200"
+                            >
+                                <h4 className="font-semibold text-gray-900 mb-3">{persona.civilStatus}</h4>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-600">Cantidad:</span>
+                                        <span className="font-bold text-gray-900">{persona.count}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-600">Ingreso Prom:</span>
+                                        <span className="font-bold text-gray-900">
+                                            ${Math.round(persona.avgIncome).toLocaleString('es-MX')}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-600">Tasa Aprobación:</span>
+                                        <span className={`font-bold ${
+                                            persona.approvalRate >= 50 ? 'text-green-600' : 'text-orange-600'
+                                        }`}>
+                                            {persona.approvalRate.toFixed(1)}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Sold Vehicles History */}
+                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <Calendar className="w-6 h-6 text-orange-600" />
+                                Historial de Vehículos Vendidos
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                                Últimos {metrics.soldVehicles.length} vehículos con edad en inventario
+                            </p>
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                        Vehículo
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                        Precio
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                        Fecha Ingreso
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                        Fecha Venta
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                                        Edad en Inventario
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {metrics.soldVehicles.map(vehicle => (
+                                    <tr key={vehicle.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-3">
+                                                {vehicle.thumbnail ? (
+                                                    <img
+                                                        src={vehicle.thumbnail}
+                                                        alt={vehicle.titulo}
+                                                        className="w-12 h-12 rounded object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-12 h-12 rounded bg-gray-200 flex items-center justify-center">
+                                                        <Car className="w-6 h-6 text-gray-400" />
+                                                    </div>
+                                                )}
+                                                <span className="font-medium text-gray-900 text-sm">
+                                                    {vehicle.titulo}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
+                                            ${vehicle.precio.toLocaleString('es-MX')}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">
+                                            {vehicle.fechaIngreso.toLocaleDateString('es-MX')}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">
+                                            {vehicle.fechaVenta.toLocaleDateString('es-MX')}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                                                vehicle.edadEnInventario <= 30
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : vehicle.edadEnInventario <= 60
+                                                    ? 'bg-yellow-100 text-yellow-700'
+                                                    : 'bg-red-100 text-red-700'
+                                            }`}>
+                                                {vehicle.edadEnInventario} días
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Conversion Rate by Price Chart */}
+                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
+                        <TrendingUp className="w-6 h-6 text-orange-600" />
+                        Tasa de Conversión por Rango de Precio
+                    </h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={metrics.conversionRateByPrice}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="range" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Line
+                                type="monotone"
+                                dataKey="rate"
+                                stroke="#f97316"
+                                strokeWidth={2}
+                                name="Promedio de Solicitudes"
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Helper Components
+interface MetricCardProps {
+    title: string;
+    value: string | number;
+    icon: React.ReactNode;
+    color: 'orange' | 'blue' | 'green' | 'red';
+    subtitle?: string;
+}
+
+function MetricCard({ title, value, icon, color, subtitle }: MetricCardProps) {
+    const colorClasses = {
+        orange: 'bg-orange-50 border-orange-200 text-orange-600',
+        blue: 'bg-blue-50 border-blue-200 text-blue-600',
+        green: 'bg-green-50 border-green-200 text-green-600',
+        red: 'bg-red-50 border-red-200 text-red-600'
+    };
+
+    return (
+        <div className={`${colorClasses[color].split(' ')[0]} rounded-xl shadow-sm p-6 border-2 ${colorClasses[color].split(' ')[1]}`}>
+            <div className="flex items-start justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+                <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+                    {icon}
+                </div>
+            </div>
+            <p className={`text-3xl font-black ${colorClasses[color].split(' ')[2]}`}>
+                {value}
+            </p>
+            {subtitle && <p className="text-sm text-gray-600 mt-2">{subtitle}</p>}
+        </div>
+    );
+}

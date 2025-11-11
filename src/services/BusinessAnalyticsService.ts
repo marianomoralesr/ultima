@@ -17,7 +17,6 @@ export interface InventoryVehicleWithApplications {
     ordenstatus: string;
     precio: number;
     ongoingApplications: number;
-    thumbnail?: string;
 }
 
 export interface PriceRangeInsight {
@@ -81,7 +80,7 @@ export class BusinessAnalyticsService {
             // Get ALL vehicles (no status filter) to see which ones have applications
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, title, ordenstatus, precio, thumbnail')
+                .select('id, title, ordenstatus, precio')
                 .order('title', { ascending: true });
 
             if (vehicleError) {
@@ -138,8 +137,7 @@ export class BusinessAnalyticsService {
                 titulo: vehicle.title || 'Sin título',
                 ordenstatus: vehicle.ordenstatus || 'Disponible',
                 precio: vehicle.precio || 0,
-                ongoingApplications: vehicleAppCounts.get(vehicle.id) || 0,
-                thumbnail: vehicle.thumbnail
+                ongoingApplications: vehicleAppCounts.get(vehicle.id) || 0
             }));
 
             // Sort by ongoing applications (descending), then by price
@@ -209,7 +207,7 @@ export class BusinessAnalyticsService {
 
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, title, ordenstatus, precio, thumbnail')
+                .select('id, title, ordenstatus, precio')
                 .in('id', topVehicleIds);
 
             if (vehicleError) throw vehicleError;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
+import { BankProfilingService } from '../services/BankProfilingService';
+import type { BankProfileData } from '../types/types';
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-sm font-bold uppercase tracking-wider text-white bg-trefa-blue p-2 rounded-t-md mt-3">{title}</h3>
@@ -19,6 +21,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
     const [advisorName, setAdvisorName] = useState<string | null>(null);
     const [hasDocuments, setHasDocuments] = useState<boolean>(false);
     const [isCheckingDocuments, setIsCheckingDocuments] = useState<boolean>(true);
+    const [bankProfile, setBankProfile] = useState<BankProfileData | null>(null);
 
     // Fetch advisor name if we have an asesor_asignado_id
     useEffect(() => {
@@ -79,6 +82,22 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         };
 
         checkDocuments();
+    }, [application.user_id]);
+
+    // Fetch banking profile data
+    useEffect(() => {
+        const fetchBankProfile = async () => {
+            if (!application.user_id) return;
+
+            try {
+                const profile = await BankProfilingService.getUserBankProfile(application.user_id);
+                setBankProfile(profile);
+            } catch (err) {
+                console.error('Error fetching bank profile:', err);
+            }
+        };
+
+        fetchBankProfile();
     }, [application.user_id]);
 
     // Format currency - handles both numeric values and formatted strings like "25,000"
@@ -244,11 +263,14 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 )}
 
                 {/* Recommended Bank */}
-                {appData.recommended_bank && (
+                {(bankProfile?.banco_recomendado || appData.recommended_bank) && (
                     <>
                         <SectionHeader title="Banco Recomendado" />
                         <div className="rounded-b-md overflow-hidden">
-                            <DataRow label="Institución Financiera" value={appData.recommended_bank} />
+                            <DataRow label="Institución Financiera" value={bankProfile?.banco_recomendado || appData.recommended_bank} />
+                            {bankProfile?.banco_segunda_opcion && (
+                                <DataRow label="Segunda Opción" value={bankProfile.banco_segunda_opcion} />
+                            )}
                         </div>
                     </>
                 )}
@@ -261,7 +283,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="Apellido Materno" value={capitalizeName(profile.mother_last_name)} />
                     <DataRow label="Email" value={profile.email} />
                     <DataRow label="Teléfono" value={profile.phone} />
-                    <DataRow label="Compañía Telefónica" value={appData.cellphone_company} />
+                    <DataRow label="Compañía Telefónica" value={profile.cellphone_company} />
                     <DataRow label="RFC" value={profile.rfc} />
                     <DataRow label="Fecha de Nacimiento" value={profile.birth_date} />
                     <DataRow label="Estado Civil" value={normalizeCivilStatus(profile.civil_status)} />
@@ -310,17 +332,19 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="Ingreso Mensual Neto" value={formatCurrency(appData.net_monthly_income)} />
                 </div>
 
-                {/* Banking Profile */}
-                {(appData.bank_name || appData.account_type || appData.has_savings_account || appData.has_credit_card) && (
+                {/* Banking Profile - From Perfilación Bancaria */}
+                {bankProfile?.respuestas && (
                     <>
                         <SectionHeader title="Perfilación Bancaria" />
                         <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
-                            <DataRow label="Banco Principal" value={appData.bank_name} />
-                            <DataRow label="Tipo de Cuenta" value={appData.account_type} />
-                            <DataRow label="Cuenta de Ahorro" value={appData.has_savings_account ? 'Sí' : 'No'} />
-                            <DataRow label="Tarjeta de Crédito" value={appData.has_credit_card ? 'Sí' : 'No'} />
-                            <DataRow label="Institución de Crédito" value={appData.credit_card_bank} />
-                            <DataRow label="Límite de Crédito" value={formatCurrency(appData.credit_limit)} />
+                            <DataRow label="Antigüedad en el Empleo" value={bankProfile.respuestas.trabajo_tiempo} />
+                            <DataRow label="Banco de Nómina" value={bankProfile.respuestas.banco_nomina} />
+                            <DataRow label="Historial Crediticio" value={bankProfile.respuestas.historial_crediticio} />
+                            <DataRow label="Créditos Vigentes" value={bankProfile.respuestas.creditos_vigentes} />
+                            <DataRow label="Atrasos en Últimos 12 Meses" value={bankProfile.respuestas.atrasos_12_meses} />
+                            <DataRow label="Enganche Planeado" value={bankProfile.respuestas.enganche} />
+                            <DataRow label="Prioridad en Financiamiento" value={bankProfile.respuestas.prioridad_financiamiento} />
+                            <DataRow label="Ingresos Mensuales Comprobables" value={bankProfile.respuestas.ingreso_mensual} />
                         </div>
                     </>
                 )}

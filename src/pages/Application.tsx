@@ -28,7 +28,7 @@ const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California S
 
 const baseApplicationObject = z.object({
   // Step 1: Personal Info & Address
-  cellphone_company: z.string().min(1, 'La compañía telefónica es obligatoria'),
+  // cellphone_company removed - now collected in profile only
   current_address: z.string().optional(),
   current_colony: z.string().optional(),
   current_city: z.string().optional(),
@@ -248,7 +248,7 @@ const Application: React.FC = () => {
     };
 
     const steps = [
-        { title: 'Personal', icon: User, fields: ['cellphone_company', 'current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
+        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },
@@ -816,19 +816,6 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
                     Si necesitas actualizar esta información, puedes hacerlo desde tu <a href="/escritorio/profile" className="underline font-semibold">perfil</a>.
                 </p>
             </div>
-        </div>
-
-        {/* Cellphone Company */}
-        <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
-            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">Información de Contacto</h3>
-            <FormSelect
-                control={control}
-                name="cellphone_company"
-                label="Compañía Telefónica"
-                options={CELLPHONE_COMPANIES}
-                error={errors.cellphone_company?.message}
-            />
-            <p className="text-xs text-gray-500 mt-2">Selecciona la compañía de tu línea telefónica principal.</p>
         </div>
 
         {/* Address Section */}

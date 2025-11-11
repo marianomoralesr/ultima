@@ -333,31 +333,43 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 </div>
 
                 {/* Banking Profile - From Perfilación Bancaria */}
-                {bankProfile?.respuestas && (
+                {bankProfile && bankProfile.respuestas && (
                     <>
                         <SectionHeader title="Perfilación Bancaria" />
                         <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
-                            <DataRow label="Antigüedad en el Empleo" value={bankProfile.respuestas.trabajo_tiempo} />
-                            <DataRow label="Banco de Nómina" value={bankProfile.respuestas.banco_nomina} />
-                            <DataRow label="Historial Crediticio" value={bankProfile.respuestas.historial_crediticio} />
-                            <DataRow label="Créditos Vigentes" value={bankProfile.respuestas.creditos_vigentes} />
-                            <DataRow label="Atrasos en Últimos 12 Meses" value={bankProfile.respuestas.atrasos_12_meses} />
-                            <DataRow label="Enganche Planeado" value={bankProfile.respuestas.enganche} />
-                            <DataRow label="Prioridad en Financiamiento" value={bankProfile.respuestas.prioridad_financiamiento} />
-                            <DataRow label="Ingresos Mensuales Comprobables" value={bankProfile.respuestas.ingreso_mensual} />
+                            <DataRow label="Antigüedad en el Empleo" value={bankProfile.respuestas?.trabajo_tiempo || 'N/A'} />
+                            <DataRow label="Banco de Nómina" value={bankProfile.respuestas?.banco_nomina || 'N/A'} />
+                            <DataRow label="Historial Crediticio" value={bankProfile.respuestas?.historial_crediticio || 'N/A'} />
+                            <DataRow label="Créditos Vigentes" value={bankProfile.respuestas?.creditos_vigentes || 'N/A'} />
+                            <DataRow label="Atrasos en Últimos 12 Meses" value={bankProfile.respuestas?.atrasos_12_meses || 'N/A'} />
+                            <DataRow label="Enganche Planeado" value={bankProfile.respuestas?.enganche || 'N/A'} />
+                            <DataRow label="Prioridad en Financiamiento" value={bankProfile.respuestas?.prioridad_financiamiento || 'N/A'} />
+                            <DataRow label="Ingresos Mensuales Comprobables" value={bankProfile.respuestas?.ingreso_mensual || 'N/A'} />
                         </div>
                     </>
                 )}
 
                 {/* References */}
                 <SectionHeader title="Referencias Personales" />
-                <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
-                    <DataRow label="Referencia Familiar - Nombre" value={appData.family_reference_name} />
-                    <DataRow label="Referencia Familiar - Teléfono" value={appData.family_reference_phone} />
-                    <DataRow label="Referencia Familiar - Parentesco" value={appData.parentesco || appData.family_reference_relationship} />
-                    <DataRow label="Referencia Personal - Nombre" value={appData.friend_reference_name} />
-                    <DataRow label="Referencia Personal - Teléfono" value={appData.friend_reference_phone} />
-                    <DataRow label="Referencia Personal - Relación" value={appData.friend_reference_relationship} />
+                <div className="rounded-b-md overflow-hidden space-y-3">
+                    {/* Family Reference */}
+                    <div>
+                        <h4 className="text-xs font-bold text-gray-700 bg-gray-100 px-3 py-2 border-x border-t border-gray-200">Referencia Familiar</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3">
+                            <DataRow label="Nombre" value={appData.family_reference_name} />
+                            <DataRow label="Teléfono" value={appData.family_reference_phone} />
+                            <DataRow label="Parentesco" value={appData.parentesco || appData.family_reference_relationship} />
+                        </div>
+                    </div>
+                    {/* Personal Reference */}
+                    <div>
+                        <h4 className="text-xs font-bold text-gray-700 bg-gray-100 px-3 py-2 border-x border-t border-gray-200">Referencia Personal</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3">
+                            <DataRow label="Nombre" value={appData.friend_reference_name} />
+                            <DataRow label="Teléfono" value={appData.friend_reference_phone} />
+                            <DataRow label="Relación" value={appData.friend_reference_relationship} />
+                        </div>
+                    </div>
                 </div>
 
                 {/* Additional Information */}

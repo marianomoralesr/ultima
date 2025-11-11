@@ -891,9 +891,6 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
                     options={['0', '1', '2', '3', '4+']}
                     error={errors.dependents?.message}
                 />
-                <p className="text-xs text-gray-500 mt-2 ml-1">
-                    💡 Tip: Un menor número de dependientes puede mejorar tu aprobación crediticia.
-                </p>
             </div>
 
             <FormRadio

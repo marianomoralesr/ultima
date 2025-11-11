@@ -313,27 +313,12 @@ const Application: React.FC = () => {
     
     const handlePrev = () => { if(currentStep > 0) setCurrentStep(s => s - 1); };
 
+    // Documents are optional - users can upload later from dashboard
+    // Validation function kept for potential future use but not enforced
     const validateDocuments = useCallback(() => {
-        const requiredDocs: Record<string, string> = {
-            'ine_front': 'INE (Frente)',
-            'ine_back': 'INE (Reverso)',
-            'proof_address': 'Comprobante de Domicilio',
-        };
-
-        for (const [type, name] of Object.entries(requiredDocs)) {
-            if (!uploadedDocuments[type] || uploadedDocuments[type].length === 0) {
-                return `Falta el documento: ${name}. Por favor, súbelo en el paso de 'Documentos'.`;
-            }
-        }
-
-        const incomeDocs = uploadedDocuments['proof_income'] || [];
-        const hasZip = incomeDocs.some(doc => doc.fileName.toLowerCase().endsWith('.zip'));
-
-        if (incomeDocs.length < 3 && !hasZip) {
-            return `Debes subir al menos 3 comprobantes de ingresos, o un solo archivo .zip que los contenga. Actualmente tienes ${incomeDocs.length}.`;
-        }
+        // Document validation is disabled - users can submit without uploading documents
         return null;
-    }, [uploadedDocuments]);
+    }, []);
 
 
     const onSubmit: SubmitHandler<ApplicationFormData> = async (data) => {
@@ -1059,20 +1044,24 @@ const ReferencesStep: React.FC<{ control: any, errors: any, profile: Profile | n
 
 const DocumentRequirements: React.FC = () => (
     <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-        <h3 className="text-md font-semibold text-gray-800 mb-3">Declaraciones*</h3>
-        <p className="text-xs text-gray-600 mb-4">Por favor, asegúrate de que tus documentos cumplan con los siguientes requisitos:</p>
-        <ul className="space-y-3 text-sm text-gray-700">
+        <h3 className="text-md font-semibold text-gray-800 mb-3">Declaraciones</h3>
+        <p className="text-xs text-gray-600 mb-4">Confirmo que mis documentos cumplen con los siguientes requisitos:</p>
+        <ul className="space-y-2 text-sm text-gray-700">
             <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span>Ambos lados de mi INE son nítidas (no borrosas), legibles en su totalidad, sin reflejos de luz, con las cuatro esquinas visibles y en un fondo que contraste.</span>
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                <span>Mi INE es legible, nítida, sin reflejos y muestra las cuatro esquinas en ambos lados.</span>
             </li>
             <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span>El comprobante de domicilio fue escaneado o cargado en formato PDF, con las cuatro esquinas visibles, es 100% legible y coincide con los datos de mi solicitud.</span>
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                <span>Mi comprobante de domicilio es legible, está en PDF y coincide con los datos de mi solicitud.</span>
             </li>
             <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span>Cargué 3 estados de cuenta o recibos de nómina, en formato PDF (o una carpeta comprimida ZIP), para cada uno de los últimos 3 meses ( 3 PDFs distintos en total, cargar solamente uno puede causar retrasos en tu solicitud).</span>
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                <span>Subí 3 comprobantes de ingresos de los últimos 3 meses (3 archivos PDF distintos o 1 archivo ZIP).</span>
+            </li>
+            <li className="flex items-start">
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                <span>Mi Constancia de Situación Fiscal es actual, legible y está en formato PDF.</span>
             </li>
         </ul>
     </div>
@@ -1128,7 +1117,8 @@ const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDo
         { type: 'ine_front', label: 'INE (Frente)', allowCameraScan: true },
         { type: 'ine_back', label: 'INE (Reverso)', allowCameraScan: true },
         { type: 'proof_address', label: 'Comprobante de Domicilio', allowCameraScan: false },
-        { type: 'proof_income', label: 'Comprobante de Ingresos', description: 'Sube tus 3 estados de cuenta o recibos de nómina más recientes (3 archivos PDF distintos). También puedes subir un solo archivo .ZIP con todos los documentos. Máximo 12 archivos.', allowCameraScan: false, multiple: true, maxFiles: 12, maxTotalSizeMB: 10 }
+        { type: 'proof_income', label: 'Comprobante de Ingresos', description: 'Sube tus 3 estados de cuenta o recibos de nómina más recientes (3 archivos PDF distintos). También puedes subir un solo archivo .ZIP con todos los documentos. Máximo 12 archivos.', allowCameraScan: false, multiple: true, maxFiles: 12, maxTotalSizeMB: 10 },
+        { type: 'constancia_fiscal', label: 'Constancia de Situación Fiscal', allowCameraScan: false }
     ];
 
     if (isLoadingDocs) {
@@ -1140,7 +1130,7 @@ const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDo
             <h2 className="text-lg font-semibold">Carga de Documentos</h2>
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800 font-semibold">
-                    Aunque te recomendamos subir todos tus documentos ahora para agilizar el proceso, puedes continuar con el envío de tu solicitud y cargar los documentos después desde tu dashboard.
+                    Para agilizar tu solicitud, te recomendamos subir todos los documentos ahora. Si prefieres, puedes enviar tu solicitud y completar la carga de documentos más tarde desde tu dashboard.
                 </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
@@ -1329,17 +1319,34 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
     const [downPayment, setDownPayment] = useState(0);
     const [monthlyPayment, setMonthlyPayment] = useState(0);
 
-    // Get vehicle pricing info
+    // Get vehicle pricing and financing info
     const vehiclePrice = vehicleInfo?.precio || vehicleInfo?._precio || 0;
     const recommendedDownPayment = vehicleInfo?.enganche_recomendado || vehicleInfo?._enganche_recomendado || 0;
     const minDownPayment = vehicleInfo?.enganchemin || vehicleInfo?._enganchemin || 0;
+    const maxTerm = vehicleInfo?.plazomax || 60;
+    const recommendedMonthlyPayment = vehicleInfo?.mensualidad_recomendada || 0;
+    const minMonthlyPayment = vehicleInfo?.mensualidad_minima || 0;
 
     // Calculate monthly payment
+    // For 60 months: use vehicle's recommended monthly payment if available
+    // For other terms: calculate using 15% interest rate
     const calculateMonthlyPayment = useCallback((price: number, down: number, termMonths: number) => {
         const loanAmount = price - down;
         if (loanAmount <= 0 || termMonths <= 0) return 0;
 
-        // Annual interest rate assumption: 15% (typical auto loan rate in Mexico)
+        // For 60 months and if vehicle has recommended payment, use it
+        if (termMonths === 60 && recommendedMonthlyPayment > 0) {
+            // Adjust the recommended payment proportionally if down payment differs from recommended
+            if (down !== recommendedDownPayment && recommendedDownPayment > 0) {
+                const recommendedLoanAmount = price - recommendedDownPayment;
+                const actualLoanAmount = price - down;
+                const ratio = actualLoanAmount / recommendedLoanAmount;
+                return Math.round(recommendedMonthlyPayment * ratio);
+            }
+            return recommendedMonthlyPayment;
+        }
+
+        // For other terms or if no recommended payment, calculate with 15% interest rate
         const annualRate = 0.15;
         const monthlyRate = annualRate / 12;
 
@@ -1348,15 +1355,20 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                        (Math.pow(1 + monthlyRate, termMonths) - 1);
 
         return Math.round(payment);
-    }, []);
+    }, [recommendedMonthlyPayment, recommendedDownPayment]);
 
-    // Initialize down payment with recommended value
+    // Initialize down payment with recommended value and term with vehicle's max
     useEffect(() => {
         if (recommendedDownPayment > 0 && downPayment === 0) {
             setDownPayment(recommendedDownPayment);
             setValue('down_payment_amount', recommendedDownPayment);
         }
-    }, [recommendedDownPayment, downPayment, setValue]);
+        // Set initial loan term to vehicle's max term (capped at 60)
+        const initialTerm = Math.min(maxTerm, 60);
+        if (loanTerm !== initialTerm) {
+            setLoanTerm(initialTerm);
+        }
+    }, [recommendedDownPayment, downPayment, setValue, maxTerm]);
 
     // Recalculate monthly payment when term or down payment changes
     useEffect(() => {
@@ -1371,7 +1383,9 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
         return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0 }).format(amount);
     };
 
-    const termOptions = [12, 24, 36, 48, 60, 72];
+    // Filter term options based on vehicle's plazomax (max 60 months)
+    const allTermOptions = [12, 24, 36, 48, 60];
+    const termOptions = allTermOptions.filter(term => term <= maxTerm);
 
     if (!vehiclePrice || vehiclePrice === 0) {
         return null;
@@ -1449,7 +1463,7 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                     <p className="text-sm font-medium text-gray-700 mb-2">Mensualidad Aproximada</p>
                     <p className="text-4xl font-bold text-primary-700">{formatCurrency(monthlyPayment)}</p>
                     <p className="text-xs text-gray-600 mt-3">
-                        *Cálculo estimado con tasa de interés promedio del 15% anual. La tasa final será determinada por el banco.
+                        *Cálculo estimado. La mensualidad final será determinada por el banco.
                     </p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-primary-200 grid grid-cols-3 gap-4 text-center">

@@ -8,7 +8,12 @@ import {
     AlertTriangle,
     RefreshCw,
     Mail,
-    Package
+    Package,
+    BarChart3,
+    CheckCircle2,
+    DollarSign,
+    Users,
+    TrendingUp
 } from 'lucide-react';
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Line, LineChart } from 'recharts';
 

@@ -49,6 +49,7 @@ const AdminAirtableConfigPage = lazy(() => import('./pages/AdminAirtableConfigPa
 const AdminValuationPage = lazy(() => import('./pages/AdminValuationPage'));
 const SalesLeadsDashboardPage = lazy(() => import('./pages/SalesLeadsDashboardPage'));
 const SalesClientProfilePage = lazy(() => import('./pages/SalesClientProfilePage'));
+const SalesPerformanceDashboard = lazy(() => import('./pages/SalesPerformanceDashboard'));
 const VacanciesListPage = lazy(() => import('./pages/VacanciesListPage'));
 const VacancyDetailPage = lazy(() => import('./pages/VacancyDetailPage'));
 const AdminVacanciesPage = lazy(() => import('./pages/AdminVacanciesPage'));
@@ -191,6 +192,7 @@ function App(): React.JSX.Element {
                 {/* Sales routes - accessible by sales and admin roles */}
                 <Route element={<SalesRoute />}>
                   <Route path="ventas/dashboard" element={<AdminSalesDashboard />} />
+                  <Route path="ventas/performance" element={<SalesPerformanceDashboard />} />
                   <Route path="ventas/crm" element={<SimpleCRMPage />} />
                   <Route path="ventas/leads" element={<SalesLeadsDashboardPage />} />
                   <Route path="ventas/cliente/:id" element={<AdminClientProfilePage />} />

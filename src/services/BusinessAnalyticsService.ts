@@ -66,7 +66,7 @@ export class BusinessAnalyticsService {
             // Get ALL vehicles (no status filter) to see which ones have applications
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, title, ordenstatus, precio')
+                .select('id, ordencompra, title, ordenstatus, precio')
                 .order('title', { ascending: true });
 
             if (vehicleError) {
@@ -100,30 +100,30 @@ export class BusinessAnalyticsService {
                 console.log('[BusinessAnalytics] car_info structure:', applications[0].car_info);
             }
 
-            // Count applications per vehicle
+            // Count applications per vehicle (matching by ordencompra)
             const vehicleAppCounts = new Map<string, number>();
             applications?.forEach(app => {
-                const vehicleId = app.car_info?.id;
+                const ordenCompra = app.car_info?._ordenCompra;
                 console.log('[BusinessAnalytics] Processing app:', {
                     appId: app.id,
-                    vehicleId,
+                    ordenCompra,
                     hasCarInfo: !!app.car_info,
                     carInfoKeys: app.car_info ? Object.keys(app.car_info) : []
                 });
-                if (vehicleId) {
-                    vehicleAppCounts.set(vehicleId, (vehicleAppCounts.get(vehicleId) || 0) + 1);
+                if (ordenCompra) {
+                    vehicleAppCounts.set(ordenCompra, (vehicleAppCounts.get(ordenCompra) || 0) + 1);
                 }
             });
 
             console.log('[BusinessAnalytics] Vehicle app counts:', Object.fromEntries(vehicleAppCounts));
 
-            // Map vehicles with their application counts
+            // Map vehicles with their application counts (matching by ordencompra)
             const vehiclesWithApps = vehicles.map(vehicle => ({
                 id: vehicle.id,
                 titulo: vehicle.title || 'Sin título',
                 ordenstatus: vehicle.ordenstatus || 'Disponible',
                 precio: vehicle.precio || 0,
-                ongoingApplications: vehicleAppCounts.get(vehicle.id) || 0
+                ongoingApplications: vehicleAppCounts.get(vehicle.ordencompra) || 0
             }));
 
             // Sort by ongoing applications (descending), then by price
@@ -162,19 +162,19 @@ export class BusinessAnalyticsService {
 
             if (appError) throw appError;
 
-            // Group by vehicle
+            // Group by vehicle (using ordencompra)
             const vehicleMap = new Map<string, { apps: any[]; activeApps: number }>();
 
             applications?.forEach(app => {
                 const carInfo = app.car_info;
-                if (!carInfo || !carInfo.id) return;
+                if (!carInfo || !carInfo._ordenCompra) return;
 
-                const vehicleId = carInfo.id;
-                if (!vehicleMap.has(vehicleId)) {
-                    vehicleMap.set(vehicleId, { apps: [], activeApps: 0 });
+                const ordenCompra = carInfo._ordenCompra;
+                if (!vehicleMap.has(ordenCompra)) {
+                    vehicleMap.set(ordenCompra, { apps: [], activeApps: 0 });
                 }
 
-                const vehicleData = vehicleMap.get(vehicleId)!;
+                const vehicleData = vehicleMap.get(ordenCompra)!;
                 vehicleData.apps.push(app);
 
                 // Count active applications (not rejected or draft)
@@ -184,22 +184,22 @@ export class BusinessAnalyticsService {
             });
 
             // Get vehicle details for top vehicles by application count
-            const topVehicleIds = Array.from(vehicleMap.entries())
+            const topOrdenCompras = Array.from(vehicleMap.entries())
                 .sort((a, b) => b[1].apps.length - a[1].apps.length)
                 .slice(0, limit)
-                .map(([id]) => id);
+                .map(([ordenCompra]) => ordenCompra);
 
-            if (topVehicleIds.length === 0) return [];
+            if (topOrdenCompras.length === 0) return [];
 
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, title, ordenstatus, precio')
-                .in('id', topVehicleIds);
+                .select('id, ordencompra, title, ordenstatus, precio')
+                .in('ordencompra', topOrdenCompras);
 
             if (vehicleError) throw vehicleError;
 
             return vehicles?.map(vehicle => {
-                const stats = vehicleMap.get(vehicle.id);
+                const stats = vehicleMap.get(vehicle.ordencompra);
                 return {
                     id: vehicle.id,
                     titulo: vehicle.title || 'Sin título',
@@ -260,24 +260,24 @@ export class BusinessAnalyticsService {
                 }
             }
 
-            // Get all unique vehicle IDs from applications
-            const vehicleIds = Array.from(new Set(
+            // Get all unique ordencompras from applications
+            const ordenCompras = Array.from(new Set(
                 (applications || [])
-                    .map(app => app.car_info?.id)
+                    .map(app => app.car_info?._ordenCompra)
                     .filter(Boolean)
             ));
 
-            console.log(`[BusinessAnalytics] Checking ${vehicleIds.length} unique vehicles`);
+            console.log(`[BusinessAnalytics] Checking ${ordenCompras.length} unique vehicles`);
 
-            if (vehicleIds.length === 0) {
+            if (ordenCompras.length === 0) {
                 return [];
             }
 
             // Fetch all vehicles at once for better performance
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, ordenstatus')
-                .in('id', vehicleIds);
+                .select('ordencompra, ordenstatus')
+                .in('ordencompra', ordenCompras);
 
             if (vehicleError) {
                 console.error('[BusinessAnalytics] Error fetching vehicles:', vehicleError);
@@ -285,15 +285,15 @@ export class BusinessAnalyticsService {
 
             // Create a map of vehicle statuses
             const vehicleStatusMap = new Map(
-                (vehicles || []).map(v => [v.id, v.ordenstatus])
+                (vehicles || []).map(v => [v.ordencompra, v.ordenstatus])
             );
 
             // Check each application
             for (const app of applications || []) {
                 const carInfo = app.car_info;
-                if (!carInfo || !carInfo.id) continue;
+                if (!carInfo || !carInfo._ordenCompra) continue;
 
-                const vehicleStatus = vehicleStatusMap.get(carInfo.id);
+                const vehicleStatus = vehicleStatusMap.get(carInfo._ordenCompra);
                 const userProfile = userProfiles[app.user_id];
 
                 // Vehicle is unavailable if it's not in the map (deleted) or status is not "Disponible"

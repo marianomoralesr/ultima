@@ -34,16 +34,6 @@ export interface LeadPersonaInsight {
     approvalRate: number;
 }
 
-export interface SoldVehicleHistory {
-    id: string;
-    titulo: string;
-    precio: number;
-    fechaVenta: Date;
-    edadEnInventario: number; // days
-    fechaIngreso: Date;
-    thumbnail?: string;
-}
-
 export interface UnavailableVehicleApp {
     applicationId: string;
     vehicleTitle: string;
@@ -57,14 +47,10 @@ export interface BusinessMetrics {
     vehicleInsights: VehicleInsight[];
     priceRangeInsights: PriceRangeInsight[];
     leadPersonaInsights: LeadPersonaInsight[];
-    soldVehicles: SoldVehicleHistory[];
     unavailableVehicleApplications: UnavailableVehicleApp[];
     inventoryVehiclesWithApplications: InventoryVehicleWithApplications[];
 
     // Summary metrics
-    avgDaysInInventory: number;
-    fastestSale: number;
-    slowestSale: number;
     totalActiveApplications: number;
     conversionRateByPrice: { range: string; rate: number }[];
 }
@@ -431,228 +417,6 @@ export class BusinessAnalyticsService {
     }
 
     /**
-     * Fetch sold vehicles from Airtable Inventario table, Ventas view
-     * This is the primary source with complete vehicle data including edad en inventario
-     */
-    static async fetchAirtableInventarioVentas(): Promise<SoldVehicleHistory[]> {
-        try {
-            console.log('[BusinessAnalytics] Fetching from Airtable Inventario (Ventas view)...');
-            const AIRTABLE_API_BASE = 'https://api.airtable.com/v0';
-            const AIRTABLE_BASE_ID = config.airtable.valuation.baseId;
-            const AIRTABLE_API_KEY = config.airtable.valuation.apiKey;
-            const AIRTABLE_INVENTARIO_TABLE = 'Inventario';
-            const AIRTABLE_VENTAS_VIEW = 'Ventas';
-
-            const allRecords: any[] = [];
-            let offset: string | undefined = undefined;
-            const maxPages = 10;
-            let pageCount = 0;
-
-            do {
-                pageCount++;
-                const url = new URL(`${AIRTABLE_API_BASE}/${AIRTABLE_BASE_ID}/${AIRTABLE_INVENTARIO_TABLE}`);
-                url.searchParams.append('view', AIRTABLE_VENTAS_VIEW);
-                url.searchParams.append('pageSize', '100');
-
-                if (offset) {
-                    url.searchParams.append('offset', offset);
-                }
-
-                const response = await fetch(url.toString(), {
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    console.error('[BusinessAnalytics] Airtable API error:', response.statusText);
-                    break;
-                }
-
-                const data = await response.json();
-                if (data.records && Array.isArray(data.records)) {
-                    allRecords.push(...data.records);
-                }
-
-                offset = data.offset;
-            } while (offset && pageCount < maxPages);
-
-            console.log(`[BusinessAnalytics] Fetched ${allRecords.length} records from Airtable Inventario (Ventas view)`);
-
-            // Log first record to see field names
-            if (allRecords.length > 0) {
-                console.log('[BusinessAnalytics] Sample Inventario record fields:', Object.keys(allRecords[0].fields));
-                console.log('[BusinessAnalytics] Sample Inventario record data:', allRecords[0].fields);
-
-                // Log all date-related fields to debug Fecha Venta
-                const dateFields = Object.keys(allRecords[0].fields).filter(key =>
-                    key.toLowerCase().includes('fecha') || key.toLowerCase().includes('date')
-                );
-                console.log('[BusinessAnalytics] Date-related fields found:', dateFields);
-                dateFields.forEach(field => {
-                    console.log(`[BusinessAnalytics] ${field}:`, allRecords[0].fields[field]);
-                });
-            }
-
-            // Map Airtable records to SoldVehicleHistory format using actual field names
-            return allRecords.map(record => {
-                const fields = record.fields;
-
-                // Use confirmed Airtable field names
-                const fechaVentaStr = fields['Fecha Vendido'];
-                const fechaVenta = fechaVentaStr ? new Date(fechaVentaStr) : new Date();
-
-                const fechaIngresoStr = fields.ingreso_inventario;
-                const fechaIngreso = fechaIngresoStr ? new Date(fechaIngresoStr) : fechaVenta;
-                const edadEnInventario = fields['Edad en Inventario'] || Math.floor(
-                    (fechaVenta.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)
-                );
-
-                return {
-                    id: fields.id || record.id,
-                    titulo: fields.title || fields.Auto || fields.TituloMeta || 'Sin título',
-                    precio: fields.Precio || fields.price || 0,
-                    fechaVenta,
-                    edadEnInventario: edadEnInventario >= 0 ? edadEnInventario : 0,
-                    fechaIngreso,
-                    thumbnail: fields.Foto?.[0]?.url || fields['Foto Catalogo']?.[0]?.url
-                };
-            });
-        } catch (error) {
-            console.error('[BusinessAnalytics] Error fetching Airtable Inventario (Ventas view):', error);
-            return [];
-        }
-    }
-
-    /**
-     * Fetch sold vehicles from Airtable "Ventas" table (secondary source)
-     */
-    static async fetchAirtableVentas(): Promise<SoldVehicleHistory[]> {
-        try {
-            console.log('[BusinessAnalytics] Fetching Ventas from Airtable...');
-            const AIRTABLE_API_BASE = 'https://api.airtable.com/v0';
-            const AIRTABLE_BASE_ID = config.airtable.valuation.baseId;
-            const AIRTABLE_API_KEY = config.airtable.valuation.apiKey;
-            const AIRTABLE_VENTAS_TABLE = 'Ventas';  // Table name
-
-            const allRecords: any[] = [];
-            let offset: string | undefined = undefined;
-            const maxPages = 5;
-            let pageCount = 0;
-
-            do {
-                pageCount++;
-                const url = new URL(`${AIRTABLE_API_BASE}/${AIRTABLE_BASE_ID}/${AIRTABLE_VENTAS_TABLE}`);
-                url.searchParams.append('pageSize', '100');
-
-                if (offset) {
-                    url.searchParams.append('offset', offset);
-                }
-
-                const response = await fetch(url.toString(), {
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    console.error('[BusinessAnalytics] Airtable API error:', response.statusText);
-                    break;
-                }
-
-                const data = await response.json();
-                if (data.records && Array.isArray(data.records)) {
-                    allRecords.push(...data.records);
-                }
-
-                offset = data.offset;
-            } while (offset && pageCount < maxPages);
-
-            console.log(`[BusinessAnalytics] Fetched ${allRecords.length} records from Airtable Ventas`);
-
-            // Log first record to see field names
-            if (allRecords.length > 0) {
-                console.log('[BusinessAnalytics] Sample Airtable record fields:', Object.keys(allRecords[0].fields));
-                console.log('[BusinessAnalytics] Sample record data:', allRecords[0].fields);
-            }
-
-            // Map Airtable records to SoldVehicleHistory format
-            return allRecords.map(record => {
-                const fields = record.fields;
-
-                // Use actual Airtable field names from Ventas table
-                const fechaVenta = fields['Fecha Vendido'] ? new Date(fields['Fecha Vendido']) : new Date();
-
-                // Calculate edad en inventario if not provided
-                // Assuming vehicles are added when purchased/received
-                const fechaIngreso = fechaVenta; // We don't have fecha_ingreso in Ventas table
-                const edadEnInventario = 0; // Not available in current Ventas schema
-
-                return {
-                    id: fields['ID del Auto'] || fields['Auto ID'] || record.id,
-                    titulo: fields['Auto vendido'] || 'Sin título',
-                    precio: fields['Precio de Venta'] || 0,
-                    fechaVenta,
-                    edadEnInventario, // Will be 0 since we don't have this data
-                    fechaIngreso,
-                    thumbnail: undefined // No thumbnail field in Ventas table
-                };
-            });
-        } catch (error) {
-            console.error('[BusinessAnalytics] Error fetching Airtable Ventas:', error);
-            return [];
-        }
-    }
-
-    /**
-     * Get sold vehicles history from PRIMARY source (Airtable Inventario - Ventas view)
-     * This is the main tab with complete data including edad en inventario
-     */
-    static async getSoldVehiclesHistory(limit: number = 50): Promise<SoldVehicleHistory[]> {
-        try {
-            // Primary source: Airtable Inventario table, Ventas view
-            const inventarioVentas = await this.fetchAirtableInventarioVentas();
-
-            // Sort by fecha_venta descending and limit
-            const sorted = inventarioVentas
-                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime())
-                .slice(0, limit);
-
-            console.log(`[BusinessAnalytics] Primary sold vehicles (Inventario): ${sorted.length}`);
-
-            return sorted;
-        } catch (error) {
-            console.error('Error fetching sold vehicles from Inventario:', error);
-            return [];
-        }
-    }
-
-    /**
-     * Get sold vehicles from SECONDARY source (Airtable Ventas table)
-     * This is the secondary tab with sales records
-     */
-    static async getSoldVehiclesFromVentasTable(limit: number = 50): Promise<SoldVehicleHistory[]> {
-        try {
-            // Secondary source: Airtable Ventas table
-            const ventasRecords = await this.fetchAirtableVentas();
-
-            // Sort by fecha_venta descending and limit
-            const sorted = ventasRecords
-                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime())
-                .slice(0, limit);
-
-            console.log(`[BusinessAnalytics] Secondary sold vehicles (Ventas table): ${sorted.length}`);
-
-            return sorted;
-        } catch (error) {
-            console.error('Error fetching sold vehicles from Ventas table:', error);
-            return [];
-        }
-    }
-
-    /**
      * Get comprehensive business metrics
      */
     static async getBusinessMetrics(): Promise<BusinessMetrics> {
@@ -661,33 +425,15 @@ export class BusinessAnalyticsService {
                 vehicleInsights,
                 priceRangeInsights,
                 leadPersonaInsights,
-                soldVehicles,
                 unavailableVehicleApplications,
                 inventoryVehiclesWithApplications
             ] = await Promise.all([
                 this.getVehicleInsights(20),
                 this.getPriceRangeInsights(),
                 this.getLeadPersonaInsights(),
-                this.getSoldVehiclesHistory(50),
                 this.getUnavailableVehicleApplications(),
                 this.getInventoryVehiclesWithApplications(50)
             ]);
-
-            // Calculate summary metrics
-            // Only use vehicles with valid edadEnInventario (> 0) for accurate metrics
-            const vehiclesWithInventoryAge = soldVehicles.filter(v => v.edadEnInventario > 0);
-
-            const avgDaysInInventory = vehiclesWithInventoryAge.length > 0
-                ? vehiclesWithInventoryAge.reduce((sum, v) => sum + v.edadEnInventario, 0) / vehiclesWithInventoryAge.length
-                : 0;
-
-            const fastestSale = vehiclesWithInventoryAge.length > 0
-                ? Math.min(...vehiclesWithInventoryAge.map(v => v.edadEnInventario))
-                : 0;
-
-            const slowestSale = vehiclesWithInventoryAge.length > 0
-                ? Math.max(...vehiclesWithInventoryAge.map(v => v.edadEnInventario))
-                : 0;
 
             // Get total applications count from database (all non-draft applications)
             const { count: totalActiveApplications, error: countError } = await supabase
@@ -711,12 +457,8 @@ export class BusinessAnalyticsService {
                 vehicleInsights,
                 priceRangeInsights,
                 leadPersonaInsights,
-                soldVehicles,
                 unavailableVehicleApplications,
                 inventoryVehiclesWithApplications,
-                avgDaysInInventory,
-                fastestSale,
-                slowestSale,
                 totalActiveApplications: totalActiveApplications || 0,
                 conversionRateByPrice
             };

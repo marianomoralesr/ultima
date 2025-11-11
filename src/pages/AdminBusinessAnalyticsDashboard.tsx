@@ -4,20 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { BusinessAnalyticsService, BusinessMetrics } from '../services/BusinessAnalyticsService';
 import { BrevoEmailService } from '../services/BrevoEmailService';
 import {
-    TrendingUp,
-    TrendingDown,
     Car,
-    DollarSign,
-    Users,
-    Clock,
     AlertTriangle,
     RefreshCw,
     Mail,
-    CheckCircle2,
-    XCircle,
-    BarChart3,
-    PieChart,
-    Calendar,
     Package
 } from 'lucide-react';
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Line, LineChart } from 'recharts';
@@ -32,24 +22,12 @@ export default function AdminBusinessAnalyticsDashboard() {
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [refreshing, setRefreshing] = useState(false);
     const [sendingEmail, setSendingEmail] = useState<string | null>(null);
-    const [soldVehiclesTab, setSoldVehiclesTab] = useState<'primary' | 'secondary'>('primary');
-    const [secondaryVehicles, setSecondaryVehicles] = useState<any[]>([]);
 
     const isAdmin = profile?.role === 'admin';
 
     useEffect(() => {
         loadBusinessData();
-        loadSecondaryVehicles();
     }, []);
-
-    const loadSecondaryVehicles = async () => {
-        try {
-            const vehicles = await BusinessAnalyticsService.getSoldVehiclesFromVentasTable(50);
-            setSecondaryVehicles(vehicles);
-        } catch (error) {
-            console.error('[Business Analytics] Error loading secondary vehicles:', error);
-        }
-    };
 
     const loadBusinessData = async (silent = false) => {
         try {
@@ -154,7 +132,7 @@ export default function AdminBusinessAnalyticsDashboard() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <MetricCard
                         title="Solicitudes Activas"
                         value={metrics.totalActiveApplications}
@@ -163,25 +141,11 @@ export default function AdminBusinessAnalyticsDashboard() {
                         subtitle="En proceso"
                     />
                     <MetricCard
-                        title="Promedio en Inventario"
-                        value={`${Math.round(metrics.avgDaysInInventory)} días`}
-                        icon={<Clock className="w-6 h-6" />}
+                        title="Vehículos con Solicitudes"
+                        value={metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length}
+                        icon={<Car className="w-6 h-6" />}
                         color="blue"
-                        subtitle="Vehículos vendidos"
-                    />
-                    <MetricCard
-                        title="Venta Más Rápida"
-                        value={`${metrics.fastestSale} días`}
-                        icon={<TrendingUp className="w-6 h-6" />}
-                        color="green"
-                        subtitle="Menor tiempo"
-                    />
-                    <MetricCard
-                        title="Venta Más Lenta"
-                        value={`${metrics.slowestSale} días`}
-                        icon={<TrendingDown className="w-6 h-6" />}
-                        color="red"
-                        subtitle="Mayor tiempo"
+                        subtitle="Inventario con demanda"
                     />
                 </div>
 
@@ -456,115 +420,6 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                </div>
-
-                {/* Sold Vehicles History */}
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <Calendar className="w-6 h-6 text-orange-600" />
-                                Historial de Vehículos Vendidos
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                                {soldVehiclesTab === 'primary'
-                                    ? `Datos de Inventario (${metrics.soldVehicles.length} vehículos con edad en inventario)`
-                                    : `Datos de Ventas (${secondaryVehicles.length} registros)`
-                                }
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Tabs */}
-                    <div className="flex gap-2 mb-4 border-b border-gray-200">
-                        <button
-                            onClick={() => setSoldVehiclesTab('primary')}
-                            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-                                soldVehiclesTab === 'primary'
-                                    ? 'border-orange-600 text-orange-600'
-                                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                            }`}
-                        >
-                            Inventario (Principal)
-                        </button>
-                        <button
-                            onClick={() => setSoldVehiclesTab('secondary')}
-                            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-                                soldVehiclesTab === 'secondary'
-                                    ? 'border-orange-600 text-orange-600'
-                                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                            }`}
-                        >
-                            Ventas (Secundario)
-                        </button>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                                        Vehículo
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                                        Precio
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                                        Fecha Ingreso
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                                        Fecha Venta
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
-                                        Edad en Inventario
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {(soldVehiclesTab === 'primary' ? metrics.soldVehicles : secondaryVehicles).map(vehicle => (
-                                    <tr key={vehicle.id} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-3">
-                                                {vehicle.thumbnail ? (
-                                                    <img
-                                                        src={vehicle.thumbnail}
-                                                        alt={vehicle.titulo}
-                                                        className="w-12 h-12 rounded object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-12 h-12 rounded bg-gray-200 flex items-center justify-center">
-                                                        <Car className="w-6 h-6 text-gray-400" />
-                                                    </div>
-                                                )}
-                                                <span className="font-medium text-gray-900 text-sm">
-                                                    {vehicle.titulo}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
-                                            ${vehicle.precio.toLocaleString('es-MX')}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-600">
-                                            {vehicle.fechaIngreso.toLocaleDateString('es-MX')}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-gray-600">
-                                            {vehicle.fechaVenta.toLocaleDateString('es-MX')}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
-                                                vehicle.edadEnInventario <= 30
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : vehicle.edadEnInventario <= 60
-                                                    ? 'bg-yellow-100 text-yellow-700'
-                                                    : 'bg-red-100 text-red-700'
-                                            }`}>
-                                                {vehicle.edadEnInventario} días
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 

@@ -8,6 +8,8 @@ export interface VehicleInsight {
     precio: number;
     applicationCount: number;
     activeApplications: number;
+    viewCount: number;
+    conversionRate: number; // (activeApplications / viewCount) * 100
     thumbnail?: string;
 }
 
@@ -17,6 +19,8 @@ export interface InventoryVehicleWithApplications {
     ordenstatus: string;
     precio: number;
     ongoingApplications: number;
+    viewCount: number;
+    conversionRate: number; // (ongoingApplications / viewCount) * 100
 }
 
 export interface PriceRangeInsight {
@@ -66,7 +70,7 @@ export class BusinessAnalyticsService {
             // Get ALL vehicles (no status filter) to see which ones have applications
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, ordencompra, title, ordenstatus, precio')
+                .select('id, ordencompra, title, ordenstatus, precio, view_count')
                 .order('title', { ascending: true });
 
             if (vehicleError) {
@@ -118,13 +122,21 @@ export class BusinessAnalyticsService {
             console.log('[BusinessAnalytics] Vehicle app counts:', Object.fromEntries(vehicleAppCounts));
 
             // Map vehicles with their application counts (matching by ordencompra)
-            const vehiclesWithApps = vehicles.map(vehicle => ({
-                id: vehicle.id,
-                titulo: vehicle.title || 'Sin título',
-                ordenstatus: vehicle.ordenstatus || 'Disponible',
-                precio: vehicle.precio || 0,
-                ongoingApplications: vehicleAppCounts.get(vehicle.ordencompra) || 0
-            }));
+            const vehiclesWithApps = vehicles.map(vehicle => {
+                const appCount = vehicleAppCounts.get(vehicle.ordencompra) || 0;
+                const viewCount = vehicle.view_count || 0;
+                const conversionRate = viewCount > 0 ? (appCount / viewCount) * 100 : 0;
+
+                return {
+                    id: vehicle.id,
+                    titulo: vehicle.title || 'Sin título',
+                    ordenstatus: vehicle.ordenstatus || 'Disponible',
+                    precio: vehicle.precio || 0,
+                    ongoingApplications: appCount,
+                    viewCount: viewCount,
+                    conversionRate: Math.round(conversionRate * 100) / 100 // Round to 2 decimals
+                };
+            });
 
             // Sort by ongoing applications (descending), then by price
             const sorted = vehiclesWithApps
@@ -193,20 +205,26 @@ export class BusinessAnalyticsService {
 
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
-                .select('id, ordencompra, title, ordenstatus, precio')
+                .select('id, ordencompra, title, ordenstatus, precio, view_count, thumbnail')
                 .in('ordencompra', topOrdenCompras);
 
             if (vehicleError) throw vehicleError;
 
             return vehicles?.map(vehicle => {
                 const stats = vehicleMap.get(vehicle.ordencompra);
+                const activeApps = stats?.activeApps || 0;
+                const viewCount = vehicle.view_count || 0;
+                const conversionRate = viewCount > 0 ? (activeApps / viewCount) * 100 : 0;
+
                 return {
                     id: vehicle.id,
                     titulo: vehicle.title || 'Sin título',
                     ordenstatus: vehicle.ordenstatus || 'Disponible',
                     precio: vehicle.precio || 0,
                     applicationCount: stats?.apps.length || 0,
-                    activeApplications: stats?.activeApps || 0,
+                    activeApplications: activeApps,
+                    viewCount: viewCount,
+                    conversionRate: Math.round(conversionRate * 100) / 100,
                     thumbnail: vehicle.thumbnail
                 };
             }).sort((a, b) => b.applicationCount - a.applicationCount) || [];

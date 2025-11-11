@@ -327,7 +327,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 Inventario con Solicitudes Activas
                             </h3>
                             <p className="text-sm text-gray-600 mt-1">
-                                Vehículos disponibles (Comprado/Disponible) con aplicaciones en proceso
+                                Todos los vehículos en inventario con aplicaciones activas
                             </p>
                         </div>
                     </div>

@@ -385,27 +385,22 @@ export class BusinessAnalyticsService {
             return allRecords.map(record => {
                 const fields = record.fields;
 
-                // Try multiple possible field name variations
-                const fechaVenta = fields.fecha_venta || fields.Fecha_Venta || fields['Fecha de Venta'] || fields.fechaVenta
-                    ? new Date(fields.fecha_venta || fields.Fecha_Venta || fields['Fecha de Venta'] || fields.fechaVenta)
-                    : new Date();
+                // Use actual Airtable field names from Ventas table
+                const fechaVenta = fields['Fecha Vendido'] ? new Date(fields['Fecha Vendido']) : new Date();
 
-                const fechaIngreso = fields.fecha_ingreso || fields.Fecha_Ingreso || fields['Fecha de Ingreso'] || fields.fechaIngreso
-                    ? new Date(fields.fecha_ingreso || fields.Fecha_Ingreso || fields['Fecha de Ingreso'] || fields.fechaIngreso)
-                    : fechaVenta;
-
-                const edadEnInventario = fields.edad_en_venta || fields.Edad_en_Venta || fields['Edad en Venta'] || fields.edadEnVenta || Math.floor(
-                    (fechaVenta.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)
-                );
+                // Calculate edad en inventario if not provided
+                // Assuming vehicles are added when purchased/received
+                const fechaIngreso = fechaVenta; // We don't have fecha_ingreso in Ventas table
+                const edadEnInventario = 0; // Not available in current Ventas schema
 
                 return {
-                    id: record.id,
-                    titulo: fields.titulo || fields.Titulo || fields.vehiculo || fields.Vehiculo || fields.title || fields.Title || 'Sin título',
-                    precio: fields.precio || fields.Precio || fields.price || fields.Price || 0,
+                    id: fields['ID del Auto'] || fields['Auto ID'] || record.id,
+                    titulo: fields['Auto vendido'] || 'Sin título',
+                    precio: fields['Precio de Venta'] || 0,
                     fechaVenta,
-                    edadEnInventario: edadEnInventario >= 0 ? edadEnInventario : 0,
+                    edadEnInventario, // Will be 0 since we don't have this data
                     fechaIngreso,
-                    thumbnail: fields.thumbnail || fields.Thumbnail || fields.imagen || fields.Imagen || fields.image || fields.Image
+                    thumbnail: undefined // No thumbnail field in Ventas table
                 };
             });
         } catch (error) {
@@ -503,16 +498,19 @@ export class BusinessAnalyticsService {
             ]);
 
             // Calculate summary metrics
-            const avgDaysInInventory = soldVehicles.length > 0
-                ? soldVehicles.reduce((sum, v) => sum + v.edadEnInventario, 0) / soldVehicles.length
+            // Only use vehicles with valid edadEnInventario (> 0) for accurate metrics
+            const vehiclesWithInventoryAge = soldVehicles.filter(v => v.edadEnInventario > 0);
+
+            const avgDaysInInventory = vehiclesWithInventoryAge.length > 0
+                ? vehiclesWithInventoryAge.reduce((sum, v) => sum + v.edadEnInventario, 0) / vehiclesWithInventoryAge.length
                 : 0;
 
-            const fastestSale = soldVehicles.length > 0
-                ? Math.min(...soldVehicles.map(v => v.edadEnInventario))
+            const fastestSale = vehiclesWithInventoryAge.length > 0
+                ? Math.min(...vehiclesWithInventoryAge.map(v => v.edadEnInventario))
                 : 0;
 
-            const slowestSale = soldVehicles.length > 0
-                ? Math.max(...soldVehicles.map(v => v.edadEnInventario))
+            const slowestSale = vehiclesWithInventoryAge.length > 0
+                ? Math.max(...vehiclesWithInventoryAge.map(v => v.edadEnInventario))
                 : 0;
 
             const totalActiveApplications = vehicleInsights.reduce(

@@ -338,77 +338,34 @@ export default function AdminBusinessAnalyticsDashboard() {
                             <p className="text-gray-400 text-xs mt-2">Los datos aparecerán cuando haya solicitudes en proceso</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Vehículo
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Precio
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Estado
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Solicitudes Activas
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {metrics.inventoryVehiclesWithApplications
-                                        .filter(v => v.ongoingApplications > 0)
-                                        .slice(0, 20)
-                                        .map((vehicle) => (
-                                        <tr key={vehicle.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    {vehicle.thumbnail ? (
-                                                        <img
-                                                            src={vehicle.thumbnail}
-                                                            alt={vehicle.titulo}
-                                                            className="w-12 h-12 rounded object-cover mr-4"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-12 h-12 rounded bg-gray-200 flex items-center justify-center mr-4">
-                                                            <Car className="w-6 h-6 text-gray-400" />
-                                                        </div>
-                                                    )}
-                                                    <div>
-                                                        <div className="text-sm font-medium text-gray-900">
-                                                            {vehicle.titulo}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">
-                                                    ${vehicle.precio.toLocaleString('es-MX')}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    vehicle.ordenstatus === 'Disponible'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : vehicle.ordenstatus === 'Comprado'
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                    {vehicle.ordenstatus}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-orange-100 text-orange-800">
-                                                        {vehicle.ongoingApplications} solicitudes
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="space-y-2">
+                            {metrics.inventoryVehiclesWithApplications
+                                .filter(v => v.ongoingApplications > 0)
+                                .slice(0, 30)
+                                .map((vehicle) => (
+                                <div
+                                    key={vehicle.id}
+                                    className="flex items-center justify-between p-4 bg-gray-50 hover:bg-orange-50 rounded-lg transition-colors border border-gray-200"
+                                >
+                                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                                        <span className="text-sm font-mono text-gray-500 flex-shrink-0">
+                                            {vehicle.id}
+                                        </span>
+                                        <span className="text-sm font-medium text-gray-900 truncate">
+                                            {vehicle.titulo}
+                                        </span>
+                                    </div>
+                                    <a
+                                        href={`/escritorio/admin/crm?vehicle=${vehicle.id}`}
+                                        className="flex items-center gap-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg text-sm font-semibold transition-colors flex-shrink-0"
+                                    >
+                                        {vehicle.ongoingApplications} solicitudes activas
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            ))}
                             {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 && (
                                 <div className="text-center py-8 text-gray-500 text-sm">
                                     No hay vehículos en inventario con solicitudes activas en este momento

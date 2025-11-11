@@ -109,14 +109,28 @@ export class BusinessAnalyticsService {
 
             console.log(`[BusinessAnalytics] Found ${applications?.length || 0} ongoing applications`);
 
+            // Log sample applications to see structure
+            if (applications && applications.length > 0) {
+                console.log('[BusinessAnalytics] Sample application:', applications[0]);
+                console.log('[BusinessAnalytics] car_info structure:', applications[0].car_info);
+            }
+
             // Count applications per vehicle
             const vehicleAppCounts = new Map<string, number>();
             applications?.forEach(app => {
                 const vehicleId = app.car_info?.id;
+                console.log('[BusinessAnalytics] Processing app:', {
+                    appId: app.id,
+                    vehicleId,
+                    hasCarInfo: !!app.car_info,
+                    carInfoKeys: app.car_info ? Object.keys(app.car_info) : []
+                });
                 if (vehicleId) {
                     vehicleAppCounts.set(vehicleId, (vehicleAppCounts.get(vehicleId) || 0) + 1);
                 }
             });
+
+            console.log('[BusinessAnalytics] Vehicle app counts:', Object.fromEntries(vehicleAppCounts));
 
             // Map vehicles with their application counts
             const vehiclesWithApps = vehicles.map(vehicle => ({

@@ -375,23 +375,37 @@ export class BusinessAnalyticsService {
 
             console.log(`[BusinessAnalytics] Fetched ${allRecords.length} records from Airtable Ventas`);
 
+            // Log first record to see field names
+            if (allRecords.length > 0) {
+                console.log('[BusinessAnalytics] Sample Airtable record fields:', Object.keys(allRecords[0].fields));
+                console.log('[BusinessAnalytics] Sample record data:', allRecords[0].fields);
+            }
+
             // Map Airtable records to SoldVehicleHistory format
             return allRecords.map(record => {
                 const fields = record.fields;
-                const fechaVenta = fields.fecha_venta ? new Date(fields.fecha_venta) : new Date();
-                const fechaIngreso = fields.fecha_ingreso ? new Date(fields.fecha_ingreso) : fechaVenta;
-                const edadEnInventario = fields.edad_en_venta || Math.floor(
+
+                // Try multiple possible field name variations
+                const fechaVenta = fields.fecha_venta || fields.Fecha_Venta || fields['Fecha de Venta'] || fields.fechaVenta
+                    ? new Date(fields.fecha_venta || fields.Fecha_Venta || fields['Fecha de Venta'] || fields.fechaVenta)
+                    : new Date();
+
+                const fechaIngreso = fields.fecha_ingreso || fields.Fecha_Ingreso || fields['Fecha de Ingreso'] || fields.fechaIngreso
+                    ? new Date(fields.fecha_ingreso || fields.Fecha_Ingreso || fields['Fecha de Ingreso'] || fields.fechaIngreso)
+                    : fechaVenta;
+
+                const edadEnInventario = fields.edad_en_venta || fields.Edad_en_Venta || fields['Edad en Venta'] || fields.edadEnVenta || Math.floor(
                     (fechaVenta.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)
                 );
 
                 return {
                     id: record.id,
-                    titulo: fields.titulo || fields.vehiculo || 'Sin título',
-                    precio: fields.precio || 0,
+                    titulo: fields.titulo || fields.Titulo || fields.vehiculo || fields.Vehiculo || fields.title || fields.Title || 'Sin título',
+                    precio: fields.precio || fields.Precio || fields.price || fields.Price || 0,
                     fechaVenta,
                     edadEnInventario: edadEnInventario >= 0 ? edadEnInventario : 0,
                     fechaIngreso,
-                    thumbnail: fields.thumbnail || fields.imagen
+                    thumbnail: fields.thumbnail || fields.Thumbnail || fields.imagen || fields.Imagen || fields.image || fields.Image
                 };
             });
         } catch (error) {

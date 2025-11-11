@@ -78,6 +78,20 @@ export class BusinessAnalyticsService {
         try {
             console.log('[BusinessAnalytics] Fetching inventory vehicles with applications...');
 
+            // First, let's check what ordenstatus values exist
+            const { data: allVehicles, error: checkError } = await supabase
+                .from('inventario_cache')
+                .select('ordenstatus')
+                .limit(100);
+
+            if (!checkError && allVehicles) {
+                const statusCounts = allVehicles.reduce((acc: Record<string, number>, v: any) => {
+                    acc[v.ordenstatus || 'null'] = (acc[v.ordenstatus || 'null'] || 0) + 1;
+                    return acc;
+                }, {});
+                console.log('[BusinessAnalytics] Available ordenstatus values:', statusCounts);
+            }
+
             // Get all vehicles with status Comprado or Disponible
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
@@ -91,7 +105,7 @@ export class BusinessAnalyticsService {
             }
 
             if (!vehicles || vehicles.length === 0) {
-                console.log('[BusinessAnalytics] No inventory vehicles found');
+                console.log('[BusinessAnalytics] No inventory vehicles found with status Comprado or Disponible');
                 return [];
             }
 

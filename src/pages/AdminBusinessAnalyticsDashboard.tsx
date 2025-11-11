@@ -32,12 +32,24 @@ export default function AdminBusinessAnalyticsDashboard() {
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [refreshing, setRefreshing] = useState(false);
     const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+    const [soldVehiclesTab, setSoldVehiclesTab] = useState<'primary' | 'secondary'>('primary');
+    const [secondaryVehicles, setSecondaryVehicles] = useState<any[]>([]);
 
     const isAdmin = profile?.role === 'admin';
 
     useEffect(() => {
         loadBusinessData();
+        loadSecondaryVehicles();
     }, []);
+
+    const loadSecondaryVehicles = async () => {
+        try {
+            const vehicles = await BusinessAnalyticsService.getSoldVehiclesFromVentasTable(50);
+            setSecondaryVehicles(vehicles);
+        } catch (error) {
+            console.error('[Business Analytics] Error loading secondary vehicles:', error);
+        }
+    };
 
     const loadBusinessData = async (silent = false) => {
         try {
@@ -399,9 +411,36 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 Historial de Vehículos Vendidos
                             </h3>
                             <p className="text-sm text-gray-600 mt-1">
-                                Últimos {metrics.soldVehicles.length} vehículos con edad en inventario
+                                {soldVehiclesTab === 'primary'
+                                    ? `Datos de Inventario (${metrics.soldVehicles.length} vehículos con edad en inventario)`
+                                    : `Datos de Ventas (${secondaryVehicles.length} registros)`
+                                }
                             </p>
                         </div>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex gap-2 mb-4 border-b border-gray-200">
+                        <button
+                            onClick={() => setSoldVehiclesTab('primary')}
+                            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+                                soldVehiclesTab === 'primary'
+                                    ? 'border-orange-600 text-orange-600'
+                                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            Inventario (Principal)
+                        </button>
+                        <button
+                            onClick={() => setSoldVehiclesTab('secondary')}
+                            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+                                soldVehiclesTab === 'secondary'
+                                    ? 'border-orange-600 text-orange-600'
+                                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            Ventas (Secundario)
+                        </button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -425,7 +464,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {metrics.soldVehicles.map(vehicle => (
+                                {(soldVehiclesTab === 'primary' ? metrics.soldVehicles : secondaryVehicles).map(vehicle => (
                                     <tr key={vehicle.id} className="hover:bg-gray-50">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">

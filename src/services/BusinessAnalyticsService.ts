@@ -488,15 +488,12 @@ export class BusinessAnalyticsService {
             return allRecords.map(record => {
                 const fields = record.fields;
 
-                // Try multiple possible field names for fecha venta
-                const fechaVenta = fields['Fecha Vendido'] || fields['fecha_vendido'] || fields['FechaVendido']
-                    || fields['Fecha de Venta'] || fields['fecha_venta'] || fields['sale_date']
-                    ? new Date(fields['Fecha Vendido'] || fields['fecha_vendido'] || fields['FechaVendido']
-                        || fields['Fecha de Venta'] || fields['fecha_venta'] || fields['sale_date'])
-                    : new Date();
-                const fechaIngreso = fields.ingreso_inventario || fields['Fecha de Ingreso'] || fields['fecha_ingreso']
-                    ? new Date(fields.ingreso_inventario || fields['Fecha de Ingreso'] || fields['fecha_ingreso'])
-                    : fechaVenta;
+                // Use confirmed Airtable field names
+                const fechaVentaStr = fields['Fecha Vendido'];
+                const fechaVenta = fechaVentaStr ? new Date(fechaVentaStr) : new Date();
+
+                const fechaIngresoStr = fields.ingreso_inventario;
+                const fechaIngreso = fechaIngresoStr ? new Date(fechaIngresoStr) : fechaVenta;
                 const edadEnInventario = fields['Edad en Inventario'] || Math.floor(
                     (fechaVenta.getTime() - fechaIngreso.getTime()) / (1000 * 60 * 60 * 24)
                 );

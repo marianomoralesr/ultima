@@ -11,6 +11,15 @@ export interface VehicleInsight {
     thumbnail?: string;
 }
 
+export interface InventoryVehicleWithApplications {
+    id: string;
+    titulo: string;
+    ordenstatus: string;
+    precio: number;
+    ongoingApplications: number;
+    thumbnail?: string;
+}
+
 export interface PriceRangeInsight {
     range: string;
     count: number;
@@ -51,6 +60,7 @@ export interface BusinessMetrics {
     leadPersonaInsights: LeadPersonaInsight[];
     soldVehicles: SoldVehicleHistory[];
     unavailableVehicleApplications: UnavailableVehicleApp[];
+    inventoryVehiclesWithApplications: InventoryVehicleWithApplications[];
 
     // Summary metrics
     avgDaysInInventory: number;
@@ -61,6 +71,87 @@ export interface BusinessMetrics {
 }
 
 export class BusinessAnalyticsService {
+    /**
+     * Get inventory vehicles (Comprado or Disponible) with ongoing application counts
+     */
+    static async getInventoryVehiclesWithApplications(limit: number = 50): Promise<InventoryVehicleWithApplications[]> {
+        try {
+            console.log('[BusinessAnalytics] Fetching inventory vehicles with applications...');
+
+            // Get all vehicles with status Comprado or Disponible
+            const { data: vehicles, error: vehicleError } = await supabase
+                .from('inventario_cache')
+                .select('id, title, ordenstatus, precio, thumbnail')
+                .in('ordenstatus', ['Comprado', 'Disponible'])
+                .order('title', { ascending: true });
+
+            if (vehicleError) {
+                console.error('[BusinessAnalytics] Error fetching inventory vehicles:', vehicleError);
+                throw vehicleError;
+            }
+
+            if (!vehicles || vehicles.length === 0) {
+                console.log('[BusinessAnalytics] No inventory vehicles found');
+                return [];
+            }
+
+            console.log(`[BusinessAnalytics] Found ${vehicles.length} inventory vehicles`);
+
+            // Get all ongoing applications (not draft, rejected, cancelled, or completed)
+            const { data: applications, error: appError } = await supabase
+                .from('financing_applications')
+                .select('id, status, car_info')
+                .in('status', ['pending', 'submitted', 'processing', 'approved', 'in_progress']);
+
+            if (appError) {
+                console.error('[BusinessAnalytics] Error fetching applications:', appError);
+                throw appError;
+            }
+
+            console.log(`[BusinessAnalytics] Found ${applications?.length || 0} ongoing applications`);
+
+            // Count applications per vehicle
+            const vehicleAppCounts = new Map<string, number>();
+            applications?.forEach(app => {
+                const vehicleId = app.car_info?.id;
+                if (vehicleId) {
+                    vehicleAppCounts.set(vehicleId, (vehicleAppCounts.get(vehicleId) || 0) + 1);
+                }
+            });
+
+            // Map vehicles with their application counts
+            const vehiclesWithApps = vehicles.map(vehicle => ({
+                id: vehicle.id,
+                titulo: vehicle.title || 'Sin título',
+                ordenstatus: vehicle.ordenstatus || 'Disponible',
+                precio: vehicle.precio || 0,
+                ongoingApplications: vehicleAppCounts.get(vehicle.id) || 0,
+                thumbnail: vehicle.thumbnail
+            }));
+
+            // Sort by ongoing applications (descending), then by price
+            const sorted = vehiclesWithApps
+                .sort((a, b) => {
+                    if (b.ongoingApplications !== a.ongoingApplications) {
+                        return b.ongoingApplications - a.ongoingApplications;
+                    }
+                    return b.precio - a.precio;
+                })
+                .slice(0, limit);
+
+            console.log(`[BusinessAnalytics] Returning ${sorted.length} vehicles with application counts`);
+            console.log(`[BusinessAnalytics] Top 3 vehicles:`, sorted.slice(0, 3).map(v => ({
+                titulo: v.titulo,
+                apps: v.ongoingApplications
+            })));
+
+            return sorted;
+        } catch (error) {
+            console.error('[BusinessAnalytics] Error in getInventoryVehiclesWithApplications:', error);
+            return [];
+        }
+    }
+
     /**
      * Get vehicles with most active applications
      */
@@ -563,13 +654,15 @@ export class BusinessAnalyticsService {
                 priceRangeInsights,
                 leadPersonaInsights,
                 soldVehicles,
-                unavailableVehicleApplications
+                unavailableVehicleApplications,
+                inventoryVehiclesWithApplications
             ] = await Promise.all([
                 this.getVehicleInsights(20),
                 this.getPriceRangeInsights(),
                 this.getLeadPersonaInsights(),
                 this.getSoldVehiclesHistory(50),
-                this.getUnavailableVehicleApplications()
+                this.getUnavailableVehicleApplications(),
+                this.getInventoryVehiclesWithApplications(50)
             ]);
 
             // Calculate summary metrics
@@ -612,6 +705,7 @@ export class BusinessAnalyticsService {
                 leadPersonaInsights,
                 soldVehicles,
                 unavailableVehicleApplications,
+                inventoryVehiclesWithApplications,
                 avgDaysInInventory,
                 fastestSale,
                 slowestSale,

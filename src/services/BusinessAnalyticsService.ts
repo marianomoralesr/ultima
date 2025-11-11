@@ -133,42 +133,74 @@ export class BusinessAnalyticsService {
      */
     static async getUnavailableVehicleApplications(): Promise<UnavailableVehicleApp[]> {
         try {
+            console.log('[BusinessAnalytics] Fetching unavailable vehicle applications...');
             const { data: applications, error } = await supabase
                 .from('financing_applications')
                 .select('id, status, created_at, car_info, first_name, last_name, email')
                 .in('status', ['pending', 'submitted', 'processing'])
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .limit(100);
 
-            if (error) throw error;
+            if (error) {
+                console.error('[BusinessAnalytics] Error fetching applications:', error);
+                throw error;
+            }
 
+            console.log(`[BusinessAnalytics] Found ${applications?.length || 0} active applications`);
             const unavailableApps: UnavailableVehicleApp[] = [];
 
+            // Get all unique vehicle IDs from applications
+            const vehicleIds = Array.from(new Set(
+                (applications || [])
+                    .map(app => app.car_info?.id)
+                    .filter(Boolean)
+            ));
+
+            console.log(`[BusinessAnalytics] Checking ${vehicleIds.length} unique vehicles`);
+
+            if (vehicleIds.length === 0) {
+                return [];
+            }
+
+            // Fetch all vehicles at once for better performance
+            const { data: vehicles, error: vehicleError } = await supabase
+                .from('inventario_cache')
+                .select('id, ordenstatus')
+                .in('id', vehicleIds);
+
+            if (vehicleError) {
+                console.error('[BusinessAnalytics] Error fetching vehicles:', vehicleError);
+            }
+
+            // Create a map of vehicle statuses
+            const vehicleStatusMap = new Map(
+                (vehicles || []).map(v => [v.id, v.ordenstatus])
+            );
+
+            // Check each application
             for (const app of applications || []) {
                 const carInfo = app.car_info;
                 if (!carInfo || !carInfo.id) continue;
 
-                // Check if vehicle is still available
-                const { data: vehicle } = await supabase
-                    .from('inventario_cache')
-                    .select('ordenstatus')
-                    .eq('id', carInfo.id)
-                    .single();
+                const vehicleStatus = vehicleStatusMap.get(carInfo.id);
 
-                if (!vehicle || vehicle.ordenstatus !== 'Disponible') {
+                // Vehicle is unavailable if it's not in the map (deleted) or status is not "Disponible"
+                if (!vehicleStatus || vehicleStatus !== 'Disponible') {
                     unavailableApps.push({
                         applicationId: app.id,
                         vehicleTitle: carInfo._vehicleTitle || carInfo.titulo || 'Sin título',
-                        applicantName: `${app.first_name} ${app.last_name}`.trim(),
-                        applicantEmail: app.email,
+                        applicantName: `${app.first_name || ''} ${app.last_name || ''}`.trim() || 'Sin nombre',
+                        applicantEmail: app.email || '',
                         createdAt: new Date(app.created_at),
                         status: app.status
                     });
                 }
             }
 
+            console.log(`[BusinessAnalytics] Found ${unavailableApps.length} unavailable vehicle applications`);
             return unavailableApps;
         } catch (error) {
-            console.error('Error fetching unavailable vehicle applications:', error);
+            console.error('[BusinessAnalytics] Error in getUnavailableVehicleApplications:', error);
             return [];
         }
     }

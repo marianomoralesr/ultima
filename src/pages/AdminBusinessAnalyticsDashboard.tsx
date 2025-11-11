@@ -44,11 +44,14 @@ export default function AdminBusinessAnalyticsDashboard() {
             if (!silent) setLoading(true);
             else setRefreshing(true);
 
+            console.log('[Business Analytics] Starting to load data...');
             const businessMetrics = await BusinessAnalyticsService.getBusinessMetrics();
+            console.log('[Business Analytics] Data loaded:', businessMetrics);
             setMetrics(businessMetrics);
             setLastUpdated(new Date());
         } catch (error) {
             console.error('[Business Analytics] Error loading metrics:', error);
+            alert(`Error cargando datos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -231,8 +234,15 @@ export default function AdminBusinessAnalyticsDashboard() {
                             </p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
+                    {metrics.vehicleInsights.length === 0 ? (
+                        <div className="text-center py-12">
+                            <Car className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                            <p className="text-gray-500 text-sm">No hay datos de solicitudes por vehículo aún</p>
+                            <p className="text-gray-400 text-xs mt-2">Los datos aparecerán cuando haya solicitudes activas</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
                             <div
                                 key={vehicle.id}
                                 className="bg-gradient-to-r from-orange-50 to-white rounded-lg p-4 border border-orange-200 hover:border-orange-300 transition-all"
@@ -292,7 +302,8 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Price Range Insights */}

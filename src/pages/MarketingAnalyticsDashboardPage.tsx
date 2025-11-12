@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart3, TrendingUp, Users, MousePointerClick,
-  Calendar, Filter, Download, RefreshCw, ExternalLink, AlertCircle
+  Calendar, Filter, Download, RefreshCw, ExternalLink, AlertCircle,
+  FileText, Eye, TrendingDown, CheckCircle
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 
@@ -25,10 +26,22 @@ interface TrackingEvent {
 interface EventStats {
   total_events: number;
   unique_sessions: number;
+  total_page_views: number;
+  unique_users: number;
   top_sources: Array<{ source: string; count: number }>;
   top_campaigns: Array<{ campaign: string; count: number }>;
   events_by_type: Array<{ type: string; count: number }>;
   events_over_time: Array<{ date: string; count: number }>;
+  page_views_by_page: Array<{ page: string; count: number }>;
+  events_by_page: Array<{ page: string; event_type: string; count: number }>;
+  facebook_pixel_events: Array<{ event_type: string; count: number }>;
+  conversion_funnel: {
+    landing: number;
+    registration: number;
+    profile_complete: number;
+    application_started: number;
+    application_submitted: number;
+  };
 }
 
 const MarketingAnalyticsDashboardPage: React.FC = () => {
@@ -46,7 +59,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     endDate: new Date().toISOString().split('T')[0],
   });
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns' | 'pages' | 'facebook' | 'funnel'>('overview');
 
   const loadData = async () => {
     setLoading(true);
@@ -87,6 +100,79 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
 
       // Calculate stats
       const uniqueSessions = new Set(eventsData.map(e => e.session_id).filter(Boolean)).size;
+      const uniqueUsers = new Set(eventsData.map(e => e.user_id).filter(Boolean)).size;
+
+      // Page views analysis
+      const pageViewEvents = eventsData.filter(e => e.event_type === 'PageView' || e.event_name.toLowerCase().includes('page'));
+      const totalPageViews = pageViewEvents.length;
+
+      // Page views by page
+      const pageViewCounts: Record<string, number> = {};
+      pageViewEvents.forEach(e => {
+        const page = e.metadata?.page || e.metadata?.path || e.page_url || 'Unknown';
+        const pagePath = typeof page === 'string' ? page.split('?')[0] : 'Unknown';
+        pageViewCounts[pagePath] = (pageViewCounts[pagePath] || 0) + 1;
+      });
+      const pageViewsByPage = Object.entries(pageViewCounts)
+        .map(([page, count]) => ({ page, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 15);
+
+      // Events by page
+      const eventsByPageMap: Record<string, Record<string, number>> = {};
+      eventsData.forEach(e => {
+        const page = e.metadata?.page || e.metadata?.path || e.page_url || 'Unknown';
+        const pagePath = typeof page === 'string' ? page.split('?')[0] : 'Unknown';
+        if (!eventsByPageMap[pagePath]) {
+          eventsByPageMap[pagePath] = {};
+        }
+        eventsByPageMap[pagePath][e.event_type] = (eventsByPageMap[pagePath][e.event_type] || 0) + 1;
+      });
+      const eventsByPage = Object.entries(eventsByPageMap).flatMap(([page, events]) =>
+        Object.entries(events).map(([event_type, count]) => ({ page, event_type, count }))
+      ).sort((a, b) => b.count - a.count);
+
+      // Facebook Pixel events (standard FB events)
+      const fbPixelEventTypes = [
+        'InitialRegistration', 'PersonalInformationComplete', 'PerfilacionBancariaComplete',
+        'LeadComplete', 'Lead', 'ViewContent', 'InitiateCheckout', 'CompleteRegistration',
+        'Purchase', 'AddToCart', 'PageView'
+      ];
+      const fbPixelCounts: Record<string, number> = {};
+      eventsData.forEach(e => {
+        if (fbPixelEventTypes.includes(e.event_type)) {
+          fbPixelCounts[e.event_type] = (fbPixelCounts[e.event_type] || 0) + 1;
+        }
+      });
+      const facebookPixelEvents = Object.entries(fbPixelCounts)
+        .map(([event_type, count]) => ({ event_type, count }))
+        .sort((a, b) => b.count - a.count);
+
+      // Conversion funnel
+      const conversionFunnel = {
+        landing: eventsData.filter(e =>
+          e.metadata?.page === '/financiamientos' ||
+          e.page_url?.includes('/financiamientos') ||
+          e.event_name.toLowerCase().includes('financing')
+        ).length,
+        registration: eventsData.filter(e =>
+          e.event_type === 'InitialRegistration' ||
+          e.event_name.toLowerCase().includes('initial registration')
+        ).length,
+        profile_complete: eventsData.filter(e =>
+          e.event_type === 'PersonalInformationComplete' ||
+          e.event_name.toLowerCase().includes('personal information')
+        ).length,
+        application_started: eventsData.filter(e =>
+          e.metadata?.page?.includes('/aplicacion') ||
+          e.page_url?.includes('/aplicacion') ||
+          e.event_name.toLowerCase().includes('application start')
+        ).length,
+        application_submitted: eventsData.filter(e =>
+          e.event_type === 'LeadComplete' ||
+          e.event_name.toLowerCase().includes('lead complete')
+        ).length,
+      };
 
       // Top sources
       const sourceCounts: Record<string, number> = {};
@@ -136,10 +222,16 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
       setStats({
         total_events: eventsData.length,
         unique_sessions: uniqueSessions,
+        total_page_views: totalPageViews,
+        unique_users: uniqueUsers,
         top_sources: topSources,
         top_campaigns: topCampaigns,
         events_by_type: eventsByType,
         events_over_time: eventsOverTime,
+        page_views_by_page: pageViewsByPage,
+        events_by_page: eventsByPage,
+        facebook_pixel_events: facebookPixelEvents,
+        conversion_funnel: conversionFunnel,
       });
     } catch (err: any) {
       console.error('Failed to load marketing data:', err);
@@ -272,74 +364,119 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Eventos</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total_events.toLocaleString()}</p>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Eventos</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total_events.toLocaleString()}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <BarChart3 className="w-6 h-6 text-blue-600" />
+                </div>
               </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-blue-600" />
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Vistas de Página</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total_page_views.toLocaleString()}</p>
+                </div>
+                <div className="p-3 bg-indigo-100 rounded-lg">
+                  <Calendar className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Sesiones Únicas</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{stats.unique_sessions.toLocaleString()}</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Users className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Usuarios Únicos</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{stats.unique_users.toLocaleString()}</p>
+                </div>
+                <div className="p-3 bg-emerald-100 rounded-lg">
+                  <Users className="w-6 h-6 text-emerald-600" />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Sesiones Únicas</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{stats.unique_sessions.toLocaleString()}</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <Users className="w-6 h-6 text-green-600" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Conversiones (Leads)</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">
+                    {stats.facebook_pixel_events.find(e => e.event_type === 'LeadComplete')?.count || 0}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-purple-600" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Conversiones</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {stats.events_by_type.find(e => e.type.toLowerCase().includes('lead'))?.count || 0}
-                </p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Registros</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">
+                    {stats.conversion_funnel.registration}
+                  </p>
+                </div>
+                <div className="p-3 bg-cyan-100 rounded-lg">
+                  <Users className="w-6 h-6 text-cyan-600" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Clics</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {stats.events_by_type.find(e => e.type.toLowerCase().includes('click'))?.count || 0}
-                </p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <MousePointerClick className="w-6 h-6 text-orange-600" />
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Eventos FB Pixel</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">
+                    {stats.facebook_pixel_events.reduce((sum, e) => sum + e.count, 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <ExternalLink className="w-6 h-6 text-blue-600" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {[
             { id: 'overview', label: 'Resumen', icon: BarChart3 },
+            { id: 'funnel', label: 'Embudo', icon: TrendingDown },
+            { id: 'pages', label: 'Páginas', icon: FileText },
+            { id: 'facebook', label: 'FB Pixel', icon: ExternalLink },
             { id: 'events', label: 'Eventos', icon: Calendar },
-            { id: 'sources', label: 'Fuentes', icon: ExternalLink },
+            { id: 'sources', label: 'Fuentes', icon: Eye },
             { id: 'campaigns', label: 'Campañas', icon: TrendingUp },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -493,6 +630,212 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                 ) : (
                   <div className="text-center py-8 text-gray-500">No hay datos de campañas disponibles</div>
                 )}
+              </div>
+            )}
+
+            {activeTab === 'pages' && stats && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-4">Vistas de Página por Ruta</h3>
+                  <div className="space-y-3">
+                    {stats.page_views_by_page.length > 0 ? (
+                      stats.page_views_by_page.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <span className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                              {idx + 1}
+                            </span>
+                            <span className="font-mono text-sm text-gray-900 truncate" title={item.page}>{item.page}</span>
+                          </div>
+                          <span className="text-lg font-bold text-gray-900 ml-4">{item.count.toLocaleString()}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">No hay datos de vistas de página disponibles</div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-4">Eventos por Página (Top 20)</h3>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Página</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Evento</th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cantidad</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {stats.events_by_page.slice(0, 20).map((item, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 text-sm text-gray-900 font-mono max-w-xs truncate" title={item.page}>
+                              {item.page}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                {item.event_type}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">
+                              {item.count.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'facebook' && stats && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                  <ExternalLink className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Facebook Pixel Eventos</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      Estos eventos se envían directamente a Facebook Pixel para tracking de campañas publicitarias.
+                      Incluye eventos estándar de Meta: Lead, ViewContent, InitiateCheckout, CompleteRegistration, etc.
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-4">Eventos Enviados a Facebook Pixel</h3>
+                  <div className="space-y-3">
+                    {stats.facebook_pixel_events.length > 0 ? (
+                      stats.facebook_pixel_events.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <span className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+                              {idx + 1}
+                            </span>
+                            <div>
+                              <span className="font-medium text-gray-900">{item.event_type}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {item.event_type === 'LeadComplete' && 'Solicitud de financiamiento completada'}
+                                {item.event_type === 'InitialRegistration' && 'Usuario registrado en plataforma'}
+                                {item.event_type === 'PersonalInformationComplete' && 'Perfil personal completado'}
+                                {item.event_type === 'Lead' && 'Lead capturado'}
+                                {item.event_type === 'ViewContent' && 'Contenido visualizado'}
+                                {item.event_type === 'InitiateCheckout' && 'Proceso de checkout iniciado'}
+                                {item.event_type === 'PageView' && 'Vista de página'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-lg font-bold text-gray-900">{item.count.toLocaleString()}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">No hay eventos de Facebook Pixel disponibles</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'funnel' && stats && (
+              <div className="space-y-6">
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 flex items-start gap-3">
+                  <TrendingDown className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-purple-900">Embudo de Conversión</p>
+                    <p className="text-sm text-purple-700 mt-1">
+                      Visualiza el recorrido del usuario desde la landing page hasta la solicitud completada.
+                      Identifica dónde abandonan los usuarios para optimizar el proceso.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {[
+                    {
+                      label: '1. Landing Page (/financiamientos)',
+                      count: stats.conversion_funnel.landing,
+                      color: 'bg-blue-500',
+                      percentage: 100
+                    },
+                    {
+                      label: '2. Registro Completado',
+                      count: stats.conversion_funnel.registration,
+                      color: 'bg-indigo-500',
+                      percentage: stats.conversion_funnel.landing > 0
+                        ? (stats.conversion_funnel.registration / stats.conversion_funnel.landing) * 100
+                        : 0
+                    },
+                    {
+                      label: '3. Perfil Personal Completo',
+                      count: stats.conversion_funnel.profile_complete,
+                      color: 'bg-purple-500',
+                      percentage: stats.conversion_funnel.landing > 0
+                        ? (stats.conversion_funnel.profile_complete / stats.conversion_funnel.landing) * 100
+                        : 0
+                    },
+                    {
+                      label: '4. Aplicación Iniciada',
+                      count: stats.conversion_funnel.application_started,
+                      color: 'bg-pink-500',
+                      percentage: stats.conversion_funnel.landing > 0
+                        ? (stats.conversion_funnel.application_started / stats.conversion_funnel.landing) * 100
+                        : 0
+                    },
+                    {
+                      label: '5. Solicitud Enviada',
+                      count: stats.conversion_funnel.application_submitted,
+                      color: 'bg-green-500',
+                      percentage: stats.conversion_funnel.landing > 0
+                        ? (stats.conversion_funnel.application_submitted / stats.conversion_funnel.landing) * 100
+                        : 0
+                    },
+                  ].map((step, idx) => (
+                    <div key={idx} className="relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-gray-900">{step.label}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-600">{step.percentage.toFixed(1)}%</span>
+                          <span className="text-lg font-bold text-gray-900">{step.count.toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-8">
+                        <div
+                          className={`${step.color} h-8 rounded-full flex items-center justify-end px-4 text-white font-bold text-sm transition-all`}
+                          style={{ width: `${step.percentage}%`, minWidth: step.count > 0 ? '60px' : '0' }}
+                        >
+                          {step.count > 0 && step.percentage.toFixed(0) + '%'}
+                        </div>
+                      </div>
+                      {idx < 4 && (
+                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 text-gray-400">
+                          <TrendingDown className="w-4 h-4" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-green-800">Tasa de Conversión Global</p>
+                    <p className="text-3xl font-bold text-green-900 mt-2">
+                      {stats.conversion_funnel.landing > 0
+                        ? ((stats.conversion_funnel.application_submitted / stats.conversion_funnel.landing) * 100).toFixed(2)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-green-700 mt-1">Landing → Solicitud Enviada</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-blue-800">Tasa de Completación</p>
+                    <p className="text-3xl font-bold text-blue-900 mt-2">
+                      {stats.conversion_funnel.registration > 0
+                        ? ((stats.conversion_funnel.application_submitted / stats.conversion_funnel.registration) * 100).toFixed(2)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">Registro → Solicitud Enviada</p>
+                  </div>
+                </div>
               </div>
             )}
           </>

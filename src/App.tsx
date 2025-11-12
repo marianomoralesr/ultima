@@ -80,6 +80,7 @@ const AdminLogsPage = lazy(() => import('./pages/AdminLogsPage'));
 const AdminBusinessAnalyticsDashboard = lazy(() => import('./pages/AdminBusinessAnalyticsDashboard'));
 
 import ConfigService from './services/ConfigService';
+import PageViewTracker from './components/PageViewTracker';
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -95,6 +96,7 @@ function App(): React.JSX.Element {
   return (
     <>
       <Toaster position="top-right" richColors closeButton />
+      <PageViewTracker />
       <LeadSourceHandler />
       <AuthHandler />
       <RedirectManager />

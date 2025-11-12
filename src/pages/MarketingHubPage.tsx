@@ -69,7 +69,7 @@ const MarketingHubPage: React.FC = () => {
       title: 'Asesores',
       description: 'Dashboard de desempeño de asesores de ventas',
       icon: TrendingUp,
-      link: '/escritorio/admin/sales-dashboard',
+      link: '/escritorio/admin/dashboard',
       color: 'bg-green-500',
     },
     {

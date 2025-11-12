@@ -57,13 +57,9 @@ const TopMenu: React.FC = () => {
     if (!isAdmin && !isSales) return null;
 
     const menuItems = [
-        // Dashboard only for admin users
+        // Panel Administrativo (Marketing Hub) - First item for admin
         ...(isAdmin ? [
-            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        ] : []),
-        // Performance dashboard for sales users
-        ...(isSales ? [
-            { to: '/escritorio/ventas/performance', label: 'Mi Desempeño', icon: TrendingUp },
+            { to: '/escritorio/marketing', label: 'Panel Administrativo', icon: LayoutDashboard },
         ] : []),
         // Leads section
         ...(isAdmin ? [
@@ -72,13 +68,13 @@ const TopMenu: React.FC = () => {
         ...(isSales ? [
             { to: '/escritorio/ventas/crm', label: 'Mis Leads', icon: Users },
         ] : []),
-        // Admin-only sections
+        // Asesores - for admin
         ...(isAdmin ? [
-            { to: '/escritorio/admin/solicitudes', label: 'Análisis de Solicitudes', icon: BarChart3 },
-            { to: '/escritorio/admin/business-analytics', label: 'Datos', icon: BarChart3 },
-            { to: '/escritorio/marketing', label: 'Marketing Hub', icon: Settings },
-            { to: '/escritorio/admin/compras', label: 'Compras', icon: ShoppingCart },
             { to: '/escritorio/admin/usuarios', label: 'Asesores', icon: UserCog },
+        ] : []),
+        // Performance dashboard for sales users
+        ...(isSales ? [
+            { to: '/escritorio/ventas/performance', label: 'Mi Desempeño', icon: TrendingUp },
         ] : []),
     ];
 

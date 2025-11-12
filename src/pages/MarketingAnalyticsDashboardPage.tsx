@@ -759,77 +759,80 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {[
-                    {
-                      label: '1. Visitas Landing (/financiamientos)',
-                      description: 'PageView a /financiamientos',
-                      count: stats.conversion_funnel.landing,
-                      color: 'bg-blue-500',
-                      percentage: 100
-                    },
-                    {
-                      label: '2. Registro (ConversionLandingPage)',
-                      description: 'Usuario se registró en la plataforma',
-                      count: stats.conversion_funnel.registration,
-                      color: 'bg-indigo-500',
-                      percentage: stats.conversion_funnel.landing > 0
-                        ? (stats.conversion_funnel.registration / stats.conversion_funnel.landing) * 100
-                        : 0
-                    },
-                    {
-                      label: '3. Perfil Completo (PersonalInformationComplete)',
-                      description: 'Usuario guardó su perfil personal',
-                      count: stats.conversion_funnel.profile_complete,
-                      color: 'bg-purple-500',
-                      percentage: stats.conversion_funnel.landing > 0
-                        ? (stats.conversion_funnel.profile_complete / stats.conversion_funnel.landing) * 100
-                        : 0
-                    },
-                    {
-                      label: '4. Aplicación Iniciada',
-                      description: 'Usuario visitó página de aplicación',
-                      count: stats.conversion_funnel.application_started,
-                      color: 'bg-pink-500',
-                      percentage: stats.conversion_funnel.landing > 0
-                        ? (stats.conversion_funnel.application_started / stats.conversion_funnel.landing) * 100
-                        : 0
-                    },
-                    {
-                      label: '5. Solicitud Enviada (LeadComplete)',
-                      description: 'Usuario envió solicitud de financiamiento',
-                      count: stats.conversion_funnel.application_submitted,
-                      color: 'bg-green-500',
-                      percentage: stats.conversion_funnel.landing > 0
-                        ? (stats.conversion_funnel.application_submitted / stats.conversion_funnel.landing) * 100
-                        : 0
-                    },
-                  ].map((step, idx) => (
-                    <div key={idx} className="relative">
-                      <div className="flex items-center justify-between mb-1">
-                        <div>
-                          <span className="font-medium text-gray-900">{step.label}</span>
-                          <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                  {(() => {
+                    const steps = [
+                      {
+                        label: '1. Visitas Landing (/financiamientos)',
+                        description: 'PageView a /financiamientos',
+                        count: stats.conversion_funnel.landing,
+                        color: 'bg-blue-500',
+                      },
+                      {
+                        label: '2. Registro (ConversionLandingPage)',
+                        description: 'Usuario se registró en la plataforma',
+                        count: stats.conversion_funnel.registration,
+                        color: 'bg-indigo-500',
+                      },
+                      {
+                        label: '3. Perfil Completo (PersonalInformationComplete)',
+                        description: 'Usuario guardó su perfil personal',
+                        count: stats.conversion_funnel.profile_complete,
+                        color: 'bg-purple-500',
+                      },
+                      {
+                        label: '4. Aplicación Iniciada',
+                        description: 'Usuario visitó página de aplicación',
+                        count: stats.conversion_funnel.application_started,
+                        color: 'bg-pink-500',
+                      },
+                      {
+                        label: '5. Solicitud Enviada (LeadComplete)',
+                        description: 'Usuario envió solicitud de financiamiento',
+                        count: stats.conversion_funnel.application_submitted,
+                        color: 'bg-green-500',
+                      },
+                    ];
+
+                    // Calculate max count for proportional bar widths
+                    const maxCount = Math.max(...steps.map(s => s.count), 1);
+
+                    return steps.map((step, idx) => {
+                      // Bar width is proportional to count relative to max count
+                      const barWidth = (step.count / maxCount) * 100;
+                      // Conversion percentage is relative to landing page (first step)
+                      const conversionPercentage = stats.conversion_funnel.landing > 0
+                        ? (step.count / stats.conversion_funnel.landing) * 100
+                        : 0;
+
+                      return (
+                        <div key={idx} className="relative">
+                          <div className="flex items-center justify-between mb-1">
+                            <div>
+                              <span className="font-medium text-gray-900">{step.label}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm text-gray-600">{conversionPercentage.toFixed(1)}%</span>
+                              <span className="text-lg font-bold text-gray-900">{step.count.toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-8 mt-2">
+                            <div
+                              className={`${step.color} h-8 rounded-full flex items-center justify-end px-4 text-white font-bold text-sm transition-all`}
+                              style={{ width: `${barWidth}%`, minWidth: step.count > 0 ? '80px' : '0' }}
+                            >
+                              {step.count > 0 && `${step.count} (${conversionPercentage.toFixed(0)}%)`}
+                            </div>
+                          </div>
+                          {idx < 4 && (
+                            <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 text-gray-400">
+                              <TrendingDown className="w-4 h-4" />
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-600">{step.percentage.toFixed(1)}%</span>
-                          <span className="text-lg font-bold text-gray-900">{step.count.toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-8 mt-2">
-                        <div
-                          className={`${step.color} h-8 rounded-full flex items-center justify-end px-4 text-white font-bold text-sm transition-all`}
-                          style={{ width: `${step.percentage}%`, minWidth: step.count > 0 ? '60px' : '0' }}
-                        >
-                          {step.count > 0 && step.percentage.toFixed(0) + '%'}
-                        </div>
-                      </div>
-                      {idx < 4 && (
-                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 text-gray-400">
-                          <TrendingDown className="w-4 h-4" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                      );
+                    });
+                  })()}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mt-6">

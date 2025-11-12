@@ -394,7 +394,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 >
                                     <div className="flex items-center gap-4 flex-1 min-w-0">
                                         <span className="text-sm font-mono text-gray-500 flex-shrink-0">
-                                            #{vehicle.id.slice(0, 8)}
+                                            #{String(vehicle.id).slice(0, 8)}
                                         </span>
                                         <div className="flex-1 min-w-0">
                                             <span className="text-sm font-medium text-gray-900 truncate block">

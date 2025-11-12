@@ -104,7 +104,7 @@ const MarketingHubPage: React.FC = () => {
       title: 'Análisis de Solicitudes',
       description: 'Análisis y métricas de aplicaciones de financiamiento',
       icon: FileText,
-      link: '/escritorio/analytics/applications',
+      link: '/escritorio/admin/solicitudes',
       color: 'bg-teal-500',
     },
     {

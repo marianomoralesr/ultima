@@ -125,7 +125,7 @@ const MarketingHubPage: React.FC = () => {
       title: 'Dashboard Administrativo',
       description: 'Panel de control principal para administradores',
       icon: LayoutDashboard,
-      link: '/escritorio',
+      link: '/escritorio/dashboard',
       color: 'bg-rose-500',
     },
   ];
@@ -134,7 +134,7 @@ const MarketingHubPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Marketing Hub</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Panel Administrativo</h1>
         <p className="mt-2 text-gray-600">
           Centro de herramientas de marketing, ventas y análisis
         </p>

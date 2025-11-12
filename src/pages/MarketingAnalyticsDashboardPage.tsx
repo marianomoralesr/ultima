@@ -148,29 +148,37 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         .map(([event_type, count]) => ({ event_type, count }))
         .sort((a, b) => b.count - a.count);
 
-      // Conversion funnel
+      // Conversion funnel - using actual events sent by the app
       const conversionFunnel = {
+        // Step 1: Page views to /financiamientos landing page
         landing: eventsData.filter(e =>
-          e.metadata?.page === '/financiamientos' ||
-          e.page_url?.includes('/financiamientos') ||
-          e.event_name.toLowerCase().includes('financing')
+          (e.event_type === 'PageView' && (
+            e.metadata?.page === '/financiamientos' ||
+            e.page_url?.includes('/financiamientos')
+          )) ||
+          e.event_name.toLowerCase().includes('financiamientos')
         ).length,
+        // Step 2: ConversionLandingPage - registration event
         registration: eventsData.filter(e =>
-          e.event_type === 'InitialRegistration' ||
-          e.event_name.toLowerCase().includes('initial registration')
+          e.event_type === 'ConversionLandingPage' ||
+          e.event_name === 'ConversionLandingPage'
         ).length,
+        // Step 3: PersonalInformationComplete - profile saved
         profile_complete: eventsData.filter(e =>
           e.event_type === 'PersonalInformationComplete' ||
-          e.event_name.toLowerCase().includes('personal information')
+          e.event_name === 'PersonalInformationComplete'
         ).length,
+        // Step 4: Application started (users viewing the application page)
         application_started: eventsData.filter(e =>
-          e.metadata?.page?.includes('/aplicacion') ||
-          e.page_url?.includes('/aplicacion') ||
-          e.event_name.toLowerCase().includes('application start')
+          (e.event_type === 'PageView' && (
+            e.metadata?.page?.includes('/aplicacion') ||
+            e.page_url?.includes('/aplicacion')
+          ))
         ).length,
+        // Step 5: LeadComplete - application successfully submitted
         application_submitted: eventsData.filter(e =>
           e.event_type === 'LeadComplete' ||
-          e.event_name.toLowerCase().includes('lead complete')
+          e.event_name === 'LeadComplete'
         ).length,
       };
 
@@ -753,13 +761,15 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                 <div className="space-y-4">
                   {[
                     {
-                      label: '1. Landing Page (/financiamientos)',
+                      label: '1. Visitas Landing (/financiamientos)',
+                      description: 'PageView a /financiamientos',
                       count: stats.conversion_funnel.landing,
                       color: 'bg-blue-500',
                       percentage: 100
                     },
                     {
-                      label: '2. Registro Completado',
+                      label: '2. Registro (ConversionLandingPage)',
+                      description: 'Usuario se registró en la plataforma',
                       count: stats.conversion_funnel.registration,
                       color: 'bg-indigo-500',
                       percentage: stats.conversion_funnel.landing > 0
@@ -767,7 +777,8 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                         : 0
                     },
                     {
-                      label: '3. Perfil Personal Completo',
+                      label: '3. Perfil Completo (PersonalInformationComplete)',
+                      description: 'Usuario guardó su perfil personal',
                       count: stats.conversion_funnel.profile_complete,
                       color: 'bg-purple-500',
                       percentage: stats.conversion_funnel.landing > 0
@@ -776,6 +787,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                     },
                     {
                       label: '4. Aplicación Iniciada',
+                      description: 'Usuario visitó página de aplicación',
                       count: stats.conversion_funnel.application_started,
                       color: 'bg-pink-500',
                       percentage: stats.conversion_funnel.landing > 0
@@ -783,7 +795,8 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                         : 0
                     },
                     {
-                      label: '5. Solicitud Enviada',
+                      label: '5. Solicitud Enviada (LeadComplete)',
+                      description: 'Usuario envió solicitud de financiamiento',
                       count: stats.conversion_funnel.application_submitted,
                       color: 'bg-green-500',
                       percentage: stats.conversion_funnel.landing > 0
@@ -792,14 +805,17 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                     },
                   ].map((step, idx) => (
                     <div key={idx} className="relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-gray-900">{step.label}</span>
+                      <div className="flex items-center justify-between mb-1">
+                        <div>
+                          <span className="font-medium text-gray-900">{step.label}</span>
+                          <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                        </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-600">{step.percentage.toFixed(1)}%</span>
                           <span className="text-lg font-bold text-gray-900">{step.count.toLocaleString()}</span>
                         </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-8">
+                      <div className="w-full bg-gray-200 rounded-full h-8 mt-2">
                         <div
                           className={`${step.color} h-8 rounded-full flex items-center justify-end px-4 text-white font-bold text-sm transition-all`}
                           style={{ width: `${step.percentage}%`, minWidth: step.count > 0 ? '60px' : '0' }}

@@ -554,10 +554,9 @@ const FinanciamientosPage: React.FC = () => {
       reset();
       setFormDataCache(null);
 
-      // Redirect to application page after 2 seconds
-      setTimeout(() => {
-        window.location.href = '/escritorio/aplicacion';
-      }, 2000);
+      // Redirect to profile page immediately with URL parameters preserved
+      const redirectUrl = `/escritorio/profile${urlParams ? `?${urlParams}` : ''}`;
+      window.location.href = redirectUrl;
 
     } catch (error) {
       console.error('Error verifying OTP:', error);

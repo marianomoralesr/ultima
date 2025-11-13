@@ -806,22 +806,28 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
 
                       return (
                         <div key={idx} className="relative">
-                          <div className="flex items-center justify-between mb-1">
-                            <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex-1">
                               <span className="font-medium text-gray-900">{step.label}</span>
                               <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm text-gray-600">{conversionPercentage.toFixed(1)}%</span>
-                              <span className="text-lg font-bold text-gray-900">{step.count.toLocaleString()}</span>
+                            <div className="flex items-center gap-3 ml-4">
+                              <span className="text-sm text-gray-600 whitespace-nowrap">{conversionPercentage.toFixed(1)}%</span>
+                              <span className="text-lg font-bold text-gray-900 whitespace-nowrap">{step.count.toLocaleString()}</span>
                             </div>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-8 mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-10 mt-2 relative overflow-visible">
                             <div
-                              className={`${step.color} h-8 rounded-full flex items-center justify-end px-4 text-white font-bold text-sm transition-all`}
-                              style={{ width: `${barWidth}%`, minWidth: step.count > 0 ? '80px' : '0' }}
+                              className={`${step.color} h-10 rounded-full transition-all duration-300 relative`}
+                              style={{ width: `${Math.max(barWidth, step.count > 0 ? 5 : 0)}%` }}
                             >
-                              {step.count > 0 && `${step.count} (${conversionPercentage.toFixed(0)}%)`}
+                              {step.count > 0 && (
+                                <div className="absolute inset-0 flex items-center justify-start pl-3">
+                                  <span className="text-white font-bold text-sm whitespace-nowrap">
+                                    {step.count} ({conversionPercentage.toFixed(0)}%)
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
                           {idx < 4 && (

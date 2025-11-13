@@ -175,7 +175,7 @@ const FinanciamientosPage: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'otp'>('idle');
+  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'otp' | 'otp_error'>('idle');
   const { vehicles: allVehicles } = useVehicles();
   const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
   const [otp, setOtp] = useState('');
@@ -450,7 +450,7 @@ const FinanciamientosPage: React.FC = () => {
 
       if (verifyError) {
         console.error('❌ OTP Verification Error:', verifyError);
-        setSubmissionStatus('error');
+        setSubmissionStatus('otp_error');
         return;
       }
 
@@ -578,12 +578,12 @@ const FinanciamientosPage: React.FC = () => {
         });
       }
 
-      setSubmissionStatus('error');
+      setSubmissionStatus('otp_error');
     }
   };
 
   // OTP Verification View
-  if (submissionStatus === 'otp') {
+  if (submissionStatus === 'otp' || submissionStatus === 'otp_error') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50/30 relative overflow-hidden flex items-center justify-center py-12 px-4">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -619,7 +619,7 @@ const FinanciamientosPage: React.FC = () => {
               />
             </div>
 
-            {submissionStatus === 'error' && (
+            {submissionStatus === 'otp_error' && (
               <div className="p-3 bg-red-100 border-2 border-red-400 rounded-lg text-center">
                 <p className="text-red-800 font-bold text-sm">
                   Código inválido o expirado. Inténtalo de nuevo.

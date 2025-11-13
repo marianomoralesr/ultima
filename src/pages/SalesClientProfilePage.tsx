@@ -8,6 +8,7 @@ import type { Profile } from '../types/types';
 import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Lock } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
+import BankingProfileSummary from '../components/BankingProfileSummary';
 import { toast } from 'sonner';
 
 const ProfileDataItem: React.FC<{ label: string, value: any }> = ({ label, value }) => (
@@ -243,24 +244,30 @@ const DocumentViewer: React.FC<{ documents: any[] }> = ({ documents }) => (
     </div>
 );
 
-const LeadSourceInfo: React.FC<{ metadata: any }> = ({ metadata }) => {
-    if (!metadata || Object.keys(metadata).length === 0) {
+const LeadSourceInfo: React.FC<{ metadata: any; source: string }> = ({ metadata, source }) => {
+    if (!metadata && !source) {
         return null;
     }
 
-    const utmParams = Object.entries(metadata).filter(([key]) => key.startsWith('utm_'));
+    const utmParams = metadata ? Object.entries(metadata).filter(([key]) => key.startsWith('utm_')) : [];
+    const fbclid = metadata?.fbclid;
 
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Fuente del Lead</h2>
             <div className="space-y-3">
-                {metadata.rfdm && <ProfileDataItem label="Referencia (rfdm)" value={metadata.rfdm} />}
-                {metadata.ordencompra && <ProfileDataItem label="Vehículo de Interés (ordencompra)" value={metadata.ordencompra} />}
+                {source && <ProfileDataItem label="Origen" value={source} />}
+                {metadata?.rfdm && <ProfileDataItem label="Referencia (rfdm)" value={metadata.rfdm} />}
+                {metadata?.ordencompra && <ProfileDataItem label="Vehículo de Interés" value={metadata.ordencompra} />}
+                {fbclid && <ProfileDataItem label="Facebook Click ID" value={fbclid} />}
                 {utmParams.length > 0 && (
                     <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider">Parámetros UTM</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Parámetros UTM</p>
                         {utmParams.map(([key, value]) => (
-                            <p key={key} className="text-sm font-mono text-gray-700">{`${key}: ${value}`}</p>
+                            <div key={key} className="mb-1">
+                                <span className="text-xs text-gray-600">{key.replace('utm_', '')}: </span>
+                                <span className="text-sm font-semibold text-gray-800">{value as string}</span>
+                            </div>
                         ))}
                     </div>
                 )}
@@ -523,7 +530,8 @@ const SalesClientProfilePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <LeadSourceInfo metadata={profile.metadata} />
+                    <BankingProfileSummary applications={applications} />
+                    <LeadSourceInfo metadata={profile.metadata} source={profile.source} />
                     <KommoDataDisplay kommoData={profile.kommo_data} lastSynced={profile.kommo_last_synced} />
                     <TagsManager leadId={profile.id} initialTags={tags} salesUserId={user.id} />
                     <RemindersManager leadId={profile.id} initialReminders={reminders} salesUserId={user.id} />

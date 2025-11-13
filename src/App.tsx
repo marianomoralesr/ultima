@@ -197,7 +197,8 @@ function App(): React.JSX.Element {
                   <Route path="ventas/performance" element={<SalesPerformanceDashboard />} />
                   <Route path="ventas/crm" element={<SimpleCRMPage />} />
                   <Route path="ventas/leads" element={<SalesLeadsDashboardPage />} />
-                  <Route path="ventas/cliente/:id" element={<AdminClientProfilePage />} />
+                  <Route path="ventas/cliente/:id" element={<SalesClientProfilePage />} />
+                  <Route path="ventas/clientes/:id" element={<SalesClientProfilePage />} />
                 </Route>
 
                 <Route path="*" element={<NotFoundPage />} />

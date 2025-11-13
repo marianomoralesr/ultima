@@ -704,7 +704,7 @@ const SimpleCRMPage: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <Link
-                                            to={`/escritorio/admin/cliente/${client.id}`}
+                                            to={userRole === 'admin' ? `/escritorio/admin/cliente/${client.id}` : `/escritorio/ventas/cliente/${client.id}`}
                                             className="flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium"
                                         >
                                             Ver perfil

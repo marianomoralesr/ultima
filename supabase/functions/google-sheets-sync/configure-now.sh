@@ -86,7 +86,8 @@ echo -e "${YELLOW}📝 Configurando GOOGLE_SHEETS_CREDENTIALS...${NC}"
 
 CREDENTIALS=$(cat "$CREDENTIALS_FILE")
 
-if echo "$CREDENTIALS" | supabase secrets set GOOGLE_SHEETS_CREDENTIALS --project-ref "${PROJECT_REF}"; then
+# Use printf to properly format the secret for supabase CLI
+if printf "GOOGLE_SHEETS_CREDENTIALS=%s" "$CREDENTIALS" | supabase secrets set --project-ref "${PROJECT_REF}"; then
     echo -e "${GREEN}✓ GOOGLE_SHEETS_CREDENTIALS configurado${NC}"
 else
     echo -e "${RED}❌ Error al configurar GOOGLE_SHEETS_CREDENTIALS${NC}"
@@ -97,7 +98,7 @@ fi
 echo ""
 echo -e "${YELLOW}📝 Configurando GOOGLE_SHEET_ID...${NC}"
 
-if echo "$SHEET_ID" | supabase secrets set GOOGLE_SHEET_ID --project-ref "${PROJECT_REF}"; then
+if printf "GOOGLE_SHEET_ID=%s" "$SHEET_ID" | supabase secrets set --project-ref "${PROJECT_REF}"; then
     echo -e "${GREEN}✓ GOOGLE_SHEET_ID configurado${NC}"
 else
     echo -e "${RED}❌ Error al configurar GOOGLE_SHEET_ID${NC}"
@@ -108,7 +109,7 @@ fi
 echo ""
 echo -e "${YELLOW}📝 Configurando GOOGLE_SHEET_NAME...${NC}"
 
-if echo "$SHEET_NAME" | supabase secrets set GOOGLE_SHEET_NAME --project-ref "${PROJECT_REF}"; then
+if printf "GOOGLE_SHEET_NAME=%s" "$SHEET_NAME" | supabase secrets set --project-ref "${PROJECT_REF}"; then
     echo -e "${GREEN}✓ GOOGLE_SHEET_NAME configurado${NC}"
 else
     echo -e "${RED}❌ Error al configurar GOOGLE_SHEET_NAME${NC}"

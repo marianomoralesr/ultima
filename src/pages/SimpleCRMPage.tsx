@@ -2,8 +2,26 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../../supabaseClient';
-import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Ban, Check, X, Edit2, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Loader2, AlertTriangle, User, Users, FileText, Clock, Search, Ban, Check, X, Edit2, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown, Filter, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Helper to check if application has all required documents
+const hasAllDocuments = (documents: any[]): boolean => {
+    if (!documents || documents.length === 0) return false;
+    const requiredTypes = ['ine_front', 'ine_back', 'comprobante_domicilio', 'comprobante_ingresos'];
+    const availableTypes = documents.map(doc => doc.document_type.toLowerCase());
+    return requiredTypes.every(reqType =>
+        availableTypes.some(availType => availType.includes(reqType.replace('_', ' ')))
+    );
+};
+
+// Helper to get correct status based on documents
+const getCorrectApplicationStatus = (status: string, documents: any[], isSubmitted: boolean): string => {
+    if (status === 'submitted' && isSubmitted) {
+        return hasAllDocuments(documents) ? 'submitted' : 'pending_docs';
+    }
+    return status;
+};
 
 // Hardcoded admin emails as fallback security measure
 const ADMIN_EMAILS = [
@@ -26,6 +44,8 @@ interface Client {
     asesor_asignado_id: string | null;
     latest_app_status: string | null;
     latest_app_car_title: string | null;
+    latest_app_id: string | null;
+    latest_app_submitted: boolean | null;
     source: string | null;
     metadata: any | null;
     created_at: string | null;
@@ -40,6 +60,8 @@ interface Client {
     referrer: string | null;
     landing_page: string | null;
     first_visit_at: string | null;
+    documents: any[] | null;
+    bank_profile_data: any | null;
 }
 
 type SortColumn = 'name' | 'email' | 'created_at' | 'updated_at' | 'last_sign_in_at' | 'status' | 'source';
@@ -69,6 +91,9 @@ const SimpleCRMPage: React.FC = () => {
     const [sortColumn, setSortColumn] = useState<SortColumn>('last_sign_in_at');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     const [asesores, setAsesores] = useState<Array<{ id: string; name: string }>>([]);
+    const [filterStatus, setFilterStatus] = useState<string>('all');
+    const [filterContactado, setFilterContactado] = useState<string>('all');
+    const [filterPriority, setFilterPriority] = useState<string>('all');
 
     // Check if user has access (admin or sales role, with email fallback)
     const [userRole, setUserRole] = useState<string | null>(null);
@@ -144,6 +169,8 @@ const SimpleCRMPage: React.FC = () => {
                 asesor_asignado_id: client.asesor_asignado_id || null,
                 latest_app_status: client.latest_app_status || null,
                 latest_app_car_title: client.latest_app_car_info?._vehicleTitle || null,
+                latest_app_id: client.latest_app_id || null,
+                latest_app_submitted: client.latest_app_submitted || false,
                 source: client.source,
                 metadata: null, // Not returned by function
                 created_at: client.created_at || null,
@@ -157,7 +184,9 @@ const SimpleCRMPage: React.FC = () => {
                 rfdm: client.rfdm || null,
                 referrer: client.referrer || null,
                 landing_page: client.landing_page || null,
-                first_visit_at: client.first_visit_at || null
+                first_visit_at: client.first_visit_at || null,
+                documents: client.documents || [],
+                bank_profile_data: client.bank_profile_data || null
             }));
 
             console.log('[SimpleCRM] Combined clients:', combinedClients.length);
@@ -350,17 +379,62 @@ const SimpleCRMPage: React.FC = () => {
         return formatDate(dateString);
     };
 
+    // Process clients with corrected status and priority
+    const processedClients = useMemo(() => {
+        return clients.map(client => {
+            const correctStatus = client.latest_app_status
+                ? getCorrectApplicationStatus(
+                    client.latest_app_status,
+                    client.documents || [],
+                    client.latest_app_submitted || false
+                  )
+                : null;
+
+            // Determine priority
+            const needsAction = !client.contactado ||
+                               correctStatus === 'pending_docs' ||
+                               correctStatus === 'submitted';
+
+            return {
+                ...client,
+                correctedStatus: correctStatus,
+                needsAction,
+                hasBankProfile: !!client.bank_profile_data
+            };
+        });
+    }, [clients]);
+
     const filteredAndSortedClients = useMemo(() => {
-        let filtered = clients;
+        let filtered = processedClients;
 
         // Apply search filter
         if (searchTerm) {
             const lowercasedQuery = searchTerm.toLowerCase();
-            filtered = clients.filter(client =>
+            filtered = processedClients.filter(client =>
                 `${client.first_name || ''} ${client.last_name || ''}`.toLowerCase().includes(lowercasedQuery) ||
                 client.email?.toLowerCase().includes(lowercasedQuery) ||
+                client.phone?.toLowerCase().includes(lowercasedQuery) ||
                 client.source?.toLowerCase().includes(lowercasedQuery)
             );
+        }
+
+        // Filter by application status
+        if (filterStatus !== 'all') {
+            filtered = filtered.filter(client => client.correctedStatus === filterStatus);
+        }
+
+        // Filter by contactado status
+        if (filterContactado !== 'all') {
+            filtered = filtered.filter(client => {
+                if (filterContactado === 'contacted') return client.contactado === true;
+                if (filterContactado === 'not_contacted') return client.contactado === false;
+                return true;
+            });
+        }
+
+        // Filter by priority
+        if (filterPriority === 'needs_action') {
+            filtered = filtered.filter(client => client.needsAction);
         }
 
         // Apply sorting
@@ -390,8 +464,8 @@ const SimpleCRMPage: React.FC = () => {
                     bVal = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
                     break;
                 case 'status':
-                    aVal = a.latest_app_status || '';
-                    bVal = b.latest_app_status || '';
+                    aVal = a.correctedStatus || '';
+                    bVal = b.correctedStatus || '';
                     break;
                 case 'source':
                     aVal = (a.source || '').toLowerCase();
@@ -407,7 +481,7 @@ const SimpleCRMPage: React.FC = () => {
         });
 
         return sorted;
-    }, [clients, searchTerm, sortColumn, sortDirection]);
+    }, [processedClients, searchTerm, filterStatus, filterContactado, filterPriority, sortColumn, sortDirection]);
 
     if (!user) {
         return (
@@ -514,6 +588,63 @@ const SimpleCRMPage: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Filters */}
+                <div className="flex flex-wrap gap-3 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Filtros:</span>
+                    </div>
+
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className="text-sm px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                    >
+                        <option value="all">Todos los Estados</option>
+                        <option value="submitted">✅ Completas</option>
+                        <option value="pending_docs">⚠️ Faltan Docs</option>
+                        <option value="draft">📝 Borrador</option>
+                        <option value="reviewing">👀 En Revisión</option>
+                        <option value="approved">🎉 Aprobada</option>
+                    </select>
+
+                    <select
+                        value={filterContactado}
+                        onChange={(e) => setFilterContactado(e.target.value)}
+                        className="text-sm px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                    >
+                        <option value="all">Todos</option>
+                        <option value="contacted">📞 Contactados</option>
+                        <option value="not_contacted">❌ Sin Contactar</option>
+                    </select>
+
+                    <select
+                        value={filterPriority}
+                        onChange={(e) => setFilterPriority(e.target.value)}
+                        className="text-sm px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                    >
+                        <option value="all">Todas las Prioridades</option>
+                        <option value="needs_action">🔥 Necesitan Acción</option>
+                    </select>
+
+                    {(filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all') && (
+                        <button
+                            onClick={() => {
+                                setFilterStatus('all');
+                                setFilterContactado('all');
+                                setFilterPriority('all');
+                            }}
+                            className="text-sm px-3 py-1.5 text-primary-600 hover:text-primary-700 font-medium"
+                        >
+                            Limpiar Filtros
+                        </button>
+                    )}
+
+                    <div className="ml-auto text-sm text-gray-600">
+                        Mostrando {filteredAndSortedClients.length} de {clients.length} clientes
+                    </div>
+                </div>
+
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-500">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
@@ -574,6 +705,7 @@ const SimpleCRMPage: React.FC = () => {
                                         ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
                                     </button>
                                 </th>
+                                <th scope="col" className="px-6 py-3">Perfil Bancario</th>
                                 <th scope="col" className="px-6 py-3">Contactado</th>
                                 <th scope="col" className="px-6 py-3">Asesor</th>
                                 <th scope="col" className="px-6 py-3">Acciones</th>
@@ -591,30 +723,30 @@ const SimpleCRMPage: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4">{client.latest_app_car_title || '-'}</td>
                                     <td className="px-6 py-4">
-                                        {client.latest_app_status ? (
+                                        {client.correctedStatus ? (
                                             <div className="flex items-center gap-2">
-                                                <span className={`w-3 h-3 rounded-full animate-pulse ${
-                                                    client.latest_app_status === 'submitted' ? 'bg-blue-500' :
-                                                    client.latest_app_status === 'reviewing' ? 'bg-purple-500' :
-                                                    client.latest_app_status === 'pending_docs' ? 'bg-yellow-500' :
-                                                    client.latest_app_status === 'approved' ? 'bg-green-500' :
-                                                    client.latest_app_status === 'draft' ? 'bg-gray-400' :
+                                                <span className={`w-3 h-3 rounded-full ${
+                                                    client.correctedStatus === 'submitted' ? 'bg-blue-500' :
+                                                    client.correctedStatus === 'reviewing' ? 'bg-purple-500' :
+                                                    client.correctedStatus === 'pending_docs' ? 'bg-amber-500' :
+                                                    client.correctedStatus === 'approved' ? 'bg-green-500' :
+                                                    client.correctedStatus === 'draft' ? 'bg-gray-400' :
                                                     'bg-gray-400'
                                                 }`}></span>
-                                                <span className={`font-bold text-sm ${
-                                                    client.latest_app_status === 'submitted' ? 'text-blue-700' :
-                                                    client.latest_app_status === 'reviewing' ? 'text-purple-700' :
-                                                    client.latest_app_status === 'pending_docs' ? 'text-yellow-700' :
-                                                    client.latest_app_status === 'approved' ? 'text-green-700' :
-                                                    client.latest_app_status === 'draft' ? 'text-gray-600' :
+                                                <span className={`font-semibold text-sm ${
+                                                    client.correctedStatus === 'submitted' ? 'text-blue-700' :
+                                                    client.correctedStatus === 'reviewing' ? 'text-purple-700' :
+                                                    client.correctedStatus === 'pending_docs' ? 'text-amber-700' :
+                                                    client.correctedStatus === 'approved' ? 'text-green-700' :
+                                                    client.correctedStatus === 'draft' ? 'text-gray-600' :
                                                     'text-gray-600'
                                                 }`}>
-                                                    {client.latest_app_status === 'submitted' ? 'Enviada' :
-                                                    client.latest_app_status === 'reviewing' ? 'En Revisión' :
-                                                    client.latest_app_status === 'pending_docs' ? 'Docs Pendientes' :
-                                                    client.latest_app_status === 'approved' ? 'Aprobada' :
-                                                    client.latest_app_status === 'draft' ? 'Borrador' :
-                                                    client.latest_app_status}
+                                                    {client.correctedStatus === 'submitted' ? 'Completa' :
+                                                    client.correctedStatus === 'reviewing' ? 'En Revisión' :
+                                                    client.correctedStatus === 'pending_docs' ? 'Faltan Docs' :
+                                                    client.correctedStatus === 'approved' ? 'Aprobada' :
+                                                    client.correctedStatus === 'draft' ? 'Borrador' :
+                                                    client.correctedStatus}
                                                 </span>
                                             </div>
                                         ) : '-'}
@@ -675,6 +807,19 @@ const SimpleCRMPage: React.FC = () => {
                                         <div className={`text-xs ${!client.last_sign_in_at ? 'text-gray-400 italic' : ''}`} title={formatDate(client.last_sign_in_at)}>
                                             {formatRelativeTime(client.last_sign_in_at)}
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {client.hasBankProfile ? (
+                                            <div className="flex items-center gap-1">
+                                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                                <span className="text-xs text-green-700 font-medium">Completo</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1">
+                                                <XCircle className="w-4 h-4 text-gray-400" />
+                                                <span className="text-xs text-gray-500">Pendiente</span>
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <input

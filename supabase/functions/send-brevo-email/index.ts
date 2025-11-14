@@ -10,7 +10,7 @@ interface EmailRequest {
   to: string;
   toName: string;
   subject: string;
-  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification';
+  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code';
   templateData: Record<string, any>;
 }
 
@@ -360,6 +360,109 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA - Panel Administrativo</p>
               <p class="footer-text">Sistema de Gestión de Valuaciones</p>
               <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} Autos TREFA. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+    case 'verification_code':
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          ${baseStyles}
+          <style>
+            .code-box {
+              background: linear-gradient(135deg, #FF6801 0%, #F56100 100%);
+              border-radius: 16px;
+              padding: 40px 20px;
+              text-align: center;
+              margin: 32px 0;
+              box-shadow: 0 8px 16px rgba(255, 104, 1, 0.2);
+            }
+            .code {
+              font-size: 48px;
+              font-weight: 700;
+              color: #FFFFFF;
+              letter-spacing: 12px;
+              font-family: 'Courier New', monospace;
+              margin: 16px 0;
+              text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            .code-label {
+              font-size: 14px;
+              color: rgba(255, 255, 255, 0.9);
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .expiry-notice {
+              background: #FEF3C7;
+              border-left: 4px solid #F59E0B;
+              padding: 16px;
+              border-radius: 8px;
+              margin: 24px 0;
+            }
+            .security-tips {
+              background: #F0F9FF;
+              border-left: 4px solid #0369A1;
+              padding: 16px;
+              border-radius: 8px;
+              margin: 24px 0;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">🔐 Código de Verificación</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, aquí está tu código de verificación para acceder a tu valuación.</p>
+
+              <div class="code-box">
+                <p class="code-label">Tu código de verificación</p>
+                <div class="code">${data.verificationCode}</div>
+              </div>
+
+              <div class="expiry-notice">
+                <p style="margin: 0; color: #92400E; font-size: 14px;">
+                  <strong>⏱️ Importante:</strong> Este código expira en <strong>${data.expiresIn}</strong>
+                </p>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">¿Cómo usar este código?</h2>
+              <ul>
+                <li>Regresa a la página de valuación donde solicitaste tu oferta</li>
+                <li>Ingresa el código de 6 dígitos exactamente como aparece arriba</li>
+                <li>Haz clic en "Verificar y Ver Oferta" para ver tu valuación</li>
+              </ul>
+
+              <div class="security-tips">
+                <p style="margin: 0 0 8px 0; color: #0C4A6E; font-weight: 600;">
+                  🛡️ Consejos de Seguridad
+                </p>
+                <ul style="margin: 0; padding-left: 20px; color: #0C4A6E;">
+                  <li style="margin: 6px 0;">No compartas este código con nadie</li>
+                  <li style="margin: 6px 0;">TREFA nunca te pedirá este código por teléfono o WhatsApp</li>
+                  <li style="margin: 6px 0;">Si no solicitaste este código, ignora este mensaje</li>
+                </ul>
+              </div>
+
+              <p style="font-size: 14px; color: #556675; text-align: center; margin-top: 32px;">
+                ¿No solicitaste este código? Puedes ignorar este correo de forma segura.
+              </p>
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
+              <p class="footer-text">Sistema de Valuación de Vehículos</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>

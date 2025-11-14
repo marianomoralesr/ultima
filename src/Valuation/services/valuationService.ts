@@ -230,34 +230,41 @@ const extractSuggestedOffer = (responseData: any): number => {
     console.log('🔍 Searching for suggestedOffer in response...');
 
     // Try all possible paths where suggestedOffer might be located
+    // Based on actual Intelimotor API responses, the most common paths are:
+    // 1. regions[0].stats.suggestedOffer (most common in production)
+    // 2. stats[0].values.suggestedOffer (alternative format)
+    // 3. Direct suggestedOffer field (rare)
     const possiblePaths = [
-        { path: 'responseData.suggestedOffer', value: responseData?.suggestedOffer },
-        { path: 'responseData.offer.suggestedOffer', value: responseData?.offer?.suggestedOffer },
-        { path: 'responseData.offer.amount', value: responseData?.offer?.amount },
-        // Check in stats array (per Intelimotor docs)
-        { path: 'responseData.stats[0].stats.suggestedOffer', value: responseData?.stats?.[0]?.stats?.suggestedOffer },
-        { path: 'responseData.stats[0].values.suggestedOffer', value: responseData?.stats?.[0]?.values?.suggestedOffer },
-        { path: 'responseData.regions[0].stats.suggestedOffer', value: responseData?.regions?.[0]?.stats?.suggestedOffer },
-        // Check in data wrapper
-        { path: 'responseData.data.suggestedOffer', value: responseData?.data?.suggestedOffer },
-        { path: 'responseData.data.offer.suggestedOffer', value: responseData?.data?.offer?.suggestedOffer },
-        { path: 'responseData.data.offer.amount', value: responseData?.data?.offer?.amount },
-        { path: 'responseData.data.stats[0].stats.suggestedOffer', value: responseData?.data?.stats?.[0]?.stats?.suggestedOffer },
-        { path: 'responseData.data.stats[0].values.suggestedOffer', value: responseData?.data?.stats?.[0]?.values?.suggestedOffer },
-        { path: 'responseData.data.regions[0].stats.suggestedOffer', value: responseData?.data?.regions?.[0]?.stats?.suggestedOffer },
+        // PRIORITY PATHS (most likely based on actual API responses)
+        { path: 'regions[0].stats.suggestedOffer', value: responseData?.regions?.[0]?.stats?.suggestedOffer },
+        { path: 'data.regions[0].stats.suggestedOffer', value: responseData?.data?.regions?.[0]?.stats?.suggestedOffer },
+        { path: 'stats[0].values.suggestedOffer', value: responseData?.stats?.[0]?.values?.suggestedOffer },
+        { path: 'data.stats[0].values.suggestedOffer', value: responseData?.data?.stats?.[0]?.values?.suggestedOffer },
+
+        // SECONDARY PATHS (less common)
+        { path: 'suggestedOffer', value: responseData?.suggestedOffer },
+        { path: 'data.suggestedOffer', value: responseData?.data?.suggestedOffer },
+        { path: 'offer.suggestedOffer', value: responseData?.offer?.suggestedOffer },
+        { path: 'data.offer.suggestedOffer', value: responseData?.data?.offer?.suggestedOffer },
+
+        // LEGACY PATHS (for backwards compatibility)
+        { path: 'offer.amount', value: responseData?.offer?.amount },
+        { path: 'data.offer.amount', value: responseData?.data?.offer?.amount },
+        { path: 'stats[0].stats.suggestedOffer', value: responseData?.stats?.[0]?.stats?.suggestedOffer },
+        { path: 'data.stats[0].stats.suggestedOffer', value: responseData?.data?.stats?.[0]?.stats?.suggestedOffer },
     ];
 
     for (const { path, value } of possiblePaths) {
         console.log(`  Checking ${path}:`, value);
         const parsed = robustParseFloat(value);
         if (parsed > 0) {
-            console.log(`✓ Found suggestedOffer: ${parsed} at ${path}`);
+            console.log(`✅ Found suggestedOffer: ${parsed} at ${path}`);
             return parsed;
         }
     }
 
     console.warn('⚠️ No suggestedOffer found in any expected path');
-    console.log('Full response data:', JSON.stringify(responseData, null, 2));
+    console.log('🔍 Full response structure:', JSON.stringify(responseData, null, 2));
     return 0;
 };
 
@@ -298,9 +305,10 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
         }
 
         const callProxy = async (endpoint: string, method: 'POST' | 'GET', requestBody: any = null) => {
-            // The proxy function will add the auth query params. We pass the credentials in headers.
+            // Build the full Intelimotor API URL
             const fullUrl = `${INTELIMOTOR_BASE_URL}/${endpoint}`;
 
+            // Prepare the payload that matches what valuation-proxy expects
             const proxyPayload = {
                 url: fullUrl,
                 method: method,
@@ -310,8 +318,11 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
                 body: requestBody
             };
 
-            // Check if using Supabase function (needs auth) or local proxy
+            // Check if using Supabase function or local proxy
             const isSupabaseFunction = proxyUrl?.includes('supabase.co/functions');
+
+            // Use valuation-proxy as default (not intelimotor-proxy)
+            const effectiveProxyUrl = proxyUrl || `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/valuation-proxy`;
 
             const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
@@ -320,7 +331,7 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
             };
 
             // Add Supabase auth if using Supabase function
-            if (isSupabaseFunction) {
+            if (isSupabaseFunction || effectiveProxyUrl.includes('supabase.co/functions')) {
                 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
                 if (supabaseAnonKey) {
                     headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
@@ -328,7 +339,10 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
                 }
             }
 
-            const response = await fetch(proxyUrl || '/intelimotor-api/', {
+            console.log(`🔧 Using proxy URL: ${effectiveProxyUrl}`);
+            console.log(`🔧 Calling Intelimotor endpoint: ${endpoint}`);
+
+            const response = await fetch(effectiveProxyUrl, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(proxyPayload),
@@ -336,8 +350,10 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
 
             if (!response.ok) {
                 const errorBody = await response.text();
+                console.error(`❌ Proxy error (${response.status}):`, errorBody);
                 let errorMsg = `Error from proxy (${response.status}): ${errorBody}`;
                 if (response.status === 401) errorMsg = "Error de autenticación con Intelimotor (401). Verifica tu API Key y API Secret.";
+                if (response.status === 500) errorMsg = "Error del servidor de valuación. Por favor intenta de nuevo.";
                 const error = new Error(errorMsg);
                 (error as any).response = errorBody;
                 throw error;
@@ -377,7 +393,7 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
         console.log('🔍 Available fields in POST response:');
         console.log('  Keys in postDataContainer:', Object.keys(postDataContainer || {}));
 
-        // Check regions array structure (per actual API response)
+        // Check regions array structure (per actual API response from docs)
         if (postDataContainer?.regions && Array.isArray(postDataContainer.regions)) {
             console.log('  Regions[0].stats.suggestedOffer:', postDataContainer.regions[0]?.stats?.suggestedOffer);
             console.log('  Regions[0].stats.avgMarketValue:', postDataContainer.regions[0]?.stats?.avgMarketValue);
@@ -386,8 +402,9 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
         const immediateSuggestedOffer = extractSuggestedOffer(postDataContainer);
 
         if (immediateSuggestedOffer > 0) {
-            console.log("✅ suggestedOffer found in initial POST response. Skipping polling.");
-            const regionStats = postDataContainer?.stats?.[0]?.values;
+            console.log("✅ suggestedOffer found in POST response. Using it directly.");
+            // Extract market values from the first region's stats
+            const regionStats = postDataContainer?.regions?.[0]?.stats;
             const valuation: IntelimotorValuation = {
                 suggestedOffer: immediateSuggestedOffer,
                 ofertaAutomatica: extractOfertaAutomatica(postDataContainer),
@@ -399,7 +416,7 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
             return { valuation, rawResponse: { initialPostResponse: postResponseData } };
         }
 
-        console.log('⏳ No immediate offer in POST response. Will poll GET endpoint...');
+        console.log('⏳ No immediate suggestedOffer in POST response. NOTE: GET endpoint does NOT return suggestedOffer per API docs!');
 
         const valuationId = postDataContainer?.id || postDataContainer?.valuationId;
         console.log('📋 Valuation ID extracted:', valuationId);
@@ -486,38 +503,46 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
             }
         }
 
-        // Step 4: Process final data - ONLY use suggestedOffer from Intelimotor API
+        // Step 4: Process final data - CRITICAL FIX based on API docs
+        // According to Intelimotor API docs, the GET /valuations/:id endpoint does NOT return suggestedOffer
+        // It only returns: avgMarketValue, lowMarketValue, highMarketValue, offerLevel, avgDaysOnMarket, avgKms
+        // The suggestedOffer ONLY exists in the POST /valuations response!
+        // Therefore, if we don't get it from POST, we won't get it from GET either.
+
         const finalDataContainer = finalValuationData ? (finalValuationData.data || finalValuationData) : postDataContainer;
-        const regionStats = finalDataContainer?.stats?.[0]?.values;
+
+        // For GET responses, stats are in stats[0].values, not regions[0].stats
+        const getResponseStats = finalDataContainer?.stats?.[0]?.values;
+        // For POST responses, stats are in regions[0].stats
+        const postResponseStats = finalDataContainer?.regions?.[0]?.stats;
 
         console.log('🔍 Processing final valuation data...');
         console.log('🔍 Available fields in final response:');
         console.log('  Keys in finalDataContainer:', Object.keys(finalDataContainer || {}));
-        if (regionStats) {
-            console.log('  Keys in regionStats:', Object.keys(regionStats || {}));
-            console.log('  regionStats values:', JSON.stringify(regionStats, null, 2));
-        }
 
-        // CRITICAL: ONLY use suggestedOffer from Intelimotor - never calculate our own offers
+        // Try to extract suggestedOffer (will only work if this is from POST response)
         const suggestedOffer = extractSuggestedOffer(finalDataContainer);
 
         if (suggestedOffer <= 0) {
             console.error('❌ No suggestedOffer received from Intelimotor API');
+            console.error('❌ IMPORTANT: Per API docs, suggestedOffer is ONLY in POST response, not GET response!');
             console.error('Available fields:', Object.keys(finalDataContainer || {}));
 
             // Check if we have ofertaAutomatica as an alternative
             const ofertaAuto = extractOfertaAutomatica(finalDataContainer);
             if (ofertaAuto > 0) {
                 console.warn('⚠️ Found ofertaAutomatica but not suggestedOffer:', ofertaAuto);
-                console.warn('⚠️ Using ofertaAutomatica as fallback - this should be reviewed');
-                // Use ofertaAutomatica if available (temporary fallback)
+                console.warn('⚠️ Using ofertaAutomatica as fallback');
+
+                // Use appropriate stats based on response type
+                const statsSource = postResponseStats || getResponseStats;
                 const valuation: IntelimotorValuation = {
                     suggestedOffer: ofertaAuto,
                     ofertaAutomatica: ofertaAuto,
-                    highMarketValue: robustParseFloat(regionStats?.highMarketValue),
-                    lowMarketValue: robustParseFloat(regionStats?.lowMarketValue),
-                    avgDaysOnMarket: regionStats?.avgDaysOnMarket,
-                    avgKms: regionStats?.avgKms,
+                    highMarketValue: robustParseFloat(statsSource?.highMarketValue),
+                    lowMarketValue: robustParseFloat(statsSource?.lowMarketValue),
+                    avgDaysOnMarket: statsSource?.avgDaysOnMarket,
+                    avgKms: statsSource?.avgKms,
                 };
                 console.log('⚠️ USING FALLBACK - Complete valuation:', valuation);
                 return { valuation, rawResponse: { initialPostResponse: postResponseData, finalGetResponse: finalValuationData } };
@@ -530,15 +555,17 @@ export const fetchIntelimotorValuation = async (params: FetchVehicleValuationPar
             );
         }
 
-        console.log(`✅ Using suggestedOffer from Intelimotor: ${suggestedOffer}`);
+        console.log(`✅ Found suggestedOffer from Intelimotor: ${suggestedOffer}`);
 
+        // Use appropriate stats based on response type
+        const statsSource = postResponseStats || getResponseStats;
         const valuation: IntelimotorValuation = {
             suggestedOffer: suggestedOffer,
             ofertaAutomatica: extractOfertaAutomatica(finalDataContainer),
-            highMarketValue: robustParseFloat(regionStats?.highMarketValue),
-            lowMarketValue: robustParseFloat(regionStats?.lowMarketValue),
-            avgDaysOnMarket: regionStats?.avgDaysOnMarket,
-            avgKms: regionStats?.avgKms,
+            highMarketValue: robustParseFloat(statsSource?.highMarketValue),
+            lowMarketValue: robustParseFloat(statsSource?.lowMarketValue),
+            avgDaysOnMarket: statsSource?.avgDaysOnMarket,
+            avgKms: statsSource?.avgKms,
         };
 
         console.log('📊 Complete valuation:', valuation);

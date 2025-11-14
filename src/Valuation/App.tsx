@@ -31,11 +31,18 @@ const valuationSchema = z.object({
     .min(1, 'El kilometraje es requerido.')
     .refine((val) => {
       const numericValue = parseInt(val.replace(/[^0-9]/g, ''), 10);
-      return !isNaN(numericValue) && numericValue <= 99999;
-    }, 'El kilometraje debe ser menor a 100,000 km'),
-  clientName: z.string().min(2, 'Tu nombre es requerido.'),
-  clientPhone: z.string().min(10, 'El teléfono debe tener 10 dígitos.'),
-  clientEmail: z.string().email('El correo es inválido.'),
+      return !isNaN(numericValue) && numericValue >= 1000 && numericValue <= 99999;
+    }, 'El kilometraje debe estar entre 1,000 y 99,999 km'),
+  clientName: z.string()
+    .min(2, 'Tu nombre es requerido.')
+    .max(100, 'El nombre es demasiado largo.'),
+  clientPhone: z.string()
+    .min(10, 'El teléfono debe tener 10 dígitos.')
+    .max(10, 'El teléfono debe tener 10 dígitos.')
+    .regex(/^[0-9]+$/, 'Solo números son permitidos.'),
+  clientEmail: z.string()
+    .email('El correo es inválido.')
+    .max(100, 'El correo es demasiado largo.'),
 });
 type ValuationFormData = z.infer<typeof valuationSchema>;
 
@@ -45,20 +52,26 @@ const VALUATION_FORM_STATE_KEY = 'trefaValuationFormState';
 function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?: string | null; onComplete?: () => void }) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [step, setStep] = useState<'vehicle' | 'contact' | 'valuating' | 'success'>('vehicle');
+  const [step, setStep] = useState<'vehicle' | 'contact' | 'valuating' | 'verifying' | 'success'>('vehicle');
   const [error, setError] = useState<string | null>(null);
-  
+
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const [valuation, setValuation] = useState<IntelimotorValuation | null>(null);
   const [valuationPromise, setValuationPromise] = useState<Promise<{ valuation: IntelimotorValuation; rawResponse: any; }> | null>(null);
   const [alternativeVehicles, setAlternativeVehicles] = useState<Vehicle[]>([]);
-  
+
   const [copied, setCopied] = useState(false);
+
+  // Email verification states
+  const [verificationCode, setVerificationCode] = useState('');
+  const [sentCode, setSentCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currencyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
@@ -138,9 +151,11 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
     setError(null);
     setAlternativeVehicles([]);
 
+    // Smart mileage estimation based on vehicle age
     const currentYear = new Date().getFullYear();
     const carAge = Math.max(0, currentYear - vehicle.year);
-    const estimatedMileage = Math.min(carAge * 15000, 85000);
+    // Estimate: 15,000 km per year on average, max 85,000 km, min 5,000 km
+    const estimatedMileage = Math.min(Math.max(carAge * 15000, 5000), 85000);
     const roundedMileage = Math.round(estimatedMileage / 1000) * 1000;
     setValue('mileage', roundedMileage > 0 ? roundedMileage.toLocaleString('es-MX') : '');
     trigger('mileage');
@@ -199,7 +214,7 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
       setError("La valuación no se inició. Por favor, vuelve al paso anterior.");
       return;
     }
-    
+
     setStep('valuating');
     setError(null);
 
@@ -232,15 +247,37 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
             console.error('Error sending valuation notification email:', emailError);
         }
 
-        localStorage.removeItem(VALUATION_FORM_STATE_KEY);
-        setStep('success');
+        // Check if user is authenticated
+        if (user) {
+            // User is signed in, show results immediately
+            localStorage.removeItem(VALUATION_FORM_STATE_KEY);
+            setStep('success');
 
-        // Call onComplete callback if provided (for embedded use in VisitasPage)
-        if (onComplete) {
-            // Delay slightly to show success screen before transitioning
-            setTimeout(() => {
-                onComplete();
-            }, 2000);
+            // Call onComplete callback if provided
+            if (onComplete) {
+                setTimeout(() => {
+                    onComplete();
+                }, 2000);
+            }
+        } else {
+            // User is not signed in, require email verification
+            // Generate a random 6-digit code
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            setSentCode(code);
+
+            // Send verification code via email
+            try {
+                await BrevoEmailService.sendValuationVerificationCode(
+                    data.clientEmail,
+                    data.clientName,
+                    code
+                );
+                setStep('verifying');
+            } catch (emailError) {
+                console.error('Error sending verification email:', emailError);
+                setError('No pudimos enviar el código de verificación. Por favor, intenta de nuevo.');
+                setStep('contact');
+            }
         }
     } catch (err: any) {
         if (err instanceof ValuationFailedError) {
@@ -251,6 +288,46 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
             setError(err.message || "No pudimos generar una oferta. Inténtalo de nuevo.");
         }
         setStep('contact'); // Go back to contact step on error
+    }
+  };
+
+  const handleVerifyCode = () => {
+    setIsVerifying(true);
+    setVerificationError(null);
+
+    // Simple verification - in production, you might want to add expiration time
+    if (verificationCode.trim() === sentCode) {
+      setIsVerifying(false);
+      localStorage.removeItem(VALUATION_FORM_STATE_KEY);
+      setStep('success');
+
+      // Call onComplete callback if provided
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete();
+        }, 2000);
+      }
+    } else {
+      setIsVerifying(false);
+      setVerificationError('Código incorrecto. Por favor, verifica e intenta de nuevo.');
+    }
+  };
+
+  const handleResendCode = async () => {
+    const data = getValues();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setSentCode(code);
+    setVerificationError(null);
+
+    try {
+      await BrevoEmailService.sendValuationVerificationCode(
+        data.clientEmail,
+        data.clientName,
+        code
+      );
+    } catch (emailError) {
+      console.error('Error resending verification email:', emailError);
+      setVerificationError('No pudimos reenviar el código. Por favor, intenta de nuevo.');
     }
   };
 
@@ -297,34 +374,89 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
     navigate('/escritorio/vende-tu-auto', { state: { valuationData } });
   };
   
-  const steps = [
-    { id: 'vehicle', name: 'Tu auto' },
-    { id: 'contact', name: 'Tus Datos' },
-    { id: 'success', name: 'Tu Oferta' }
-  ];
+  const steps = user
+    ? [
+        { id: 'vehicle', name: 'Tu auto' },
+        { id: 'contact', name: 'Tus Datos' },
+        { id: 'success', name: 'Tu Oferta' }
+      ]
+    : [
+        { id: 'vehicle', name: 'Tu auto' },
+        { id: 'contact', name: 'Tus Datos' },
+        { id: 'verifying', name: 'Verificación' },
+        { id: 'success', name: 'Tu Oferta' }
+      ];
 
   let currentStepId = step;
-  if (step === 'valuating' || step === 'success') {
+  if (step === 'valuating') {
+      currentStepId = user ? 'success' : 'verifying';
+  }
+  if (step === 'success') {
       currentStepId = 'success';
   }
 
+  // Helper function to get brand logo URL
+  const getBrandLogoUrl = (brandName: string): string => {
+    const brand = brandName.toLowerCase().trim();
+    // Using a logo service - you can replace with your own logo URLs
+    return `https://cdn.imagin.studio/getImage?customer=mx-trefa&make=${encodeURIComponent(brand)}&width=200&zoomLevel=0`;
+  };
+
   if (step === 'success' && valuation) {
+    const brandName = selectedVehicle?.label.split(' ')[0] || '';
+    const brandLogoUrl = getBrandLogoUrl(brandName);
+
     return (
       <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-lg mx-auto w-full text-center animate-pop-in">
         <Confetti />
+
+        {/* Brand Logo */}
+        {brandName && (
+          <div className="mb-4 flex justify-center">
+            <img
+              src={brandLogoUrl}
+              alt={`${brandName} logo`}
+              className="h-16 object-contain opacity-80"
+              onError={(e) => {
+                // Fallback if logo fails to load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
         <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
         <h2 className="text-2xl font-bold mt-4 text-gray-900">¡Tenemos una oferta para ti!</h2>
-        <div className="p-6 bg-gray-50 rounded-lg my-6 border border-gray-200">
-          <p className="text-lg font-medium text-gray-600">Oferta de Compra Estimada</p>
-          <p className="text-5xl font-extrabold text-primary-600 tracking-tight my-2">
+
+        {/* Offer Display - Only suggestedOffer */}
+        <div className="p-8 bg-gradient-to-br from-primary-50 to-yellow-50 rounded-xl my-6 border-2 border-primary-200 shadow-inner">
+          <p className="text-base font-medium text-gray-700 mb-2">Tu oferta de compra</p>
+          <p className="text-6xl font-extrabold text-primary-600 tracking-tight my-3">
             <AnimatedNumber value={offer} />
           </p>
-          <p className="text-sm text-gray-500">para tu {selectedVehicle?.label}</p>
+          <div className="mt-4 p-3 bg-white/70 rounded-lg">
+            <p className="text-sm font-semibold text-gray-800">{selectedVehicle?.label}</p>
+            <p className="text-xs text-gray-600 mt-1">Basado en datos reales del mercado</p>
+          </div>
         </div>
+
         <div className="space-y-3">
-          <button onClick={handleContinueToSellForm} className="block w-full py-3.5 px-4 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700">Continuar con la venta en línea</button>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-3.5 px-4 font-bold text-white bg-green-600 rounded-lg transition hover:bg-green-700 text-center">Continuar por WhatsApp con un asesor</a>
+          <button
+            onClick={handleContinueToSellForm}
+            className="block w-full py-4 px-4 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700 shadow-lg hover:shadow-xl"
+          >
+            Continuar con la venta en línea
+          </button>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full py-4 px-4 font-bold text-white bg-green-600 rounded-lg transition hover:bg-green-700 text-center shadow-lg hover:shadow-xl"
+          >
+            Continuar por WhatsApp con un asesor
+          </a>
         </div>
+
         <div className="flex items-center justify-center gap-6 pt-6 mt-4 border-t border-gray-200">
             <button onClick={() => window.print()} className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary-600 transition-colors">
                 <PrintIcon className="w-6 h-6"/> <span className="text-xs">Imprimir</span>
@@ -334,7 +466,9 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
                 <span className="text-xs">{copied ? 'Copiado' : 'Copiar'}</span>
             </button>
         </div>
-        <button onClick={handleReset} className="mt-6 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 mx-auto"><RefreshCw className="w-4 h-4" /> Cotizar otro auto</button>
+        <button onClick={handleReset} className="mt-6 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 mx-auto">
+          <RefreshCw className="w-4 h-4" /> Cotizar otro auto
+        </button>
       </div>
     );
   }
@@ -342,26 +476,29 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
 
   return (
     <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-2xl mx-auto w-full">
-      {/* Maintenance Alert */}
-      <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
-        <div className="flex items-start">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div className="ml-3">
-            <p className="text-sm font-medium text-yellow-800">
-              Servicio en mantenimiento
-            </p>
-            <p className="text-sm text-yellow-700 mt-1">
-              Por favor vuelve a revisar en unas cuantas horas.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="text-center">
         <Car className="w-12 h-12 text-primary-500 mx-auto" />
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-4">Cotiza el valor de tu auto</h1>
-        <p className="text-gray-600 mt-2">Recibe una oferta por tu auto en segundos</p>
+        <p className="text-gray-600 mt-2">Recibe una oferta justa basada en datos del mercado en tiempo real</p>
       </div>
+
+      {/* Info box */}
+      {step === 'vehicle' && (
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm text-blue-900 font-medium">¿Cómo funciona?</p>
+              <ul className="text-xs text-blue-800 mt-2 space-y-1">
+                <li>✓ Busca tu auto por marca, modelo y año</li>
+                <li>✓ Ingresa el kilometraje actual</li>
+                <li>✓ Recibe una oferta instantánea basada en el valor de mercado</li>
+                <li>✓ 100% gratis y sin compromiso</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="my-8 flex justify-center">
         <StepIndicator steps={steps} currentStepId={currentStepId} />
@@ -384,8 +521,24 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
               )}
             </div>
             <div>
-                <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">2. Kilometraje</label>
-                <input id="mileage" {...register('mileage')} placeholder="Ej: 45,000 km" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
+                  2. Kilometraje actual
+                  {selectedVehicle && (
+                    <span className="ml-2 text-xs text-gray-500 font-normal">
+                      (estimado para {selectedVehicle.label.split(' ')[0]} {selectedVehicle.year})
+                    </span>
+                  )}
+                </label>
+                <div className="relative">
+                  <input
+                    id="mileage"
+                    {...register('mileage')}
+                    placeholder="Ej: 45,000"
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    autoComplete="off"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">km</span>
+                </div>
                 {errors.mileage && (
                   <>
                     <p className="text-xs text-red-500 mt-1">{errors.mileage.message}</p>
@@ -445,20 +598,41 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
                     <p className="text-sm font-medium text-gray-600">auto seleccionado:</p>
                     <p className="font-semibold text-gray-900">{selectedVehicle?.label}</p>
                 </div>
-                <h2 className="text-lg font-semibold text-gray-800 text-center -mb-2">Casi listo. Faltan tus datos.</h2>
+                <h2 className="text-lg font-semibold text-gray-800 text-center -mb-2">Casi listo. ¿Dónde enviamos tu oferta?</h2>
                 <div>
                     <label htmlFor="clientName" className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                    <input id="clientName" {...register('clientName')} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                    <input
+                      id="clientName"
+                      {...register('clientName')}
+                      placeholder="Juan Pérez"
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      autoComplete="name"
+                    />
                     {errors.clientName && <p className="text-xs text-red-500 mt-1">{errors.clientName.message}</p>}
                 </div>
                  <div>
                     <label htmlFor="clientPhone" className="block text-sm font-medium text-gray-700 mb-1">Teléfono (10 dígitos)</label>
-                    <input id="clientPhone" {...register('clientPhone')} type="tel" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                    <input
+                      id="clientPhone"
+                      {...register('clientPhone')}
+                      type="tel"
+                      placeholder="8123456789"
+                      maxLength={10}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      autoComplete="tel"
+                    />
                     {errors.clientPhone && <p className="text-xs text-red-500 mt-1">{errors.clientPhone.message}</p>}
                 </div>
                  <div>
                     <label htmlFor="clientEmail" className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                    <input id="clientEmail" {...register('clientEmail')} type="email" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                    <input
+                      id="clientEmail"
+                      {...register('clientEmail')}
+                      type="email"
+                      placeholder="tu@email.com"
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      autoComplete="email"
+                    />
                     {errors.clientEmail && <p className="text-xs text-red-500 mt-1">{errors.clientEmail.message}</p>}
                 </div>
                 {error && <div className="p-3 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200 flex items-start gap-2"><AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />{error}</div>}
@@ -490,6 +664,73 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
                 <p className="mt-4 font-semibold text-gray-700">Finalizando tu oferta...</p>
                 <p className="text-sm text-gray-500">Estamos consultando los últimos datos del mercado.</p>
             </div>
+        )}
+
+        {step === 'verifying' && (
+          <div className="space-y-6 animate-pop-in">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Info className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-800">Verifica tu correo electrónico</h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Hemos enviado un código de 6 dígitos a <strong>{getValues('clientEmail')}</strong>
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                Ingresa el código de verificación
+              </label>
+              <input
+                id="verificationCode"
+                type="text"
+                maxLength={6}
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                className="w-full text-center text-2xl tracking-widest bg-gray-50 border border-gray-300 rounded-lg px-4 py-4 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono"
+                autoComplete="off"
+                autoFocus
+              />
+              {verificationError && (
+                <p className="text-xs text-red-500 mt-2 text-center">{verificationError}</p>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleVerifyCode}
+                disabled={verificationCode.length !== 6 || isVerifying}
+                className="w-full py-4 px-8 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {isVerifying ? 'Verificando...' : 'Verificar y Ver Oferta'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResendCode}
+                className="w-full py-3 px-4 font-medium text-primary-600 hover:text-primary-700 transition"
+              >
+                Reenviar código
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep('contact')}
+                className="w-full py-3 px-4 font-medium text-gray-600 hover:text-gray-800 transition flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" /> Cambiar correo electrónico
+              </button>
+            </div>
+
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                <strong>¿No recibiste el código?</strong> Revisa tu carpeta de spam o correo no deseado.
+              </p>
+            </div>
+          </div>
         )}
       </form>
       <p className="text-center text-xs text-gray-400 mt-6">Sin costo • Sin compromiso • Con la tecnología de Intelimotor®</p>

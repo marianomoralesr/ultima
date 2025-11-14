@@ -192,17 +192,52 @@ class ConversionTrackingService {
      * Track application submission - LeadComplete
      * Página: /escritorio/aplicacion
      * Cuándo: Usuario envía su solicitud de financiamiento completa
+     *
+     * IMPORTANT: Only tracks for users who came from the landing page (/financiamientos)
+     * These users have a ConversionLandingPage event in their session
      */
-    submitted: (metadata: ConversionMetadata = {}): void => {
-      this.track('LeadComplete', 'Lead Complete', {
-        ...metadata,
-        page: '/escritorio/aplicacion',
-        applicationStage: 'submitted',
-        value: metadata.vehiclePrice || 0,
-        currency: 'MXN',
-        content_name: 'Lead Complete',
-        status: 'completed'
-      });
+    submitted: async (metadata: ConversionMetadata = {}): Promise<void> => {
+      // Check if user came from the landing page by looking for ConversionLandingPage event
+      const userId = metadata.userId;
+      if (!userId) {
+        console.warn('⚠️ LeadComplete not tracked: No userId provided');
+        return;
+      }
+
+      try {
+        // Check if this user has a ConversionLandingPage event (registered via landing page)
+        const { data: landingPageEvent, error } = await supabase
+          .from('tracking_events')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('event_type', 'ConversionLandingPage')
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error checking ConversionLandingPage event:', error);
+          return;
+        }
+
+        // Only track LeadComplete if user came from landing page
+        if (landingPageEvent) {
+          this.track('LeadComplete', 'Lead Complete', {
+            ...metadata,
+            page: '/escritorio/aplicacion',
+            applicationStage: 'submitted',
+            value: metadata.vehiclePrice || 0,
+            currency: 'MXN',
+            content_name: 'Lead Complete',
+            status: 'completed',
+            from_landing_page: true  // Add flag to indicate this came from landing page
+          });
+          console.log('✅ LeadComplete tracked for landing page user:', userId);
+        } else {
+          console.log('ℹ️ LeadComplete NOT tracked - user did not come from landing page:', userId);
+        }
+      } catch (error) {
+        console.error('Error tracking LeadComplete:', error);
+      }
     },
 
     /**

@@ -149,6 +149,14 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         .sort((a, b) => b.count - a.count);
 
       // Conversion funnel - using actual events sent by the app
+      // Get users who registered via landing page (ConversionLandingPage event)
+      const landingPageUserIds = new Set(
+        eventsData
+          .filter(e => e.event_type === 'ConversionLandingPage' || e.event_name === 'ConversionLandingPage')
+          .map(e => e.user_id)
+          .filter(Boolean)
+      );
+
       const conversionFunnel = {
         // Step 1: Page views to /financiamientos landing page
         landing: eventsData.filter(e =>
@@ -159,26 +167,24 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
           e.event_name.toLowerCase().includes('financiamientos')
         ).length,
         // Step 2: ConversionLandingPage - registration event
-        registration: eventsData.filter(e =>
-          e.event_type === 'ConversionLandingPage' ||
-          e.event_name === 'ConversionLandingPage'
-        ).length,
-        // Step 3: PersonalInformationComplete - profile saved
+        registration: landingPageUserIds.size,
+        // Step 3: PersonalInformationComplete - profile saved (only from landing page users)
         profile_complete: eventsData.filter(e =>
-          e.event_type === 'PersonalInformationComplete' ||
-          e.event_name === 'PersonalInformationComplete'
+          (e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
         ).length,
-        // Step 4: Application started (users viewing the application page)
+        // Step 4: Application started (only from landing page users viewing application page)
         application_started: eventsData.filter(e =>
           (e.event_type === 'PageView' && (
             e.metadata?.page?.includes('/aplicacion') ||
             e.page_url?.includes('/aplicacion')
-          ))
+          )) &&
+          e.user_id && landingPageUserIds.has(e.user_id)
         ).length,
-        // Step 5: LeadComplete - application successfully submitted
+        // Step 5: LeadComplete - application submitted (ONLY from landing page users)
         application_submitted: eventsData.filter(e =>
-          e.event_type === 'LeadComplete' ||
-          e.event_name === 'LeadComplete'
+          (e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
         ).length,
       };
 

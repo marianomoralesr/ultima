@@ -22,10 +22,10 @@ BEGIN
   -- You'll need to set this up in your Supabase project settings
   function_url := current_setting('app.settings.supabase_url', true) || '/functions/v1/google-sheets-sync';
 
-  -- If the setting is not available, construct it from SUPABASE_URL env var
-  -- In production, this will be set via the edge function service
+  -- If the setting is not available, use the project URL
+  -- Project: jjepfehmuybpctdzipnu
   IF function_url IS NULL OR function_url = '' THEN
-    function_url := 'https://your-project.supabase.co/functions/v1/google-sheets-sync';
+    function_url := 'https://jjepfehmuybpctdzipnu.supabase.co/functions/v1/google-sheets-sync';
   END IF;
 
   -- Make async HTTP request to the Edge Function using pg_net

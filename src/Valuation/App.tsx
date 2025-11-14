@@ -31,11 +31,18 @@ const valuationSchema = z.object({
     .min(1, 'El kilometraje es requerido.')
     .refine((val) => {
       const numericValue = parseInt(val.replace(/[^0-9]/g, ''), 10);
-      return !isNaN(numericValue) && numericValue <= 99999;
-    }, 'El kilometraje debe ser menor a 100,000 km'),
-  clientName: z.string().min(2, 'Tu nombre es requerido.'),
-  clientPhone: z.string().min(10, 'El teléfono debe tener 10 dígitos.'),
-  clientEmail: z.string().email('El correo es inválido.'),
+      return !isNaN(numericValue) && numericValue >= 1000 && numericValue <= 99999;
+    }, 'El kilometraje debe estar entre 1,000 y 99,999 km'),
+  clientName: z.string()
+    .min(2, 'Tu nombre es requerido.')
+    .max(100, 'El nombre es demasiado largo.'),
+  clientPhone: z.string()
+    .min(10, 'El teléfono debe tener 10 dígitos.')
+    .max(10, 'El teléfono debe tener 10 dígitos.')
+    .regex(/^[0-9]+$/, 'Solo números son permitidos.'),
+  clientEmail: z.string()
+    .email('El correo es inválido.')
+    .max(100, 'El correo es demasiado largo.'),
 });
 type ValuationFormData = z.infer<typeof valuationSchema>;
 
@@ -138,9 +145,11 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
     setError(null);
     setAlternativeVehicles([]);
 
+    // Smart mileage estimation based on vehicle age
     const currentYear = new Date().getFullYear();
     const carAge = Math.max(0, currentYear - vehicle.year);
-    const estimatedMileage = Math.min(carAge * 15000, 85000);
+    // Estimate: 15,000 km per year on average, max 85,000 km, min 5,000 km
+    const estimatedMileage = Math.min(Math.max(carAge * 15000, 5000), 85000);
     const roundedMileage = Math.round(estimatedMileage / 1000) * 1000;
     setValue('mileage', roundedMileage > 0 ? roundedMileage.toLocaleString('es-MX') : '');
     trigger('mileage');
@@ -342,26 +351,29 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
 
   return (
     <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-2xl mx-auto w-full">
-      {/* Maintenance Alert */}
-      <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
-        <div className="flex items-start">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div className="ml-3">
-            <p className="text-sm font-medium text-yellow-800">
-              Servicio en mantenimiento
-            </p>
-            <p className="text-sm text-yellow-700 mt-1">
-              Por favor vuelve a revisar en unas cuantas horas.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="text-center">
         <Car className="w-12 h-12 text-primary-500 mx-auto" />
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-4">Cotiza el valor de tu auto</h1>
-        <p className="text-gray-600 mt-2">Recibe una oferta por tu auto en segundos</p>
+        <p className="text-gray-600 mt-2">Recibe una oferta justa basada en datos del mercado en tiempo real</p>
       </div>
+
+      {/* Info box */}
+      {step === 'vehicle' && (
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm text-blue-900 font-medium">¿Cómo funciona?</p>
+              <ul className="text-xs text-blue-800 mt-2 space-y-1">
+                <li>✓ Busca tu auto por marca, modelo y año</li>
+                <li>✓ Ingresa el kilometraje actual</li>
+                <li>✓ Recibe una oferta instantánea basada en el valor de mercado</li>
+                <li>✓ 100% gratis y sin compromiso</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="my-8 flex justify-center">
         <StepIndicator steps={steps} currentStepId={currentStepId} />
@@ -384,8 +396,24 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
               )}
             </div>
             <div>
-                <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">2. Kilometraje</label>
-                <input id="mileage" {...register('mileage')} placeholder="Ej: 45,000 km" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
+                  2. Kilometraje actual
+                  {selectedVehicle && (
+                    <span className="ml-2 text-xs text-gray-500 font-normal">
+                      (estimado para {selectedVehicle.label.split(' ')[0]} {selectedVehicle.year})
+                    </span>
+                  )}
+                </label>
+                <div className="relative">
+                  <input
+                    id="mileage"
+                    {...register('mileage')}
+                    placeholder="Ej: 45,000"
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    autoComplete="off"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">km</span>
+                </div>
                 {errors.mileage && (
                   <>
                     <p className="text-xs text-red-500 mt-1">{errors.mileage.message}</p>
@@ -445,20 +473,41 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
                     <p className="text-sm font-medium text-gray-600">auto seleccionado:</p>
                     <p className="font-semibold text-gray-900">{selectedVehicle?.label}</p>
                 </div>
-                <h2 className="text-lg font-semibold text-gray-800 text-center -mb-2">Casi listo. Faltan tus datos.</h2>
+                <h2 className="text-lg font-semibold text-gray-800 text-center -mb-2">Casi listo. ¿Dónde enviamos tu oferta?</h2>
                 <div>
                     <label htmlFor="clientName" className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                    <input id="clientName" {...register('clientName')} className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                    <input
+                      id="clientName"
+                      {...register('clientName')}
+                      placeholder="Juan Pérez"
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      autoComplete="name"
+                    />
                     {errors.clientName && <p className="text-xs text-red-500 mt-1">{errors.clientName.message}</p>}
                 </div>
                  <div>
                     <label htmlFor="clientPhone" className="block text-sm font-medium text-gray-700 mb-1">Teléfono (10 dígitos)</label>
-                    <input id="clientPhone" {...register('clientPhone')} type="tel" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                    <input
+                      id="clientPhone"
+                      {...register('clientPhone')}
+                      type="tel"
+                      placeholder="8123456789"
+                      maxLength={10}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      autoComplete="tel"
+                    />
                     {errors.clientPhone && <p className="text-xs text-red-500 mt-1">{errors.clientPhone.message}</p>}
                 </div>
                  <div>
                     <label htmlFor="clientEmail" className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                    <input id="clientEmail" {...register('clientEmail')} type="email" className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400" />
+                    <input
+                      id="clientEmail"
+                      {...register('clientEmail')}
+                      type="email"
+                      placeholder="tu@email.com"
+                      className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      autoComplete="email"
+                    />
                     {errors.clientEmail && <p className="text-xs text-red-500 mt-1">{errors.clientEmail.message}</p>}
                 </div>
                 {error && <div className="p-3 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200 flex items-start gap-2"><AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />{error}</div>}

@@ -52,20 +52,26 @@ const VALUATION_FORM_STATE_KEY = 'trefaValuationFormState';
 function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?: string | null; onComplete?: () => void }) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [step, setStep] = useState<'vehicle' | 'contact' | 'valuating' | 'success'>('vehicle');
+  const [step, setStep] = useState<'vehicle' | 'contact' | 'valuating' | 'verifying' | 'success'>('vehicle');
   const [error, setError] = useState<string | null>(null);
-  
+
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const [valuation, setValuation] = useState<IntelimotorValuation | null>(null);
   const [valuationPromise, setValuationPromise] = useState<Promise<{ valuation: IntelimotorValuation; rawResponse: any; }> | null>(null);
   const [alternativeVehicles, setAlternativeVehicles] = useState<Vehicle[]>([]);
-  
+
   const [copied, setCopied] = useState(false);
+
+  // Email verification states
+  const [verificationCode, setVerificationCode] = useState('');
+  const [sentCode, setSentCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currencyFormatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
@@ -208,7 +214,7 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
       setError("La valuación no se inició. Por favor, vuelve al paso anterior.");
       return;
     }
-    
+
     setStep('valuating');
     setError(null);
 
@@ -241,15 +247,37 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
             console.error('Error sending valuation notification email:', emailError);
         }
 
-        localStorage.removeItem(VALUATION_FORM_STATE_KEY);
-        setStep('success');
+        // Check if user is authenticated
+        if (user) {
+            // User is signed in, show results immediately
+            localStorage.removeItem(VALUATION_FORM_STATE_KEY);
+            setStep('success');
 
-        // Call onComplete callback if provided (for embedded use in VisitasPage)
-        if (onComplete) {
-            // Delay slightly to show success screen before transitioning
-            setTimeout(() => {
-                onComplete();
-            }, 2000);
+            // Call onComplete callback if provided
+            if (onComplete) {
+                setTimeout(() => {
+                    onComplete();
+                }, 2000);
+            }
+        } else {
+            // User is not signed in, require email verification
+            // Generate a random 6-digit code
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            setSentCode(code);
+
+            // Send verification code via email
+            try {
+                await BrevoEmailService.sendValuationVerificationCode(
+                    data.clientEmail,
+                    data.clientName,
+                    code
+                );
+                setStep('verifying');
+            } catch (emailError) {
+                console.error('Error sending verification email:', emailError);
+                setError('No pudimos enviar el código de verificación. Por favor, intenta de nuevo.');
+                setStep('contact');
+            }
         }
     } catch (err: any) {
         if (err instanceof ValuationFailedError) {
@@ -260,6 +288,46 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
             setError(err.message || "No pudimos generar una oferta. Inténtalo de nuevo.");
         }
         setStep('contact'); // Go back to contact step on error
+    }
+  };
+
+  const handleVerifyCode = () => {
+    setIsVerifying(true);
+    setVerificationError(null);
+
+    // Simple verification - in production, you might want to add expiration time
+    if (verificationCode.trim() === sentCode) {
+      setIsVerifying(false);
+      localStorage.removeItem(VALUATION_FORM_STATE_KEY);
+      setStep('success');
+
+      // Call onComplete callback if provided
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete();
+        }, 2000);
+      }
+    } else {
+      setIsVerifying(false);
+      setVerificationError('Código incorrecto. Por favor, verifica e intenta de nuevo.');
+    }
+  };
+
+  const handleResendCode = async () => {
+    const data = getValues();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setSentCode(code);
+    setVerificationError(null);
+
+    try {
+      await BrevoEmailService.sendValuationVerificationCode(
+        data.clientEmail,
+        data.clientName,
+        code
+      );
+    } catch (emailError) {
+      console.error('Error resending verification email:', emailError);
+      setVerificationError('No pudimos reenviar el código. Por favor, intenta de nuevo.');
     }
   };
 
@@ -306,34 +374,89 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
     navigate('/escritorio/vende-tu-auto', { state: { valuationData } });
   };
   
-  const steps = [
-    { id: 'vehicle', name: 'Tu auto' },
-    { id: 'contact', name: 'Tus Datos' },
-    { id: 'success', name: 'Tu Oferta' }
-  ];
+  const steps = user
+    ? [
+        { id: 'vehicle', name: 'Tu auto' },
+        { id: 'contact', name: 'Tus Datos' },
+        { id: 'success', name: 'Tu Oferta' }
+      ]
+    : [
+        { id: 'vehicle', name: 'Tu auto' },
+        { id: 'contact', name: 'Tus Datos' },
+        { id: 'verifying', name: 'Verificación' },
+        { id: 'success', name: 'Tu Oferta' }
+      ];
 
   let currentStepId = step;
-  if (step === 'valuating' || step === 'success') {
+  if (step === 'valuating') {
+      currentStepId = user ? 'success' : 'verifying';
+  }
+  if (step === 'success') {
       currentStepId = 'success';
   }
 
+  // Helper function to get brand logo URL
+  const getBrandLogoUrl = (brandName: string): string => {
+    const brand = brandName.toLowerCase().trim();
+    // Using a logo service - you can replace with your own logo URLs
+    return `https://cdn.imagin.studio/getImage?customer=mx-trefa&make=${encodeURIComponent(brand)}&width=200&zoomLevel=0`;
+  };
+
   if (step === 'success' && valuation) {
+    const brandName = selectedVehicle?.label.split(' ')[0] || '';
+    const brandLogoUrl = getBrandLogoUrl(brandName);
+
     return (
       <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-lg mx-auto w-full text-center animate-pop-in">
         <Confetti />
+
+        {/* Brand Logo */}
+        {brandName && (
+          <div className="mb-4 flex justify-center">
+            <img
+              src={brandLogoUrl}
+              alt={`${brandName} logo`}
+              className="h-16 object-contain opacity-80"
+              onError={(e) => {
+                // Fallback if logo fails to load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
         <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
         <h2 className="text-2xl font-bold mt-4 text-gray-900">¡Tenemos una oferta para ti!</h2>
-        <div className="p-6 bg-gray-50 rounded-lg my-6 border border-gray-200">
-          <p className="text-lg font-medium text-gray-600">Oferta de Compra Estimada</p>
-          <p className="text-5xl font-extrabold text-primary-600 tracking-tight my-2">
+
+        {/* Offer Display - Only suggestedOffer */}
+        <div className="p-8 bg-gradient-to-br from-primary-50 to-yellow-50 rounded-xl my-6 border-2 border-primary-200 shadow-inner">
+          <p className="text-base font-medium text-gray-700 mb-2">Tu oferta de compra</p>
+          <p className="text-6xl font-extrabold text-primary-600 tracking-tight my-3">
             <AnimatedNumber value={offer} />
           </p>
-          <p className="text-sm text-gray-500">para tu {selectedVehicle?.label}</p>
+          <div className="mt-4 p-3 bg-white/70 rounded-lg">
+            <p className="text-sm font-semibold text-gray-800">{selectedVehicle?.label}</p>
+            <p className="text-xs text-gray-600 mt-1">Basado en datos reales del mercado</p>
+          </div>
         </div>
+
         <div className="space-y-3">
-          <button onClick={handleContinueToSellForm} className="block w-full py-3.5 px-4 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700">Continuar con la venta en línea</button>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-3.5 px-4 font-bold text-white bg-green-600 rounded-lg transition hover:bg-green-700 text-center">Continuar por WhatsApp con un asesor</a>
+          <button
+            onClick={handleContinueToSellForm}
+            className="block w-full py-4 px-4 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700 shadow-lg hover:shadow-xl"
+          >
+            Continuar con la venta en línea
+          </button>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full py-4 px-4 font-bold text-white bg-green-600 rounded-lg transition hover:bg-green-700 text-center shadow-lg hover:shadow-xl"
+          >
+            Continuar por WhatsApp con un asesor
+          </a>
         </div>
+
         <div className="flex items-center justify-center gap-6 pt-6 mt-4 border-t border-gray-200">
             <button onClick={() => window.print()} className="flex flex-col items-center gap-1 text-gray-500 hover:text-primary-600 transition-colors">
                 <PrintIcon className="w-6 h-6"/> <span className="text-xs">Imprimir</span>
@@ -343,7 +466,9 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
                 <span className="text-xs">{copied ? 'Copiado' : 'Copiar'}</span>
             </button>
         </div>
-        <button onClick={handleReset} className="mt-6 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 mx-auto"><RefreshCw className="w-4 h-4" /> Cotizar otro auto</button>
+        <button onClick={handleReset} className="mt-6 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 mx-auto">
+          <RefreshCw className="w-4 h-4" /> Cotizar otro auto
+        </button>
       </div>
     );
   }
@@ -539,6 +664,73 @@ function ValuationApp({ initialSearchQuery, onComplete }: { initialSearchQuery?:
                 <p className="mt-4 font-semibold text-gray-700">Finalizando tu oferta...</p>
                 <p className="text-sm text-gray-500">Estamos consultando los últimos datos del mercado.</p>
             </div>
+        )}
+
+        {step === 'verifying' && (
+          <div className="space-y-6 animate-pop-in">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Info className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-800">Verifica tu correo electrónico</h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Hemos enviado un código de 6 dígitos a <strong>{getValues('clientEmail')}</strong>
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                Ingresa el código de verificación
+              </label>
+              <input
+                id="verificationCode"
+                type="text"
+                maxLength={6}
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                className="w-full text-center text-2xl tracking-widest bg-gray-50 border border-gray-300 rounded-lg px-4 py-4 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono"
+                autoComplete="off"
+                autoFocus
+              />
+              {verificationError && (
+                <p className="text-xs text-red-500 mt-2 text-center">{verificationError}</p>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleVerifyCode}
+                disabled={verificationCode.length !== 6 || isVerifying}
+                className="w-full py-4 px-8 font-bold text-white bg-primary-600 rounded-lg transition hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {isVerifying ? 'Verificando...' : 'Verificar y Ver Oferta'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResendCode}
+                className="w-full py-3 px-4 font-medium text-primary-600 hover:text-primary-700 transition"
+              >
+                Reenviar código
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep('contact')}
+                className="w-full py-3 px-4 font-medium text-gray-600 hover:text-gray-800 transition flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" /> Cambiar correo electrónico
+              </button>
+            </div>
+
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                <strong>¿No recibiste el código?</strong> Revisa tu carpeta de spam o correo no deseado.
+              </p>
+            </div>
+          </div>
         )}
       </form>
       <p className="text-center text-xs text-gray-400 mt-6">Sin costo • Sin compromiso • Con la tecnología de Intelimotor®</p>

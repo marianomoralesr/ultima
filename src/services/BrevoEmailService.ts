@@ -13,7 +13,7 @@ interface EmailNotificationParams {
     to: string;
     toName: string;
     subject: string;
-    templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification';
+    templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code';
     templateData: Record<string, any>;
 }
 
@@ -257,6 +257,27 @@ export const BrevoEmailService = {
                 clientName: params.name,
                 vehicleTitle: params.vehicleTitle,
                 message: `Lamentamos informarte que el vehículo "${params.vehicleTitle}" que seleccionaste en tu solicitud ya no está disponible. Nuestro equipo se pondrá en contacto contigo para ofrecerte opciones similares o alternativas que se ajusten a tus necesidades.`
+            }
+        });
+    },
+
+    /**
+     * Send valuation verification code to client
+     */
+    async sendValuationVerificationCode(
+        clientEmail: string,
+        clientName: string,
+        verificationCode: string
+    ): Promise<boolean> {
+        return this.sendEmail({
+            to: clientEmail,
+            toName: clientName,
+            subject: '🔐 Código de Verificación - TREFA',
+            templateType: 'verification_code',
+            templateData: {
+                clientName,
+                verificationCode,
+                expiresIn: '15 minutos'
             }
         });
     }

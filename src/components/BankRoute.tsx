@@ -6,13 +6,14 @@ import { Loader2 } from 'lucide-react';
 
 /**
  * BankRoute Component
- * Protects routes that should only be accessible to approved bank representatives
+ * Protects routes that should only be accessible to approved bank representatives or admins
  */
 const BankRoute: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isBankRep, setIsBankRep] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     checkBankRepAuth();
@@ -30,16 +31,40 @@ const BankRoute: React.FC = () => {
 
       setIsAuthenticated(true);
 
-      // Check if user is a bank representative
-      const profile = await BankService.getBankRepProfile();
+      // Check if user is admin first
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', user.id)
+        .single();
 
-      if (!profile) {
+      const adminEmails = [
+        'mmoralesr@hotmail.com',
+        'alan@autostrefa.mx',
+        'juanito@autostrefa.mx',
+        'karla@autostrefa.mx',
+        'michelle@autostrefa.mx',
+        'michelle.martinez@autostrefa.mx',
+        'ventas@autostrefa.mx',
+        'isai.martinez@autostrefa.mx'
+      ];
+
+      if (profile && adminEmails.includes(profile.email)) {
+        setIsAdmin(true);
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is a bank representative
+      const bankProfile = await BankService.getBankRepProfile();
+
+      if (!bankProfile) {
         setLoading(false);
         return;
       }
 
       setIsBankRep(true);
-      setIsApproved(profile.is_approved && profile.is_active);
+      setIsApproved(bankProfile.is_approved && bankProfile.is_active);
     } catch (error) {
       console.error('Error checking bank rep auth:', error);
     } finally {
@@ -61,6 +86,11 @@ const BankRoute: React.FC = () => {
   // Not authenticated at all - redirect to bank login
   if (!isAuthenticated) {
     return <Navigate to="/bancos" replace />;
+  }
+
+  // Admin bypass - allow access without bank rep check
+  if (isAdmin) {
+    return <Outlet />;
   }
 
   // Authenticated but not a bank rep - redirect to regular user dashboard

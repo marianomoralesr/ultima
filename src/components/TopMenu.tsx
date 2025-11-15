@@ -21,7 +21,9 @@ import {
     Camera,
     BriefcaseIcon,
     WrenchIcon,
-    BookOpen
+    BookOpen,
+    Building2,
+    Landmark
 } from 'lucide-react';
 
 const TopMenu: React.FC = () => {
@@ -72,6 +74,10 @@ const TopMenu: React.FC = () => {
         ...(isAdmin ? [
             { to: '/escritorio/admin/usuarios', label: 'Asesores', icon: UserCog },
         ] : []),
+        // Portal Bancario - for admin to access bank portal
+        ...(isAdmin ? [
+            { to: '/bancos/dashboard', label: 'Portal Bancario', icon: Landmark },
+        ] : []),
         // Performance dashboard for sales users
         ...(isSales ? [
             { to: '/escritorio/ventas/performance', label: 'Mi Desempeño', icon: TrendingUp },
@@ -82,6 +88,7 @@ const TopMenu: React.FC = () => {
         { to: '/escritorio/car-studio', label: 'Car Studio', icon: Camera },
         { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: BriefcaseIcon },
         { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: FileText },
+        { to: '/escritorio/admin/bancos', label: 'Aprobar Bancos', icon: Building2 },
         { to: '/escritorio/admin/logs', label: 'Logs', icon: Activity },
         { to: '/changelog', label: 'Registro de Cambios', icon: BookOpen },
     ];

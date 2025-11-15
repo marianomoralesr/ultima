@@ -17,9 +17,13 @@ const AdminBankManagementPage: React.FC = () => {
   const loadBankReps = async () => {
     setLoading(true);
     try {
+      console.log('Loading bank representatives...');
       const data = await BankService.getAllBankReps();
+      console.log('Bank reps loaded:', data.length, 'representatives');
+      console.log('Bank reps data:', data);
       setBankReps(data);
     } catch (err: any) {
+      console.error('Error loading bank reps:', err);
       toast.error(err.message || 'Error al cargar representantes bancarios');
     } finally {
       setLoading(false);

@@ -85,6 +85,8 @@ const AdminBankManagementPage = lazy(() => import('./pages/AdminBankManagementPa
 
 import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
+import BankRoute from './components/BankRoute';
+import BankDashboardLayout from './components/BankDashboardLayout';
 
 function App(): React.JSX.Element {
   // Disabled: Table setup should be done via migrations, not on page load
@@ -208,10 +210,6 @@ function App(): React.JSX.Element {
                   <Route path="ventas/clientes/:id" element={<SalesClientProfilePage />} />
                 </Route>
 
-                {/* Bank portal routes - accessible only to bank reps */}
-                <Route path="bancos/clientes" element={<BankDashboardPage />} />
-                <Route path="bancos/cliente/:id" element={<BankLeadProfilePage />} />
-
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Route>
@@ -221,7 +219,22 @@ function App(): React.JSX.Element {
           <Route element={<PublicRoute />}>
             <Route path="/acceder" element={<AuthPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/bancos" element={<BankLoginPage />} />
+          </Route>
+
+          {/* Bank Portal Login (public) */}
+          <Route path="/bancos" element={<BankLoginPage />} />
+
+          {/* Bank Portal Dashboard (protected) - Separate routing for bank representatives */}
+          <Route element={<BankRoute />}>
+            <Route element={<BankDashboardLayout />}>
+              <Route path="/bancos/dashboard" element={<BankDashboardPage />} />
+              <Route path="/bancos/inventario" element={<BankDashboardPage />} />
+              <Route path="/bancos/pendientes" element={<BankDashboardPage />} />
+              <Route path="/bancos/aprobadas" element={<BankDashboardPage />} />
+              <Route path="/bancos/activas" element={<BankDashboardPage />} />
+              <Route path="/bancos/rechazadas" element={<BankDashboardPage />} />
+              <Route path="/bancos/cliente/:id" element={<BankLeadProfilePage />} />
+            </Route>
           </Route>
         </Routes>
       </Suspense>

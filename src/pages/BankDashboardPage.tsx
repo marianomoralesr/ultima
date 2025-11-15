@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { BankService } from '../services/BankService';
 import { BANKS } from '../types/bank';
 import type { BankRepDashboardStats, BankRepAssignedLead } from '../types/bank';
@@ -15,10 +15,28 @@ const BankDashboardPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  // Set status filter based on route
+  useEffect(() => {
+    if (location.pathname.includes('/pendientes')) {
+      setStatusFilter('pending');
+    } else if (location.pathname.includes('/aprobadas')) {
+      setStatusFilter('approved');
+    } else if (location.pathname.includes('/activas')) {
+      setStatusFilter('feedback_provided');
+    } else if (location.pathname.includes('/rechazadas')) {
+      setStatusFilter('rejected');
+    } else if (location.pathname.includes('/inventario')) {
+      setStatusFilter('all');
+    } else if (location.pathname.includes('/dashboard')) {
+      setStatusFilter('all');
+    }
+  }, [location.pathname]);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -139,43 +157,22 @@ const BankDashboardPage: React.FC = () => {
     );
   }
 
+  const getPageTitle = () => {
+    if (location.pathname.includes('/pendientes')) return 'Solicitudes Pendientes';
+    if (location.pathname.includes('/aprobadas')) return 'Solicitudes Aprobadas';
+    if (location.pathname.includes('/activas')) return 'Solicitudes Activas';
+    if (location.pathname.includes('/rechazadas')) return 'Solicitudes Rechazadas';
+    if (location.pathname.includes('/inventario')) return 'Inventario de Solicitudes';
+    return 'Dashboard';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {bankRepProfile && (
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <span className="text-xl font-bold text-white">
-                      {BANKS[bankRepProfile.bank_affiliation]?.name.charAt(0) || 'B'}
-                    </span>
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold text-gray-900">
-                      Portal {BANKS[bankRepProfile.bank_affiliation]?.name}
-                    </h1>
-                    <p className="text-sm text-gray-600">{bankRepProfile.email}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            <button
-              onClick={async () => {
-                await BankService.updateLoginTracking();
-                navigate('/bancos');
-              }}
-              className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Title */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">{getPageTitle()}</h1>
+        </div>
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
@@ -369,7 +366,7 @@ const BankDashboardPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
-                          onClick={() => navigate(`/escritorio/bancos/cliente/${lead.lead_id}`)}
+                          onClick={() => navigate(`/bancos/cliente/${lead.lead_id}`)}
                           className="text-blue-600 hover:text-blue-900 font-medium"
                         >
                           Ver detalles →

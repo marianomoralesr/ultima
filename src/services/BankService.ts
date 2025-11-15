@@ -267,17 +267,24 @@ export const BankService = {
    * Get all bank representatives (Admin only)
    */
   async getAllBankReps(): Promise<BankRepresentativeProfile[]> {
-    const { data, error } = await supabase
-      .from('bank_representative_profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('bank_representative_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching bank reps:', error);
-      throw new Error('Could not fetch bank representatives');
+      if (error) {
+        console.error('Error fetching bank reps:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        throw new Error(`Could not fetch bank representatives: ${error.message}`);
+      }
+
+      console.log('Fetched bank reps:', data?.length || 0);
+      return data || [];
+    } catch (error: any) {
+      console.error('Exception in getAllBankReps:', error);
+      throw error;
     }
-
-    return data || [];
   },
 
   /**

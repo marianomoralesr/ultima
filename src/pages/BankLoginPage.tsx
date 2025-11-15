@@ -4,6 +4,50 @@ import { supabase } from '../../supabaseClient';
 import { BANKS, type BankName } from '../types/bank';
 import { BankService } from '../services/BankService';
 
+// Bank Logo Component
+const BankLogo: React.FC<{ bankId: BankName }> = ({ bankId }) => {
+  const logos: Record<BankName, string> = {
+    scotiabank: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Scotiabank_Logo.svg/2560px-Scotiabank_Logo.svg.png',
+    bbva: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/BBVA_2019.svg/2560px-BBVA_2019.svg.png',
+    banorte: 'https://seeklogo.com/images/B/banorte-logo-72FE0FC46E-seeklogo.com.png',
+    banregio: 'https://seeklogo.com/images/B/banregio-logo-43F87EE6B8-seeklogo.com.png',
+    afirme: 'https://seeklogo.com/images/B/banca-afirme-logo-4C8E1EC3B9-seeklogo.com.png',
+    hey_banco: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Hey_Banco_logo.svg/2560px-Hey_Banco_logo.svg.png',
+    ban_bajio: 'https://seeklogo.com/images/B/banbajio-logo-05E2144F16-seeklogo.com.png',
+    santander: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Banco_Santander_Logotipo.svg/2560px-Banco_Santander_Logotipo.svg.png',
+    hsbc: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/HSBC_logo_%282018%29.svg/2560px-HSBC_logo_%282018%29.svg.png'
+  };
+
+  const logoUrl = logos[bankId];
+
+  return (
+    <div className="w-20 h-12 flex items-center justify-center">
+      {logoUrl ? (
+        <img
+          src={logoUrl}
+          alt={BANKS[bankId].name}
+          className="max-w-full max-h-full object-contain"
+          onError={(e) => {
+            // Fallback to initial letter if image fails to load
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const fallback = document.createElement('div');
+            fallback.className = 'w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center';
+            fallback.innerHTML = `<span class="text-xl font-bold text-gray-600">${BANKS[bankId].name.charAt(0)}</span>`;
+            target.parentNode?.appendChild(fallback);
+          }}
+        />
+      ) : (
+        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+          <span className="text-xl font-bold text-gray-600">
+            {BANKS[bankId].name.charAt(0)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const BankLoginPage: React.FC = () => {
   const [selectedBank, setSelectedBank] = useState<BankName | null>(null);
   const [email, setEmail] = useState('');
@@ -21,7 +65,7 @@ const BankLoginPage: React.FC = () => {
         try {
           const profile = await BankService.getBankRepProfile();
           if (profile && profile.is_approved) {
-            navigate('/escritorio/bancos/clientes');
+            navigate('/bancos/dashboard');
           } else if (profile && !profile.is_approved) {
             setError('Tu cuenta está pendiente de aprobación por un administrador.');
           }
@@ -133,7 +177,7 @@ const BankLoginPage: React.FC = () => {
           // Update login tracking
           await BankService.updateLoginTracking();
           // Redirect to dashboard
-          navigate('/escritorio/bancos/clientes');
+          navigate('/bancos/dashboard');
         }
       }
     } catch (err: any) {
@@ -220,16 +264,11 @@ const BankLoginPage: React.FC = () => {
                       <button
                         key={bank.id}
                         onClick={() => handleBankSelect(bank.id)}
-                        className="group relative p-6 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all duration-200 bg-white"
+                        className="group relative p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all duration-200 bg-white"
                       >
                         <div className="flex flex-col items-center justify-center h-full">
-                          {/* Placeholder for bank logo - you'll need to add actual logos */}
-                          <div className="w-16 h-16 mb-3 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                            <span className="text-2xl font-bold text-gray-400 group-hover:text-blue-600">
-                              {bank.name.charAt(0)}
-                            </span>
-                          </div>
-                          <span className="text-sm font-semibold text-gray-700 text-center">
+                          <BankLogo bankId={bank.id} />
+                          <span className="text-xs font-semibold text-gray-700 text-center mt-2">
                             {bank.name}
                           </span>
                         </div>

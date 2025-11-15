@@ -115,11 +115,12 @@ const BankLoginPage: React.FC = () => {
 
     try {
       // Validate business email
-      if (!validateBusinessEmail(email)) {
-        setError('Solo se permiten correos corporativos. No se aceptan correos de Gmail, Hotmail, Outlook, Yahoo u otros servicios públicos.');
-        setLoading(false);
-        return;
-      }
+      // COMMENTED OUT FOR TESTING - Re-enable for production
+      // if (!validateBusinessEmail(email)) {
+      //   setError('Solo se permiten correos corporativos. No se aceptan correos de Gmail, Hotmail, Outlook, Yahoo u otros servicios públicos.');
+      //   setLoading(false);
+      //   return;
+      // }
 
       // Check if email exists in bank_representative_profiles
       const { data: existingProfile } = await supabase

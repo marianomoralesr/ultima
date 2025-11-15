@@ -47,7 +47,7 @@ export const SalesService = {
   async getClientProfile(
     clientId: string,
     salesUserId: string
-  ): Promise<{ profile: Profile; applications: any[], tags: any[], reminders: any[], documents: any[] } | null> {
+  ): Promise<{ profile: Profile; applications: any[], tags: any[], reminders: any[], documents: any[], bank_profile: any } | null> {
     const { data, error } = await supabase.rpc('get_sales_client_profile', {
       client_id: clientId,
       sales_user_id: salesUserId
@@ -68,6 +68,7 @@ export const SalesService = {
       tags: data.tags || [],
       reminders: data.reminders || [],
       documents: data.documents || [],
+      bank_profile: data.bank_profile || null,
     };
   },
 

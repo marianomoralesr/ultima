@@ -39,7 +39,7 @@ export const AdminService = {
    * Fetches a single user's complete profile and related data.
    * @param userId The ID of the user to fetch.
    */
-  async getClientProfile(userId: string): Promise<{ profile: Profile; applications: any[], tags: any[], reminders: any[], documents: any[] } | null> {
+  async getClientProfile(userId: string): Promise<{ profile: Profile; applications: any[], tags: any[], reminders: any[], documents: any[], bank_profile: any } | null> {
     const { data, error } = await supabase.rpc('get_secure_client_profile', { client_id: userId });
 
     if (error) {
@@ -57,6 +57,7 @@ export const AdminService = {
         tags: data.tags || [],
         reminders: data.reminders || [],
         documents: data.documents || [],
+        bank_profile: data.bank_profile || null,
     };
   },
 

@@ -63,7 +63,7 @@ const AdminConfigPage = lazy(() => import('./pages/AdminConfigPage'));
 const MarketingHubPage = lazy(() => import('./pages/MarketingHubPage'));
 const AdminComprasDashboardPage = lazy(() => import('./pages/AdminComprasDashboardPage'));
 const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
-const SimpleCRMPage = lazy(() => import('./pages/SimpleCRMPage'));
+const UnifiedCRMPage = lazy(() => import('./pages/UnifiedCRMPage'));
 const MarketingAnalyticsDashboardPage = lazy(() => import('./pages/MarketingAnalyticsDashboardPage'));
 const R2ImageManagerPage = lazy(() => import('./pages/R2ImageManagerPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -83,9 +83,11 @@ import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
 
 function App(): React.JSX.Element {
-  useEffect(() => {
-    ConfigService.setupConfigTable();
-  }, []);
+  // Disabled: Table setup should be done via migrations, not on page load
+  // This was causing timeout errors
+  // useEffect(() => {
+  //   ConfigService.setupConfigTable();
+  // }, []);
 
   const loadingSpinner = (
     <div className="flex justify-center items-center h-screen w-full bg-gray-50">
@@ -166,8 +168,8 @@ function App(): React.JSX.Element {
                 <Route element={<AdminRoute />}>
                   <Route path="admin/dashboard" element={<AdminSalesDashboard />} />
                   <Route path="admin/business-analytics" element={<AdminBusinessAnalyticsDashboard />} />
-                  <Route path="admin/crm" element={<SimpleCRMPage />} />
-                  <Route path="admin/leads" element={<AdminLeadsDashboardPage />} />
+                  <Route path="admin/crm" element={<UnifiedCRMPage userRole="admin" />} />
+                  <Route path="admin/leads" element={<UnifiedCRMPage userRole="admin" />} />
                   <Route path="admin/client/:id" element={<AdminClientProfilePage />} />
                   <Route path="admin/cliente/:id" element={<AdminClientProfilePage />} />
                   <Route path="admin/compras" element={<AdminComprasDashboardPage />} />
@@ -195,8 +197,8 @@ function App(): React.JSX.Element {
                 <Route element={<SalesRoute />}>
                   <Route path="ventas/dashboard" element={<AdminSalesDashboard />} />
                   <Route path="ventas/performance" element={<SalesPerformanceDashboard />} />
-                  <Route path="ventas/crm" element={<SimpleCRMPage />} />
-                  <Route path="ventas/leads" element={<SalesLeadsDashboardPage />} />
+                  <Route path="ventas/crm" element={<UnifiedCRMPage userRole="sales" />} />
+                  <Route path="ventas/leads" element={<UnifiedCRMPage userRole="sales" />} />
                   <Route path="ventas/cliente/:id" element={<SalesClientProfilePage />} />
                   <Route path="ventas/clientes/:id" element={<SalesClientProfilePage />} />
                 </Route>

@@ -87,13 +87,18 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
     // Fetch banking profile data
     useEffect(() => {
         const fetchBankProfile = async () => {
-            if (!application.user_id) return;
+            if (!application.user_id) {
+                console.log('[PrintableApplication] No user_id provided');
+                return;
+            }
 
             try {
+                console.log('[PrintableApplication] Fetching bank profile for user:', application.user_id);
                 const profile = await BankProfilingService.getUserBankProfile(application.user_id);
+                console.log('[PrintableApplication] Bank profile fetched:', profile);
                 setBankProfile(profile);
             } catch (err) {
-                console.error('Error fetching bank profile:', err);
+                console.error('[PrintableApplication] Error fetching bank profile:', err);
             }
         };
 
@@ -248,10 +253,16 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 </div>
 
                 {/* Financing Preferences */}
-                {(appData.loan_term_months || appData.down_payment_amount || appData.estimated_monthly_payment) && (
+                {(appData.loan_term_months || appData.down_payment_amount || appData.estimated_monthly_payment || bankProfile?.banco_recomendado) && (
                     <>
                         <SectionHeader title="Preferencias de Financiamiento" />
                         <div className="grid grid-cols-1 md:grid-cols-2 rounded-b-md overflow-hidden">
+                            {bankProfile?.banco_recomendado && (
+                                <DataRow label="Banco Recomendado" value={bankProfile.banco_recomendado} />
+                            )}
+                            {bankProfile?.banco_segunda_opcion && (
+                                <DataRow label="Banco Segunda Opción" value={bankProfile.banco_segunda_opcion} />
+                            )}
                             <DataRow label="Plazo del Crédito" value={appData.loan_term_months ? `${appData.loan_term_months} meses` : 'N/A'} />
                             <DataRow label="Enganche" value={formatCurrency(appData.down_payment_amount)} />
                             <DataRow label="Mensualidad Estimada" value={formatCurrency(appData.estimated_monthly_payment)} />
@@ -262,18 +273,6 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     </>
                 )}
 
-                {/* Recommended Bank */}
-                {(bankProfile?.banco_recomendado || appData.recommended_bank) && (
-                    <>
-                        <SectionHeader title="Banco Recomendado" />
-                        <div className="rounded-b-md overflow-hidden">
-                            <DataRow label="Institución Financiera" value={bankProfile?.banco_recomendado || appData.recommended_bank} />
-                            {bankProfile?.banco_segunda_opcion && (
-                                <DataRow label="Segunda Opción" value={bankProfile.banco_segunda_opcion} />
-                            )}
-                        </div>
-                    </>
-                )}
 
                 {/* Personal Information */}
                 <SectionHeader title="Información Personal Completa" />

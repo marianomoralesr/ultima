@@ -717,7 +717,7 @@ const SalesClientProfilePage: React.FC = () => {
         );
     }
 
-    const { profile, applications, tags, reminders, documents } = clientData;
+    const { profile, applications, tags, reminders, documents, bank_profile } = clientData;
 
     return (
         <div className="space-y-8">
@@ -762,7 +762,7 @@ const SalesClientProfilePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <BankingProfileSummary applications={applications} />
+                    <BankingProfileSummary bankProfile={bank_profile} />
                     <LeadSourceInfo metadata={profile.metadata} source={profile.source} />
                     <KommoDataDisplay kommoData={profile.kommo_data} lastSynced={profile.kommo_last_synced} />
                     <TagsManager leadId={profile.id} initialTags={tags} salesUserId={user.id} />

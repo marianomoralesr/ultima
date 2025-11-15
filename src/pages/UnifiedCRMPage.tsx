@@ -554,6 +554,9 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                                     </button>
                                 </th>
                                 <th scope="col" className="px-4 py-3">
+                                    Fuente
+                                </th>
+                                <th scope="col" className="px-4 py-3">
                                     <button
                                         onClick={() => handleSort('last_sign_in_at')}
                                         className="flex items-center gap-1 hover:text-primary-600"
@@ -629,6 +632,30 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                                                             </div>
                                                         )}
                                                     </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Fuente */}
+                                            <td className="px-4 py-4">
+                                                <div className="flex flex-col gap-1">
+                                                    {lead.utm_campaign && (
+                                                        <div className="text-xs font-semibold text-primary-700" title="Campaña">
+                                                            {lead.utm_campaign}
+                                                        </div>
+                                                    )}
+                                                    {lead.utm_source && (
+                                                        <div className="text-xs text-gray-600" title="UTM Source">
+                                                            <span className="text-gray-400">utm:</span> {lead.utm_source}
+                                                        </div>
+                                                    )}
+                                                    {lead.source && !lead.utm_source && !lead.utm_campaign && (
+                                                        <div className="text-xs text-gray-700" title="Source">
+                                                            {lead.source}
+                                                        </div>
+                                                    )}
+                                                    {!lead.utm_campaign && !lead.utm_source && !lead.source && (
+                                                        <span className="text-xs text-gray-400">-</span>
+                                                    )}
                                                 </div>
                                             </td>
 
@@ -715,7 +742,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={isAdmin ? 5 : 4} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={isAdmin ? 6 : 5} className="px-6 py-12 text-center text-gray-500">
                                         {searchTerm || filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all'
                                             ? 'No se encontraron leads con los filtros seleccionados.'
                                             : 'No hay leads disponibles.'}

@@ -141,6 +141,7 @@ VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID=$(grep "VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID:" 
 VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID=$(grep "VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_IMAGE_CDN_URL=$(grep "VITE_IMAGE_CDN_URL:" cloud-build-vars.yaml | cut -d'"' -f2)
 VITE_CLOUDFLARE_R2_PUBLIC_URL=$(grep "VITE_CLOUDFLARE_R2_PUBLIC_URL:" cloud-build-vars.yaml | cut -d'"' -f2)
+VITE_BREVO_API_KEY=$(grep "VITE_BREVO_API_KEY:" cloud-build-vars.yaml | cut -d'"' -f2)
 
 # Get git commit hash and build date
 VITE_GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -174,6 +175,7 @@ docker build \
   --build-arg VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID="$VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID" \
   --build-arg VITE_IMAGE_CDN_URL="$VITE_IMAGE_CDN_URL" \
   --build-arg VITE_CLOUDFLARE_R2_PUBLIC_URL="$VITE_CLOUDFLARE_R2_PUBLIC_URL" \
+  --build-arg VITE_BREVO_API_KEY="$VITE_BREVO_API_KEY" \
   -t $IMAGE_URL \
   .
 
@@ -261,6 +263,7 @@ add_env_var "CALENDLY_URL_MTY"
 add_env_var "CALENDLY_URL_TMPS"
 add_env_var "CALENDLY_URL_COAH"
 add_env_var "CALENDLY_URL_GPE"
+add_env_var "VITE_BREVO_API_KEY"
 
 echo "Deploying service: $SERVICE_NAME"
 echo "Region: $REGION"

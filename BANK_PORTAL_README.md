@@ -70,15 +70,40 @@ Tracks all status changes for applications.
 
 ### 1. Apply Database Migration
 
-First, apply the database migration to create all necessary tables and functions:
+**IMPORTANT**: The migration SQL file is located at `supabase/migrations/20251115_bank_portal_infrastructure.sql` but is gitignored (*.sql files are not tracked). You need to apply it manually to your database.
 
+#### Option A: Via Supabase Dashboard (Recommended)
+1. Go to your Supabase project dashboard
+2. Navigate to **SQL Editor**
+3. Open the file `supabase/migrations/20251115_bank_portal_infrastructure.sql` from your local project
+4. Copy and paste the entire SQL content
+5. Click **Run** to execute
+
+#### Option B: Via Supabase CLI
 ```bash
-# Navigate to Supabase migrations directory
-cd supabase/migrations
+# Make sure you're in the project root
+cd /path/to/ultima
 
-# Apply the migration (via Supabase CLI or dashboard)
+# Run the migration
 supabase db push
 ```
+
+#### Option C: Via psql (if you have direct database access)
+```bash
+psql $DATABASE_URL -f supabase/migrations/20251115_bank_portal_infrastructure.sql
+```
+
+#### What the migration does:
+- **Extends** `bank_profiles` table with `score` and `risk_level` columns
+- **Adds** `bank_rep` role to `user_role` enum
+- **Creates** `bank_name` enum type (scotiabank, bbva, banregio, etc.)
+- **Creates** `bank_representative_profiles` table
+- **Creates** `lead_bank_assignments` table for tracking assignments
+- **Creates** `bank_feedback` table for bank-to-sales communication
+- **Creates** `application_status_history` table for audit trail
+- **Sets up** Row Level Security (RLS) policies
+- **Creates** RPC functions for secure data access
+- **Adds** database indexes for query performance
 
 ### 2. Integrating SendToBankButton in Sales Pages
 

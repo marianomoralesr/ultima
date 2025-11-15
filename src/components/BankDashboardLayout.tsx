@@ -13,10 +13,14 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import BankPINSetup from './BankPINSetup';
+import BankOnboarding from './BankOnboarding';
 
 const BankDashboardLayout: React.FC = () => {
   const [bankRepProfile, setBankRepProfile] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showPINSetup, setShowPINSetup] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,9 +32,33 @@ const BankDashboardLayout: React.FC = () => {
     try {
       const profile = await BankService.getBankRepProfile();
       setBankRepProfile(profile);
+
+      // Check if PIN is set
+      if (profile && !profile.pin_hash) {
+        setShowPINSetup(true);
+      }
+      // Check if onboarding is completed
+      else if (profile && !profile.has_completed_onboarding) {
+        setShowOnboarding(true);
+      }
     } catch (error) {
       console.error('Error loading bank rep profile:', error);
     }
+  };
+
+  const handlePINSet = async () => {
+    setShowPINSetup(false);
+    // Reload profile to get updated data
+    const profile = await BankService.getBankRepProfile();
+    setBankRepProfile(profile);
+    // Show onboarding after PIN is set
+    if (!profile.has_completed_onboarding) {
+      setShowOnboarding(true);
+    }
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
   };
 
   const handleLogout = async () => {
@@ -205,6 +233,12 @@ const BankDashboardLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* PIN Setup Modal */}
+      {showPINSetup && <BankPINSetup onPINSet={handlePINSet} />}
+
+      {/* Onboarding Modal */}
+      {showOnboarding && <BankOnboarding onComplete={handleOnboardingComplete} />}
     </div>
   );
 };

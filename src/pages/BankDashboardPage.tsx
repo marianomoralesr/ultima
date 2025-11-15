@@ -5,6 +5,9 @@ import { BANKS } from '../types/bank';
 import type { BankRepDashboardStats, BankRepAssignedLead } from '../types/bank';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Download } from 'lucide-react';
+import { toast } from 'sonner';
+import BankPINVerify from '../components/BankPINVerify';
 
 const BankDashboardPage: React.FC = () => {
   const [stats, setStats] = useState<BankRepDashboardStats | null>(null);
@@ -14,6 +17,8 @@ const BankDashboardPage: React.FC = () => {
   const [bankRepProfile, setBankRepProfile] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [showPINVerify, setShowPINVerify] = useState(false);
+  const [pendingDownloadLead, setPendingDownloadLead] = useState<BankRepAssignedLead | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -164,6 +169,37 @@ const BankDashboardPage: React.FC = () => {
     if (location.pathname.includes('/rechazadas')) return 'Solicitudes Rechazadas';
     if (location.pathname.includes('/inventario')) return 'Inventario de Solicitudes';
     return 'Dashboard';
+  };
+
+  const handleDownloadClick = (lead: BankRepAssignedLead) => {
+    setPendingDownloadLead(lead);
+    setShowPINVerify(true);
+  };
+
+  const handlePINVerified = async () => {
+    setShowPINVerify(false);
+
+    if (!pendingDownloadLead) return;
+
+    try {
+      toast.loading('Descargando documentos...');
+      await BankService.downloadAllDocuments(
+        pendingDownloadLead.lead_id,
+        pendingDownloadLead.application_id
+      );
+      toast.dismiss();
+      toast.success('Documentos descargados exitosamente');
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message || 'Error al descargar documentos');
+    } finally {
+      setPendingDownloadLead(null);
+    }
+  };
+
+  const handlePINCancel = () => {
+    setShowPINVerify(false);
+    setPendingDownloadLead(null);
   };
 
   return (
@@ -365,12 +401,21 @@ const BankDashboardPage: React.FC = () => {
                         {getTimeAgo(lead.hours_since_received)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button
-                          onClick={() => navigate(`/bancos/cliente/${lead.lead_id}`)}
-                          className="text-blue-600 hover:text-blue-900 font-medium"
-                        >
-                          Ver detalles →
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDownloadClick(lead)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Descargar documentos"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => navigate(`/bancos/cliente/${lead.lead_id}`)}
+                            className="text-blue-600 hover:text-blue-900 font-medium"
+                          >
+                            Ver detalles →
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -379,6 +424,15 @@ const BankDashboardPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* PIN Verification Modal */}
+        {showPINVerify && (
+          <BankPINVerify
+            onVerified={handlePINVerified}
+            onCancel={handlePINCancel}
+            action="Descargar documentos de la solicitud"
+          />
+        )}
       </div>
     </div>
   );

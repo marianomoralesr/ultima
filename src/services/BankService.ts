@@ -254,12 +254,39 @@ export const BankService = {
 
   /**
    * Download all documents for a lead as a zip
-   * (This would require a backend function to zip files)
    */
-  async downloadAllDocuments(leadId: string): Promise<Blob> {
-    // This would call a backend function that zips all documents
-    // For now, we'll throw an error indicating this needs to be implemented
-    throw new Error('Bulk download not yet implemented - download documents individually');
+  async downloadAllDocuments(leadId: string, applicationId: string | null): Promise<void> {
+    try {
+      // Get all documents for the application
+      const { data: documents, error } = await supabase
+        .from('application_documents')
+        .select('*')
+        .eq('lead_id', leadId);
+
+      if (error) {
+        throw new Error('Could not fetch documents');
+      }
+
+      if (!documents || documents.length === 0) {
+        throw new Error('No documents found for this application');
+      }
+
+      // For now, download documents individually
+      // In production, you would use a backend function to create a ZIP
+      for (const doc of documents) {
+        if (doc.file_path) {
+          const signedUrl = await this.getDocumentSignedUrl(doc.file_path);
+          // Open each document in a new window/tab
+          window.open(signedUrl, '_blank');
+        }
+      }
+
+      // TODO: Implement proper ZIP download using Edge Function
+      console.log('Downloaded', documents.length, 'documents for lead', leadId);
+    } catch (error) {
+      console.error('Error downloading documents:', error);
+      throw error;
+    }
   },
 
   // Admin functions
@@ -414,6 +441,91 @@ export const BankService = {
     if (error) {
       console.error('Error marking feedback as read:', error);
       throw new Error('Could not mark feedback as read');
+    }
+  },
+
+  /**
+   * Set PIN for bank representative
+   */
+  async setPIN(pin: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Simple hash using Web Crypto API (in production, use proper bcrypt)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin + user.id); // Use user ID as salt
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const { error } = await supabase
+      .from('bank_representative_profiles')
+      .update({
+        pin_hash: hashHex,
+        pin_salt: user.id,
+        pin_set_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error setting PIN:', error);
+      throw new Error('Could not set PIN');
+    }
+  },
+
+  /**
+   * Verify PIN for bank representative
+   */
+  async verifyPIN(pin: string): Promise<boolean> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    const { data: profile, error } = await supabase
+      .from('bank_representative_profiles')
+      .select('pin_hash, pin_salt')
+      .eq('id', user.id)
+      .single();
+
+    if (error || !profile || !profile.pin_hash) {
+      throw new Error('PIN not set');
+    }
+
+    // Hash the provided PIN with the same method
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin + profile.pin_salt);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    return hashHex === profile.pin_hash;
+  },
+
+  /**
+   * Mark onboarding as completed
+   */
+  async completeOnboarding(): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    const { error } = await supabase
+      .from('bank_representative_profiles')
+      .update({
+        has_completed_onboarding: true
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error completing onboarding:', error);
+      throw new Error('Could not complete onboarding');
     }
   }
 };

@@ -83,6 +83,29 @@ const BankLoginPage: React.FC = () => {
     setError(null);
   };
 
+  const validateBusinessEmail = (email: string): boolean => {
+    const publicDomains = [
+      'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'yahoo.es',
+      'live.com', 'icloud.com', 'protonmail.com', 'aol.com', 'mail.com',
+      'gmx.com', 'yandex.com', 'zoho.com'
+    ];
+
+    const emailDomain = email.toLowerCase().split('@')[1];
+
+    // Allow autostrefa.mx emails
+    if (emailDomain === 'autostrefa.mx') {
+      return true;
+    }
+
+    // Reject public email domains
+    if (publicDomains.includes(emailDomain)) {
+      return false;
+    }
+
+    // Accept all other domains (business emails)
+    return true;
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !selectedBank) return;
@@ -91,6 +114,13 @@ const BankLoginPage: React.FC = () => {
     setError(null);
 
     try {
+      // Validate business email
+      if (!validateBusinessEmail(email)) {
+        setError('Solo se permiten correos corporativos. No se aceptan correos de Gmail, Hotmail, Outlook, Yahoo u otros servicios públicos.');
+        setLoading(false);
+        return;
+      }
+
       // Check if email exists in bank_representative_profiles
       const { data: existingProfile } = await supabase
         .from('bank_representative_profiles')

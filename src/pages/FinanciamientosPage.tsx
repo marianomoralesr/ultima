@@ -168,9 +168,9 @@ const HorizontalSlider: React.FC<{ vehicles: Vehicle[]; urlParams?: string }> = 
 
 const FinanciamientosPage: React.FC = () => {
   useSEO({
-    title: 'Financiamiento Ideal para tu Auto en 24 Horas | TREFA',
-    description: 'Conectamos tu perfil con el banco que ofrece la mejor tasa de interés. Financiamiento digital rápido, seguro y sin complicaciones. Respuesta en 24 horas o menos.',
-    keywords: 'financiamiento automotriz, crédito para auto, préstamo para coche, TREFA, financiamiento en 24 horas, mejor tasa de interés'
+    title: 'Financiamiento Ideal para tu Auto en 24h | TREFA',
+    description: 'Conectamos tu perfil con el banco que ofrece la mejor tasa de interés. Financiamiento digital rápido, seguro y sin complicaciones. Respuesta en 24h o menos.',
+    keywords: 'financiamiento automotriz, crédito para auto, préstamo para coche, TREFA, financiamiento en 24h, mejor tasa de interés'
   });
 
   const [searchParams] = useSearchParams();
@@ -678,7 +678,7 @@ const FinanciamientosPage: React.FC = () => {
           </h1>
 
           <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-            Te contactaremos en las próximas 24 horas con las mejores opciones de financiamiento para tu auto.
+            Te contactaremos en las próximas 24h con las mejores opciones de financiamiento para tu auto.
           </p>
 
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -730,7 +730,7 @@ const FinanciamientosPage: React.FC = () => {
             <img
               src="/images/trefalogo.png"
               alt="TREFA Logo"
-              className="h-8 sm:h-10 md:h-12 w-auto"
+              className="h-6 sm:h-10 md:h-12 w-auto"
             />
           </motion.div>
 
@@ -740,15 +740,15 @@ const FinanciamientosPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-3 sm:mb-4 px-4 tracking-tight leading-[0.95]"
+              className="text-5xl sm:text-6xl md:text-6xl lg:text-7xl font-black mb-3 sm:mb-4 px-4 tracking-tight leading-[0.95]"
               style={{ fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 900, letterSpacing: '-0.02em' }}
             >
               <span className="inline text-gray-900">
-                Estrena un auto seminuevo en 24 horas.{' '}
+                Estrena un auto seminuevo en{' '}
               </span>
               <span className="inline">
                 <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">
-                  Desde aquí es posible.
+                  menos de 24h
                 </span>
               </span>
             </motion.h1>
@@ -757,8 +757,8 @@ const FinanciamientosPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-              className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-[1.2] mt-2 mb-8 sm:mb-10 font-normal px-4"
-              style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}
+              className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed mt-2 mb-8 sm:mb-10 font-normal px-4"
+              style={{ fontFamily: "'Be Vietnam Pro', sans-serif", letterSpacing: 'normal' }}
             >
               Enviamos tu solicitud al banco con la mayor probabilidad de aprobar tu crédito automotriz.
             </motion.p>
@@ -773,6 +773,18 @@ const FinanciamientosPage: React.FC = () => {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
               className="relative"
             >
+              {/* Paso 1 Label */}
+              <div className="mb-4 text-center lg:text-left">
+                <div className="inline-block bg-gradient-to-r from-primary/10 via-orange-500/10 to-yellow-500/10 border-2 border-primary/20 rounded-xl px-6 py-3 shadow-md">
+                  <h3 className="text-xl md:text-2xl font-black" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
+                    <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">
+                      Paso 1:
+                    </span>
+                    <span className="text-gray-900"> Mira este corto video</span>
+                  </h3>
+                </div>
+              </div>
+
               {/* Animated Gradient Border Container */}
               <div className="relative p-[3px] rounded-xl bg-gradient-to-r from-primary via-orange-500 to-yellow-500 bg-[length:200%_200%] animate-shimmer shadow-2xl">
                 <div className="relative bg-white rounded-xl p-2">
@@ -798,12 +810,21 @@ const FinanciamientosPage: React.FC = () => {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
               className="relative"
             >
+              {/* Paso 2 Label */}
+              <div className="mb-4 text-center lg:text-left">
+                <div className="inline-block bg-gradient-to-r from-primary/10 via-orange-500/10 to-yellow-500/10 border-2 border-primary/20 rounded-xl px-6 py-3 shadow-md">
+                  <h3 className="text-xl md:text-2xl font-black" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
+                    <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">
+                      Paso 2:
+                    </span>
+                    <span className="text-gray-900"> Regístrate sin costo</span>
+                  </h3>
+                </div>
+              </div>
+
               <div className="backdrop-blur-xl bg-white/90 border-2 border-white/60 rounded-2xl p-5 sm:p-8 md:p-10 shadow-2xl">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4" id="registration-form">
                   <div className="text-center mb-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
-                      Regístrate en segundos
-                    </h2>
                     <p className="text-primary font-normal text-sm sm:text-base">
                       Sin compromiso de compra ni pagos por adelantado
                     </p>
@@ -1029,7 +1050,7 @@ const FinanciamientosPage: React.FC = () => {
                   <Check className="w-5 h-5 text-white" />
                 </div>
                 <p className="text-lg text-gray-700 leading-relaxed font-normal">
-                  Llena tu solicitud desde tu celular en pocos minutos y recibe una respuesta en 24 horas o menos.
+                  Llena tu solicitud desde tu celular en pocos minutos y recibe una respuesta en 24h o menos.
                 </p>
               </div>
 
@@ -1420,7 +1441,7 @@ const FinanciamientosPage: React.FC = () => {
             </motion.div>
 
             <p className="text-sm text-white/90 pt-4 font-normal">
-              Financiamiento disponible • Garantía incluida • Inspección de 150 puntos • Respuesta en 24 horas
+              Financiamiento disponible • Garantía incluida • Inspección de 150 puntos • Respuesta en 24h
             </p>
           </div>
         </div>

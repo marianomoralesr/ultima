@@ -194,22 +194,16 @@ const BankLoginPage: React.FC = () => {
             last_name: '',
             bank_affiliation: selectedBank
           });
-          setError('Cuenta creada. Pendiente de aprobación por un administrador.');
         } catch (createError: any) {
-          setError('Cuenta creada. Completa tu perfil y espera aprobación del administrador.');
+          console.error('Error creating bank rep profile:', createError);
         }
+        // Redirect to dashboard regardless - user will see pending approval message there
+        navigate('/bancos/dashboard');
       } else {
-        // Check if approved
-        if (!existingProfile.is_approved) {
-          setError('Tu cuenta está pendiente de aprobación por un administrador.');
-        } else if (!existingProfile.is_active) {
-          setError('Tu cuenta ha sido desactivada. Contacta al administrador.');
-        } else {
-          // Update login tracking
-          await BankService.updateLoginTracking();
-          // Redirect to dashboard
-          navigate('/bancos/dashboard');
-        }
+        // Profile exists, redirect to dashboard
+        // Approval check will happen in BankRoute component
+        await BankService.updateLoginTracking();
+        navigate('/bancos/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Código incorrecto. Inténtalo de nuevo.');

@@ -78,6 +78,10 @@ const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
 const AdminSalesDashboard = lazy(() => import('./pages/AdminSalesDashboard'));
 const AdminLogsPage = lazy(() => import('./pages/AdminLogsPage'));
 const AdminBusinessAnalyticsDashboard = lazy(() => import('./pages/AdminBusinessAnalyticsDashboard'));
+const BankLoginPage = lazy(() => import('./pages/BankLoginPage'));
+const BankDashboardPage = lazy(() => import('./pages/BankDashboardPage'));
+const BankLeadProfilePage = lazy(() => import('./pages/BankLeadProfilePage'));
+const AdminBankManagementPage = lazy(() => import('./pages/AdminBankManagementPage'));
 
 import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
@@ -188,6 +192,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/marketing-config" element={<MarketingConfigPage />} />
                   <Route path="admin/marketing-analytics" element={<MarketingAnalyticsDashboardPage />} />
                   <Route path="admin/r2-images" element={<R2ImageManagerPage />} />
+                  <Route path="admin/bancos" element={<AdminBankManagementPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />
                   <Route path="marketing/constructor" element={<ConstructorPage />} />
                   <Route path="car-studio" element={<CarStudioPage />} />
@@ -203,6 +208,10 @@ function App(): React.JSX.Element {
                   <Route path="ventas/clientes/:id" element={<SalesClientProfilePage />} />
                 </Route>
 
+                {/* Bank portal routes - accessible only to bank reps */}
+                <Route path="bancos/clientes" element={<BankDashboardPage />} />
+                <Route path="bancos/cliente/:id" element={<BankLeadProfilePage />} />
+
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Route>
@@ -212,6 +221,7 @@ function App(): React.JSX.Element {
           <Route element={<PublicRoute />}>
             <Route path="/acceder" element={<AuthPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/bancos" element={<BankLoginPage />} />
           </Route>
         </Routes>
       </Suspense>

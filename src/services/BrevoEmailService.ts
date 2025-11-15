@@ -280,5 +280,138 @@ export const BrevoEmailService = {
                 expiresIn: '15 minutos'
             }
         });
+    },
+
+    /**
+     * Notify bank representative about new assigned application
+     */
+    async notifyBankRepNewAssignment(
+        bankRepEmail: string,
+        bankRepName: string,
+        bankName: string,
+        clientName: string,
+        clientEmail: string,
+        vehicleTitle: string | null,
+        leadId: string
+    ): Promise<boolean> {
+        const leadUrl = `${window.location.origin}/escritorio/bancos/cliente/${leadId}`;
+
+        return this.sendEmail({
+            to: bankRepEmail,
+            toName: bankRepName,
+            subject: `🏦 Nueva Solicitud Asignada - ${bankName}`,
+            templateType: 'admin_notification' as any,
+            templateData: {
+                clientName,
+                clientEmail,
+                vehicleTitle: vehicleTitle || 'No especificado',
+                bankName,
+                submittedAt: new Date().toISOString(),
+                adminProfileUrl: leadUrl,
+                message: `Se te ha asignado una nueva solicitud de financiamiento. Por favor, revisa los detalles y documentos del cliente.`
+            }
+        });
+    },
+
+    /**
+     * Notify sales advisor about bank status update
+     */
+    async notifySalesAboutBankUpdate(
+        salesEmail: string,
+        salesName: string,
+        clientName: string,
+        bankName: string,
+        newStatus: string,
+        feedback: string | null,
+        leadId: string
+    ): Promise<boolean> {
+        const leadUrl = `${window.location.origin}/escritorio/ventas/cliente/${leadId}`;
+
+        return this.sendEmail({
+            to: salesEmail,
+            toName: salesName,
+            subject: `🏦 Actualización de ${bankName} - ${clientName}`,
+            templateType: 'admin_notification' as any,
+            templateData: {
+                clientName,
+                bankName,
+                newStatus,
+                feedback: feedback || 'Sin comentarios adicionales',
+                adminProfileUrl: leadUrl,
+                message: `El banco ${bankName} ha actualizado el estado de la solicitud de ${clientName} a: ${newStatus}.${feedback ? ` Comentarios: ${feedback}` : ''}`
+            }
+        });
+    },
+
+    /**
+     * Notify client about application status update from bank
+     */
+    async notifyClientBankDecision(
+        clientEmail: string,
+        clientName: string,
+        bankName: string,
+        decision: 'approved' | 'rejected' | 'pending_docs',
+        vehicleTitle: string | null,
+        applicationId: string
+    ): Promise<boolean> {
+        const statusUrl = `${window.location.origin}/escritorio/seguimiento/${applicationId}`;
+
+        const subjects = {
+            approved: `🎉 ¡Solicitud Aprobada por ${bankName}!`,
+            rejected: `📋 Actualización de tu Solicitud - ${bankName}`,
+            pending_docs: `📄 Documentos Adicionales Requeridos - ${bankName}`
+        };
+
+        const messages = {
+            approved: `¡Felicidades! Tu solicitud de financiamiento ha sido aprobada por ${bankName}. Nuestro equipo se pondrá en contacto contigo para los siguientes pasos.`,
+            rejected: `Lamentamos informarte que ${bankName} no pudo aprobar tu solicitud en este momento. Sin embargo, nuestro equipo trabajará contigo para explorar otras opciones.`,
+            pending_docs: `${bankName} requiere documentos adicionales para procesar tu solicitud. Por favor, revisa los detalles en tu portal y carga los documentos necesarios.`
+        };
+
+        return this.sendEmail({
+            to: clientEmail,
+            toName: clientName,
+            subject: subjects[decision],
+            templateType: 'status_changed',
+            templateData: {
+                clientName,
+                vehicleTitle,
+                bankName,
+                decision,
+                message: messages[decision],
+                statusUrl
+            }
+        });
+    },
+
+    /**
+     * Notify admins about new bank representative registration
+     */
+    async notifyAdminsNewBankRep(
+        bankRepName: string,
+        bankRepEmail: string,
+        bankName: string
+    ): Promise<boolean> {
+        const adminUrl = `${window.location.origin}/escritorio/admin/bancos`;
+
+        const promises = ADMIN_EMAILS.map(adminEmail =>
+            this.sendEmail({
+                to: adminEmail,
+                toName: 'Administrador TREFA',
+                subject: `🏦 Nuevo Representante Bancario Registrado - ${bankName}`,
+                templateType: 'admin_notification' as any,
+                templateData: {
+                    bankRepName,
+                    bankRepEmail,
+                    bankName,
+                    submittedAt: new Date().toISOString(),
+                    adminProfileUrl: adminUrl,
+                    message: `Un nuevo representante de ${bankName} se ha registrado y está pendiente de aprobación.`
+                }
+            })
+        );
+
+        const results = await Promise.all(promises);
+        return results.every(result => result === true);
     }
 };

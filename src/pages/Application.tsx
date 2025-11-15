@@ -631,16 +631,25 @@ const Application: React.FC = () => {
                                     <MissingFields errors={form.formState.errors} />
                                 )}
                                 
-                                <div className="mt-8 flex justify-between">
-                                    <button type="button" onClick={handlePrev} disabled={currentStep === 0} className="flex items-center gap-2 px-6 py-2.5 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"><ArrowLeft className="w-4 h-4" /> Anterior</button>
-                                    {currentStep < steps.length - 1 ? (
-                                        <button type="button" onClick={handleNext} className="flex items-center gap-2 px-6 py-2.5 font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-700">Siguiente <ArrowRight className="w-4 h-4" /></button>
-                                    ) : (
-                                        <button type="submit" disabled={isSubmitDisabled} className="flex items-center gap-2 px-6 py-2.5 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
-                                            {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                            {form.formState.isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
+                                <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
+                                    <button type="button" onClick={handlePrev} disabled={currentStep === 0} className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"><ArrowLeft className="w-4 h-4" /> Anterior</button>
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/escritorio')}
+                                            className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-primary-700 bg-primary-50 border-2 border-primary-200 rounded-lg hover:bg-primary-100"
+                                        >
+                                            Guardar y continuar después
                                         </button>
-                                    )}
+                                        {currentStep < steps.length - 1 ? (
+                                            <button type="button" onClick={handleNext} className="flex items-center justify-center gap-2 px-6 py-2.5 font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-700">Siguiente <ArrowRight className="w-4 h-4" /></button>
+                                        ) : (
+                                            <button type="submit" disabled={isSubmitDisabled} className="flex items-center justify-center gap-2 px-6 py-2.5 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
+                                                {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                                {form.formState.isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </form>
                         </div>

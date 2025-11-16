@@ -228,6 +228,17 @@ const Application: React.FC = () => {
         loadOrCreateDraft();
     }, [pageStatus, user, applicationIdFromUrl, vehicles, reset, searchParams, setValue, navigate, applicationData]);
 
+    // Track ComienzaSolicitud event when user reaches application page
+    useEffect(() => {
+        if (applicationId && user) {
+            conversionTracking.trackApplication.started({
+                userId: user.id,
+                applicationId: applicationId,
+                vehicleId: vehicleInfo?._ordenCompra || undefined
+            });
+        }
+    }, [applicationId, user, vehicleInfo]);
+
     const handleVehicleSelect = async (vehicle: WordPressVehicle) => {
         if (!applicationId) return;
         const featureImage = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;

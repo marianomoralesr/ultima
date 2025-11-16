@@ -39,6 +39,9 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const AdminInspectionsListPage = lazy(() => import('./pages/AdminInspectionsListPage'));
 const VisitasPage = lazy(() => import('./pages/VisitasPage'));
 const SurveyPage = lazy(() => import('./pages/SurveyPage'));
+const AnonymousSurveyPage = lazy(() => import('./pages/AnonymousSurveyPage'));
+const SurveyAnalyticsDashboard = lazy(() => import('./pages/SurveyAnalyticsDashboard'));
+const UnifiedTrackingDashboard = lazy(() => import('./pages/UnifiedTrackingDashboard'));
 const KitTrefaPage = lazy(() => import('./pages/KitTrefaPage'));
 const CarStudioPage = lazy(() => import('./pages/CarStudioPage'));
 const ChangelogPage = lazy(() => import('./pages/ChangelogPage'));
@@ -142,6 +145,7 @@ function App(): React.JSX.Element {
               <Route path="intel" element={<IntelPage />} />
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
+              <Route path="encuesta-anonima" element={<AnonymousSurveyPage />} />
               <Route path="landing" element={<LandingPage />} />
               {/* Dynamic landing pages - must be before the * route */}
               <Route path=":slug" element={<DynamicLandingPage />} />
@@ -193,6 +197,8 @@ function App(): React.JSX.Element {
                   <Route path="admin/marketing" element={<MarketingHubPage />} />
                   <Route path="admin/marketing-config" element={<MarketingConfigPage />} />
                   <Route path="admin/marketing-analytics" element={<MarketingAnalyticsDashboardPage />} />
+                  <Route path="admin/survey-analytics" element={<SurveyAnalyticsDashboard />} />
+                  <Route path="admin/tracking-analytics" element={<UnifiedTrackingDashboard />} />
                   <Route path="admin/r2-images" element={<R2ImageManagerPage />} />
                   <Route path="admin/bancos" element={<AdminBankManagementPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />

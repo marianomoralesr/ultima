@@ -54,6 +54,11 @@ const accountNavLinks = [
     { name: 'Mi Perfil', to: '/escritorio/profile', authRequired: true, icon: UserIcon },
 ];
 
+const toolsNavLinks = [
+    { name: 'Marketing Hub', to: '/escritorio/admin/marketing', authRequired: true, adminRequired: true, icon: LayoutDashboardIcon },
+    { name: 'Survey Analytics', to: '/escritorio/admin/survey-analytics', authRequired: true, adminRequired: true, icon: FileTextIcon },
+];
+
 
 const HelpWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const handleContactClick = (e: React.MouseEvent) => {
@@ -188,6 +193,12 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
         return true;
     });
 
+    const visibleToolsLinks = toolsNavLinks.filter(link => {
+        if (!link.authRequired || !session) return false;
+        if (link.adminRequired && !isAdmin) return false;
+        return true;
+    });
+
     if (!isOpen || !triggerRef.current) return null;
 
     return (
@@ -224,6 +235,19 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                                     </button>
                                 ))}
                             </nav>
+                             {visibleToolsLinks.length > 0 && (
+                                <>
+                                    <h2 className="font-semibold text-gray-800 mb-4 mt-8">Herramientas</h2>
+                                    <nav className="space-y-1">
+                                        {visibleToolsLinks.map(link => (
+                                            <button key={link.name} onClick={() => handleLinkClick(link.to, link.authRequired)} className="text-sm w-full text-left p-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3">
+                                                {link.icon && <link.icon className="w-5 h-5 text-primary-600" />}
+                                                <span>{link.name}</span>
+                                            </button>
+                                        ))}
+                                    </nav>
+                                </>
+                            )}
                         </div>
                         {/* Column 2: Carrocería */}
                         <div>

@@ -130,7 +130,7 @@ const Header: React.FC = () => {
                     <Link
                       to="/acceder"
                       data-gtm-id="header-login-button"
-                      className="hidden lg:block text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg text-white shadow-sm hover:shadow-md bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 transform-gpu active:scale-95"
+                      className="hidden lg:block text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
                     >
                       Iniciar Sesión
                     </Link>

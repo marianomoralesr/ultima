@@ -39,6 +39,7 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const AdminInspectionsListPage = lazy(() => import('./pages/AdminInspectionsListPage'));
 const VisitasPage = lazy(() => import('./pages/VisitasPage'));
 const SurveyPage = lazy(() => import('./pages/SurveyPage'));
+const AnonymousSurveyPage = lazy(() => import('./pages/AnonymousSurveyPage'));
 const KitTrefaPage = lazy(() => import('./pages/KitTrefaPage'));
 const CarStudioPage = lazy(() => import('./pages/CarStudioPage'));
 const ChangelogPage = lazy(() => import('./pages/ChangelogPage'));
@@ -142,6 +143,7 @@ function App(): React.JSX.Element {
               <Route path="intel" element={<IntelPage />} />
               <Route path="conocenos" element={<AboutPage />} />
               <Route path="contacto" element={<ContactPage />} />
+              <Route path="encuesta-anonima" element={<AnonymousSurveyPage />} />
               <Route path="landing" element={<LandingPage />} />
               {/* Dynamic landing pages - must be before the * route */}
               <Route path=":slug" element={<DynamicLandingPage />} />

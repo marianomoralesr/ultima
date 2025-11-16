@@ -163,28 +163,28 @@ export default function AdminBusinessAnalyticsDashboard() {
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+            <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-10 shadow-lg">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">
+                            <h1 className="text-2xl font-bold text-white">
                                 Datos
                             </h1>
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-gray-300 mt-1">
                                 Análisis de vehículos, ventas y tendencias de mercado
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-right">
-                                <p className="text-xs text-gray-500">Última actualización</p>
-                                <p className="text-sm font-medium text-gray-700">
+                                <p className="text-xs text-gray-400">Última actualización</p>
+                                <p className="text-sm font-medium text-white">
                                     {lastUpdated.toLocaleTimeString('es-MX')}
                                 </p>
                             </div>
                             <button
                                 onClick={() => loadBusinessData(true)}
                                 disabled={refreshing}
-                                className="p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 disabled:opacity-50"
+                                className="p-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
                                 title="Actualizar datos"
                             >
                                 <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />

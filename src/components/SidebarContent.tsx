@@ -17,6 +17,7 @@ import {
     LogOut,
     Building2,
     Settings,
+    Car,
     ChevronLeft,
     ChevronRight,
     Users,
@@ -83,15 +84,14 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         ...(!isAdmin && !isSales ? [
             { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true }
         ] : []),
-        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
-        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart },
-        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
-        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2 },
+        { to: '/escritorio/profile', label: 'Perfil', icon: User },
+        { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
+        { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText },
         { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon },
         { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: DollarSign },
-        { to: '/escritorio/autos', label: 'Inventario', icon: Grid3x3 },
+        { to: '/escritorio/autos', label: 'Inventario', icon: Car },
         // Help/FAQ for everyone at the end
-        { to: '/faq', label: 'Ayuda', icon: HelpCircle },
+        { to: '/faq', label: 'FAQs', icon: HelpCircle },
     ];
 
     const userRoleText = isAdmin ? 'Administrador' : isSales ? 'Ventas' : 'Usuario';
@@ -111,7 +111,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                             to={item.to}
                             end={item.end}
                             className={({ isActive }) =>
-                                `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
+                                `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-base font-medium ${
                                     isActive
                                         ? 'bg-primary-100 text-primary-700'
                                         : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
@@ -156,7 +156,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                         <NavLink
                             to="/escritorio/encuesta"
                             className={({ isActive }) =>
-                                `flex items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                                `flex items-center px-3 py-2.5 rounded-lg transition-colors text-base font-medium ${
                                     isActive
                                         ? 'bg-primary-100 text-primary-700'
                                         : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
@@ -164,7 +164,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                             }
                         >
                             <ListChecks className={`w-5 h-5 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
-                            <span className={`transition-opacity duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Encuesta de Mejora</span>
+                            <span className={`transition-opacity duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Encuesta</span>
                         </NavLink>
                     </div>
                 )}

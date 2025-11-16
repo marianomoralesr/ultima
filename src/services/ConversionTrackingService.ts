@@ -167,12 +167,17 @@ class ConversionTrackingService {
    */
   trackApplication = {
     /**
-     * Track when user starts application
+     * Track when user starts application - ComienzaSolicitud
+     * Página: /escritorio/aplicacion
+     * Cuándo: Usuario llega a la página de aplicación
      */
     started: (metadata: ConversionMetadata = {}): void => {
-      marketingEvents.trackEvent('application_started', 'Application Started', {
+      this.track('ComienzaSolicitud', 'Comienza Solicitud', {
         ...metadata,
-        applicationStage: 'started'
+        page: '/escritorio/aplicacion',
+        applicationStage: 'started',
+        content_name: 'Comienza Solicitud',
+        status: 'started'
       });
     },
 

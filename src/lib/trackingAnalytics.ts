@@ -24,7 +24,7 @@ import { format, parseISO, startOfDay, subDays, differenceInDays, addDays } from
  * 1. ViewPage - User views /financiamientos landing page
  * 2. ConversionLandingPage - User registers via landing page form
  * 3. PersonalInformationComplete - User completes personal information
- * 4. ComienzaSolicitud - User starts application (views application page)
+ * 4. ComienzaSolicitud - User starts application (reaches application page)
  * 5. LeadComplete - User submits application
  */
 export function calculateFunnelData(
@@ -60,10 +60,8 @@ export function calculateFunnelData(
       usersByStage.completedProfile.add(userId);
     }
 
-    // Stage 4: Started application (viewed application page)
-    // Check for application page views as proxy for "ComienzaSolicitud"
-    if (event.event_type === 'PageView' &&
-        (event.page_url?.includes('/aplicacion') || event.page_url?.includes('/application'))) {
+    // Stage 4: Started application (ComienzaSolicitud event)
+    if (event.event_type === 'ComienzaSolicitud') {
       usersByStage.startedApplication.add(userId);
     }
 

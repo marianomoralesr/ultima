@@ -9,9 +9,9 @@ import { supabase } from '../../supabaseClient';
 import { toast } from 'sonner';
 import { Gift, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 
-// Compact, focused survey questions
+// Comprehensive survey questions (41 total)
 const surveyQuestions = [
-  // Demographics
+  // Demographics (5 questions)
   {
     id: 'age',
     question: '¿Cuál es tu rango de edad?',
@@ -36,19 +36,24 @@ const surveyQuestions = [
     ]
   },
   {
-    id: 'location',
-    question: '¿En qué zona te encuentras?',
+    id: 'municipality',
+    question: '¿En qué municipio vives?',
     type: 'multiple-choice',
     options: [
-      { value: 'monterrey-centro', label: 'Monterrey Centro' },
+      { value: 'monterrey', label: 'Monterrey' },
+      { value: 'san-nicolas', label: 'San Nicolás' },
       { value: 'san-pedro', label: 'San Pedro' },
       { value: 'santa-catarina', label: 'Santa Catarina' },
+      { value: 'juarez', label: 'Juárez' },
       { value: 'guadalupe', label: 'Guadalupe' },
-      { value: 'san-nicolas', label: 'San Nicolás' },
-      { value: 'apodaca', label: 'Apodaca' },
+      { value: 'garcia', label: 'García' },
       { value: 'escobedo', label: 'Escobedo' },
-      { value: 'otra-area-metro', label: 'Otra área metropolitana' },
-      { value: 'fuera-monterrey', label: 'Fuera de Monterrey' }
+      { value: 'apodaca', label: 'Apodaca' },
+      { value: 'reynosa', label: 'Reynosa' },
+      { value: 'saltillo', label: 'Saltillo' },
+      { value: 'torreon', label: 'Torreón' },
+      { value: 'matamoros', label: 'Matamoros' },
+      { value: 'otro', label: 'Otro' }
     ]
   },
   {
@@ -64,8 +69,19 @@ const surveyQuestions = [
       { value: 'mas-120k', label: 'Más de $120,000' }
     ]
   },
+  {
+    id: 'employment-status',
+    question: '¿Cuál es tu situación laboral actual?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'empleado', label: 'Empleado' },
+      { value: 'autonomo', label: 'Autónomo/Emprendedor' },
+      { value: 'profesionista', label: 'Profesionista independiente' },
+      { value: 'estudiante', label: 'Estudiante' }
+    ]
+  },
 
-  // How they found us
+  // Discovery & Source (3 questions)
   {
     id: 'source',
     question: '¿Cómo nos conociste?',
@@ -81,8 +97,30 @@ const surveyQuestions = [
       { value: 'otro', label: 'Otro' }
     ]
   },
+  {
+    id: 'first-impression',
+    question: '¿Cuál fue tu primera impresión de TREFA?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Poco profesional' },
+      { value: '2', label: 'Aceptable' },
+      { value: '3', label: 'Profesional' },
+      { value: '4', label: 'Muy profesional' }
+    ]
+  },
+  {
+    id: 'social-media-content',
+    question: '¿El contenido que compartimos en redes sociales y blog te parece relevante para tu proceso de compra?',
+    type: 'likert-4',
+    options: [
+      { value: '4', label: 'Sí, es útil e informativo' },
+      { value: '3', label: 'A veces, algunas cosas sí, otras no' },
+      { value: '2', label: 'No realmente, no me ayuda mucho' },
+      { value: '1', label: 'No he visto su contenido' }
+    ]
+  },
 
-  // Trust factors
+  // Trust & Brand Perception (5 questions)
   {
     id: 'trust',
     question: '¿Qué fue lo que más te generó confianza en TREFA?',
@@ -96,8 +134,297 @@ const surveyQuestions = [
       { value: 'atencion-personalizada', label: 'Atención personalizada' }
     ]
   },
+  {
+    id: 'brand-differentiation',
+    question: '¿Qué hace a TREFA diferente de otras opciones?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'proceso-digital', label: 'Proceso digital y moderno' },
+      { value: 'transparencia', label: 'Transparencia total' },
+      { value: 'variedad', label: 'Amplia variedad de vehículos' },
+      { value: 'financiamiento', label: 'Opciones de financiamiento' },
+      { value: 'confianza', label: 'Mayor confianza y seguridad' },
+      { value: 'nada', label: 'No veo diferencias significativas' }
+    ]
+  },
+  {
+    id: 'trust-level',
+    question: '¿Qué tan confiable consideras comprar un auto con TREFA?',
+    type: 'rating-horizontal',
+    min: 1,
+    max: 10,
+    labels: {
+      min: 'Nada confiable',
+      max: 'Muy confiable'
+    }
+  },
+  {
+    id: 'transparency-importance',
+    question: '¿Qué tan importante es la transparencia en precios y proceso?',
+    type: 'rating-horizontal',
+    min: 1,
+    max: 10,
+    labels: {
+      min: 'Poco importante',
+      max: 'Muy importante'
+    }
+  },
+  {
+    id: 'dealer-trust',
+    question: '¿Confías más en TREFA que en agencias tradicionales?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Confío más en agencias' },
+      { value: '2', label: 'Similar confianza' },
+      { value: '3', label: 'Confío un poco más en TREFA' },
+      { value: '4', label: 'Confío mucho más en TREFA' }
+    ]
+  },
 
-  // What we could improve
+  // Platform Experience (4 questions)
+  {
+    id: 'website-ease',
+    question: '¿Qué tan fácil fue navegar nuestra plataforma?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Muy difícil' },
+      { value: '2', label: 'Algo complicado' },
+      { value: '3', label: 'Fácil' },
+      { value: '4', label: 'Muy fácil' }
+    ]
+  },
+  {
+    id: 'information-clarity',
+    question: '¿La información de los vehículos es clara y completa?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Falta mucha información' },
+      { value: '2', label: 'Falta información importante' },
+      { value: '3', label: 'Suficiente información' },
+      { value: '4', label: 'Información muy completa' }
+    ]
+  },
+  {
+    id: 'search-functionality',
+    question: '¿Qué tan útiles son los filtros de búsqueda?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Poco útiles' },
+      { value: '2', label: 'Algo útiles' },
+      { value: '3', label: 'Útiles' },
+      { value: '4', label: 'Muy útiles' }
+    ]
+  },
+  {
+    id: 'mobile-experience',
+    question: '¿Has usado nuestra plataforma desde tu celular?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'si-excelente', label: 'Sí, funciona excelente' },
+      { value: 'si-buena', label: 'Sí, funciona bien' },
+      { value: 'si-problemas', label: 'Sí, pero con algunos problemas' },
+      { value: 'no', label: 'No, solo desde computadora' }
+    ]
+  },
+
+  // Purchase Journey (6 questions)
+  {
+    id: 'purchase-stage',
+    question: '¿En qué etapa de compra te encuentras?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'solo-viendo', label: 'Solo viendo opciones' },
+      { value: 'investigando', label: 'Investigando activamente' },
+      { value: 'comparando', label: 'Comparando opciones específicas' },
+      { value: 'listo-comprar', label: 'Listo para comprar pronto' }
+    ]
+  },
+  {
+    id: 'purchase-timeline',
+    question: '¿Cuándo planeas comprar tu próximo auto?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'este-mes', label: 'Este mes' },
+      { value: '1-3-meses', label: '1-3 meses' },
+      { value: '3-6-meses', label: '3-6 meses' },
+      { value: 'mas-6-meses', label: 'Más de 6 meses' }
+    ]
+  },
+  {
+    id: 'budget-range',
+    question: '¿Cuál es tu presupuesto aproximado?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'menos-150k', label: 'Menos de $150,000' },
+      { value: '150k-250k', label: '$150,000 - $250,000' },
+      { value: '250k-350k', label: '$250,000 - $350,000' },
+      { value: '350k-500k', label: '$350,000 - $500,000' },
+      { value: 'mas-500k', label: 'Más de $500,000' }
+    ]
+  },
+  {
+    id: 'previous-purchase',
+    question: '¿Has comprado un auto seminuevo antes?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'si-agencia', label: 'Sí, en agencia' },
+      { value: 'si-particular', label: 'Sí, a particular' },
+      { value: 'si-plataforma', label: 'Sí, en plataforma digital' },
+      { value: 'no', label: 'No, sería mi primera vez' }
+    ]
+  },
+  {
+    id: 'trade-in-interest',
+    question: '¿Te interesa dar tu auto actual a cuenta?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'No tengo auto actual' },
+      { value: '2', label: 'No me interesa' },
+      { value: '3', label: 'Tal vez' },
+      { value: '4', label: 'Sí, definitivamente' }
+    ]
+  },
+  {
+    id: 'dealer-visit-intention',
+    question: '¿Planeas visitar físicamente el auto antes de comprar?',
+    type: 'likert-4',
+    options: [
+      { value: '4', label: 'Sí, es indispensable' },
+      { value: '3', label: 'Probablemente sí' },
+      { value: '2', label: 'No es necesario' },
+      { value: '1', label: 'Prefiero proceso 100% digital' }
+    ]
+  },
+
+  // Preferences & Priorities (5 questions)
+  {
+    id: 'vehicle-priority',
+    question: '¿Qué es lo más importante para ti en un auto?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'precio', label: 'Mejor precio posible' },
+      { value: 'seguridad', label: 'Seguridad y confiabilidad' },
+      { value: 'economia', label: 'Economía de combustible' },
+      { value: 'tecnologia', label: 'Tecnología y comodidades' },
+      { value: 'espacio', label: 'Espacio y capacidad' },
+      { value: 'marca', label: 'Marca y prestigio' }
+    ]
+  },
+  {
+    id: 'new-vs-used',
+    question: '¿Por qué prefieres autos seminuevos sobre nuevos?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'precio', label: 'Mejor precio' },
+      { value: 'depreciacion', label: 'Menos depreciación' },
+      { value: 'mas-auto', label: 'Más auto por el dinero' },
+      { value: 'no-prefiero', label: 'No necesariamente los prefiero' }
+    ]
+  },
+  {
+    id: 'warranty-importance',
+    question: '¿Qué tan importante es la garantía para ti?',
+    type: 'rating-horizontal',
+    min: 1,
+    max: 10,
+    labels: {
+      min: 'Poco importante',
+      max: 'Muy importante'
+    }
+  },
+  {
+    id: 'payment-preference',
+    question: '¿Cómo preferirías pagar tu auto?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'contado', label: 'De contado' },
+      { value: 'financiamiento-banco', label: 'Financiamiento bancario' },
+      { value: 'financiamiento-trefa', label: 'Financiamiento con TREFA' },
+      { value: 'combinacion', label: 'Combinación de opciones' }
+    ]
+  },
+  {
+    id: 'delivery-preference',
+    question: '¿Te interesaría entrega a domicilio?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'No, prefiero recogerlo' },
+      { value: '2', label: 'No es importante' },
+      { value: '3', label: 'Sería conveniente' },
+      { value: '4', label: 'Sí, es muy importante' }
+    ]
+  },
+
+  // Financing & Budget (3 questions)
+  {
+    id: 'financing-importance',
+    question: '¿Qué tan importante es el financiamiento para tu compra?',
+    type: 'rating-horizontal',
+    min: 1,
+    max: 10,
+    labels: {
+      min: 'Nada importante',
+      max: 'Muy importante'
+    }
+  },
+  {
+    id: 'financing-dependency',
+    question: 'Mi compra depende de la aprobación del financiamiento.',
+    type: 'likert-4',
+    options: [
+      { value: '4', label: 'Verdadero' },
+      { value: '1', label: 'Falso' }
+    ]
+  },
+  {
+    id: 'down-payment-capacity',
+    question: '¿Con cuánto podrías dar de enganche?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'sin-enganche', label: 'Sin enganche / 0%' },
+      { value: '10-20', label: '10-20% del precio' },
+      { value: '20-30', label: '20-30% del precio' },
+      { value: '30-50', label: '30-50% del precio' },
+      { value: 'mas-50', label: 'Más del 50%' }
+    ]
+  },
+
+  // Service & Experience (3 questions)
+  {
+    id: 'response-time-satisfaction',
+    question: '¿Qué tan satisfecho estás con nuestros tiempos de respuesta?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Muy lento' },
+      { value: '2', label: 'Algo lento' },
+      { value: '3', label: 'Adecuado' },
+      { value: '4', label: 'Muy rápido' }
+    ]
+  },
+  {
+    id: 'advisor-satisfaction',
+    question: '¿Cómo calificarías la atención de nuestros asesores?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Necesita mejorar' },
+      { value: '2', label: 'Aceptable' },
+      { value: '3', label: 'Buena' },
+      { value: '4', label: 'Excelente' }
+    ]
+  },
+  {
+    id: 'additional-services',
+    question: '¿Qué servicios adicionales te interesarían?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'seguro', label: 'Seguro de auto' },
+      { value: 'mantenimiento', label: 'Paquetes de mantenimiento' },
+      { value: 'accesorios', label: 'Accesorios y personalización' },
+      { value: 'ninguno', label: 'Ninguno por ahora' }
+    ]
+  },
+
+  // Improvements & Feedback (3 questions)
   {
     id: 'improvement',
     question: '¿En qué podríamos mejorar?',
@@ -111,8 +438,6 @@ const surveyQuestions = [
       { value: 'todo-bien', label: 'Todo está bien' }
     ]
   },
-
-  // What they don't like
   {
     id: 'dislike',
     question: '¿Qué es lo que menos te gusta actualmente?',
@@ -125,21 +450,21 @@ const surveyQuestions = [
       { value: 'nada', label: 'No tengo quejas' }
     ]
   },
-
-  // Importance of financing - Horizontal rating
   {
-    id: 'financing-importance',
-    question: '¿Qué tan importante es el financiamiento para tu compra?',
-    type: 'rating-horizontal',
-    min: 1,
-    max: 10,
-    labels: {
-      min: 'Nada importante',
-      max: 'Muy importante'
-    }
+    id: 'missing-feature',
+    question: '¿Qué te gustaría que tuviéramos que no tenemos?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'mas-fotos', label: 'Más fotos y videos' },
+      { value: 'video-llamada', label: 'Videollamada con asesor' },
+      { value: 'chat-vivo', label: 'Chat en vivo' },
+      { value: 'app-movil', label: 'App móvil' },
+      { value: 'comparador', label: 'Comparador de autos' },
+      { value: 'nada', label: 'Está completo' }
+    ]
   },
 
-  // Overall satisfaction - 4 point scale
+  // Overall Satisfaction (3 questions)
   {
     id: 'satisfaction',
     question: '¿Qué tan satisfecho estás con tu experiencia en TREFA?',
@@ -151,8 +476,17 @@ const surveyQuestions = [
       { value: '4', label: 'Muy satisfecho' }
     ]
   },
-
-  // NPS - Horizontal rating
+  {
+    id: 'would-recommend',
+    question: '¿Recomendarías TREFA a un familiar o amigo?',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Definitivamente no' },
+      { value: '2', label: 'Probablemente no' },
+      { value: '3', label: 'Probablemente sí' },
+      { value: '4', label: 'Definitivamente sí' }
+    ]
+  },
   {
     id: 'nps',
     question: '¿Qué tan probable es que recomiendes TREFA a un amigo?',
@@ -208,6 +542,18 @@ const AnonymousSurveyPage: React.FC = () => {
       ...prev,
       [surveyQuestions[currentQuestion].id]: value
     }));
+
+    // Auto-advance to next question after a short delay (except for horizontal ratings)
+    const currentType = surveyQuestions[currentQuestion]?.type;
+    if (currentType !== 'rating-horizontal') {
+      setTimeout(() => {
+        if (currentQuestion < surveyQuestions.length - 1) {
+          setCurrentQuestion(prev => prev + 1);
+        } else {
+          handleComplete();
+        }
+      }, 400); // 400ms delay for smooth transition
+    }
   };
 
   const handleNext = () => {
@@ -300,8 +646,8 @@ const AnonymousSurveyPage: React.FC = () => {
               </div>
 
               <div className="text-center space-y-2">
-                <p className="text-2xl font-bold text-gray-900">Solo 11 preguntas</p>
-                <p className="text-gray-600">Toma aproximadamente 2 minutos</p>
+                <p className="text-2xl font-bold text-gray-900">Breve encuesta</p>
+                <p className="text-gray-600">Toma solo unos minutos</p>
               </div>
 
               <Button

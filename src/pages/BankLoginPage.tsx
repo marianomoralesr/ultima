@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import { BANKS, type BankName } from '../types/bank';
 import { BankService } from '../services/BankService';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Card, CardContent } from '../components/ui/card';
+import { ArrowLeft, CheckCircle2, FileText, MessageSquare } from 'lucide-react';
 
 // Bank Logo Component
 const BankLogo: React.FC<{ bankId: BankName }> = ({ bankId }) => {
@@ -241,9 +246,7 @@ const BankLoginPage: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-500 rounded-lg p-3 flex-shrink-0">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Gestión de solicitudes</h3>
@@ -253,9 +256,7 @@ const BankLoginPage: React.FC = () => {
 
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-500 rounded-lg p-3 flex-shrink-0">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
+                    <FileText className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Documentación completa</h3>
@@ -265,9 +266,7 @@ const BankLoginPage: React.FC = () => {
 
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-500 rounded-lg p-3 flex-shrink-0">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
+                    <MessageSquare className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Comunicación directa</h3>
@@ -286,18 +285,20 @@ const BankLoginPage: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     {Object.values(BANKS).map((bank) => (
-                      <button
+                      <Card
                         key={bank.id}
                         onClick={() => handleBankSelect(bank.id)}
-                        className="group relative p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all duration-200 bg-white"
+                        className="cursor-pointer hover:border-primary hover:shadow-lg transition-all duration-200"
                       >
-                        <div className="flex flex-col items-center justify-center h-full">
-                          <BankLogo bankId={bank.id} />
-                          <span className="text-xs font-semibold text-gray-700 text-center mt-2">
-                            {bank.name}
-                          </span>
-                        </div>
-                      </button>
+                        <CardContent className="p-4">
+                          <div className="flex flex-col items-center justify-center h-full">
+                            <BankLogo bankId={bank.id} />
+                            <span className="text-xs font-semibold text-foreground text-center mt-2">
+                              {bank.name}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 </div>
@@ -305,15 +306,14 @@ const BankLoginPage: React.FC = () => {
 
               {view === 'enterEmail' && selectedBank && (
                 <div>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={handleBack}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+                    className="mb-6 pl-0"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Volver
-                  </button>
+                  </Button>
 
                   <div className="mb-6">
                     <div className="inline-flex items-center gap-3 px-4 py-2 bg-blue-50 rounded-lg">
@@ -330,49 +330,48 @@ const BankLoginPage: React.FC = () => {
                   <p className="text-gray-600 mb-8">Te enviaremos un código de verificación</p>
 
                   <form onSubmit={handleSendOtp} className="space-y-6">
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">
                         Correo electrónico corporativo
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="tu.nombre@banco.com"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                       />
                     </div>
 
                     {error && (
-                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
                         {error}
                       </div>
                     )}
 
-                    <button
+                    <Button
                       type="submit"
                       disabled={loading || !email}
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                      className="w-full"
+                      size="lg"
                     >
                       {loading ? 'Enviando...' : 'Enviar código'}
-                    </button>
+                    </Button>
                   </form>
                 </div>
               )}
 
               {view === 'verifyOtp' && (
                 <div>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={handleBack}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+                    className="mb-6 pl-0"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Volver
-                  </button>
+                  </Button>
 
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifica tu código</h2>
                   <p className="text-gray-600 mb-8">
@@ -380,47 +379,49 @@ const BankLoginPage: React.FC = () => {
                   </p>
 
                   <form onSubmit={handleVerifyOtp} className="space-y-6">
-                    <div>
-                      <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp">
                         Código de verificación
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         id="otp"
                         type="text"
                         value={otp}
                         onChange={(e) => setOtp(e.target.value)}
                         placeholder="000000"
                         maxLength={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest font-mono"
+                        className="text-center text-2xl tracking-widest font-mono"
                         required
                       />
                     </div>
 
                     {error && (
-                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
                         {error}
                       </div>
                     )}
 
-                    <button
+                    <Button
                       type="submit"
                       disabled={loading || otp.length !== 6}
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                      className="w-full"
+                      size="lg"
                     >
                       {loading ? 'Verificando...' : 'Verificar'}
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
                       onClick={() => {
                         setView('enterEmail');
                         setOtp('');
                         setError(null);
                       }}
-                      className="w-full text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      className="w-full"
                     >
                       Reenviar código
-                    </button>
+                    </Button>
                   </form>
                 </div>
               )}

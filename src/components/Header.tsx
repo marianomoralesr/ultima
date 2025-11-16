@@ -48,13 +48,13 @@ const Header: React.FC = () => {
     };
 
     return (
-      <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
+      <header className="fixed top-0 left-0 right-0 z-30 bg-gray-800 shadow-lg border-b border-gray-700">
         <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-28 gap-x-2 lg:gap-x-4">
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-1.5 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                className="lg:hidden p-1.5 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
                 aria-label="Toggle mobile menu"
             >
                 <MenuIcon className="w-5 h-5" />
@@ -83,7 +83,7 @@ const Header: React.FC = () => {
             <div className={`flex justify-end items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
                 <div className="flex items-center space-x-2 lg:space-x-6">
                   <div className="hidden lg:block">
-                      <button ref={menuButtonRef} onClick={() => setMegaMenuOpen(o => !o)} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base font-bold transition-colors text-primary-600 border-b hover:bg-gray-100">
+                      <button ref={menuButtonRef} onClick={() => setMegaMenuOpen(o => !o)} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base font-bold transition-colors text-white border-b border-gray-600 hover:bg-gray-700">
                           <span>Menú</span>
                           <ChevronDownIcon className={`w-5 h-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} fill="currentColor"/>
                       </button>
@@ -93,9 +93,9 @@ const Header: React.FC = () => {
                      <div className="relative hidden lg:block" ref={profileMenuRef}>
                         <button
                             onClick={() => setProfileMenuOpen(o => !o)}
-                            className="flex items-center gap-2 text-base font-semibold transition-colors text-gray-700 hover:text-primary-600"
+                            className="flex items-center gap-2 text-base font-semibold transition-colors text-gray-200 hover:text-white"
                         >
-                            <UserIcon className="w-8 h-8 rounded-full p-1.5 bg-white text-gray-500" />
+                            <UserIcon className="w-8 h-8 rounded-full p-1.5 bg-gray-700 text-gray-300" />
                             <span className="hidden sm:inline">{profile?.first_name ? `Hola, ${profile.first_name}` : ' '}</span>
                         </button>
                         {profileMenuOpen && (

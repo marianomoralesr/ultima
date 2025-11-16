@@ -1068,10 +1068,6 @@ const DocumentRequirements: React.FC = () => (
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                 <span>Subí 3 comprobantes de ingresos de los últimos 3 meses (3 archivos PDF distintos o 1 archivo ZIP).</span>
             </li>
-            <li className="flex items-start">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <span>Mi Constancia de Situación Fiscal es actual, legible y está en formato PDF.</span>
-            </li>
         </ul>
     </div>
 );
@@ -1126,8 +1122,7 @@ const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDo
         { type: 'ine_front', label: 'INE (Frente)', allowCameraScan: true },
         { type: 'ine_back', label: 'INE (Reverso)', allowCameraScan: true },
         { type: 'proof_address', label: 'Comprobante de Domicilio', allowCameraScan: false },
-        { type: 'proof_income', label: 'Comprobante de Ingresos', description: 'Sube tus 3 estados de cuenta o recibos de nómina más recientes (3 archivos PDF distintos). También puedes subir un solo archivo .ZIP con todos los documentos. Máximo 12 archivos.', allowCameraScan: false, multiple: true, maxFiles: 12, maxTotalSizeMB: 10 },
-        { type: 'constancia_fiscal', label: 'Constancia de Situación Fiscal', allowCameraScan: false }
+        { type: 'proof_income', label: 'Comprobante de Ingresos', description: 'Sube tus 3 estados de cuenta o recibos de nómina más recientes (3 archivos PDF distintos). También puedes subir un solo archivo .ZIP con todos los documentos. Máximo 12 archivos.', allowCameraScan: false, multiple: true, maxFiles: 12, maxTotalSizeMB: 10 }
     ];
 
     if (isLoadingDocs) {

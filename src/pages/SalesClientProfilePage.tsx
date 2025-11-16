@@ -5,12 +5,15 @@ import { SalesService } from '../services/SalesService';
 import { AdminService } from '../services/AdminService';
 import { KommoService } from '../services/KommoService';
 import type { Profile } from '../types/types';
-import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Download, Eye, Printer } from 'lucide-react';
+import { Loader2, AlertTriangle, User, FileText, CheckCircle, Clock, Tag, Save, X, ArrowLeft, Plus, Trash2, Download, Eye, Printer, Send } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
 import { supabase } from '../../supabaseClient';
 import BankingProfileSummary from '../components/BankingProfileSummary';
 import { toast } from 'sonner';
+import { BankService } from '../services/BankService';
+import type { BankName, BankRepresentativeProfile } from '../types/bank';
+import { BANKS } from '../types/bank';
 
 const BUCKET_NAME = 'application-documents';
 
@@ -180,16 +183,36 @@ const RemindersManager: React.FC<{ leadId: string; initialReminders: any[]; sale
     )
 };
 
-const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId: string, status: string) => void }> = ({ applications, onStatusChange }) => {
+const ApplicationManager: React.FC<{ applications: any[], leadId: string, onStatusChange: (appId: string, status: string) => void }> = ({ applications, leadId, onStatusChange }) => {
     const [selectedApp, setSelectedApp] = useState<any | null>(applications.length > 0 ? applications[0] : null);
     const printRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [showBankModal, setShowBankModal] = useState(false);
+    const [selectedBank, setSelectedBank] = useState<BankName | null>(null);
+    const [bankReps, setBankReps] = useState<BankRepresentativeProfile[]>([]);
+    const [selectedBankRep, setSelectedBankRep] = useState<string | null>(null);
+    const [isSendingToBank, setIsSendingToBank] = useState(false);
 
     useEffect(() => {
         if (applications.length > 0 && !selectedApp) {
             setSelectedApp(applications[0]);
         }
     }, [applications, selectedApp]);
+
+    useEffect(() => {
+        if (selectedBank) {
+            BankService.getBankRepsByBank(selectedBank)
+                .then(setBankReps)
+                .catch(err => {
+                    console.error('Error fetching bank reps:', err);
+                    toast.error('Error al cargar representantes del banco');
+                    setBankReps([]);
+                });
+        } else {
+            setBankReps([]);
+            setSelectedBankRep(null);
+        }
+    }, [selectedBank]);
 
     const handlePrint = () => {
         window.print();
@@ -227,6 +250,35 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
             alert('Error al generar el PDF. Por favor, intenta de nuevo.');
         } finally {
             setIsDownloading(false);
+        }
+    };
+
+    const handleSendToBank = async () => {
+        if (!selectedApp || !selectedBankRep) {
+            toast.error('Por favor selecciona un banco y un representante');
+            return;
+        }
+
+        setIsSendingToBank(true);
+        try {
+            await BankService.sendApplicationToBank(
+                leadId,
+                selectedApp.id,
+                selectedBankRep
+            );
+
+            toast.success('¡Solicitud enviada al banco exitosamente!');
+            setShowBankModal(false);
+            setSelectedBank(null);
+            setSelectedBankRep(null);
+
+            // Update local state to reflect the new status
+            onStatusChange(selectedApp.id, 'reviewing');
+        } catch (error: any) {
+            console.error('Error sending to bank:', error);
+            toast.error(error.message || 'Error al enviar la solicitud al banco');
+        } finally {
+            setIsSendingToBank(false);
         }
     };
 
@@ -284,6 +336,16 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
 
                 {/* Prominent Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Send to Bank Button - Only show if status is "submitted" (Completa) */}
+                    {selectedApp && selectedApp.status === 'submitted' && (
+                        <button
+                            onClick={() => setShowBankModal(true)}
+                            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-800 shadow-lg transform transition-all hover:scale-105"
+                        >
+                            <Send className="w-5 h-5" />
+                            Enviar a Banco
+                        </button>
+                    )}
                     <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloading || !selectedApp}
@@ -311,6 +373,114 @@ const ApplicationManager: React.FC<{ applications: any[], onStatusChange: (appId
                     </button>
                 </div>
             </div>
+
+            {/* Send to Bank Modal */}
+            {showBankModal && (
+                <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowBankModal(false)}>
+                    <div className="relative bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b flex-shrink-0">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900">Enviar a Banco</h3>
+                                    <p className="text-sm text-gray-500 mt-1">Selecciona el banco y representante para enviar la solicitud</p>
+                                </div>
+                                <button onClick={() => setShowBankModal(false)} className="p-2 rounded-full hover:bg-gray-100">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="overflow-y-auto flex-1 p-6">
+                            {/* Bank Selection */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-semibold text-gray-700 mb-3">Selecciona un banco</label>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {Object.values(BANKS).map(bank => (
+                                        <button
+                                            key={bank.id}
+                                            onClick={() => setSelectedBank(bank.id)}
+                                            className={`p-4 border-2 rounded-lg transition-all ${
+                                                selectedBank === bank.id
+                                                    ? 'border-primary-600 bg-primary-50 shadow-md'
+                                                    : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                                            }`}
+                                        >
+                                            <div className="text-sm font-semibold text-gray-900">{bank.name}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Bank Representative Selection */}
+                            {selectedBank && (
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                        Selecciona un representante de {BANKS[selectedBank].name}
+                                    </label>
+                                    {bankReps.length === 0 ? (
+                                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                            <p className="text-sm text-yellow-800">
+                                                No hay representantes disponibles para este banco
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                                            {bankReps.map(rep => (
+                                                <button
+                                                    key={rep.id}
+                                                    onClick={() => setSelectedBankRep(rep.id)}
+                                                    className={`w-full p-3 border-2 rounded-lg text-left transition-all ${
+                                                        selectedBankRep === rep.id
+                                                            ? 'border-primary-600 bg-primary-50'
+                                                            : 'border-gray-200 hover:border-gray-300'
+                                                    }`}
+                                                >
+                                                    <div className="font-semibold text-gray-900">
+                                                        {rep.first_name} {rep.last_name}
+                                                    </div>
+                                                    <div className="text-sm text-gray-600">{rep.email}</div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-6 border-t flex-shrink-0">
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowBankModal(false);
+                                        setSelectedBank(null);
+                                        setSelectedBankRep(null);
+                                    }}
+                                    className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleSendToBank}
+                                    disabled={!selectedBankRep || isSendingToBank}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                                >
+                                    {isSendingToBank ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            Enviando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Send className="w-5 h-5" />
+                                            Enviar Solicitud
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Application Preview */}
             {selectedApp && (
@@ -771,7 +941,7 @@ const SalesClientProfilePage: React.FC = () => {
 
                 {/* Right Column: Applications & History */}
                 <div className="lg:col-span-2 space-y-6">
-                    <ApplicationManager applications={applications} onStatusChange={handleStatusChange} />
+                    <ApplicationManager applications={applications} leadId={profile.id} onStatusChange={handleStatusChange} />
                     <DocumentViewer documents={documents} />
                 </div>
             </div>

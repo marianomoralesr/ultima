@@ -51,31 +51,16 @@ export const hasAllDocuments = (documents: any[]): boolean => {
 
 /**
  * Get correct status based on documents
- * This ensures frontend display matches document reality
- * Only changes status from 'submitted' to 'pending_docs' if documents are actually missing
- * Otherwise preserves the original status
+ * Returns the database status as-is, trusting manual status changes
+ * Document validation is now informational only and doesn't override status
  */
 export const getCorrectApplicationStatus = (
     status: string,
     documents: any[],
     isSubmitted: boolean
 ): string => {
-    // Only apply document validation if status is 'submitted' and application was submitted
-    if (status === 'submitted' && isSubmitted) {
-        const allDocsPresent = hasAllDocuments(documents);
-
-        // Log for debugging
-        if (!allDocsPresent) {
-            console.log('[getCorrectApplicationStatus] Changing submitted to pending_docs', {
-                documentsCount: documents?.length || 0,
-                documentTypes: documents?.map(d => d.document_type) || []
-            });
-        }
-
-        return allDocsPresent ? 'submitted' : 'pending_docs';
-    }
-
-    // For all other statuses, return as-is
+    // Trust the database status - don't override based on documents
+    // The status should be controlled by user actions and system workflows, not frontend logic
     return status;
 };
 

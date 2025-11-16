@@ -69,9 +69,6 @@ const standardizeDocumentType = (documentType: string): string => {
   if (normalized.includes('proofincome') || normalized.includes('comprobanteingresos') || normalized.includes('comprobantedeingresos')) {
     return 'Comprobante Ingresos';
   }
-  if (normalized.includes('constanciafiscal') || normalized.includes('constanciadesituacionfiscal')) {
-    return 'Constancia Fiscal';
-  }
 
   // Return original if no match (preserves any custom document types)
   return documentType;

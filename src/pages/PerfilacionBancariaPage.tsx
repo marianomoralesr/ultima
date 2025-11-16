@@ -8,6 +8,7 @@ import { BankProfilingService, getBankColor, getBankLogo } from '../services/Ban
 import { Profile } from '../types/types';
 import { Building2, User, Loader2, CheckCircle, Info } from 'lucide-react';
 import Confetti from '../components/Confetti';
+import { conversionTracking } from '../services/ConversionTrackingService';
 
 const bankProfileSchema = z.object({
   trabajo_tiempo: z.string().min(1, 'La antigüedad es requerida'),
@@ -219,7 +220,7 @@ const PerfilacionBancariaPage: React.FC = () => {
         if (!user) return;
         try {
             const { recommendedBank, secondOption, lowScore } = calculateBankScores(data);
-            await BankProfilingService.saveUserBankProfile(user.id, { 
+            await BankProfilingService.saveUserBankProfile(user.id, {
                 respuestas: data,
                 banco_recomendado: recommendedBank,
                 banco_segunda_opcion: secondOption,
@@ -230,6 +231,35 @@ const PerfilacionBancariaPage: React.FC = () => {
             if (!lowScore) {
                 setShowConfetti(true);
             }
+
+            // Track ComienzaSolicitud event only if user came from /financiamientos
+            try {
+                const leadSourceData = sessionStorage.getItem('leadSourceData');
+                let shouldTrack = false;
+
+                if (leadSourceData) {
+                    const parsed = JSON.parse(leadSourceData);
+                    // Check if landing_page contains /financiamientos
+                    if (parsed.landing_page && parsed.landing_page.includes('/financiamientos')) {
+                        shouldTrack = true;
+                    }
+                }
+
+                if (shouldTrack) {
+                    conversionTracking.trackApplication.started({
+                        userId: user.id,
+                        bankProfile: {
+                            recommendedBank,
+                            secondOption,
+                            lowScore
+                        }
+                    });
+                }
+            } catch (trackingError) {
+                console.error('Error tracking ComienzaSolicitud:', trackingError);
+                // Don't fail the form submission if tracking fails
+            }
+
             setStatus('success');
         } catch (error) {
             console.error(error);

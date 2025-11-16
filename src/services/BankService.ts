@@ -409,6 +409,105 @@ export const BankService = {
   },
 
   /**
+   * Send application to bank (Sales agent function)
+   * Only allows applications with status "submitted" (Completa)
+   */
+  async sendApplicationToBank(
+    leadId: string,
+    applicationId: string,
+    bankRepId: string
+  ): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // First, check if application status is "submitted" (Completa)
+    const { data: application, error: appError } = await supabase
+      .from('financing_applications')
+      .select('status')
+      .eq('id', applicationId)
+      .single();
+
+    if (appError) {
+      console.error('Error fetching application:', appError);
+      throw new Error('Could not verify application status');
+    }
+
+    if (application.status !== 'submitted') {
+      throw new Error('Solo se pueden enviar solicitudes con estado "Completa"');
+    }
+
+    // Insert the assignment into bank_assignments table
+    const { error: assignError } = await supabase
+      .from('bank_assignments')
+      .insert({
+        lead_id: leadId,
+        application_id: applicationId,
+        assigned_bank_rep_id: bankRepId,
+        status: 'pending'
+      });
+
+    if (assignError) {
+      console.error('Error assigning to bank:', assignError);
+      throw new Error('Could not send application to bank');
+    }
+
+    // Update application status to "reviewing" (En Revisión)
+    const { error: statusError } = await supabase
+      .from('financing_applications')
+      .update({
+        status: 'reviewing',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', applicationId);
+
+    if (statusError) {
+      console.error('Error updating application status:', statusError);
+      // Don't throw here - assignment succeeded
+    }
+
+    // Log the status change in history
+    const { error: historyError } = await supabase
+      .from('application_status_history')
+      .insert({
+        application_id: applicationId,
+        lead_id: leadId,
+        old_status: 'submitted',
+        new_status: 'reviewing',
+        changed_by: user.id,
+        changed_by_type: 'sales',
+        reason: 'Application sent to bank for review'
+      });
+
+    if (historyError) {
+      console.error('Error logging status change:', historyError);
+      // Don't throw - this is just logging
+    }
+  },
+
+  /**
+   * Get available bank representatives by bank affiliation
+   */
+  async getBankRepsByBank(bankName: BankName): Promise<BankRepresentativeProfile[]> {
+    const { data, error } = await supabase
+      .from('bank_representative_profiles')
+      .select('*')
+      .eq('bank_affiliation', bankName)
+      .eq('is_approved', true)
+      .eq('is_active', true)
+      .order('last_name', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching bank reps by bank:', error);
+      throw new Error('Could not fetch bank representatives');
+    }
+
+    return data || [];
+  },
+
+  /**
    * Get all feedback for a specific lead (Admin/Sales only)
    */
   async getLeadFeedback(leadId: string): Promise<BankFeedback[]> {

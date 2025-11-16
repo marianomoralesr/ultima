@@ -17,7 +17,6 @@ import {
     LogOut,
     Building2,
     Settings,
-    Car,
     ChevronLeft,
     ChevronRight,
     Users,
@@ -36,7 +35,6 @@ import {
     TrendingDown,
     Grid3x3,
     HelpCircle,
-    Search,
     DollarSign,
     BarChart3
 } from 'lucide-react';
@@ -55,20 +53,6 @@ interface SidebarContentProps {
     setIsBetaSurveyVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// Custom icon components for Comprar and Vender
-const ComprarIcon = ({ className }: { className?: string }) => (
-    <div className="relative w-5 h-5 flex items-center justify-center">
-        <Search className={`w-4 h-4 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(-2px, -2px)' }} />
-        <Car className={`w-3 h-3 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(2px, 2px)' }} />
-    </div>
-);
-
-const VenderIcon = ({ className }: { className?: string }) => (
-    <div className="relative w-5 h-5 flex items-center justify-center">
-        <DollarSign className={`w-4 h-4 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(-2px, -2px)' }} />
-        <Car className={`w-3 h-3 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(2px, 2px)' }} />
-    </div>
-);
 
 const SidebarContent: React.FC<SidebarContentProps> = ({
     isCollapsed,
@@ -104,8 +88,8 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
         { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2 },
         { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon },
-        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: VenderIcon, isCustomIcon: true },
-        { to: '/escritorio/autos', label: 'Comprar', icon: ComprarIcon, isCustomIcon: true },
+        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: DollarSign },
+        { to: '/escritorio/autos', label: 'Inventario', icon: Grid3x3 },
         // Help/FAQ for everyone at the end
         { to: '/faq', label: 'Ayuda', icon: HelpCircle },
     ];
@@ -135,11 +119,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                             }
                             title={isCollapsed ? item.label : undefined}
                         >
-                            {item.isCustomIcon ? (
-                                <item.icon className={`text-gray-600 ${isCollapsed ? 'w-6 h-6' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                            ) : (
-                                <item.icon className={`${isCollapsed ? 'w-7 h-7' : 'w-5 h-5'} flex-shrink-0 text-gray-600 ${!isCollapsed ? 'mr-3' : ''}`} />
-                            )}
+                            <item.icon className={`${isCollapsed ? 'w-7 h-7' : 'w-5 h-5'} flex-shrink-0 text-gray-600 ${!isCollapsed ? 'mr-3' : ''}`} />
                             <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.65rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>{item.label}</span>
                         </NavLink>
                     ))}

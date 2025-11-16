@@ -58,15 +58,15 @@ interface SidebarContentProps {
 // Custom icon components for Comprar and Vender
 const ComprarIcon = ({ className }: { className?: string }) => (
     <div className="relative w-5 h-5 flex items-center justify-center">
-        <Search className={`w-4 h-4 absolute ${className}`} style={{ transform: 'translate(-2px, -2px)' }} />
-        <Car className={`w-3 h-3 absolute ${className}`} style={{ transform: 'translate(2px, 2px)' }} />
+        <Search className={`w-4 h-4 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(-2px, -2px)' }} />
+        <Car className={`w-3 h-3 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(2px, 2px)' }} />
     </div>
 );
 
 const VenderIcon = ({ className }: { className?: string }) => (
     <div className="relative w-5 h-5 flex items-center justify-center">
-        <DollarSign className={`w-4 h-4 absolute ${className}`} style={{ transform: 'translate(-2px, -2px)' }} />
-        <Car className={`w-3 h-3 absolute ${className}`} style={{ transform: 'translate(2px, 2px)' }} />
+        <DollarSign className={`w-4 h-4 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(-2px, -2px)' }} />
+        <Car className={`w-3 h-3 absolute ${className || 'text-gray-600'}`} style={{ transform: 'translate(2px, 2px)' }} />
     </div>
 );
 
@@ -97,17 +97,17 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
     const navItems = [
         // Regular user items
         ...(!isAdmin && !isSales ? [
-            { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50' }
+            { to: '/escritorio', label: 'Resumen', icon: LayoutDashboard, end: true }
         ] : []),
-        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart, iconColor: 'text-red-500', bgColor: 'bg-red-50/50' },
-        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-        { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon, iconColor: 'text-gray-600', bgColor: 'bg-gray-50/50' },
-        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: VenderIcon, iconColor: 'text-green-600', bgColor: 'bg-green-50/50', isCustomIcon: true },
-        { to: '/escritorio/autos', label: 'Comprar', icon: ComprarIcon, iconColor: 'text-blue-600', bgColor: 'bg-blue-50/50', isCustomIcon: true },
+        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
+        { to: '/escritorio/favoritos', label: 'Mis Favoritos', icon: Heart },
+        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
+        { to: '/escritorio/perfilacion-bancaria', label: 'Perfil Bancario', icon: Building2 },
+        { to: '/escritorio/citas', label: 'Citas', icon: CalendarIcon },
+        { to: '/escritorio/vende-tu-auto', label: 'Vender', icon: VenderIcon, isCustomIcon: true },
+        { to: '/escritorio/autos', label: 'Comprar', icon: ComprarIcon, isCustomIcon: true },
         // Help/FAQ for everyone at the end
-        { to: '/faq', label: 'Ayuda', icon: HelpCircle, iconColor: 'text-gray-400', bgColor: 'bg-gray-50/50' },
+        { to: '/faq', label: 'Ayuda', icon: HelpCircle },
     ];
 
     const userRoleText = isAdmin ? 'Administrador' : isSales ? 'Ventas' : 'Usuario';
@@ -130,15 +130,15 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                                 `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
                                     isActive
                                         ? 'bg-primary-100 text-primary-700'
-                                        : `${item.bgColor || 'bg-gray-50/50'} text-gray-600 hover:bg-gray-200/50 hover:text-gray-900`
+                                        : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
                                 }`
                             }
                             title={isCollapsed ? item.label : undefined}
                         >
                             {item.isCustomIcon ? (
-                                <item.icon className={`${item.iconColor || 'text-gray-600'} ${isCollapsed ? 'w-6 h-6' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                                <item.icon className={`text-gray-600 ${isCollapsed ? 'w-6 h-6' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
                             ) : (
-                                <item.icon className={`${isCollapsed ? 'w-7 h-7' : 'w-5 h-5'} flex-shrink-0 ${item.iconColor || 'text-gray-600'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                                <item.icon className={`${isCollapsed ? 'w-7 h-7' : 'w-5 h-5'} flex-shrink-0 text-gray-600 ${!isCollapsed ? 'mr-3' : ''}`} />
                             )}
                             <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.65rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>{item.label}</span>
                         </NavLink>

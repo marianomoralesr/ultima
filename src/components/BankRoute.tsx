@@ -39,14 +39,13 @@ const BankRoute: React.FC = () => {
         .single();
 
       const adminEmails = [
-        'mmoralesr@hotmail.com',
-        'alan@autostrefa.mx',
-        'juanito@autostrefa.mx',
-        'karla@autostrefa.mx',
-        'michelle@autostrefa.mx',
-        'michelle.martinez@autostrefa.mx',
-        'ventas@autostrefa.mx',
-        'isai.martinez@autostrefa.mx'
+        'mariano.morales@autostrefa.mx',
+        'fernando.trevino@autostrefa.mx',
+        'lizeth.juarez@autostrefa.mx',
+        'alejandro.trevino@autostrefa.mx',
+        'alejandro.gallardo@autostrefa.mx',
+        'hola@autostrefa.mx',
+        'evelia.castillo@autostrefa.mx'
       ];
 
       if (profile && adminEmails.includes(profile.email)) {

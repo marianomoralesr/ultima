@@ -38,7 +38,9 @@ import {
     HelpCircle,
     DollarSign,
     BarChart3,
-    Route
+    Route,
+    Shield,
+    Mail
 } from 'lucide-react';
 
 // @ts-ignore
@@ -219,22 +221,44 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                     {!isCollapsed && (
                         <div className="ml-3 min-w-0">
                             <p className="font-semibold text-sm text-gray-800 truncate">
-                                {profile?.first_name && profile?.last_name 
-                                    ? `${profile.first_name} ${profile.last_name}` 
+                                {profile?.first_name && profile?.last_name
+                                    ? `${profile.first_name} ${profile.last_name}`
                                     : profile?.first_name || user?.email}
                             </p>
                             <p className="text-xs text-gray-500">{userRoleText}</p>
                         </div>
                     )}
                 </NavLink>
+
+                {/* Cerrar Sesión */}
                 <button
                     onClick={handleSignOut}
                     title={isCollapsed ? 'Cerrar Sesión' : undefined}
-                    className={`w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-white font-semibold bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 transform-gpu active:scale-95 ${isCollapsed ? 'justify-center' : ''}`}
+                    className={`w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 mb-2 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 ${isCollapsed ? 'justify-center' : ''}`}
                 >
                     <LogOut className="w-5 h-5 flex-shrink-0" />
                     {!isCollapsed && <span className="ml-3">Cerrar Sesión</span>}
                 </button>
+
+                {/* Privacy Policy */}
+                <Link
+                    to="/privacy"
+                    title={isCollapsed ? 'Política de Privacidad' : undefined}
+                    className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors mb-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 text-sm ${isCollapsed ? 'justify-center' : ''}`}
+                >
+                    <Shield className="w-4 h-4 flex-shrink-0" />
+                    {!isCollapsed && <span className="ml-3">Política de Privacidad</span>}
+                </Link>
+
+                {/* Reportar Errores */}
+                <Link
+                    to="/contacto"
+                    title={isCollapsed ? 'Reportar Errores' : undefined}
+                    className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors mb-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 text-sm ${isCollapsed ? 'justify-center' : ''}`}
+                >
+                    <Mail className="w-4 h-4 flex-shrink-0" />
+                    {!isCollapsed && <span className="ml-3">Reportar Errores</span>}
+                </Link>
             </div>
             <div className="p-2 border-t flex-shrink-0">
                  <button

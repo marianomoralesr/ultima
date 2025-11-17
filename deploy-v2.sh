@@ -84,6 +84,7 @@ function purge_cloudflare_cache() {
 }
 
 function run_git_checks() {
+    local allow_any_branch=$1
     echo -e "${YELLOW}[1/6] Running Git pre-deployment checks...${NC}"
 
     # Check for uncommitted changes
@@ -94,9 +95,9 @@ function run_git_checks() {
         exit 1
     fi
 
-    # Check if on main branch
+    # Check if on main branch (skip for staging if allow_any_branch is true)
     local current_branch=$(git rev-parse --abbrev-ref HEAD)
-    if [ "$current_branch" != "main" ]; then
+    if [ "$allow_any_branch" != "true" ] && [ "$current_branch" != "main" ]; then
         echo -e "${RED}✗ Error: You must be on the 'main' branch to deploy.${NC}"
         echo "Your current branch is '$current_branch'."
         exit 1
@@ -104,8 +105,8 @@ function run_git_checks() {
 
     # Check if remote tracking branch exists
     if ! git rev-parse --abbrev-ref --symbolic-full-name @{u} > /dev/null 2>&1; then
-        echo -e "${RED}✗ Error: Your 'main' branch is not tracking a remote branch.${NC}"
-        echo "Please set up remote tracking with: git branch --set-upstream-to=origin/main main"
+        echo -e "${RED}✗ Error: Your '$current_branch' branch is not tracking a remote branch.${NC}"
+        echo "Please set up remote tracking with: git branch --set-upstream-to=origin/$current_branch $current_branch"
         exit 1
     fi
 
@@ -121,22 +122,22 @@ function run_git_checks() {
         local commits_ahead=$(git rev-list @{u}..HEAD --count)
 
         if [ "$commits_behind" -gt 0 ] && [ "$commits_ahead" -eq 0 ]; then
-            echo -e "${RED}✗ Error: Your local 'main' branch is BEHIND the remote by $commits_behind commit(s).${NC}"
+            echo -e "${RED}✗ Error: Your local '$current_branch' branch is BEHIND the remote by $commits_behind commit(s).${NC}"
             echo "Please run 'git pull' to sync your branch."
             exit 1
         elif [ "$commits_ahead" -gt 0 ] && [ "$commits_behind" -eq 0 ]; then
-            echo -e "${RED}✗ Error: Your local 'main' branch is AHEAD of the remote by $commits_ahead commit(s).${NC}"
+            echo -e "${RED}✗ Error: Your local '$current_branch' branch is AHEAD of the remote by $commits_ahead commit(s).${NC}"
             echo "Please run 'git push' to sync your branch."
             exit 1
         else
-            echo -e "${RED}✗ Error: Your local 'main' branch has DIVERGED from the remote.${NC}"
+            echo -e "${RED}✗ Error: Your local '$current_branch' branch has DIVERGED from the remote.${NC}"
             echo "Behind: $commits_behind commits | Ahead: $commits_ahead commits"
             echo "Please resolve this with rebase or merge."
             exit 1
         fi
     fi
 
-    echo -e "${GREEN}✓ Git checks passed. You are on the latest version of 'main'.${NC}"
+    echo -e "${GREEN}✓ Git checks passed. You are on the latest version of '$current_branch'.${NC}"
     echo -e "  Current commit: ${YELLOW}$(git rev-parse --short HEAD)${NC}"
     echo -e "  Commit message: ${BLUE}$(git log -1 --pretty=%B | head -n 1)${NC}"
     echo -e "  Author: $(git log -1 --pretty=%an)"
@@ -418,7 +419,7 @@ COMMAND=$1
 
 case $COMMAND in
     staging)
-        run_git_checks
+        run_git_checks "true"  # Allow deploying from any branch to staging
         deploy_staging
         ;;
     promote)
@@ -428,7 +429,7 @@ case $COMMAND in
         echo -e "Usage: $0 [command]"
         echo ""
         echo "Commands:"
-        echo "  staging          Builds the current state of 'main' and deploys it to the staging environment."
+        echo "  staging          Builds the current branch and deploys it to the staging environment."
         echo "  promote [hash]   Promotes a previously deployed staging version to production."
         echo ""
         exit 1

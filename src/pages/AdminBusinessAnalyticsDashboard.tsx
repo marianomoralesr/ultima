@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BusinessAnalyticsService, BusinessMetrics } from '../services/BusinessAnalyticsService';
 import { BrevoEmailService } from '../services/BrevoEmailService';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 import {
     Car,
     AlertTriangle,
@@ -17,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Line, LineChart } from 'recharts';
 
-const COLORS = ['#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12', '#431407'];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function AdminBusinessAnalyticsDashboard() {
     const { user, profile } = useAuth();
@@ -32,9 +35,6 @@ export default function AdminBusinessAnalyticsDashboard() {
     const isAdmin = profile?.role === 'admin';
 
     useEffect(() => {
-        console.log('[Business Analytics Page] Component mounted');
-        console.log('[Business Analytics Page] User:', user?.id);
-        console.log('[Business Analytics Page] Profile role:', profile?.role);
         loadBusinessData();
     }, []);
 
@@ -47,35 +47,14 @@ export default function AdminBusinessAnalyticsDashboard() {
                 setRefreshing(true);
             }
 
-            console.log('[Business Analytics Page] Starting to load data...');
-            console.log('[Business Analytics Page] Calling BusinessAnalyticsService.getBusinessMetrics()...');
-
             const businessMetrics = await BusinessAnalyticsService.getBusinessMetrics();
-
-            console.log('[Business Analytics Page] Data loaded successfully:', {
-                hasVehicleInsights: businessMetrics?.vehicleInsights?.length > 0,
-                hasPriceRangeInsights: businessMetrics?.priceRangeInsights?.length > 0,
-                hasLeadPersonaInsights: businessMetrics?.leadPersonaInsights?.length > 0,
-                totalActiveApplications: businessMetrics?.totalActiveApplications
-            });
-
             setMetrics(businessMetrics);
             setLastUpdated(new Date());
             setError(null);
         } catch (error) {
             console.error('[Business Analytics Page] Error loading metrics:', error);
-            console.error('[Business Analytics Page] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-
             const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
             setError(`Error cargando datos: ${errorMessage}`);
-
-            // Don't use alert - show error in UI instead
-            console.error('[Business Analytics Page] Error details:', {
-                error,
-                errorMessage,
-                errorType: typeof error,
-                errorKeys: error && typeof error === 'object' ? Object.keys(error) : []
-            });
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -105,11 +84,10 @@ export default function AdminBusinessAnalyticsDashboard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
-                    <RefreshCw className="w-12 h-12 animate-spin text-orange-600 mx-auto mb-4" />
-                    <p className="text-gray-600">Cargando análisis de negocio...</p>
-                    <p className="text-xs text-gray-400 mt-2">Esto puede tomar unos segundos</p>
+                    <RefreshCw className="w-8 h-8 animate-spin text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Cargando análisis de negocio...</p>
                 </div>
             </div>
         );
@@ -117,270 +95,209 @@ export default function AdminBusinessAnalyticsDashboard() {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <div className="text-center max-w-2xl mx-auto p-8">
-                    <AlertTriangle className="w-16 h-16 text-red-600 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Error al cargar datos</h2>
-                    <p className="text-gray-600 mb-4">{error}</p>
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
-                        <p className="text-sm text-red-800 font-semibold mb-2">Pasos para resolver:</p>
-                        <ul className="text-sm text-red-700 space-y-1 list-disc list-inside">
-                            <li>Verifica tu conexión a internet</li>
-                            <li>Asegúrate de tener permisos de administrador</li>
-                            <li>Revisa la consola del navegador (F12) para más detalles</li>
-                            <li>Si el problema persiste, contacta a soporte técnico</li>
-                        </ul>
-                    </div>
-                    <button
-                        onClick={() => loadBusinessData(false)}
-                        className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2 mx-auto"
-                    >
-                        <RefreshCw className="w-5 h-5" />
-                        Reintentar
-                    </button>
-                </div>
+            <div className="flex items-center justify-center min-h-screen">
+                <Card className="max-w-2xl">
+                    <CardContent className="pt-6">
+                        <div className="text-center">
+                            <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
+                            <h2 className="text-xl font-bold mb-2">Error al cargar datos</h2>
+                            <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                            <Button onClick={() => loadBusinessData(false)}>
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                                Reintentar
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     if (!metrics) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <div className="text-center">
-                    <AlertTriangle className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-4">No se pudieron cargar los datos</p>
-                    <button
-                        onClick={() => loadBusinessData(false)}
-                        className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
-                    >
-                        Reintentar
-                    </button>
-                </div>
+            <div className="flex items-center justify-center min-h-screen">
+                <Card className="max-w-md">
+                    <CardContent className="pt-6 text-center">
+                        <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-sm text-muted-foreground mb-4">No se pudieron cargar los datos</p>
+                        <Button onClick={() => loadBusinessData(false)}>Reintentar</Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12">
-            {/* Header */}
-            <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-10 shadow-lg">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-white">
-                                Datos
-                            </h1>
-                            <p className="text-sm text-gray-300 mt-1">
-                                Análisis de vehículos, ventas y tendencias de mercado
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-xs text-gray-400">Última actualización</p>
-                                <p className="text-sm font-medium text-white">
-                                    {lastUpdated.toLocaleTimeString('es-MX')}
-                                </p>
-                            </div>
-                            <button
-                                onClick={() => loadBusinessData(true)}
-                                disabled={refreshing}
-                                className="p-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
-                                title="Actualizar datos"
-                            >
-                                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-                            </button>
-                        </div>
+        <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight">Análisis de Negocio</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Análisis de vehículos, ventas y tendencias de mercado
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Última actualización</p>
+                        <p className="text-sm font-medium">{lastUpdated.toLocaleTimeString('es-MX')}</p>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => loadBusinessData(true)}
+                        disabled={refreshing}
+                    >
+                        <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                    </Button>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <MetricCard
-                        title="Solicitudes Activas"
-                        value={metrics.totalActiveApplications}
-                        icon={<Package className="w-6 h-6" />}
-                        color="orange"
-                        subtitle="En proceso"
-                    />
-                    <MetricCard
-                        title="Vehículos con Solicitudes"
-                        value={metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length}
-                        icon={<Car className="w-6 h-6" />}
-                        color="blue"
-                        subtitle="Inventario con demanda"
-                    />
-                </div>
-
-                {/* Unavailable Vehicle Applications - URGENT */}
-                {metrics.unavailableVehicleApplications.length > 0 && (
-                    <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <AlertTriangle className="w-6 h-6 text-red-600" />
-                            <div>
-                                <h3 className="text-lg font-bold text-red-900">
-                                    Solicitudes con Vehículos No Disponibles
-                                </h3>
-                                <p className="text-sm text-red-700">
-                                    {metrics.unavailableVehicleApplications.length} aplicaciones requieren acción inmediata
-                                </p>
-                            </div>
+            {/* Summary Cards */}
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Solicitudes Activas</CardTitle>
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{metrics.totalActiveApplications}</div>
+                        <p className="text-xs text-muted-foreground">En proceso</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Vehículos con Solicitudes</CardTitle>
+                        <Car className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length}
                         </div>
-                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                        <p className="text-xs text-muted-foreground">Inventario con demanda</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Unavailable Vehicle Applications */}
+            {metrics.unavailableVehicleApplications.length > 0 && (
+                <Card className="border-destructive">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5" />
+                            Solicitudes con Vehículos No Disponibles
+                        </CardTitle>
+                        <CardDescription>
+                            {metrics.unavailableVehicleApplications.length} aplicaciones requieren acción inmediata
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
                             {metrics.unavailableVehicleApplications.map(app => (
-                                <div
-                                    key={app.applicationId}
-                                    className="bg-white rounded-lg p-4 flex items-center justify-between border border-red-200"
-                                >
+                                <div key={app.applicationId} className="flex items-center justify-between p-4 border rounded-lg">
                                     <div className="flex-1">
-                                        <p className="font-semibold text-gray-900">{app.vehicleTitle}</p>
-                                        <p className="text-sm text-gray-600">
+                                        <p className="font-medium">{app.vehicleTitle}</p>
+                                        <p className="text-sm text-muted-foreground">
                                             Cliente: {app.applicantName} • {app.applicantEmail}
                                         </p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Solicitud: {new Date(app.createdAt).toLocaleDateString('es-MX')} •
-                                            Estado: {app.status}
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Solicitud: {new Date(app.createdAt).toLocaleDateString('es-MX')} • Estado: {app.status}
                                         </p>
                                     </div>
-                                    <button
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
                                         onClick={() => handleSendAvailabilityEmail(app)}
                                         disabled={sendingEmail === app.applicationId}
-                                        className="ml-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 text-sm font-medium"
                                     >
                                         {sendingEmail === app.applicationId ? (
-                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                                         ) : (
-                                            <Mail className="w-4 h-4" />
+                                            <Mail className="h-4 w-4 mr-2" />
                                         )}
                                         Notificar Cliente
-                                    </button>
+                                    </Button>
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )}
+                    </CardContent>
+                </Card>
+            )}
 
-                {/* Vehicle Insights - Most Active Vehicles */}
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <Car className="w-6 h-6 text-orange-600" />
-                                Vehículos con Mayor Demanda
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Top 10 vehículos por cantidad de solicitudes activas
-                            </p>
-                        </div>
-                    </div>
+            {/* Vehicle Insights */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Car className="h-5 w-5" />
+                        Vehículos con Mayor Demanda
+                    </CardTitle>
+                    <CardDescription>Top 10 vehículos por cantidad de solicitudes activas</CardDescription>
+                </CardHeader>
+                <CardContent>
                     {metrics.vehicleInsights.length === 0 ? (
                         <div className="text-center py-12">
-                            <Car className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500 text-sm">No hay datos de solicitudes por vehículo aún</p>
-                            <p className="text-gray-400 text-xs mt-2">Los datos aparecerán cuando haya solicitudes activas</p>
+                            <Car className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                            <p className="text-sm text-muted-foreground">No hay datos de solicitudes por vehículo aún</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="space-y-3">
                             {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
-                            <div
-                                key={vehicle.id}
-                                className="bg-gradient-to-r from-orange-50 to-white rounded-lg p-4 border border-orange-200 hover:border-orange-300 transition-all"
-                            >
-                                <div className="flex items-start gap-4">
+                                <div key={vehicle.id} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-accent transition-colors">
                                     <div className="flex-shrink-0">
                                         {vehicle.thumbnail ? (
-                                            <img
-                                                src={vehicle.thumbnail}
-                                                alt={vehicle.titulo}
-                                                className="w-20 h-20 rounded-lg object-cover"
-                                            />
+                                            <img src={vehicle.thumbnail} alt={vehicle.titulo} className="w-16 h-16 rounded object-cover" />
                                         ) : (
-                                            <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
-                                                <Car className="w-8 h-8 text-gray-400" />
+                                            <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
+                                                <Car className="w-6 h-6 text-muted-foreground" />
                                             </div>
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-2">
-                                            <p className="font-semibold text-gray-900 text-sm line-clamp-2">
-                                                {vehicle.titulo}
-                                            </p>
-                                            <span className="flex-shrink-0 text-2xl font-bold text-orange-600">
-                                                #{index + 1}
-                                            </span>
+                                            <div>
+                                                <p className="font-medium text-sm line-clamp-1">{vehicle.titulo}</p>
+                                                <p className="text-xs text-muted-foreground">${vehicle.precio.toLocaleString('es-MX')} MXN</p>
+                                            </div>
+                                            <Badge variant="outline">#{index + 1}</Badge>
                                         </div>
-                                        <p className="text-xs text-gray-600 mt-1">
-                                            ${vehicle.precio.toLocaleString('es-MX')} MXN
-                                        </p>
-                                        <div className="grid grid-cols-2 gap-3 mt-2">
+                                        <div className="grid grid-cols-2 gap-2 mt-2">
                                             <div className="flex items-center gap-1">
-                                                <BarChart3 className="w-4 h-4 text-orange-600" />
-                                                <span className="text-sm font-semibold text-gray-900">
-                                                    {vehicle.applicationCount}
-                                                </span>
-                                                <span className="text-xs text-gray-500">solicitudes</span>
+                                                <BarChart3 className="w-3 h-3 text-muted-foreground" />
+                                                <span className="text-xs"><span className="font-semibold">{vehicle.applicationCount}</span> solicitudes</span>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                                                <span className="text-sm font-semibold text-gray-900">
-                                                    {vehicle.activeApplications}
-                                                </span>
-                                                <span className="text-xs text-gray-500">activas</span>
+                                                <CheckCircle2 className="w-3 h-3 text-muted-foreground" />
+                                                <span className="text-xs"><span className="font-semibold">{vehicle.activeApplications}</span> activas</span>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <span className="text-sm font-semibold text-gray-900">
-                                                    {vehicle.viewCount}
-                                                </span>
-                                                <span className="text-xs text-gray-500">vistas</span>
+                                                <TrendingUp className="w-3 h-3 text-muted-foreground" />
+                                                <span className="text-xs"><span className="font-semibold">{vehicle.conversionRate}%</span> conversión</span>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <TrendingUp className="w-4 h-4 text-purple-600" />
-                                                <span className="text-sm font-semibold text-gray-900">
-                                                    {vehicle.conversionRate}%
-                                                </span>
-                                                <span className="text-xs text-gray-500">conversión</span>
-                                            </div>
-                                        </div>
-                                        <div className="mt-2">
-                                            <span className={`inline-block text-xs px-2 py-1 rounded ${
-                                                vehicle.ordenstatus === 'Disponible'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-gray-100 text-gray-700'
-                                            }`}>
+                                            <Badge variant={vehicle.ordenstatus === 'Disponible' ? 'default' : 'secondary'} className="text-xs">
                                                 {vehicle.ordenstatus}
-                                            </span>
+                                            </Badge>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                         </div>
                     )}
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Inventory Vehicles with Applications */}
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <Package className="w-6 h-6 text-orange-600" />
-                                Inventario con Solicitudes Activas
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                                Todos los vehículos en inventario con aplicaciones activas
-                            </p>
-                        </div>
-                    </div>
-                    {metrics.inventoryVehiclesWithApplications.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500 text-sm">No hay vehículos en inventario con solicitudes activas</p>
-                            <p className="text-gray-400 text-xs mt-2">Los datos aparecerán cuando haya solicitudes en proceso</p>
+            {/* Inventory with Active Applications */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Package className="h-5 w-5" />
+                        Inventario con Solicitudes Activas
+                    </CardTitle>
+                    <CardDescription>Vehículos en inventario con aplicaciones en proceso</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 ? (
+                        <div className="text-center py-8">
+                            <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                            <p className="text-sm text-muted-foreground">No hay vehículos con solicitudes activas</p>
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -388,59 +305,36 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 .filter(v => v.ongoingApplications > 0)
                                 .slice(0, 30)
                                 .map((vehicle) => (
-                                <div
-                                    key={vehicle.id}
-                                    className="flex items-center justify-between p-4 bg-gray-50 hover:bg-orange-50 rounded-lg transition-colors border border-gray-200"
-                                >
-                                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                                        <span className="text-sm font-mono text-gray-500 flex-shrink-0">
-                                            #{String(vehicle.id).slice(0, 8)}
-                                        </span>
-                                        <div className="flex-1 min-w-0">
-                                            <span className="text-sm font-medium text-gray-900 truncate block">
-                                                {vehicle.titulo}
-                                            </span>
-                                            <div className="flex items-center gap-4 mt-1">
-                                                <span className="text-xs text-gray-500">
-                                                    <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                    {vehicle.viewCount} vistas
-                                                </span>
-                                                <span className="text-xs text-purple-600 font-semibold">
-                                                    {vehicle.conversionRate}% conversión
-                                                </span>
+                                    <div key={vehicle.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors">
+                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <span className="text-xs font-mono text-muted-foreground">#{String(vehicle.id).slice(0, 8)}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{vehicle.titulo}</p>
+                                                <p className="text-xs text-muted-foreground">{vehicle.conversionRate}% conversión</p>
                                             </div>
                                         </div>
+                                        <Button variant="outline" size="sm" asChild>
+                                            <a href={`/escritorio/admin/crm?vehicle=${vehicle.id}`}>
+                                                {vehicle.ongoingApplications} solicitudes
+                                            </a>
+                                        </Button>
                                     </div>
-                                    <a
-                                        href={`/escritorio/admin/crm?vehicle=${vehicle.id}`}
-                                        className="flex items-center gap-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg text-sm font-semibold transition-colors flex-shrink-0"
-                                    >
-                                        {vehicle.ongoingApplications} solicitudes activas
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </a>
-                                </div>
-                            ))}
-                            {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 && (
-                                <div className="text-center py-8 text-gray-500 text-sm">
-                                    No hay vehículos en inventario con solicitudes activas en este momento
-                                </div>
-                            )}
+                                ))}
                         </div>
                     )}
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Price Range Insights */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
-                            <DollarSign className="w-6 h-6 text-orange-600" />
+            {/* Charts */}
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <DollarSign className="h-5 w-5" />
                             Distribución por Rango de Precio
-                        </h3>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
                         <ResponsiveContainer width="100%" height={300}>
                             <RechartsPieChart>
                                 <Pie
@@ -450,7 +344,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                     labelLine={false}
                                     label={(entry) => `${entry.range}: ${entry.count}`}
                                     outerRadius={80}
-                                    fill="#8884d8"
+                                    fill="hsl(var(--primary))"
                                     dataKey="count"
                                 >
                                     {metrics.priceRangeInsights.map((entry, index) => (
@@ -460,121 +354,87 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 <Tooltip />
                             </RechartsPieChart>
                         </ResponsiveContainer>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
-                            <BarChart3 className="w-6 h-6 text-orange-600" />
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5" />
                             Promedio de Solicitudes por Rango
-                        </h3>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
                         <ResponsiveContainer width="100%" height={300}>
                             <RechartsBarChart data={metrics.priceRangeInsights}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} />
-                                <YAxis />
+                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} className="text-xs" />
+                                <YAxis className="text-xs" />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="avgApplications" fill="#f97316" name="Promedio de Solicitudes" />
+                                <Bar dataKey="avgApplications" fill="hsl(var(--primary))" name="Promedio de Solicitudes" />
                             </RechartsBarChart>
                         </ResponsiveContainer>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
+            </div>
 
-                {/* Lead Persona Insights */}
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
-                        <Users className="w-6 h-6 text-orange-600" />
+            {/* Lead Personas */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
                         Perfil de Leads y Tasas de Aprobación
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {metrics.leadPersonaInsights.map(persona => (
-                            <div
-                                key={persona.civilStatus}
-                                className="bg-gradient-to-br from-orange-50 to-white rounded-lg p-4 border border-orange-200"
-                            >
-                                <h4 className="font-semibold text-gray-900 mb-3">{persona.civilStatus}</h4>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-600">Cantidad:</span>
-                                        <span className="font-bold text-gray-900">{persona.count}</span>
+                            <Card key={persona.civilStatus}>
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-base">{persona.civilStatus}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Cantidad:</span>
+                                        <span className="font-semibold">{persona.count}</span>
                                     </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-600">Ingreso Prom:</span>
-                                        <span className="font-bold text-gray-900">
-                                            ${Math.round(persona.avgIncome).toLocaleString('es-MX')}
-                                        </span>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Ingreso Prom:</span>
+                                        <span className="font-semibold">${Math.round(persona.avgIncome).toLocaleString('es-MX')}</span>
                                     </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-600">Tasa Aprobación:</span>
-                                        <span className={`font-bold ${
-                                            persona.approvalRate >= 50 ? 'text-green-600' : 'text-orange-600'
-                                        }`}>
-                                            {persona.approvalRate.toFixed(1)}%
-                                        </span>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">Tasa Aprobación:</span>
+                                        <span className="font-semibold">{persona.approvalRate.toFixed(1)}%</span>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Conversion Rate by Price Chart */}
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-6">
-                        <TrendingUp className="w-6 h-6 text-orange-600" />
+            {/* Conversion Rate Chart */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
                         Tasa de Conversión por Rango de Precio
-                    </h3>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={metrics.conversionRateByPrice}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="range" />
-                            <YAxis />
+                            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                            <XAxis dataKey="range" className="text-xs" />
+                            <YAxis className="text-xs" />
                             <Tooltip />
                             <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey="rate"
-                                stroke="#f97316"
-                                strokeWidth={2}
-                                name="Promedio de Solicitudes"
-                            />
+                            <Line type="monotone" dataKey="rate" stroke="hsl(var(--primary))" strokeWidth={2} name="Promedio de Solicitudes" />
                         </LineChart>
                     </ResponsiveContainer>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// Helper Components
-interface MetricCardProps {
-    title: string;
-    value: string | number;
-    icon: React.ReactNode;
-    color: 'orange' | 'blue' | 'green' | 'red';
-    subtitle?: string;
-}
-
-function MetricCard({ title, value, icon, color, subtitle }: MetricCardProps) {
-    const colorClasses = {
-        orange: 'bg-orange-50 border-orange-200 text-orange-600',
-        blue: 'bg-blue-50 border-blue-200 text-blue-600',
-        green: 'bg-green-50 border-green-200 text-green-600',
-        red: 'bg-red-50 border-red-200 text-red-600'
-    };
-
-    return (
-        <div className={`${colorClasses[color].split(' ')[0]} rounded-xl shadow-sm p-6 border-2 ${colorClasses[color].split(' ')[1]}`}>
-            <div className="flex items-start justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
-                <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
-                    {icon}
-                </div>
-            </div>
-            <p className={`text-3xl font-black ${colorClasses[color].split(' ')[2]}`}>
-                {value}
-            </p>
-            {subtitle && <p className="text-sm text-gray-600 mt-2">{subtitle}</p>}
+                </CardContent>
+            </Card>
         </div>
     );
 }

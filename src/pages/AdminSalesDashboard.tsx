@@ -7,6 +7,10 @@ import TrendLineChart from '../components/dashboard/TrendLineChart';
 import SourcePieChart from '../components/dashboard/SourcePieChart';
 import ConversionFunnel from '../components/dashboard/ConversionFunnel';
 import FilterPanel from '../components/dashboard/FilterPanel';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Badge } from '../components/ui/badge';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import {
     BarChart3,
@@ -123,10 +127,10 @@ export default function AdminSalesDashboard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
-                    <RefreshCw className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-                    <p className="text-gray-600">Cargando dashboard...</p>
+                    <RefreshCw className="w-8 h-8 animate-spin text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Cargando dashboard...</p>
                 </div>
             </div>
         );
@@ -134,668 +138,558 @@ export default function AdminSalesDashboard() {
 
     if (!metrics) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                <div className="text-center">
-                    <p className="text-gray-600">No se pudieron cargar los datos del dashboard</p>
-                    <button
-                        onClick={handleManualRefresh}
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                        Reintentar
-                    </button>
-                </div>
+            <div className="flex items-center justify-center min-h-screen">
+                <Card className="max-w-md">
+                    <CardContent className="pt-6 text-center">
+                        <p className="text-sm text-muted-foreground mb-4">No se pudieron cargar los datos del dashboard</p>
+                        <Button onClick={handleManualRefresh}>
+                            Reintentar
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12">
-            {/* Header */}
-            <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-10 shadow-lg">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-white">
-                                Dashboard {isAdmin ? 'Administrativo' : 'de Ventas'}
-                            </h1>
-                            <p className="text-sm text-gray-300 mt-1">
-                                Bienvenido, {userName}
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-xs text-gray-400">Última actualización</p>
-                                <p className="text-sm font-medium text-white">
-                                    {lastUpdated.toLocaleTimeString('es-MX')}
-                                </p>
-                            </div>
-                            <button
-                                onClick={handleManualRefresh}
-                                disabled={refreshing}
-                                className="p-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
-                                title="Actualizar datos"
-                            >
-                                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-                            </button>
-                        </div>
+        <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        {isAdmin ? 'Dashboard Administrativo' : 'Dashboard de Ventas'}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Bienvenido, {userName}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Última actualización</p>
+                        <p className="text-sm font-medium">
+                            {lastUpdated.toLocaleTimeString('es-MX')}
+                        </p>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleManualRefresh}
+                        disabled={refreshing}
+                        title="Actualizar datos"
+                    >
+                        <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                    </Button>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                {/* Filter Panel */}
-                <FilterPanel
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    onReset={handleResetFilters}
-                />
+            {/* Filter Panel */}
+            <FilterPanel
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onReset={handleResetFilters}
+            />
 
-                {/* 24-Hour Metric - PROMINENT AT TOP */}
-                <div className="mb-8">
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-xl p-8 border-2 border-green-400 hover:shadow-2xl transition-all">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-5">
-                                <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                                    <Zap className="w-10 h-10 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-white text-sm font-semibold uppercase tracking-wider mb-2">
-                                        Últimas 24 Horas
-                                    </h3>
-                                    <p className="text-white text-5xl font-bold mb-2">
-                                        {metrics.completedLast24Hours}
-                                    </p>
-                                    <p className="text-green-50 text-base font-medium">
-                                        Solicitudes completadas (Aprobadas + Completadas)
-                                    </p>
-                                </div>
+            {/* 24-Hour Metric */}
+            <Card className="border-l-4 border-l-blue-500">
+                <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100 rounded-lg">
+                                <Zap className="h-6 w-6 text-blue-600" />
                             </div>
-                            <div className="text-right bg-white/10 rounded-xl px-4 py-3 backdrop-blur-sm">
-                                <div className="text-white/90 text-xs font-medium uppercase tracking-wide">Tiempo real</div>
-                                <div className="text-white text-base font-bold mt-1">
-                                    {lastUpdated.toLocaleTimeString('es-MX')}
-                                </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">
+                                    Últimas 24 Horas
+                                </p>
+                                <h3 className="text-3xl font-bold">
+                                    {metrics.completedLast24Hours}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Solicitudes completadas (Aprobadas + Completadas)
+                                </p>
                             </div>
                         </div>
+                        <Badge variant="outline">
+                            {lastUpdated.toLocaleTimeString('es-MX')}
+                        </Badge>
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Key Metrics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    {/* Total Applications */}
-                    <MetricCard
-                        title="Solicitudes Totales"
-                        value={metrics.totalApplications}
-                        icon={<FileText className="w-6 h-6" />}
-                        color="blue"
-                        trendPercent={trends?.applicationsChangePercent}
-                        onClick={() => navigate('/escritorio/mis-aplicaciones')}
-                    />
+            {/* Key Metrics Grid */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <MetricCard
+                    title="Solicitudes Totales"
+                    value={metrics.totalApplications}
+                    icon={<FileText className="h-4 w-4" />}
+                    trendPercent={trends?.applicationsChangePercent}
+                    onClick={() => navigate('/escritorio/mis-aplicaciones')}
+                />
+                <MetricCard
+                    title="En Cola/Pendientes"
+                    value={metrics.pendingApplications}
+                    icon={<Clock className="h-4 w-4" />}
+                    description={`${((metrics.pendingApplications / (metrics.totalApplications || 1)) * 100).toFixed(0)}% del total`}
+                />
+                <MetricCard
+                    title="Procesadas"
+                    value={metrics.processedApplications}
+                    icon={<BarChart3 className="h-4 w-4" />}
+                />
+                <MetricCard
+                    title="Aprobadas"
+                    value={metrics.approvedApplications}
+                    icon={<CheckCircle className="h-4 w-4" />}
+                    description={`${metrics.approvalRate}% tasa de aprobación`}
+                    variant="success"
+                />
+                <MetricCard
+                    title="Enviadas con Documentos"
+                    value={metrics.submittedWithDocuments}
+                    icon={<FileCheck className="h-4 w-4" />}
+                    description="Solicitudes completas"
+                    variant="success"
+                />
+                <MetricCard
+                    title="Enviadas sin Documentos"
+                    value={metrics.submittedWithoutDocuments}
+                    icon={<FileX className="h-4 w-4" />}
+                    description="Requieren documentos"
+                    variant="destructive"
+                />
+            </div>
 
-                    {/* Pending Applications */}
-                    <MetricCard
-                        title="En Cola/Pendientes"
-                        value={metrics.pendingApplications}
-                        icon={<Clock className="w-6 h-6" />}
-                        color="yellow"
-                        subtitle={`${((metrics.pendingApplications / (metrics.totalApplications || 1)) * 100).toFixed(0)}% del total`}
-                    />
-
-                    {/* Processed Applications */}
-                    <MetricCard
-                        title="Procesadas"
-                        value={metrics.processedApplications}
-                        icon={<BarChart3 className="w-6 h-6" />}
-                        color="purple"
-                    />
-
-                    {/* Approved Applications */}
-                    <MetricCard
-                        title="Aprobadas"
-                        value={metrics.approvedApplications}
-                        icon={<CheckCircle className="w-6 h-6" />}
-                        color="green"
-                        subtitle={`${metrics.approvalRate}% tasa de aprobación`}
-                    />
-
-                    {/* Submitted With Documents */}
-                    <MetricCard
-                        title="Enviadas con Documentos"
-                        value={metrics.submittedWithDocuments}
-                        icon={<FileCheck className="w-6 h-6" />}
-                        color="green"
-                        subtitle="Solicitudes completas"
-                    />
-
-                    {/* Submitted Without Documents */}
-                    <MetricCard
-                        title="Enviadas sin Documentos"
-                        value={metrics.submittedWithoutDocuments}
-                        icon={<FileX className="w-6 h-6" />}
-                        color="red"
-                        subtitle="Requieren documentos"
-                        urgent={metrics.submittedWithoutDocuments > 5}
-                    />
-                </div>
-
-                {/* Website Lead Metrics */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <Globe className="w-6 h-6 text-blue-600" />
+            {/* Website Leads */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Globe className="h-5 w-5" />
                         Leads del Sitio Web
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
                         <MetricCard
                             title="Total de Leads Web"
                             value={metrics.websiteLeads.total}
-                            icon={<Users className="w-6 h-6" />}
-                            color="indigo"
+                            icon={<Users className="h-4 w-4" />}
                             trendPercent={trends?.leadsChangePercent}
                             onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
                         />
-
                         <MetricCard
                             title="Leads Contactados"
                             value={metrics.websiteLeads.contacted}
-                            icon={<MessageSquare className="w-6 h-6" />}
-                            color="green"
-                            subtitle={`${((metrics.websiteLeads.contacted / (metrics.websiteLeads.total || 1)) * 100).toFixed(0)}% contactados`}
+                            icon={<MessageSquare className="h-4 w-4" />}
+                            description={`${((metrics.websiteLeads.contacted / (metrics.websiteLeads.total || 1)) * 100).toFixed(0)}% contactados`}
+                            variant="success"
                         />
-
                         <MetricCard
                             title="Sin Contactar"
                             value={metrics.websiteLeads.uncontacted}
-                            icon={<Clock className="w-6 h-6" />}
-                            color="red"
-                            urgent={metrics.websiteLeads.uncontacted > 10}
+                            icon={<Clock className="h-4 w-4" />}
+                            variant={metrics.websiteLeads.uncontacted > 10 ? "destructive" : "default"}
                         />
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Kommo CRM Lead Metrics */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <Bot className="w-6 h-6 text-purple-600" />
+            {/* Kommo CRM Leads */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Bot className="h-5 w-5" />
                         Leads de Kommo CRM
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
                         <MetricCard
                             title="Total de Leads Kommo"
                             value={metrics.kommoLeads.total}
-                            icon={<Users className="w-6 h-6" />}
-                            color="purple"
+                            icon={<Users className="h-4 w-4" />}
                         />
-
                         <MetricCard
                             title="Leads Activos"
                             value={metrics.kommoLeads.active}
-                            icon={<CheckCircle className="w-6 h-6" />}
-                            color="green"
-                            subtitle={`${((metrics.kommoLeads.active / (metrics.kommoLeads.total || 1)) * 100).toFixed(0)}% activos`}
+                            icon={<CheckCircle className="h-4 w-4" />}
+                            description={`${((metrics.kommoLeads.active / (metrics.kommoLeads.total || 1)) * 100).toFixed(0)}% activos`}
+                            variant="success"
                         />
-
                         <MetricCard
                             title="Leads Eliminados"
                             value={metrics.kommoLeads.deleted}
-                            icon={<Clock className="w-6 h-6" />}
-                            color="red"
+                            icon={<Clock className="h-4 w-4" />}
                         />
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Performance Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-md p-8 border-2 border-orange-200 hover:border-orange-300 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold text-gray-900">Tasa de Conversión</h3>
-                            <div className="p-3 bg-orange-100 rounded-xl">
-                                <TrendingUp className="w-6 h-6 text-orange-600" />
-                            </div>
-                        </div>
-                        <div className="mb-4">
-                            <div className="flex items-baseline gap-3 mb-2">
-                                <span className="text-5xl font-black text-orange-600">
-                                    {metrics.conversionRate}%
-                                </span>
-                            </div>
-                            <span className="text-sm font-medium text-gray-600">Leads a Solicitudes</span>
-                        </div>
+            {/* Performance Metrics */}
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5" />
+                            Tasa de Conversión
+                        </CardTitle>
+                        <CardDescription>Leads a Solicitudes</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{metrics.conversionRate}%</div>
                         {trends?.conversionChangePercent !== undefined && trends.conversionChangePercent !== 0 && (
-                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg mb-4 ${
-                                trends.conversionChangePercent > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                            }`}>
-                                {trends.conversionChangePercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                                <span className="text-sm font-bold">
-                                    {trends.conversionChangePercent > 0 ? '+' : ''}{trends.conversionChangePercent.toFixed(1)}%
+                            <div className="mt-2 flex items-center gap-2">
+                                {trends.conversionChangePercent > 0 ? (
+                                    <TrendingUp className="h-4 w-4 text-green-600" />
+                                ) : (
+                                    <TrendingDown className="h-4 w-4 text-red-600" />
+                                )}
+                                <span className={`text-sm font-medium ${trends.conversionChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {trends.conversionChangePercent > 0 ? '+' : ''}{trends.conversionChangePercent.toFixed(1)}% vs anterior
                                 </span>
-                                <span className="text-xs font-medium opacity-80">vs anterior</span>
                             </div>
                         )}
-                        <div className="w-full bg-gray-300 rounded-full h-3 shadow-inner">
+                        <div className="mt-4 w-full bg-secondary rounded-full h-2">
                             <div
-                                className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-700 shadow-sm"
+                                className="bg-blue-600 h-2 rounded-full transition-all"
                                 style={{ width: `${Math.min(metrics.conversionRate, 100)}%` }}
                             />
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-md p-8 border-2 border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold text-gray-900">Tasa de Aprobación</h3>
-                            <div className="p-3 bg-gray-200 rounded-xl">
-                                <CheckCircle className="w-6 h-6 text-gray-600" />
-                            </div>
-                        </div>
-                        <div className="mb-4">
-                            <div className="flex items-baseline gap-3 mb-2">
-                                <span className="text-5xl font-black text-gray-700">
-                                    {metrics.approvalRate}%
-                                </span>
-                            </div>
-                            <span className="text-sm font-medium text-gray-600">Solicitudes Aprobadas</span>
-                        </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5" />
+                            Tasa de Aprobación
+                        </CardTitle>
+                        <CardDescription>Solicitudes Aprobadas</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{metrics.approvalRate}%</div>
                         {trends?.approvalChangePercent !== undefined && trends.approvalChangePercent !== 0 && (
-                            <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg mb-4 ${
-                                trends.approvalChangePercent > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                            }`}>
-                                {trends.approvalChangePercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                                <span className="text-sm font-bold">
-                                    {trends.approvalChangePercent > 0 ? '+' : ''}{trends.approvalChangePercent.toFixed(1)}%
+                            <div className="mt-2 flex items-center gap-2">
+                                {trends.approvalChangePercent > 0 ? (
+                                    <TrendingUp className="h-4 w-4 text-green-600" />
+                                ) : (
+                                    <TrendingDown className="h-4 w-4 text-red-600" />
+                                )}
+                                <span className={`text-sm font-medium ${trends.approvalChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {trends.approvalChangePercent > 0 ? '+' : ''}{trends.approvalChangePercent.toFixed(1)}% vs anterior
                                 </span>
-                                <span className="text-xs font-medium opacity-80">vs anterior</span>
                             </div>
                         )}
-                        <div className="w-full bg-gray-300 rounded-full h-3 shadow-inner">
+                        <div className="mt-4 w-full bg-secondary rounded-full h-2">
                             <div
-                                className="bg-gradient-to-r from-gray-500 to-gray-600 h-3 rounded-full transition-all duration-700 shadow-sm"
+                                className="bg-green-600 h-2 rounded-full transition-all"
                                 style={{ width: `${Math.min(metrics.approvalRate, 100)}%` }}
                             />
                         </div>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
+            </div>
 
-                {/* Source Attribution */}
-                <div className="bg-white rounded-2xl shadow-md p-8 border-2 border-gray-200 mb-10 hover:border-gray-300 hover:shadow-lg transition-all">
-                    <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-bold text-gray-900">Atribución por Fuente</h3>
-                        <div className="px-3 py-1 bg-gray-100 rounded-lg">
-                            <span className="text-sm font-semibold text-gray-600">{metrics.totalLeads} Total</span>
-                        </div>
+            {/* Source Attribution */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle>Atribución por Fuente</CardTitle>
+                        <Badge variant="secondary">{metrics.totalLeads} Total</Badge>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <SourceCard
-                            name="Facebook"
-                            count={metrics.sourceBreakdown.facebook}
-                            total={metrics.totalLeads}
-                            icon={<Facebook className="w-6 h-6" />}
-                            color="blue"
-                        />
-                        <SourceCard
-                            name="Google"
-                            count={metrics.sourceBreakdown.google}
-                            total={metrics.totalLeads}
-                            icon={<Globe className="w-6 h-6" />}
-                            color="red"
-                        />
-                        <SourceCard
-                            name="Bot/WhatsApp"
-                            count={metrics.sourceBreakdown.bot}
-                            total={metrics.totalLeads}
-                            icon={<Bot className="w-6 h-6" />}
-                            color="green"
-                        />
-                        <SourceCard
-                            name="Directo"
-                            count={metrics.sourceBreakdown.direct}
-                            total={metrics.totalLeads}
-                            icon={<MousePointerClick className="w-6 h-6" />}
-                            color="purple"
-                        />
-                        <SourceCard
-                            name="Otros"
-                            count={metrics.sourceBreakdown.other}
-                            total={metrics.totalLeads}
-                            icon={<Globe className="w-6 h-6" />}
-                            color="gray"
-                        />
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <SourceCard name="Facebook" count={metrics.sourceBreakdown.facebook} total={metrics.totalLeads} icon={<Facebook className="h-4 w-4" />} />
+                        <SourceCard name="Google" count={metrics.sourceBreakdown.google} total={metrics.totalLeads} icon={<Globe className="h-4 w-4" />} />
+                        <SourceCard name="Bot/WhatsApp" count={metrics.sourceBreakdown.bot} total={metrics.totalLeads} icon={<Bot className="h-4 w-4" />} />
+                        <SourceCard name="Directo" count={metrics.sourceBreakdown.direct} total={metrics.totalLeads} icon={<MousePointerClick className="h-4 w-4" />} />
+                        <SourceCard name="Otros" count={metrics.sourceBreakdown.other} total={metrics.totalLeads} icon={<Globe className="h-4 w-4" />} />
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Tabs for Charts, Recent Activity, and Email History */}
-                <div className="bg-white rounded-2xl shadow-md border-2 border-gray-200 mb-8">
-                    {/* Tab Headers */}
-                    <div className="flex border-b-2 border-gray-100 px-2 pt-2">
-                        <button
-                            onClick={() => setActiveTab('charts')}
-                            className={`px-6 py-3 text-sm font-semibold transition-all rounded-t-xl ${
-                                activeTab === 'charts'
-                                    ? 'bg-orange-50 border-b-4 border-orange-600 text-orange-700'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                            }`}
-                        >
-                            📈 Gráficas y Análisis
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('activity')}
-                            className={`px-6 py-3 text-sm font-semibold transition-all rounded-t-xl ${
-                                activeTab === 'activity'
-                                    ? 'bg-orange-50 border-b-4 border-orange-600 text-orange-700'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                            }`}
-                        >
-                            🔄 Actividad Reciente
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('emails')}
-                            className={`px-6 py-3 text-sm font-semibold transition-all rounded-t-xl ${
-                                activeTab === 'emails'
-                                    ? 'bg-orange-50 border-b-4 border-orange-600 text-orange-700'
-                                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                            }`}
-                        >
-                            📧 Historial de Emails
-                        </button>
-                    </div>
+            {/* Tabs for Charts, Activity, and Emails */}
+            <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="space-y-4">
+                <TabsList>
+                    <TabsTrigger value="charts">Gráficas y Análisis</TabsTrigger>
+                    <TabsTrigger value="activity">Actividad Reciente</TabsTrigger>
+                    <TabsTrigger value="emails">Historial de Emails</TabsTrigger>
+                </TabsList>
 
-                    {/* Tab Content */}
-                    <div className="p-8">
-                        {/* Charts Tab */}
-                        {activeTab === 'charts' && (
-                            <div className="space-y-8">
-                                {/* 30-Day Trends Chart */}
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Tendencia de 30 Días</h3>
-                                    {timeSeriesData.length > 0 ? (
-                                        <div style={{ height: '280px' }}>
-                                            <TrendLineChart data={timeSeriesData} />
-                                        </div>
+                <TabsContent value="charts" className="space-y-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Tendencia de 30 Días</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {timeSeriesData.length > 0 ? (
+                                <div style={{ height: '280px' }}>
+                                    <TrendLineChart data={timeSeriesData} />
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center h-64 text-muted-foreground">
+                                    <p className="text-sm">Cargando datos de tendencias...</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Distribución de Fuentes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <SourcePieChart data={metrics.sourceBreakdown} height={280} />
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Pipeline de Conversión</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ConversionFunnel metrics={{
+                                totalLeads: metrics.totalLeads,
+                                contactedLeads: metrics.contactedLeads,
+                                totalApplications: metrics.totalApplications,
+                                processedApplications: metrics.processedApplications,
+                                approvedApplications: metrics.approvedApplications
+                            }} />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="activity" className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Globe className="h-4 w-4" />
+                                    Leads Web Recientes
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    {metrics.recentLeads.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground text-center py-4">No hay leads web recientes</p>
                                     ) : (
-                                        <div className="flex items-center justify-center h-64 text-gray-400">
-                                            <p>Cargando datos de tendencias...</p>
-                                        </div>
+                                        metrics.recentLeads.map((lead) => (
+                                            <div
+                                                key={lead.id}
+                                                onClick={() => navigate(isAdmin ? `/escritorio/admin/cliente/${lead.id}` : `/escritorio/ventas/cliente/${lead.id}`)}
+                                                className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-accent transition-colors"
+                                            >
+                                                <div className="flex-1">
+                                                    <p className="font-medium text-sm">
+                                                        {lead.first_name} {lead.last_name}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">{lead.email}</p>
+                                                </div>
+                                                {lead.contactado ? (
+                                                    <Badge variant="outline">Contactado</Badge>
+                                                ) : (
+                                                    <Badge variant="secondary">Pendiente</Badge>
+                                                )}
+                                            </div>
+                                        ))
                                     )}
                                 </div>
+                            </CardContent>
+                        </Card>
 
-                                {/* Enhanced Source Attribution with Pie Chart */}
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Distribución de Fuentes</h3>
-                                    <SourcePieChart data={metrics.sourceBreakdown} height={280} />
-                                </div>
-
-                                {/* Conversion Funnel */}
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Pipeline de Conversión</h3>
-                                    <ConversionFunnel metrics={{
-                                        totalLeads: metrics.totalLeads,
-                                        contactedLeads: metrics.contactedLeads,
-                                        totalApplications: metrics.totalApplications,
-                                        processedApplications: metrics.processedApplications,
-                                        approvedApplications: metrics.approvedApplications
-                                    }} />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Activity Tab */}
-                        {activeTab === 'activity' && (
-                            <div className="space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Recent Website Leads */}
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                            <Globe className="w-5 h-5 text-blue-600" />
-                                            Leads Web Recientes
-                                        </h3>
-                                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                                            {metrics.recentLeads.length === 0 ? (
-                                                <p className="text-sm text-gray-500 text-center py-4">No hay leads web recientes</p>
-                                            ) : (
-                                                metrics.recentLeads.map((lead) => (
-                                                    <div
-                                                        key={lead.id}
-                                                        onClick={() => navigate(isAdmin ? `/escritorio/admin/cliente/${lead.id}` : `/escritorio/ventas/cliente/${lead.id}`)}
-                                                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                                                    >
-                                                        <div className="flex-1">
-                                                            <p className="font-medium text-gray-900 text-sm">
-                                                                {lead.first_name} {lead.last_name}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500">{lead.email}</p>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            {lead.contactado ? (
-                                                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                                                                    Contactado
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
-                                                                    Pendiente
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Recent Applications */}
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Recientes</h3>
-                                        <div className="space-y-2 max-h-96 overflow-y-auto">
-                                            {metrics.recentApplications.length === 0 ? (
-                                                <p className="text-sm text-gray-500 text-center py-4">No hay solicitudes recientes</p>
-                                            ) : (
-                                                metrics.recentApplications.map((app) => (
-                                                    <div
-                                                        key={app.id}
-                                                        onClick={() => navigate(`/escritorio/aplicacion/${app.id}`)}
-                                                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                                                    >
-                                                        <div className="flex-1">
-                                                            <p className="font-medium text-gray-900 text-sm">
-                                                                Solicitud #{app.id.slice(0, 8)}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500">
-                                                                {new Date(app.created_at).toLocaleDateString('es-MX')}
-                                                            </p>
-                                                        </div>
-                                                        <StatusBadge status={app.status} />
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Recent Kommo Leads */}
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Bot className="w-5 h-5 text-purple-600" />
-                                        Leads Kommo CRM Recientes
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {metrics.recentKommoLeads.length === 0 ? (
-                                            <p className="text-sm text-gray-500 text-center py-4 col-span-full">No hay leads de Kommo recientes</p>
-                                        ) : (
-                                            metrics.recentKommoLeads.map((lead) => (
-                                                <div
-                                                    key={lead.id}
-                                                    className="p-3 bg-purple-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-colors"
-                                                >
-                                                    <div className="flex items-start justify-between mb-2">
-                                                        <p className="font-medium text-gray-900 text-sm flex-1">
-                                                            {lead.name || `Lead #${lead.kommo_id}`}
-                                                        </p>
-                                                        {!lead.is_deleted && (
-                                                            <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded ml-2">
-                                                                Activo
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-xs text-gray-600 mb-1">
-                                                        ID: {lead.kommo_id}
-                                                    </p>
-                                                    {lead.price > 0 && (
-                                                        <p className="text-xs font-semibold text-purple-700">
-                                                            ${lead.price.toLocaleString('es-MX')} MXN
-                                                        </p>
-                                                    )}
-                                                    <p className="text-xs text-gray-500 mt-2">
-                                                        {new Date(lead.created_at).toLocaleDateString('es-MX')}
-                                                    </p>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Email History Tab */}
-                        {activeTab === 'emails' && (
-                            <div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-xl font-bold text-gray-900">Últimos Emails Enviados (Brevo)</h3>
-                                    <Mail className="w-5 h-5 text-gray-400" />
-                                </div>
-                                {emailHistory.length === 0 ? (
-                                    <div className="text-center py-8 text-gray-500">
-                                        <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                                        <p className="text-sm">No hay historial de emails disponible</p>
-                                        <p className="text-xs text-gray-400 mt-1">
-                                            Los emails se registrarán automáticamente cuando se envíen
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                                        {emailHistory.map((email, index) => (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Solicitudes Recientes</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    {metrics.recentApplications.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground text-center py-4">No hay solicitudes recientes</p>
+                                    ) : (
+                                        metrics.recentApplications.map((app) => (
                                             <div
-                                                key={email.id || index}
-                                                className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                                key={app.id}
+                                                onClick={() => navigate(`/escritorio/aplicacion/${app.id}`)}
+                                                className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-accent transition-colors"
                                             >
-                                                <div className="p-2 bg-blue-100 rounded-lg">
-                                                    <Mail className="w-4 h-4 text-blue-600" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <p className="font-medium text-gray-900 text-sm truncate">
-                                                            {email.recipient_email || email.to || 'Sin destinatario'}
-                                                        </p>
-                                                        <span className={`text-xs px-2 py-1 rounded ${
-                                                            email.status === 'sent' || email.status === 'delivered'
-                                                                ? 'bg-green-100 text-green-700'
-                                                                : email.status === 'failed'
-                                                                ? 'bg-red-100 text-red-700'
-                                                                : 'bg-gray-100 text-gray-700'
-                                                        }`}>
-                                                            {email.status || 'unknown'}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-xs text-gray-600 mb-1">
-                                                        {email.template_type || email.subject || 'Sin asunto'}
+                                                <div className="flex-1">
+                                                    <p className="font-medium text-sm">
+                                                        Solicitud #{app.id.slice(0, 8)}
                                                     </p>
-                                                    <p className="text-xs text-gray-400">
-                                                        {new Date(email.created_at || email.sent_at).toLocaleString('es-MX')}
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {new Date(app.created_at).toLocaleDateString('es-MX')}
                                                     </p>
                                                 </div>
+                                                <StatusBadge status={app.status} />
                                             </div>
-                                        ))}
-                                    </div>
+                                        ))
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Bot className="h-4 w-4" />
+                                Leads Kommo CRM Recientes
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {metrics.recentKommoLeads.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground text-center py-4 col-span-full">No hay leads de Kommo recientes</p>
+                                ) : (
+                                    metrics.recentKommoLeads.map((lead) => (
+                                        <Card key={lead.id}>
+                                            <CardContent className="pt-4">
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <p className="font-medium text-sm flex-1">
+                                                        {lead.name || `Lead #${lead.kommo_id}`}
+                                                    </p>
+                                                    {!lead.is_deleted && (
+                                                        <Badge variant="outline">Activo</Badge>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-muted-foreground mb-1">
+                                                    ID: {lead.kommo_id}
+                                                </p>
+                                                {lead.price > 0 && (
+                                                    <p className="text-sm font-semibold">
+                                                        ${lead.price.toLocaleString('es-MX')} MXN
+                                                    </p>
+                                                )}
+                                                <p className="text-xs text-muted-foreground mt-2">
+                                                    {new Date(lead.created_at).toLocaleDateString('es-MX')}
+                                                </p>
+                                            </CardContent>
+                                        </Card>
+                                    ))
                                 )}
                             </div>
-                        )}
-                    </div>
-                </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
 
-                {/* Tasks and Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">Tareas y Recordatorios</h3>
-                            <Calendar className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                                <span className="text-gray-600">Recordatorios pendientes</span>
-                                <span className="text-2xl font-bold text-orange-600">{metrics.pendingReminders}</span>
-                            </div>
-                            <div className="flex items-center justify-between py-3">
-                                <span className="text-gray-600">Tareas para hoy</span>
-                                <span className="text-2xl font-bold text-gray-700">{metrics.tasksToday}</span>
-                            </div>
-                        </div>
-                    </div>
+                <TabsContent value="emails" className="space-y-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Mail className="h-4 w-4" />
+                                Últimos Emails Enviados (Brevo)
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {emailHistory.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <Mail className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                    <p className="text-sm">No hay historial de emails disponible</p>
+                                    <p className="text-xs mt-1">
+                                        Los emails se registrarán automáticamente cuando se envíen
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2 max-h-96 overflow-y-auto">
+                                    {emailHistory.map((email, index) => (
+                                        <div
+                                            key={email.id || index}
+                                            className="flex items-start gap-3 p-3 rounded-lg border"
+                                        >
+                                            <div className="p-2 bg-muted rounded">
+                                                <Mail className="w-4 h-4" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <p className="font-medium text-sm truncate">
+                                                        {email.recipient_email || email.to || 'Sin destinatario'}
+                                                    </p>
+                                                    <Badge variant={
+                                                        email.status === 'sent' || email.status === 'delivered' ? 'default' :
+                                                        email.status === 'failed' ? 'destructive' : 'secondary'
+                                                    }>
+                                                        {email.status || 'unknown'}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground mb-1">
+                                                    {email.template_type || email.subject || 'Sin asunto'}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {new Date(email.created_at || email.sent_at).toLocaleString('es-MX')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
 
-                    {/* Quick Actions */}
-                    <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-gray-200">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h3>
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
+            {/* Tasks and Quick Actions */}
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Tareas y Recordatorios
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between py-2 border-b">
+                                <span className="text-sm text-muted-foreground">Recordatorios pendientes</span>
+                                <span className="text-2xl font-bold">{metrics.pendingReminders}</span>
+                            </div>
+                            <div className="flex items-center justify-between py-2">
+                                <span className="text-sm text-muted-foreground">Tareas para hoy</span>
+                                <span className="text-2xl font-bold">{metrics.tasksToday}</span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Acciones Rápidas</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button
+                                variant="outline"
                                 onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
+                                className="justify-start"
                             >
-                                <Users className="w-4 h-4" />
-                                <span className="text-sm font-medium">Ver Leads</span>
-                            </button>
-                            <button
+                                <Users className="w-4 h-4 mr-2" />
+                                Ver Leads
+                            </Button>
+                            <Button
+                                variant="outline"
                                 onClick={() => navigate('/escritorio/mis-aplicaciones')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
+                                className="justify-start"
                             >
-                                <FileText className="w-4 h-4" />
-                                <span className="text-sm font-medium">Solicitudes</span>
-                            </button>
-                            <button
+                                <FileText className="w-4 h-4 mr-2" />
+                                Solicitudes
+                            </Button>
+                            <Button
+                                variant="outline"
                                 onClick={() => navigate('/escritorio/seguimiento')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                className="justify-start"
                             >
-                                <BarChart3 className="w-4 h-4" />
-                                <span className="text-sm font-medium">Tracking</span>
-                            </button>
-                            <button
+                                <BarChart3 className="w-4 h-4 mr-2" />
+                                Tracking
+                            </Button>
+                            <Button
+                                variant="outline"
                                 onClick={() => navigate('/escritorio/autos')}
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                className="justify-start"
                             >
-                                <FileText className="w-4 h-4" />
-                                <span className="text-sm font-medium">Inventario</span>
-                            </button>
+                                <FileText className="w-4 h-4 mr-2" />
+                                Inventario
+                            </Button>
                         </div>
-                    </div>
-                </div>
-
-                {/* Marketing Links */}
-                <div className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl shadow-md p-6 text-white mb-8">
-                    <h3 className="text-xl font-bold mb-4">Enlaces de Marketing</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <a
-                            href="https://trefa.mx"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 py-2 px-4 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                        >
-                            <ExternalLink className="w-4 h-4" />
-                            <span className="text-sm font-medium">Portal Principal</span>
-                        </a>
-                        <a
-                            href="https://trefa.mx/solicitud"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 py-2 px-4 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                        >
-                            <ExternalLink className="w-4 h-4" />
-                            <span className="text-sm font-medium">Formulario de Solicitud</span>
-                        </a>
-                        <a
-                            href="https://trefa.mx/inventario"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 py-2 px-4 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                        >
-                            <ExternalLink className="w-4 h-4" />
-                            <span className="text-sm font-medium">Inventario Público</span>
-                        </a>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
@@ -807,53 +701,36 @@ interface MetricCardProps {
     title: string;
     value: number;
     icon: React.ReactNode;
-    color: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'indigo';
-    subtitle?: string;
-    urgent?: boolean;
+    description?: string;
     onClick?: () => void;
     trendPercent?: number;
+    variant?: 'default' | 'success' | 'destructive';
 }
 
-function MetricCard({ title, value, icon, color, subtitle, urgent, onClick, trendPercent }: MetricCardProps) {
-    const textColorClasses = {
-        blue: 'text-orange-600',
-        green: 'text-orange-600',
-        yellow: 'text-orange-600',
-        red: 'text-orange-600',
-        purple: 'text-gray-700',
-        indigo: 'text-gray-700'
-    };
-
-    const bgColorClasses = {
-        blue: 'bg-orange-50',
-        green: 'bg-orange-50',
-        yellow: 'bg-orange-100',
-        red: 'bg-orange-100',
-        purple: 'bg-gray-50',
-        indigo: 'bg-gray-100'
-    };
-
+function MetricCard({ title, value, icon, description, onClick, trendPercent, variant = 'default' }: MetricCardProps) {
     return (
-        <div
-            onClick={onClick}
-            className={`${bgColorClasses[color]} rounded-xl shadow-sm p-8 border-2 ${
-                urgent ? 'border-orange-400 ring-2 ring-orange-200' : 'border-gray-200'
-            } ${onClick ? 'cursor-pointer hover:shadow-md transition-all duration-200' : ''} hover:border-orange-300`}
-        >
-            <div className="flex items-start justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+        <Card className={onClick ? 'cursor-pointer hover:bg-accent transition-colors' : ''} onClick={onClick}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
                 {trendPercent !== undefined && trendPercent !== 0 && (
-                    <div className={`flex items-center gap-1 px-3 py-1.5 rounded-lg ${trendPercent > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {trendPercent > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                        <span className="text-sm font-bold">
-                            {trendPercent > 0 ? '+' : ''}{trendPercent.toFixed(1)}%
-                        </span>
-                    </div>
+                    <Badge variant={trendPercent > 0 ? 'default' : 'secondary'}>
+                        {trendPercent > 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                        {trendPercent > 0 ? '+' : ''}{trendPercent.toFixed(1)}%
+                    </Badge>
                 )}
-            </div>
-            <p className={`text-5xl font-black ${textColorClasses[color]} mb-3`}>{value}</p>
-            {subtitle && <p className="text-base font-medium text-gray-600">{subtitle}</p>}
-        </div>
+                <div className={`${
+                    variant === 'success' ? 'text-green-600' :
+                    variant === 'destructive' ? 'text-red-600' :
+                    'text-muted-foreground'
+                }`}>
+                    {icon}
+                </div>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{value}</div>
+                {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
+            </CardContent>
+        </Card>
     );
 }
 
@@ -862,57 +739,34 @@ interface SourceCardProps {
     count: number;
     total: number;
     icon: React.ReactNode;
-    color: 'blue' | 'red' | 'green' | 'purple' | 'gray';
 }
 
-function SourceCard({ name, count, total, icon, color }: SourceCardProps) {
+function SourceCard({ name, count, total, icon }: SourceCardProps) {
     const percentage = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
 
-    const colorClasses = {
-        blue: 'bg-orange-100 text-orange-600 border-orange-200',
-        red: 'bg-orange-200 text-orange-700 border-orange-300',
-        green: 'bg-orange-100 text-orange-600 border-orange-200',
-        purple: 'bg-gray-100 text-gray-600 border-gray-200',
-        gray: 'bg-gray-100 text-gray-600 border-gray-200'
-    };
-
-    const bgClasses = {
-        blue: 'bg-orange-50',
-        red: 'bg-orange-100',
-        green: 'bg-orange-50',
-        purple: 'bg-gray-50',
-        gray: 'bg-gray-100'
-    };
-
     return (
-        <div className={`text-center p-5 rounded-xl ${bgClasses[color]} border-2 ${colorClasses[color].split(' ')[2]} hover:shadow-md transition-all`}>
-            <div className={`inline-flex p-4 rounded-xl ${colorClasses[color].split(' ').slice(0, 2).join(' ')} mb-4 shadow-sm`}>
+        <div className="text-center p-4 rounded-lg border bg-card">
+            <div className="inline-flex p-2 rounded-lg bg-muted mb-2">
                 {icon}
             </div>
-            <p className="text-3xl font-black text-gray-900 mb-2">{count}</p>
-            <p className="text-sm font-semibold text-gray-600 mb-3">{name}</p>
-            <div className="inline-block px-3 py-1.5 bg-white rounded-full shadow-sm border border-gray-200">
-                <p className="text-xs font-bold text-gray-700">{percentage}%</p>
-            </div>
+            <p className="text-2xl font-bold">{count}</p>
+            <p className="text-xs text-muted-foreground mb-2">{name}</p>
+            <Badge variant="secondary">{percentage}%</Badge>
         </div>
     );
 }
 
 function StatusBadge({ status }: { status: string }) {
-    const statusConfig: Record<string, { label: string; className: string }> = {
-        pending: { label: 'Pendiente', className: 'bg-yellow-100 text-yellow-700' },
-        submitted: { label: 'Enviada', className: 'bg-blue-100 text-blue-700' },
-        processing: { label: 'Procesando', className: 'bg-purple-100 text-purple-700' },
-        processed: { label: 'Procesada', className: 'bg-indigo-100 text-indigo-700' },
-        approved: { label: 'Aprobada', className: 'bg-green-100 text-green-700' },
-        rejected: { label: 'Rechazada', className: 'bg-red-100 text-red-700' }
+    const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+        pending: { label: 'Pendiente', variant: 'secondary' },
+        submitted: { label: 'Enviada', variant: 'default' },
+        processing: { label: 'Procesando', variant: 'default' },
+        processed: { label: 'Procesada', variant: 'default' },
+        approved: { label: 'Aprobada', variant: 'default' },
+        rejected: { label: 'Rechazada', variant: 'destructive' }
     };
 
-    const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-700' };
+    const config = statusConfig[status] || { label: status, variant: 'outline' as const };
 
-    return (
-        <span className={`text-xs px-2 py-1 rounded ${config.className}`}>
-            {config.label}
-        </span>
-    );
+    return <Badge variant={config.variant}>{config.label}</Badge>;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Plus, Edit, Trash2, Play, Pause, BarChart3, Loader2, AlertCircle } from 'lucide-react';
+import { Route, Plus, Edit, Trash2, Play, Pause, BarChart3, Loader2, AlertCircle, Download, FileJson } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -12,6 +12,8 @@ import {
   DialogTrigger,
 } from '../components/ui/dialog';
 import { CustomerJourneyService, type CustomerJourney, type JourneyStep } from '../services/CustomerJourneyService';
+import { downloadGTMExport, downloadEventsJSON } from '../utils/gtmExport';
+import { journeyEventRegistration } from '../services/JourneyEventRegistration';
 
 const CustomerJourneysPage: React.FC = () => {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -119,7 +121,12 @@ const CustomerJourneysPage: React.FC = () => {
         facebook_pixel_enabled: true
       };
 
-      await CustomerJourneyService.createJourney(journeyData, funnelSteps);
+      const newJourney = await CustomerJourneyService.createJourney(journeyData, funnelSteps);
+
+      // Register events if auto-tracking is enabled and status is active
+      if (newJourney.auto_tracking_enabled && newJourney.status === 'active') {
+        await journeyEventRegistration.registerJourneyEvents(newJourney);
+      }
 
       // Reload journeys from database
       await loadJourneys();
@@ -151,7 +158,15 @@ const CustomerJourneysPage: React.FC = () => {
   const toggleJourneyStatus = async (journeyId: string) => {
     try {
       setError(null);
-      await CustomerJourneyService.toggleJourneyStatus(journeyId);
+      const updatedJourney = await CustomerJourneyService.toggleJourneyStatus(journeyId);
+
+      // Register or unregister events based on new status
+      if (updatedJourney.status === 'active' && updatedJourney.auto_tracking_enabled) {
+        await journeyEventRegistration.registerJourneyEvents(updatedJourney);
+      } else if (updatedJourney.status === 'paused') {
+        journeyEventRegistration.unregisterJourneyEvents(journeyId);
+      }
+
       await loadJourneys();
     } catch (err) {
       console.error('Error toggling journey status:', err);
@@ -575,6 +590,22 @@ const CustomerJourneysPage: React.FC = () => {
                       ) : (
                         <><Play className="w-4 h-4 mr-1" /> Activar</>
                       )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadGTMExport(journey)}
+                      title="Export to GTM"
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadEventsJSON(journey)}
+                      title="Export Events JSON"
+                    >
+                      <FileJson className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="outline">
                       <Edit className="w-4 h-4" />

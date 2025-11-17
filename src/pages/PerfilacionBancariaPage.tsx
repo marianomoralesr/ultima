@@ -232,31 +232,16 @@ const PerfilacionBancariaPage: React.FC = () => {
                 setShowConfetti(true);
             }
 
-            // Track ComienzaSolicitud event only if user came from /financiamientos
+            // Track PerfilacionBancariaComplete event - user completed bank profiling
             try {
-                const leadSourceData = sessionStorage.getItem('leadSourceData');
-                let shouldTrack = false;
-
-                if (leadSourceData) {
-                    const parsed = JSON.parse(leadSourceData);
-                    // Check if landing_page contains /financiamientos
-                    if (parsed.landing_page && parsed.landing_page.includes('/financiamientos')) {
-                        shouldTrack = true;
-                    }
-                }
-
-                if (shouldTrack) {
-                    conversionTracking.trackApplication.started({
-                        userId: user.id,
-                        bankProfile: {
-                            recommendedBank,
-                            secondOption,
-                            lowScore
-                        }
-                    });
-                }
+                conversionTracking.trackProfile.bankProfilingCompleted(recommendedBank, {
+                    userId: user.id,
+                    secondOption: secondOption || undefined,
+                    lowScore: lowScore || false,
+                    profileCompleted: true
+                });
             } catch (trackingError) {
-                console.error('Error tracking ComienzaSolicitud:', trackingError);
+                console.error('Error tracking PerfilacionBancariaComplete:', trackingError);
                 // Don't fail the form submission if tracking fails
             }
 

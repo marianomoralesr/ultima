@@ -173,7 +173,7 @@ const Application: React.FC = () => {
                 if (applicationIdFromUrl) {
                     const draft = await ApplicationService.getApplicationById(user.id, applicationIdFromUrl);
                     if (!draft) throw new Error('No se encontró el borrador de la solicitud.');
-                    
+
                     setApplicationId(draft.id);
                     setApplicationData(draft.application_data || {});
                     const carInfo = (draft.car_info || {}) as any;
@@ -183,6 +183,13 @@ const Application: React.FC = () => {
                     const applicationData = { ...(draft.application_data || {}) };
                     reset(applicationData);
                     if (!carInfo._ordenCompra) setShowVehicleSelector(true);
+
+                    // Track ComienzaSolicitud - user arrived at application page
+                    conversionTracking.trackApplication.started({
+                        userId: user.id,
+                        applicationId: draft.id,
+                        vehicleId: carInfo?._ordenCompra || undefined
+                    });
                 } else {
                     const pendingOrdenCompra = sessionStorage.getItem('pendingOrdenCompra');
                     const finalOrdenCompra = searchParams.get('ordencompra') || pendingOrdenCompra;
@@ -216,6 +223,12 @@ const Application: React.FC = () => {
 
                     const newDraft = await ApplicationService.createDraftApplication(user.id, initialData);
                     if (newDraft && newDraft.id) {
+                        // Track ComienzaSolicitud - user started new application
+                        conversionTracking.trackApplication.started({
+                            userId: user.id,
+                            applicationId: newDraft.id,
+                            vehicleId: finalOrdenCompra || undefined
+                        });
                         navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });
                     } else {
                         throw new Error('No se pudo crear el borrador de la solicitud.');

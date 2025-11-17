@@ -44,7 +44,7 @@ export type FunnelStage =
   | 'landing_page_visit'
   | 'registration'
   | 'profile_complete'
-  | 'bank_profiling_complete'
+  | 'application_started'
   | 'application_submitted';
 
 export interface FunnelData {

@@ -231,30 +231,16 @@ const FinanciamientosPage: React.FC = () => {
 
     setLeadSource(source);
 
-    // Track with Facebook Pixel
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'ViewContent', {
-        content_name: 'Financiamientos Landing Page',
-        content_category: 'Financial Services',
-        content_type: 'product',
-        source: source
-      });
-    }
-
-    // Track with Google Tag Manager
-    if (typeof window !== 'undefined' && (window as any).dataLayer) {
-      (window as any).dataLayer.push({
-        event: 'page_view',
-        pageType: 'financing_landing',
-        pageName: 'Financiamientos',
-        pageCategory: 'Lead Generation',
-        source: source,
-        utm_source: params.get('utm_source') || undefined,
-        utm_medium: params.get('utm_medium') || undefined,
-        utm_campaign: params.get('utm_campaign') || undefined,
-        referrer: document.referrer || undefined
-      });
-    }
+    // Track pageview with ConversionTrackingService (includes GTM, Facebook Pixel, and Supabase)
+    conversionTracking.trackPageView('Financiamientos Landing Page', {
+      source: source,
+      pageType: 'financing_landing',
+      pageCategory: 'Lead Generation',
+      utm_source: params.get('utm_source') || undefined,
+      utm_medium: params.get('utm_medium') || undefined,
+      utm_campaign: params.get('utm_campaign') || undefined,
+      referrer: document.referrer || undefined
+    });
   }, []);
 
   // Filter vehicles by body type
@@ -423,6 +409,24 @@ const FinanciamientosPage: React.FC = () => {
       }
 
       console.log('✅ OTP sent successfully');
+
+      // Track form submission with Facebook Pixel and GTM
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'Lead', {
+          content_name: 'Financing Request - Form Submitted',
+          content_category: 'Financial Services',
+          source: leadSource
+        });
+      }
+
+      if (typeof window !== 'undefined' && (window as any).dataLayer) {
+        (window as any).dataLayer.push({
+          event: 'financing_form_submitted',
+          formType: 'financing_request',
+          source: leadSource
+        });
+      }
+
       setSubmissionStatus('otp'); // Show OTP verification form
 
     } catch (error) {

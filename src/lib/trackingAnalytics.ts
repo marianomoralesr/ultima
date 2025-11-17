@@ -94,7 +94,7 @@ export function calculateFunnelData(
     { count: stage1_viewed.size, name: 'Visitas Landing Page', stage: 'landing_page_visit' },
     { count: stage2_registered.size, name: 'Registro Completado', stage: 'registration' },
     { count: stage3_profileComplete.size, name: 'Información Personal', stage: 'profile_complete' },
-    { count: stage4_startedApp.size, name: 'Inició Solicitud', stage: 'bank_profiling_complete' },
+    { count: stage4_startedApp.size, name: 'Inició Solicitud', stage: 'application_started' },
     { count: stage5_submitted.size, name: 'Solicitud Enviada', stage: 'application_submitted' }
   ];
 
@@ -122,19 +122,19 @@ export function calculateConversionMetrics(funnelData: FunnelData[]): Conversion
   const landing = funnelData.find(f => f.stage === 'landing_page_visit')?.count || 0;
   const registration = funnelData.find(f => f.stage === 'registration')?.count || 0;
   const profileComplete = funnelData.find(f => f.stage === 'profile_complete')?.count || 0;
-  const bankProfiling = funnelData.find(f => f.stage === 'bank_profiling_complete')?.count || 0;
+  const applicationStarted = funnelData.find(f => f.stage === 'application_started')?.count || 0;
   const application = funnelData.find(f => f.stage === 'application_submitted')?.count || 0;
 
   return {
     totalVisits: landing,
     totalRegistrations: registration,
     totalProfileCompletes: profileComplete,
-    totalBankProfilingCompletes: bankProfiling,
+    totalBankProfilingCompletes: applicationStarted,
     totalApplications: application,
     visitToRegistrationRate: landing > 0 ? Math.round((registration / landing) * 1000) / 10 : 0,
     registrationToProfileRate: registration > 0 ? Math.round((profileComplete / registration) * 1000) / 10 : 0,
-    profileToBankProfilingRate: profileComplete > 0 ? Math.round((bankProfiling / profileComplete) * 1000) / 10 : 0,
-    bankProfilingToApplicationRate: bankProfiling > 0 ? Math.round((application / bankProfiling) * 1000) / 10 : 0,
+    profileToBankProfilingRate: profileComplete > 0 ? Math.round((applicationStarted / profileComplete) * 1000) / 10 : 0,
+    bankProfilingToApplicationRate: applicationStarted > 0 ? Math.round((application / applicationStarted) * 1000) / 10 : 0,
     overallConversionRate: landing > 0 ? Math.round((application / landing) * 1000) / 10 : 0
   };
 }

@@ -69,8 +69,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
       let query = supabase
         .from('tracking_events')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1000);
+        .order('created_at', { ascending: false });
 
       if (filters.startDate) {
         query = query.gte('created_at', filters.startDate);
@@ -786,8 +785,8 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                         color: 'bg-purple-500',
                       },
                       {
-                        label: '4. Aplicación Iniciada',
-                        description: 'Usuario visitó página de aplicación',
+                        label: '4. Aplicación Iniciada (ComienzaSolicitud)',
+                        description: 'Usuario llegó a /escritorio/aplicacion',
                         count: stats.conversion_funnel.application_started,
                         color: 'bg-pink-500',
                       },

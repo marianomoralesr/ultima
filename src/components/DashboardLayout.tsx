@@ -39,14 +39,17 @@ const DashboardLayout: React.FC = () => {
             { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true }
         ] : []),
         ...(isAdmin ? [
-            { to: '/escritorio/admin', label: 'Admin Panel', icon: Settings, end: true },
-            { to: '/escritorio/admin/users', label: 'Usuarios', icon: Users },
-            { to: '/escritorio/admin/analytics', label: 'Analytics', icon: BarChart3 },
-            { to: '/escritorio/admin/inventory', label: 'Inventario', icon: Package },
+            { to: '/escritorio/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+            { to: '/escritorio/admin/business-analytics', label: 'Analytics', icon: BarChart3 },
+            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
+            { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
+            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },
+            { to: '/escritorio/admin/marketing', label: 'Marketing', icon: BarChart3 },
         ] : []),
         ...(isSales ? [
-            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users, end: true },
-            { to: '/escritorio/ventas/leads', label: 'Leads', icon: FileText },
+            { to: '/escritorio/ventas/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users },
+            { to: '/escritorio/ventas/performance', label: 'Performance', icon: BarChart3 },
         ] : []),
         { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
         { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
@@ -58,7 +61,6 @@ const DashboardLayout: React.FC = () => {
 
     const secondaryNav = [
         { to: '/faq', label: 'Ayuda', icon: HelpCircle },
-        { to: '/escritorio/settings', label: 'Configuración', icon: Settings },
     ];
 
     const isActiveLink = (path: string, end?: boolean) => {

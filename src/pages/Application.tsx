@@ -21,6 +21,8 @@ import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 import { BrevoEmailService } from '../services/BrevoEmailService';
 import { supabase } from '../../supabaseClient';
 import { conversionTracking } from '../services/ConversionTrackingService';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 
 const VehicleSelector = lazy(() => import('../components/VehicleSelector'));
 
@@ -598,56 +600,63 @@ const Application: React.FC = () => {
 
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <input type="hidden" {...form.register('ordencompra')} />
-                                <div className="bg-white p-8 rounded-xl shadow-sm border">
-                                    {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
-                                    {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
-                                    {currentStep === 2 && <ReferencesStep control={control} errors={errors} profile={profile} getValues={getValues} />}
-                                    {currentStep === 3 && applicationId && user && <DocumentUploadStep applicationId={applicationId} userId={user.id} onDocumentsChange={setUploadedDocuments} />}
-                                    {currentStep === 4 && <ConsentStep control={control} errors={errors} setValue={setValue}/>}
-                                    {currentStep === 5 && (
-                                        <>
-                                            <FinancingPreferencesSection control={control} vehicleInfo={vehicleInfo} setValue={setValue} getValues={getValues} />
-                                            <SummaryStep applicationData={getValues()} profile={profile} vehicleInfo={vehicleInfo} bank={recommendedBank} />
-                                            {submissionError && (
-                                                <div className="mt-6 p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg text-center">
-                                                    <p className="font-semibold">Error al Enviar</p>
-                                                    <p className="text-sm mt-1">{submissionError}</p>
-                                                    {submissionError.includes("vehículo") && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowVehicleSelector(true)}
-                                                            className="mt-3 inline-block bg-primary-600 text-white font-semibold px-4 py-2 rounded-lg text-sm"
-                                                        >
-                                                            Seleccionar Auto
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
+                                <Card className="shadow-lg">
+                                    <CardContent className="p-8">
+                                        {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
+                                        {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
+                                        {currentStep === 2 && <ReferencesStep control={control} errors={errors} profile={profile} getValues={getValues} />}
+                                        {currentStep === 3 && applicationId && user && <DocumentUploadStep applicationId={applicationId} userId={user.id} onDocumentsChange={setUploadedDocuments} />}
+                                        {currentStep === 4 && <ConsentStep control={control} errors={errors} setValue={setValue}/>}
+                                        {currentStep === 5 && (
+                                            <>
+                                                <FinancingPreferencesSection control={control} vehicleInfo={vehicleInfo} setValue={setValue} getValues={getValues} />
+                                                <SummaryStep applicationData={getValues()} profile={profile} vehicleInfo={vehicleInfo} bank={recommendedBank} />
+                                                {submissionError && (
+                                                    <div className="mt-6 p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-center">
+                                                        <p className="font-semibold">Error al Enviar</p>
+                                                        <p className="text-sm mt-1">{submissionError}</p>
+                                                        {submissionError.includes("vehículo") && (
+                                                            <Button
+                                                                type="button"
+                                                                onClick={() => setShowVehicleSelector(true)}
+                                                                className="mt-3"
+                                                            >
+                                                                Seleccionar Auto
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </CardContent>
+                                </Card>
                                 
                                 {isSubmitDisabled && !form.formState.isSubmitting && currentStep === 5 && (
                                     <MissingFields errors={form.formState.errors} />
                                 )}
                                 
                                 <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
-                                    <button type="button" onClick={handlePrev} disabled={currentStep === 0} className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"><ArrowLeft className="w-4 h-4" /> Anterior</button>
+                                    <Button type="button" onClick={handlePrev} disabled={currentStep === 0} variant="secondary" size="lg">
+                                        <ArrowLeft className="w-4 h-4" /> Anterior
+                                    </Button>
                                     <div className="flex flex-col sm:flex-row gap-3">
-                                        <button
+                                        <Button
                                             type="button"
                                             onClick={() => navigate('/escritorio')}
-                                            className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-primary-700 bg-primary-50 border-2 border-primary-200 rounded-lg hover:bg-primary-100"
+                                            variant="outline"
+                                            size="lg"
                                         >
                                             Guardar y continuar después
-                                        </button>
+                                        </Button>
                                         {currentStep < steps.length - 1 ? (
-                                            <button type="button" onClick={handleNext} className="flex items-center justify-center gap-2 px-6 py-2.5 font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-700">Siguiente <ArrowRight className="w-4 h-4" /></button>
+                                            <Button type="button" onClick={handleNext} size="lg">
+                                                Siguiente <ArrowRight className="w-4 h-4" />
+                                            </Button>
                                         ) : (
-                                            <button type="submit" disabled={isSubmitDisabled} className="flex items-center justify-center gap-2 px-6 py-2.5 font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
+                                            <Button type="submit" disabled={isSubmitDisabled} size="lg" className="bg-green-600 hover:bg-green-700">
                                                 {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                                                 {form.formState.isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
                                 </div>

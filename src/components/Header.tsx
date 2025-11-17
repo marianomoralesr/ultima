@@ -1,245 +1,218 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, LogOut, ChevronDown, LayoutDashboard, User, Heart, FileText, Car, Settings, Bell } from 'lucide-react';
+import { UserIcon, LogOutIcon, ChevronDownIcon } from './icons';
 import { useAuth } from '../context/AuthContext';
 import MegaMenu from './MegaMenu';
 import HeaderSearchBar from './HeaderSearchBar';
-import { Button } from './ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Avatar, AvatarFallback } from './ui/avatar';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { cn } from '@/lib/utils';
+
+const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+);
+
 
 const Header: React.FC = () => {
     const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { session, profile, signOut } = useAuth();
-    const menuButtonRef = React.useRef<HTMLButtonElement>(null);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const profileMenuRef = useRef<HTMLDivElement>(null);
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
     const location = useLocation();
     const navigate = useNavigate();
     const isListPage = location.pathname === '/autos';
     const isSalesUser = profile?.role === 'sales';
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+                setProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const handleSignOut = async () => {
         await signOut();
+        setProfileMenuOpen(false);
+        setMobileMenuOpen(false);
     };
 
-    const MobileNav = () => (
-        <nav className="grid gap-2 text-lg font-medium">
-            <Link
-                to="/"
-                className="flex items-center gap-2 text-lg font-semibold mb-4"
-            >
-                <img
-                    src="/images/trefalogo.png"
-                    alt="TREFA"
-                    className="h-8 w-auto object-contain"
-                />
-            </Link>
-            {session ? (
-                <>
-                    <Link
-                        to="/escritorio"
-                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                    >
-                        <LayoutDashboard className="h-5 w-5" />
-                        Dashboard
-                    </Link>
-                    <Link
-                        to="/escritorio/profile"
-                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                    >
-                        <User className="h-5 w-5" />
-                        Mi Perfil
-                    </Link>
-                    <Link
-                        to="/escritorio/favoritos"
-                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                    >
-                        <Heart className="h-5 w-5" />
-                        Favoritos
-                    </Link>
-                    <Link
-                        to="/escritorio/seguimiento"
-                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                    >
-                        <FileText className="h-5 w-5" />
-                        Solicitudes
-                    </Link>
-                    <Link
-                        to="/autos"
-                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                    >
-                        <Car className="h-5 w-5" />
-                        Inventario
-                    </Link>
-                </>
-            ) : (
-                <Link
-                    to="/acceder"
-                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-primary px-3 py-2 text-primary-foreground hover:bg-primary/90"
-                >
-                    Iniciar Sesión
-                </Link>
-            )}
-        </nav>
-    );
+    const handleMobileLinkClick = (path: string) => {
+        setMobileMenuOpen(false);
+        navigate(path);
+    };
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-            <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-                <Link
-                    to="/"
-                    className="flex items-center gap-2 text-lg font-semibold md:text-base"
-                >
-                    <img
-                        src="/images/trefalogo.png"
+      <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
+        <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-28 gap-x-2 lg:gap-x-4">
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-1.5 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                aria-label="Toggle mobile menu"
+            >
+                <MenuIcon className="w-5 h-5" />
+            </button>
+
+            {/* Left Section */}
+            <div className={`flex justify-start items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
+                <div className="flex items-center">
+                    <Link to="/" className="flex items-center">
+                      <img
+                        src={"/images/trefalogo.png"}
                         alt="TREFA"
-                        className="h-8 w-auto object-contain transition-all"
-                    />
-                    <span className="sr-only">TREFA</span>
-                </Link>
-            </nav>
-
-            {/* Mobile Menu */}
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="shrink-0 md:hidden"
-                    >
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">Toggle navigation menu</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left">
-                    <MobileNav />
-                </SheetContent>
-            </Sheet>
-
-            {/* Search Bar - Center */}
-            <div className={cn(
-                "flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4",
-                isListPage && "md:hidden"
-            )}>
-                <div className="ml-auto flex-1 sm:flex-initial">
-                    <HeaderSearchBar />
-                </div>
-
-                {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-2">
-                    {/* Menu Button */}
-                    <Button
-                        ref={menuButtonRef}
-                        onClick={() => setMegaMenuOpen(o => !o)}
-                        variant="ghost"
-                        size="sm"
-                        className="font-semibold"
-                    >
-                        Menú
-                        <ChevronDown className={cn(
-                            "ml-1 h-4 w-4 transition-transform duration-200",
-                            megaMenuOpen && "rotate-180"
-                        )} />
-                    </Button>
-
-                    {/* Notifications */}
-                    {session && (
-                        <Button variant="ghost" size="icon" className="relative">
-                            <Bell className="h-4 w-4" />
-                            <span className="sr-only">Notificaciones</span>
-                        </Button>
-                    )}
-
-                    {/* User Menu */}
-                    {session ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="gap-2 relative">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                                            {profile?.first_name?.[0]?.toUpperCase() || profile?.email?.[0]?.toUpperCase() || 'U'}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <span className="hidden lg:inline-block font-semibold text-sm">
-                                        {profile?.first_name || 'Mi Cuenta'}
-                                    </span>
-                                    <ChevronDown className="h-4 w-4 opacity-50" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                                <DropdownMenuLabel>
-                                    <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">{profile?.first_name || 'Usuario'}</p>
-                                        <p className="text-xs leading-none text-muted-foreground truncate">
-                                            {profile?.email}
-                                        </p>
-                                    </div>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {isSalesUser ? (
-                                    <DropdownMenuItem asChild>
-                                        <Link to="/escritorio/ventas/crm" className="cursor-pointer">
-                                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                                            <span>Mis Leads</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                ) : (
-                                    <>
-                                        <DropdownMenuItem asChild>
-                                            <Link to="/escritorio" className="cursor-pointer">
-                                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                                <span>Dashboard</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link to="/escritorio/profile" className="cursor-pointer">
-                                                <User className="mr-2 h-4 w-4" />
-                                                <span>Mi Perfil</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link to="/escritorio/settings" className="cursor-pointer">
-                                                <Settings className="mr-2 h-4 w-4" />
-                                                <span>Configuración</span>
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    </>
-                                )}
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={handleSignOut}
-                                    className="text-destructive focus:text-destructive cursor-pointer"
-                                >
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    <span>Cerrar Sesión</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <Button asChild size="sm">
-                            <Link to="/acceder" data-gtm-id="header-login-button">
-                                Iniciar Sesión
-                            </Link>
-                        </Button>
-                    )}
+                        className="w-auto object-contain transition-all h-3.5 sm:h-4 lg:h-9"
+                      />
+                    </Link>
                 </div>
             </div>
 
-            {/* MegaMenu */}
-            <MegaMenu
-                isOpen={megaMenuOpen}
-                onClose={() => setMegaMenuOpen(false)}
-                triggerRef={menuButtonRef}
-            />
-        </header>
+            {/* Center Section (Search) */}
+            {/* Show on all pages on mobile, hide on listings page on desktop (desktop has filter search) */}
+            <div className={`flex-1 flex justify-center min-w-0 px-2 lg:px-2 ${isListPage ? 'lg:hidden' : ''}`}>
+                <HeaderSearchBar />
+            </div>
+
+            {/* Right Section */}
+            <div className={`flex justify-end items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
+                <div className="flex items-center space-x-2 lg:space-x-6">
+                  <div className="hidden lg:block">
+                      <button ref={menuButtonRef} onClick={() => setMegaMenuOpen(o => !o)} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base font-bold transition-colors text-primary-600 border-b hover:bg-gray-100">
+                          <span>Menú</span>
+                          <ChevronDownIcon className={`w-5 h-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} fill="currentColor"/>
+                      </button>
+                  </div>
+
+                  {session ? (
+                     <div className="relative hidden lg:block" ref={profileMenuRef}>
+                        <button
+                            onClick={() => setProfileMenuOpen(o => !o)}
+                            className="flex items-center gap-2 text-base font-semibold transition-colors text-gray-700 hover:text-primary-600"
+                        >
+                            <UserIcon className="w-8 h-8 rounded-full p-1.5 bg-white text-gray-500" />
+                            <span className="hidden sm:inline">{profile?.first_name ? `Hola, ${profile.first_name}` : ' '}</span>
+                        </button>
+                        {profileMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-40 bg-white">
+                                {isSalesUser ? (
+                                    <Link
+                                        to="/escritorio/ventas/crm"
+                                        onClick={() => setProfileMenuOpen(false)}
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Mis Leads
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        to="/escritorio"
+                                        onClick={() => setProfileMenuOpen(false)}
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                )}
+                                <button
+                                    onClick={handleSignOut}
+                                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-red-600 font-semibold hover:bg-red-50 active:bg-red-100"
+                                >
+                                    <LogOutIcon className="w-4 h-4" /> Cerrar Sesión
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                  ) : (
+                    <Link
+                      to="/acceder"
+                      data-gtm-id="header-login-button"
+                      className="hidden lg:block text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
+                    >
+                      Iniciar Sesión
+                    </Link>
+                  )}
+                </div>
+            </div>
+          </div>
+          <MegaMenu
+            isOpen={megaMenuOpen}
+            onClose={() => setMegaMenuOpen(false)}
+            triggerRef={menuButtonRef as any}
+          />
+        </div>
+
+        {/* Mobile Sidebar Menu */}
+        {mobileMenuOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '64px' }}>
+                <div
+                    className="absolute inset-0 bg-black/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+                <div className="absolute left-0 top-0 bottom-0 w-80 bg-white shadow-xl">
+                    <div className="p-6 space-y-4">
+                        {session ? (
+                            <>
+                                <div className="pb-4 border-b border-gray-200">
+                                    <p className="text-sm text-gray-500">Conectado como</p>
+                                    <p className="font-semibold text-gray-900">{profile?.first_name || profile?.email}</p>
+                                </div>
+                                {isSalesUser ? (
+                                    <button
+                                        onClick={() => handleMobileLinkClick('/escritorio/ventas/crm')}
+                                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                    >
+                                        Mis Leads
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => handleMobileLinkClick('/escritorio')}
+                                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                    >
+                                        Mi Escritorio
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/profile')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mi Perfil
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/favoritos')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mis Favoritos
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/seguimiento')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mis Solicitudes
+                                </button>
+                                <button
+                                    onClick={handleSignOut}
+                                    className="w-full text-left flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-red-50 font-semibold text-red-600 mt-4"
+                                >
+                                    <LogOutIcon className="w-5 h-5" /> Cerrar Sesión
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => handleMobileLinkClick('/acceder')}
+                                className="w-full text-center px-6 py-3 rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 text-white font-semibold shadow-md"
+                            >
+                                Iniciar Sesión
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
+      </header>
     );
 };
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Route, Plus, Edit, Trash2, Play, Pause, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Route, Plus, Edit, Trash2, Play, Pause, BarChart3, Loader2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -11,105 +11,74 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../components/ui/dialog';
-
-interface FunnelStep {
-  id: string;
-  name: string;
-  description: string;
-  eventType: string;
-  order: number;
-}
-
-interface CustomerJourney {
-  id: string;
-  name: string;
-  route: string;
-  description: string;
-  status: 'active' | 'draft' | 'paused';
-  steps: FunnelStep[];
-  createdAt: string;
-  updatedAt: string;
-}
+import { CustomerJourneyService, type CustomerJourney, type JourneyStep } from '../services/CustomerJourneyService';
 
 const CustomerJourneysPage: React.FC = () => {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [journeyName, setJourneyName] = useState('');
   const [journeyRoute, setJourneyRoute] = useState('');
+  const [journeyLandingPage, setJourneyLandingPage] = useState('');
   const [journeyDescription, setJourneyDescription] = useState('');
-  const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([]);
+  const [funnelSteps, setFunnelSteps] = useState<Omit<JourneyStep, 'id' | 'journey_id' | 'created_at' | 'updated_at'>[]>([]);
   const [newStepName, setNewStepName] = useState('');
+  const [newStepPageRoute, setNewStepPageRoute] = useState('');
   const [newStepDescription, setNewStepDescription] = useState('');
   const [newStepEventType, setNewStepEventType] = useState('');
+  const [newStepTriggerType, setNewStepTriggerType] = useState<'pageview' | 'button_click' | 'form_submit' | 'custom'>('pageview');
 
-  // Initial journey data - Financiamientos
-  const [journeys, setJourneys] = useState<CustomerJourney[]>([
-    {
-      id: '1',
-      name: 'Financiamientos',
-      route: '/financiamientos',
-      description: 'Customer journey from landing page to loan application submission',
-      status: 'active',
-      steps: [
-        {
-          id: 'step-1',
-          name: 'Visitas Landing Page',
-          description: 'PageView a /financiamientos',
-          eventType: 'PageView',
-          order: 1
-        },
-        {
-          id: 'step-2',
-          name: 'Registro Completado',
-          description: 'Usuario se registró en la plataforma',
-          eventType: 'ConversionLandingPage',
-          order: 2
-        },
-        {
-          id: 'step-3',
-          name: 'Información Personal',
-          description: 'Usuario guardó su perfil personal',
-          eventType: 'PersonalInformationComplete',
-          order: 3
-        },
-        {
-          id: 'step-4',
-          name: 'Aplicación Iniciada',
-          description: 'Usuario llegó a /escritorio/aplicacion',
-          eventType: 'ComienzaSolicitud',
-          order: 4
-        },
-        {
-          id: 'step-5',
-          name: 'Solicitud Enviada',
-          description: 'Usuario envió solicitud de financiamiento',
-          eventType: 'LeadComplete',
-          order: 5
-        }
-      ],
-      createdAt: '2024-01-15T00:00:00Z',
-      updatedAt: '2024-01-15T00:00:00Z'
-    }
-  ]);
+  // Database state
+  const [journeys, setJourneys] = useState<CustomerJourney[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
-  const handleAddStep = () => {
-    if (newStepName && newStepEventType) {
-      const newStep: FunnelStep = {
-        id: `step-${Date.now()}`,
-        name: newStepName,
-        description: newStepDescription,
-        eventType: newStepEventType,
-        order: funnelSteps.length + 1
-      };
-      setFunnelSteps([...funnelSteps, newStep]);
-      setNewStepName('');
-      setNewStepDescription('');
-      setNewStepEventType('');
+  // Load journeys from database on mount
+  useEffect(() => {
+    loadJourneys();
+  }, []);
+
+  const loadJourneys = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await CustomerJourneyService.getAllJourneys();
+      setJourneys(data);
+    } catch (err) {
+      console.error('Error loading journeys:', err);
+      setError('Error al cargar customer journeys');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRemoveStep = (stepId: string) => {
-    setFunnelSteps(funnelSteps.filter(step => step.id !== stepId));
+  const handleAddStep = () => {
+    if (newStepName && newStepEventType && newStepPageRoute) {
+      const newStep: Omit<JourneyStep, 'id' | 'journey_id' | 'created_at' | 'updated_at'> = {
+        step_order: funnelSteps.length + 1,
+        step_name: newStepName,
+        step_description: newStepDescription || undefined,
+        page_route: newStepPageRoute,
+        event_type: newStepEventType,
+        event_name: newStepName,
+        trigger_type: newStepTriggerType
+      };
+      setFunnelSteps([...funnelSteps, newStep]);
+      setNewStepName('');
+      setNewStepPageRoute('');
+      setNewStepDescription('');
+      setNewStepEventType('');
+      setNewStepTriggerType('pageview');
+    }
+  };
+
+  const handleRemoveStep = (index: number) => {
+    const newSteps = funnelSteps.filter((_, idx) => idx !== index);
+    // Reorder remaining steps
+    newSteps.forEach((step, idx) => {
+      step.step_order = idx + 1;
+    });
+    setFunnelSteps(newSteps);
   };
 
   const handleMoveStepUp = (index: number) => {
@@ -117,7 +86,7 @@ const CustomerJourneysPage: React.FC = () => {
       const newSteps = [...funnelSteps];
       [newSteps[index - 1], newSteps[index]] = [newSteps[index], newSteps[index - 1]];
       newSteps.forEach((step, idx) => {
-        step.order = idx + 1;
+        step.step_order = idx + 1;
       });
       setFunnelSteps(newSteps);
     }
@@ -128,54 +97,78 @@ const CustomerJourneysPage: React.FC = () => {
       const newSteps = [...funnelSteps];
       [newSteps[index], newSteps[index + 1]] = [newSteps[index + 1], newSteps[index]];
       newSteps.forEach((step, idx) => {
-        step.order = idx + 1;
+        step.step_order = idx + 1;
       });
       setFunnelSteps(newSteps);
     }
   };
 
-  const handleCreateJourney = () => {
-    const newJourney: CustomerJourney = {
-      id: `journey-${Date.now()}`,
-      name: journeyName,
-      route: journeyRoute,
-      description: journeyDescription,
-      status: 'draft',
-      steps: funnelSteps,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    setJourneys([...journeys, newJourney]);
-    setIsWizardOpen(false);
-    resetWizard();
+  const handleCreateJourney = async () => {
+    try {
+      setIsCreating(true);
+      setError(null);
+
+      const journeyData: Omit<CustomerJourney, 'id' | 'created_at' | 'updated_at'> = {
+        name: journeyName,
+        route: journeyRoute,
+        landing_page: journeyLandingPage || journeyRoute,
+        description: journeyDescription || undefined,
+        status: 'draft',
+        auto_tracking_enabled: true,
+        gtm_enabled: true,
+        facebook_pixel_enabled: true
+      };
+
+      await CustomerJourneyService.createJourney(journeyData, funnelSteps);
+
+      // Reload journeys from database
+      await loadJourneys();
+
+      setIsWizardOpen(false);
+      resetWizard();
+    } catch (err) {
+      console.error('Error creating journey:', err);
+      setError('Error al crear customer journey');
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const resetWizard = () => {
     setCurrentStep(1);
     setJourneyName('');
     setJourneyRoute('');
+    setJourneyLandingPage('');
     setJourneyDescription('');
     setFunnelSteps([]);
     setNewStepName('');
+    setNewStepPageRoute('');
     setNewStepDescription('');
     setNewStepEventType('');
+    setNewStepTriggerType('pageview');
   };
 
-  const toggleJourneyStatus = (journeyId: string) => {
-    setJourneys(journeys.map(journey => {
-      if (journey.id === journeyId) {
-        return {
-          ...journey,
-          status: journey.status === 'active' ? 'paused' : 'active' as 'active' | 'paused'
-        };
-      }
-      return journey;
-    }));
+  const toggleJourneyStatus = async (journeyId: string) => {
+    try {
+      setError(null);
+      await CustomerJourneyService.toggleJourneyStatus(journeyId);
+      await loadJourneys();
+    } catch (err) {
+      console.error('Error toggling journey status:', err);
+      setError('Error al cambiar estado del journey');
+    }
   };
 
-  const deleteJourney = (journeyId: string) => {
+  const deleteJourney = async (journeyId: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar este customer journey?')) {
-      setJourneys(journeys.filter(journey => journey.id !== journeyId));
+      try {
+        setError(null);
+        await CustomerJourneyService.deleteJourney(journeyId);
+        await loadJourneys();
+      } catch (err) {
+        console.error('Error deleting journey:', err);
+        setError('Error al eliminar customer journey');
+      }
     }
   };
 
@@ -223,6 +216,18 @@ const CustomerJourneysPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Landing Page
+              </label>
+              <input
+                type="text"
+                value={journeyLandingPage}
+                onChange={(e) => setJourneyLandingPage(e.target.value)}
+                placeholder="ej: /compra-auto (deja vacío para usar la ruta principal)"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Descripción
               </label>
               <textarea
@@ -249,15 +254,16 @@ const CustomerJourneysPage: React.FC = () => {
               <div className="space-y-2 mb-4">
                 <h4 className="text-sm font-semibold text-gray-700">Pasos configurados ({funnelSteps.length}):</h4>
                 {funnelSteps.map((step, index) => (
-                  <div key={step.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-gray-500">#{step.order}</span>
-                        <span className="font-medium text-gray-900">{step.name}</span>
-                        <Badge variant="outline" className="text-xs">{step.eventType}</Badge>
+                        <span className="text-xs font-bold text-gray-500">#{step.step_order}</span>
+                        <span className="font-medium text-gray-900">{step.step_name}</span>
+                        <Badge variant="outline" className="text-xs">{step.event_type}</Badge>
                       </div>
-                      {step.description && (
-                        <p className="text-xs text-gray-500 mt-1">{step.description}</p>
+                      <p className="text-xs text-gray-500 mt-1">{step.page_route}</p>
+                      {step.step_description && (
+                        <p className="text-xs text-gray-500">{step.step_description}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-1">
@@ -282,7 +288,7 @@ const CustomerJourneysPage: React.FC = () => {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => handleRemoveStep(step.id)}
+                        onClick={() => handleRemoveStep(index)}
                         className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -310,6 +316,18 @@ const CustomerJourneysPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ruta de la página *
+                </label>
+                <input
+                  type="text"
+                  value={newStepPageRoute}
+                  onChange={(e) => setNewStepPageRoute(e.target.value)}
+                  placeholder="ej: /compra-auto, /escritorio/aplicacion"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Tipo de evento *
                 </label>
                 <input
@@ -319,6 +337,21 @@ const CustomerJourneysPage: React.FC = () => {
                   placeholder="ej: PageView, ConversionLandingPage, etc."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo de trigger *
+                </label>
+                <select
+                  value={newStepTriggerType}
+                  onChange={(e) => setNewStepTriggerType(e.target.value as 'pageview' | 'button_click' | 'form_submit' | 'custom')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="pageview">Pageview</option>
+                  <option value="button_click">Button Click</option>
+                  <option value="form_submit">Form Submit</option>
+                  <option value="custom">Custom</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -332,7 +365,7 @@ const CustomerJourneysPage: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
-              <Button onClick={handleAddStep} className="w-full" disabled={!newStepName || !newStepEventType}>
+              <Button onClick={handleAddStep} className="w-full" disabled={!newStepName || !newStepEventType || !newStepPageRoute}>
                 <Plus className="w-4 h-4 mr-2" />
                 Agregar Paso
               </Button>
@@ -353,6 +386,12 @@ const CustomerJourneysPage: React.FC = () => {
                   <span className="text-sm font-medium text-green-800">Ruta:</span>
                   <p className="text-gray-900">{journeyRoute}</p>
                 </div>
+                {journeyLandingPage && (
+                  <div>
+                    <span className="text-sm font-medium text-green-800">Landing Page:</span>
+                    <p className="text-gray-900">{journeyLandingPage}</p>
+                  </div>
+                )}
                 {journeyDescription && (
                   <div>
                     <span className="text-sm font-medium text-green-800">Descripción:</span>
@@ -360,21 +399,30 @@ const CustomerJourneysPage: React.FC = () => {
                   </div>
                 )}
                 <div>
-                  <span className="text-sm font-medium text-green-800">Pasos del Funnel:</span>
+                  <span className="text-sm font-medium text-green-800">Pasos del Funnel ({funnelSteps.length}):</span>
                   <div className="mt-2 space-y-2">
                     {funnelSteps.map((step, index) => (
-                      <div key={step.id} className="flex items-start gap-2 text-sm">
+                      <div key={index} className="flex items-start gap-2 text-sm">
                         <span className="font-bold text-gray-500">{index + 1}.</span>
                         <div>
-                          <span className="font-medium text-gray-900">{step.name}</span>
-                          <span className="text-gray-600"> ({step.eventType})</span>
-                          {step.description && (
-                            <p className="text-xs text-gray-500">{step.description}</p>
+                          <span className="font-medium text-gray-900">{step.step_name}</span>
+                          <span className="text-gray-600"> ({step.event_type})</span>
+                          <p className="text-xs text-gray-500">{step.page_route} - {step.trigger_type}</p>
+                          {step.step_description && (
+                            <p className="text-xs text-gray-500">{step.step_description}</p>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
+                </div>
+                <div className="pt-3 border-t">
+                  <span className="text-sm font-medium text-green-800">Configuración de tracking:</span>
+                  <p className="text-xs text-gray-600 mt-1">
+                    ✓ Auto-tracking habilitado<br />
+                    ✓ GTM habilitado<br />
+                    ✓ Facebook Pixel habilitado
+                  </p>
                 </div>
               </div>
             </div>
@@ -387,6 +435,22 @@ const CustomerJourneysPage: React.FC = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
+      {/* Error banner */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-800">{error}</p>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-600 hover:text-red-800"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -423,6 +487,7 @@ const CustomerJourneysPage: React.FC = () => {
                       setCurrentStep(currentStep - 1);
                     }
                   }}
+                  disabled={isCreating}
                 >
                   {currentStep === 1 ? 'Cancelar' : 'Anterior'}
                 </Button>
@@ -435,11 +500,19 @@ const CustomerJourneysPage: React.FC = () => {
                     }
                   }}
                   disabled={
+                    isCreating ||
                     (currentStep === 1 && (!journeyName || !journeyRoute)) ||
                     (currentStep === 2 && funnelSteps.length === 0)
                   }
                 >
-                  {currentStep === 3 ? 'Crear Journey' : 'Siguiente'}
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creando...
+                    </>
+                  ) : (
+                    currentStep === 3 ? 'Crear Journey' : 'Siguiente'
+                  )}
                 </Button>
               </div>
             </DialogContent>
@@ -448,88 +521,115 @@ const CustomerJourneysPage: React.FC = () => {
       </div>
 
       {/* Journeys List */}
-      <div className="grid grid-cols-1 gap-6">
-        {journeys.map((journey) => (
-          <Card key={journey.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Route className="w-5 h-5 text-indigo-600" />
-                    <CardTitle>{journey.name}</CardTitle>
-                    <Badge className={getStatusColor(journey.status)}>
-                      {journey.status === 'active' ? 'Activo' : journey.status === 'paused' ? 'Pausado' : 'Borrador'}
-                    </Badge>
-                  </div>
-                  <CardDescription className="text-sm">
-                    <span className="font-mono text-indigo-600">{journey.route}</span>
-                  </CardDescription>
-                  {journey.description && (
-                    <p className="text-sm text-gray-600 mt-2">{journey.description}</p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => toggleJourneyStatus(journey.id)}
-                  >
-                    {journey.status === 'active' ? (
-                      <><Pause className="w-4 h-4 mr-1" /> Pausar</>
-                    ) : (
-                      <><Play className="w-4 h-4 mr-1" /> Activar</>
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-4" />
+          <p className="text-gray-600">Cargando customer journeys...</p>
+        </div>
+      ) : journeys.length === 0 ? (
+        <Card className="p-12">
+          <div className="text-center">
+            <Route className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay customer journeys</h3>
+            <p className="text-gray-600 mb-6">
+              Crea tu primer customer journey para comenzar a trackear el funnel de conversión.
+            </p>
+            <Button
+              onClick={() => setIsWizardOpen(true)}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Crear Customer Journey
+            </Button>
+          </div>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-6">
+          {journeys.map((journey) => (
+            <Card key={journey.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Route className="w-5 h-5 text-indigo-600" />
+                      <CardTitle>{journey.name}</CardTitle>
+                      <Badge className={getStatusColor(journey.status)}>
+                        {journey.status === 'active' ? 'Activo' : journey.status === 'paused' ? 'Pausado' : 'Borrador'}
+                      </Badge>
+                    </div>
+                    <CardDescription className="text-sm">
+                      <span className="font-mono text-indigo-600">{journey.route}</span>
+                    </CardDescription>
+                    {journey.description && (
+                      <p className="text-sm text-gray-600 mt-2">{journey.description}</p>
                     )}
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => deleteJourney(journey.id)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => journey.id && toggleJourneyStatus(journey.id)}
+                    >
+                      {journey.status === 'active' ? (
+                        <><Pause className="w-4 h-4 mr-1" /> Pausar</>
+                      ) : (
+                        <><Play className="w-4 h-4 mr-1" /> Activar</>
+                      )}
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => journey.id && deleteJourney(journey.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Pasos del Funnel ({journey.steps.length})
-                </h4>
-                <div className="space-y-2">
-                  {journey.steps.map((step, index) => (
-                    <div key={step.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-bold text-indigo-700">{step.order}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{step.name}</span>
-                          <Badge variant="secondary" className="text-xs">{step.eventType}</Badge>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Pasos del Funnel ({journey.steps?.length || 0})
+                  </h4>
+                  <div className="space-y-2">
+                    {journey.steps?.map((step, index) => (
+                      <div key={step.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-indigo-700">{step.step_order}</span>
                         </div>
-                        {step.description && (
-                          <p className="text-xs text-gray-500 mt-1">{step.description}</p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-gray-900">{step.step_name}</span>
+                            <Badge variant="secondary" className="text-xs">{step.event_type}</Badge>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">{step.page_route}</p>
+                          {step.step_description && (
+                            <p className="text-xs text-gray-500">{step.step_description}</p>
+                          )}
+                        </div>
+                        {index < (journey.steps?.length || 0) - 1 && (
+                          <div className="text-gray-400">→</div>
                         )}
                       </div>
-                      {index < journey.steps.length - 1 && (
-                        <div className="text-gray-400">→</div>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="mt-4 pt-4 border-t flex items-center justify-between text-xs text-gray-500">
-                <span>Creado: {new Date(journey.createdAt).toLocaleDateString()}</span>
-                <span>Actualizado: {new Date(journey.updatedAt).toLocaleDateString()}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                {journey.created_at && journey.updated_at && (
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between text-xs text-gray-500">
+                    <span>Creado: {new Date(journey.created_at).toLocaleDateString()}</span>
+                    <span>Actualizado: {new Date(journey.updated_at).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

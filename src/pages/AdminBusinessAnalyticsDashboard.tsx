@@ -178,7 +178,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                 </Card>
             </div>
 
-            {/* Unavailable Vehicle Applications */}
+            {/* Unavailable Vehicle Applications - Limited to first 5 */}
             {metrics.unavailableVehicleApplications.length > 0 && (
                 <Card className="border-destructive">
                     <CardHeader>
@@ -188,11 +188,12 @@ export default function AdminBusinessAnalyticsDashboard() {
                         </CardTitle>
                         <CardDescription>
                             {metrics.unavailableVehicleApplications.length} aplicaciones requieren acción inmediata
+                            {metrics.unavailableVehicleApplications.length > 5 && ' (mostrando las primeras 5)'}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {metrics.unavailableVehicleApplications.map(app => (
+                            {metrics.unavailableVehicleApplications.slice(0, 5).map(app => (
                                 <div key={app.applicationId} className="flex items-center justify-between p-4 border rounded-lg">
                                     <div className="flex-1">
                                         <p className="font-medium">{app.vehicleTitle}</p>
@@ -219,111 +220,120 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 </div>
                             ))}
                         </div>
+                        {metrics.unavailableVehicleApplications.length > 5 && (
+                            <div className="mt-4 pt-4 border-t text-center">
+                                <Button variant="outline" size="sm" asChild>
+                                    <a href="/escritorio/admin/crm">
+                                        Ver todas las {metrics.unavailableVehicleApplications.length} solicitudes
+                                    </a>
+                                </Button>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             )}
 
-            {/* Vehicle Insights */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Car className="h-5 w-5" />
-                        Vehículos con Mayor Demanda
-                    </CardTitle>
-                    <CardDescription>Top 10 vehículos por cantidad de solicitudes activas</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {metrics.vehicleInsights.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Car className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-                            <p className="text-sm text-muted-foreground">No hay datos de solicitudes por vehículo aún</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
-                                <div key={vehicle.id} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-accent transition-colors">
-                                    <div className="flex-shrink-0">
-                                        {vehicle.thumbnail ? (
-                                            <img src={vehicle.thumbnail} alt={vehicle.titulo} className="w-16 h-16 rounded object-cover" />
-                                        ) : (
-                                            <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
-                                                <Car className="w-6 h-6 text-muted-foreground" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div>
+            {/* Vehicle Insights and Inventory Side by Side */}
+            <div className="grid gap-4 md:grid-cols-2">
+                {/* Vehicle Insights */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Car className="h-5 w-5" />
+                            Vehículos con Mayor Demanda
+                        </CardTitle>
+                        <CardDescription>Top 10 vehículos por solicitudes activas</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {metrics.vehicleInsights.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Car className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                                <p className="text-sm text-muted-foreground">No hay datos de solicitudes por vehículo aún</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
+                                {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
+                                    <div key={vehicle.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-accent transition-colors">
+                                        <div className="flex-shrink-0">
+                                            {vehicle.thumbnail ? (
+                                                <img src={vehicle.thumbnail} alt={vehicle.titulo} className="w-12 h-12 rounded object-cover" />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                                                    <Car className="w-5 h-5 text-muted-foreground" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-start justify-between gap-2 mb-2">
                                                 <p className="font-medium text-sm line-clamp-1">{vehicle.titulo}</p>
-                                                <p className="text-xs text-muted-foreground">${vehicle.precio.toLocaleString('es-MX')} MXN</p>
+                                                <Badge variant="outline" className="text-xs">#{index + 1}</Badge>
                                             </div>
-                                            <Badge variant="outline">#{index + 1}</Badge>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 mt-2">
-                                            <div className="flex items-center gap-1">
-                                                <BarChart3 className="w-3 h-3 text-muted-foreground" />
-                                                <span className="text-xs"><span className="font-semibold">{vehicle.applicationCount}</span> solicitudes</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <CheckCircle2 className="w-3 h-3 text-muted-foreground" />
-                                                <span className="text-xs"><span className="font-semibold">{vehicle.activeApplications}</span> activas</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <TrendingUp className="w-3 h-3 text-muted-foreground" />
-                                                <span className="text-xs"><span className="font-semibold">{vehicle.conversionRate}%</span> conversión</span>
-                                            </div>
-                                            <Badge variant={vehicle.ordenstatus === 'Disponible' ? 'default' : 'secondary'} className="text-xs">
-                                                {vehicle.ordenstatus}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Inventory with Active Applications */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Package className="h-5 w-5" />
-                        Inventario con Solicitudes Activas
-                    </CardTitle>
-                    <CardDescription>Vehículos en inventario con aplicaciones en proceso</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 ? (
-                        <div className="text-center py-8">
-                            <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-                            <p className="text-sm text-muted-foreground">No hay vehículos con solicitudes activas</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {metrics.inventoryVehiclesWithApplications
-                                .filter(v => v.ongoingApplications > 0)
-                                .slice(0, 30)
-                                .map((vehicle) => (
-                                    <div key={vehicle.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors">
-                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <span className="text-xs font-mono text-muted-foreground">#{String(vehicle.id).slice(0, 8)}</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium truncate">{vehicle.titulo}</p>
-                                                <p className="text-xs text-muted-foreground">{vehicle.conversionRate}% conversión</p>
+                                            <div className="grid grid-cols-2 gap-1.5 text-xs">
+                                                <div className="flex items-center gap-1">
+                                                    <BarChart3 className="w-3 h-3 text-muted-foreground" />
+                                                    <span><span className="font-semibold">{vehicle.applicationCount}</span> sol.</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <CheckCircle2 className="w-3 h-3 text-muted-foreground" />
+                                                    <span><span className="font-semibold">{vehicle.activeApplications}</span> act.</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <TrendingUp className="w-3 h-3 text-muted-foreground" />
+                                                    <span><span className="font-semibold">{vehicle.conversionRate}%</span> conv.</span>
+                                                </div>
+                                                <Badge variant={vehicle.ordenstatus === 'Disponible' ? 'default' : 'secondary'} className="text-xs h-5">
+                                                    {vehicle.ordenstatus}
+                                                </Badge>
                                             </div>
                                         </div>
-                                        <Button variant="outline" size="sm" asChild>
-                                            <a href={`/escritorio/admin/crm?vehicle=${vehicle.id}`}>
-                                                {vehicle.ongoingApplications} solicitudes
-                                            </a>
-                                        </Button>
                                     </div>
                                 ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Inventory with Active Applications */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Package className="h-5 w-5" />
+                            Inventario con Solicitudes Activas
+                        </CardTitle>
+                        <CardDescription>Vehículos en inventario con aplicaciones en proceso</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 ? (
+                            <div className="text-center py-12">
+                                <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                                <p className="text-sm text-muted-foreground">No hay vehículos con solicitudes activas</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
+                                {metrics.inventoryVehiclesWithApplications
+                                    .filter(v => v.ongoingApplications > 0)
+                                    .slice(0, 30)
+                                    .map((vehicle) => (
+                                        <div key={vehicle.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors">
+                                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                <span className="text-xs font-mono text-muted-foreground shrink-0">#{String(vehicle.id).slice(0, 6)}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium truncate">{vehicle.titulo}</p>
+                                                    <p className="text-xs text-muted-foreground">{vehicle.conversionRate}% conversión</p>
+                                                </div>
+                                            </div>
+                                            <Button variant="outline" size="sm" asChild className="shrink-0">
+                                                <a href={`/escritorio/admin/crm?vehicle=${vehicle.id}`}>
+                                                    {vehicle.ongoingApplications} sol.
+                                                </a>
+                                            </Button>
+                                        </div>
+                                    ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Charts */}
             <div className="grid gap-4 md:grid-cols-2">

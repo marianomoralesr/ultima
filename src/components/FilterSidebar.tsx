@@ -8,6 +8,10 @@ import { formatPromotion } from '../utils/formatters';
 import { getCategoryImage } from '../utils/get-category-image';
 import { BRAND_LOGOS } from '../utils/constants';
 import { proxyImage } from '../utils/proxyImage';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
 
 // --- TYPES AND INTERFACES ---
 
@@ -128,23 +132,30 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
     const FilterBody = (
         <>
             {activeFiltersList.length > 0 && (
-                <div className="pb-4 mb-4 border-b border-gray-200">
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-semibold text-gray-600">Filtros Activos</h3>
-                        <button onClick={onClearFilters} type="button" className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-800 font-semibold">
-                            <XCircleIcon className="w-4 h-4" /> Limpiar
-                        </button>
+                <div className="pb-4 mb-4">
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-sm font-medium text-muted-foreground">Filtros Activos</h3>
+                        <Button variant="ghost" size="sm" onClick={onClearFilters} className="h-auto py-1 px-2 text-xs">
+                            <XCircleIcon className="w-3 h-3 mr-1" /> Limpiar
+                        </Button>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {activeFiltersList.map(({ key, value, label }) => (
-                            <div key={`${key}-${String(value)}`} className="flex items-center bg-primary-100 text-primary-700 text-xs font-semibold pl-2.5 pr-1 py-1 rounded-full">
+                            <Badge key={`${key}-${String(value)}`} variant="secondary" className="pl-2.5 pr-1 py-1">
                                 <span>{label}</span>
-                                <button type="button" onClick={() => onRemoveFilter(key, value)} className="ml-1 p-0.5 rounded-full hover:bg-primary-200" aria-label={`Remover filtro ${label}`}>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="ml-1 h-auto w-auto p-0.5 hover:bg-primary/20"
+                                    onClick={() => onRemoveFilter(key, value)}
+                                    aria-label={`Remover filtro ${label}`}
+                                >
                                     <XIcon className="w-3 h-3" />
-                                </button>
-                            </div>
+                                </Button>
+                            </Badge>
                         ))}
                     </div>
+                    <Separator className="mt-4" />
                 </div>
             )}
 
@@ -235,13 +246,14 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
                 <ToggleSwitch label="Ocultar separados" isEnabled={!!currentFilters.hideSeparado} onToggle={() => handleToggleChange('hideSeparado')} />
             </div>
 
-            <div className="mt-6 flex flex-col gap-2">
-                <button
+            <div className="mt-6">
+                <Button
+                    variant="outline"
                     onClick={onClearFilters}
-                    className="w-full bg-gray-200 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                    className="w-full"
                 >
                     Limpiar Filtros
-                </button>
+                </Button>
             </div>
         </>
     );
@@ -249,30 +261,36 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
     if (isMobileSheet) {
         return (
             <div className="flex flex-col h-full overflow-hidden relative">
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-                    <h2 className="text-lg font-bold text-gray-800">Filtros</h2>
-                    <button onClick={onCloseSheet} className="p-2 rounded-full text-gray-600 hover:bg-gray-100"><XIcon className="w-6 h-6" /></button>
-                </div>
+                <CardHeader className="flex-row items-center justify-between space-y-0 flex-shrink-0 border-b">
+                    <CardTitle className="text-lg">Filtros</CardTitle>
+                    <Button variant="ghost" size="icon" onClick={onCloseSheet}>
+                        <XIcon className="w-5 h-5" />
+                    </Button>
+                </CardHeader>
                 <div className="overflow-y-auto px-6 py-4 flex-grow pb-24">
                     {FilterBody}
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[100]">
-                    <button onClick={onCloseSheet} className="w-full bg-primary-600 text-white font-bold py-3.5 rounded-lg hover:bg-primary-700 transition-colors">
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-[100]">
+                    <Button onClick={onCloseSheet} className="w-full h-12 text-base" size="lg">
                         Mostrar {resultsCount} resultados
-                    </button>
+                    </Button>
                 </div>
             </div>
         );
     }
 
     return (
-        <aside className="w-full lg:w-96 p-6 bg-white rounded-2xl shadow-sm h-fit sticky top-28">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Filtrar por</h2>
-                <FilterIcon className="w-6 h-6 text-gray-500" />
-            </div>
-            {FilterBody}
-        </aside>
+        <Card className="w-full lg:w-96 h-fit sticky top-28">
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl">Filtrar por</CardTitle>
+                    <FilterIcon className="w-6 h-6 text-muted-foreground" />
+                </div>
+            </CardHeader>
+            <CardContent>
+                {FilterBody}
+            </CardContent>
+        </Card>
     );
 };
 

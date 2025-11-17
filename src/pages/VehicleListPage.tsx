@@ -19,6 +19,11 @@ import { proxyImage } from '../utils/proxyImage';
 import ExplorarTutorialOverlay from '../components/ExplorarTutorialOverlay';
 import { useDrag } from '@use-gesture/react';
 import { animated, useSpring } from 'react-spring';
+import { Card, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Badge } from '../components/ui/badge';
 
 const VehicleListPage: React.FC = () => {
   const { marca, carroceria } = useParams<{ marca?: string; carroceria?: string }>();
@@ -399,101 +404,102 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
             />
           </div>
           <div>
-            <div className="hidden lg:block bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6">
-              <div className="relative mb-3">
-                <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10">
-                  <SearchIcon className="h-4 w-4 text-gray-400" aria-hidden="true" />
-                </div>
-                <div className="relative p-[2px] rounded-lg bg-gradient-to-r from-primary-400 via-orange-400 to-primary-400 animate-pulse">
-                  <input
+            <Card className="hidden lg:block mb-6">
+              <CardContent className="pt-6 space-y-4">
+                <div className="relative">
+                  <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <Input
                     id="search-vehicle"
                     type="search"
                     placeholder="Buscar por marca, modelo o año..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full rounded-[6px] bg-white py-2 pl-10 pr-3 text-base text-gray-900 focus:outline-none relative z-10"
+                    className="pl-10 h-10"
                   />
                 </div>
-              </div>
 
-              <div className="border-t border-gray-200 mb-3"></div>
+                <div className="border-t"></div>
 
-              <div className="flex flex-col lg:flex-row lg:items-end gap-3">
-                <div className="flex-1">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Filtros Rápidos
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-1.5">
-                    <button
+                <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                  <div className="flex-1 space-y-2">
+                    <label className="text-sm font-medium">
+                      Filtros Rápidos
+                    </label>
+                    <Button
+                      variant={filters.hideSeparado ? "default" : "outline"}
+                      size="sm"
                       onClick={() => handleFiltersChange({ hideSeparado: !filters.hideSeparado })}
-                      className={`flex items-center justify-between px-2.5 py-1.5 text-sm font-semibold rounded-md border-2 transition-all ${
-                        filters.hideSeparado
-                          ? 'bg-orange-100 border-orange-600 text-orange-700'
-                          : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700'
-                      }`}
+                      className="w-full sm:w-auto"
                     >
                       <span>Ocultar Separados</span>
-                      <span className={`w-4 h-4 rounded flex items-center justify-center ${filters.hideSeparado ? 'bg-orange-200' : 'bg-gray-100'}`}>
-                        {filters.hideSeparado && <span className="text-orange-700 text-sm">✓</span>}
-                      </span>
-                    </button>
+                      {filters.hideSeparado && <span className="ml-2">✓</span>}
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap lg:flex-nowrap">
+                    <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
+                      <SelectTrigger className="w-[200px] h-9">
+                        <SelectValue placeholder="Ordenar por" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Más Recientes</SelectItem>
+                        <SelectItem value="relevance">Más Populares</SelectItem>
+                        <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
+                        <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                        <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
+                        <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-1">
+                      <Button
+                        variant={view === 'list' ? 'default' : 'outline'}
+                        size="icon"
+                        onClick={() => setView('list')}
+                        aria-label="Vista de lista"
+                        className="h-9 w-9"
+                      >
+                        <ListIcon className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant={view === 'grid' ? 'default' : 'outline'}
+                        size="icon"
+                        onClick={() => setView('grid')}
+                        aria-label="Vista de cuadrícula"
+                        className="h-9 w-9"
+                      >
+                        <LayoutGridIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 flex-wrap lg:flex-nowrap">
-                  <div className="relative flex-shrink-0">
-                    <label htmlFor="sort-by" className="sr-only">Ordenar por</label>
-                    <select
-                      id="sort-by"
-                      value={filters.orderby || 'default'}
-                      onChange={(e) => handleFiltersChange({ orderby: e.target.value })}
-                      className="appearance-none bg-gray-50 text-gray-700 font-semibold text-sm pl-2.5 pr-7 py-1.5 rounded-md border-2 border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
-                    >
-                      <option value="default">Más Recientes</option>
-                      <option value="relevance">Más Populares</option>
-                      <option value="price-asc">Precio: Menor a Mayor</option>
-                      <option value="price-desc">Precio: Mayor a Menor</option>
-                      <option value="year-desc">Año: Más Recientes</option>
-                      <option value="mileage-asc">Kilometraje: Menor a Mayor</option>
-                    </select>
-                    <ChevronDownIcon className="w-3.5 h-3.5 text-gray-500 absolute top-1/2 right-2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                  <button onClick={() => setView('list')} aria-label="Vista de lista" className={`p-1.5 rounded-md border-2 transition-all ${view === 'list' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400'}`}>
-                    <ListIcon className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => setView('grid')} aria-label="Vista de cuadrícula" className={`p-1.5 rounded-md border-2 transition-all ${view === 'grid' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-gray-400'}`}>
-                    <LayoutGridIcon className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+                <div className="border-t"></div>
 
-              <div className="border-t border-gray-200 mt-3 mb-3"></div>
-
-              <div>
-                <h1 className="text-base font-semibold text-gray-800">
-                  {generateResultsDisplay(totalCount, filters)}
-                </h1>
-              </div>
-            </div>
-
-            <div className="lg:hidden bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 flex items-center justify-between">
-              <div>
-                <h1 className="text-sm font-semibold text-gray-800">
+                <div>
+                  <h1 className="text-base font-semibold">
                     {generateResultsDisplay(totalCount, filters)}
-                </h1>
-                <p className="text-xs text-gray-500 mt-0.5">Toca para filtrar</p>
-              </div>
-              <button
-                onClick={openSheet}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg font-semibold text-sm shadow-md hover:bg-primary-700 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-                Filtros
-              </button>
-            </div>
+                  </h1>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="lg:hidden mb-6">
+              <CardContent className="pt-6 flex items-center justify-between">
+                <div>
+                  <h1 className="text-sm font-semibold">
+                    {generateResultsDisplay(totalCount, filters)}
+                  </h1>
+                  <p className="text-xs text-muted-foreground mt-0.5">Toca para filtrar</p>
+                </div>
+                <Button onClick={openSheet} size="sm">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  Filtros
+                </Button>
+              </CardContent>
+            </Card>
 
             {vehiclesError ? (
               <p className="text-red-500 text-center py-10">Error al cargar los autos. Por favor, inténtelo de nuevo más tarde.</p>

@@ -171,6 +171,7 @@ function App(): React.JSX.Element {
                 <Route path="encuesta" element={<SurveyPage />} />
                 <Route path="citas" element={<VisitasPage />} />
                 <Route path="autos" element={<VehicleListPage />} />
+                <Route path="inventario" element={<VehicleListPage />} />
                 <Route path="mis-aplicaciones" element={<UserApplicationsPage />} />
                 <Route path="solicitudes" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
@@ -178,6 +179,7 @@ function App(): React.JSX.Element {
 
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>
+                  <Route path="admin" element={<AdminSalesDashboard />} />
                   <Route path="admin/dashboard" element={<AdminSalesDashboard />} />
                   <Route path="admin/business-analytics" element={<AdminBusinessAnalyticsDashboard />} />
                   <Route path="admin/crm" element={<UnifiedCRMPage userRole="admin" />} />

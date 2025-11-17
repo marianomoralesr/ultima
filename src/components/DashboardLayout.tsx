@@ -1,418 +1,251 @@
-
-
-
-import React, { useState, useRef, useEffect } from 'react';
-
-
-
-import { Outlet, useLocation, Link } from 'react-router-dom';
-
-
-
+import React from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
-
-
-
-    Menu,
-
-
-
-    X,
-
-
-
+    LayoutDashboard,
+    User,
+    FileText,
+    Heart,
+    Car,
+    Calendar,
+    DollarSign,
+    HelpCircle,
+    Settings,
+    Home,
+    Users,
+    BarChart3,
+    Package
 } from 'lucide-react';
-
-
-
-import BottomNav from './BottomNav';
-
-
-
-import SidebarContent from './SidebarContent';
-
-import TopMenu from './TopMenu';
-
-
-
-import useSEO from '../hooks/useSEO';
-
-
-
 import { useAuth } from '../context/AuthContext';
-
-
-
-
-
-
+import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from './ui/breadcrumb';
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { Separator } from './ui/separator';
 
 const DashboardLayout: React.FC = () => {
-
-
-
-    useSEO({
-
-
-
-        title: 'Escritorio | TREFA',
-
-
-
-        description: 'Administra tus solicitudes de financiamiento, guarda tus autos favoritos y da seguimiento a tus trámites en el portal de clientes de TREFA.',
-
-
-
-        keywords: 'escritorio trefa, portal de clientes, mis solicitudes, financiamiento automotriz'
-
-
-
-    });
-
-
-
-
-
-
-
-    const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile
-
-
-
-    const { profile } = useAuth();
-    // Admin and sales users get compact sidebar by default for more dashboard space
-    const isAdminOrSales = profile?.role === 'admin' || profile?.role === 'sales';
-    const [isCollapsed, setIsCollapsed] = useState(isAdminOrSales); // For desktop
-
-
-
-    const [isSurveyVisible, setIsSurveyVisible] = useState(true); // New state
-
-
-
-    const [isBetaSurveyVisible, setIsBetaSurveyVisible] = useState(true); // New state
-
-
-
-    const { user } = useAuth();
-
-
-
+    const { profile, isAdmin, isSales } = useAuth();
     const location = useLocation();
 
+    // Navigation items based on user role
+    const navItems = [
+        ...(!isAdmin && !isSales ? [
+            { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true }
+        ] : []),
+        ...(isAdmin ? [
+            { to: '/escritorio/admin', label: 'Admin Panel', icon: Settings, end: true },
+            { to: '/escritorio/admin/users', label: 'Usuarios', icon: Users },
+            { to: '/escritorio/admin/analytics', label: 'Analytics', icon: BarChart3 },
+            { to: '/escritorio/admin/inventory', label: 'Inventario', icon: Package },
+        ] : []),
+        ...(isSales ? [
+            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users, end: true },
+            { to: '/escritorio/ventas/leads', label: 'Leads', icon: FileText },
+        ] : []),
+        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
+        { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
+        { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText },
+        { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
+        { to: '/escritorio/vende-tu-auto', label: 'Vender Auto', icon: DollarSign },
+        { to: '/autos', label: 'Inventario', icon: Car },
+    ];
 
+    const secondaryNav = [
+        { to: '/faq', label: 'Ayuda', icon: HelpCircle },
+        { to: '/escritorio/settings', label: 'Configuración', icon: Settings },
+    ];
 
-    const noPadding = location.pathname.endsWith('/encuesta');
-
-
-
-    const mainContentRef = useRef<HTMLElement>(null);
-
-
-
-
-
-
-
-
-
-
-
-    useEffect(() => {
-
-
-
-        if (mainContentRef.current) {
-
-
-
-            mainContentRef.current.scrollTo(0, 0);
-
-
-
+    const isActiveLink = (path: string, end?: boolean) => {
+        if (end) {
+            return location.pathname === path;
         }
-
-
-
-    }, [location.pathname]);
-
-
-
-
-
-
-
-    const handleCloseTutorial = () => {
-
-
-
-        if (user) {
-
-
-
-            const tutorialShownKey = `tutorialShown_${user.id}`;
-
-
-
-            localStorage.setItem(tutorialShownKey, 'true');
-
-
-
-        }
-
-
-
-        setShowTutorial(false);
-
-
-
+        return location.pathname.startsWith(path);
     };
 
+    // Generate breadcrumbs from current path
+    const generateBreadcrumbs = () => {
+        const paths = location.pathname.split('/').filter(Boolean);
+        const breadcrumbs = [{ label: 'Inicio', href: '/' }];
 
+        let currentPath = '';
+        paths.forEach((path, index) => {
+            currentPath += `/${path}`;
+            const navItem = [...navItems, ...secondaryNav].find(item => item.to === currentPath);
 
+            if (navItem) {
+                breadcrumbs.push({ label: navItem.label, href: currentPath });
+            } else {
+                // Capitalize and clean up path name
+                const label = path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' ');
+                breadcrumbs.push({ label, href: currentPath });
+            }
+        });
 
+        return breadcrumbs;
+    };
 
-
+    const breadcrumbs = generateBreadcrumbs();
 
     return (
+        <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            {/* Sidebar */}
+            <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
+                <nav className="flex flex-col gap-4 px-4 py-6">
+                    {/* Logo */}
+                    <Link
+                        to="/"
+                        className="group flex h-12 items-center gap-2 rounded-lg px-3 text-lg font-semibold text-foreground hover:bg-accent"
+                    >
+                        <img
+                            src="/images/trefalogo.png"
+                            alt="TREFA"
+                            className="h-8 w-auto object-contain"
+                        />
+                    </Link>
 
+                    {/* User Profile Card */}
+                    <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                        <Avatar className="h-10 w-10">
+                            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                                {profile?.first_name?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-sm font-medium leading-none truncate">
+                                {profile?.first_name || 'Usuario'}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                                {profile?.email}
+                            </p>
+                        </div>
+                    </div>
 
+                    <Separator />
 
-        <div className="flex h-screen bg-gray-100 overflow-x-hidden">
+                    {/* Main Navigation */}
+                    <div className="flex-1 space-y-1">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const active = isActiveLink(item.to, item.end);
 
+                            return (
+                                <Link
+                                    key={item.to}
+                                    to={item.to}
+                                    className={cn(
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                        active
+                                            ? "bg-accent text-accent-foreground"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
+                    </div>
 
+                    <Separator />
 
-            {/* Desktop Sidebar */}
+                    {/* Secondary Navigation */}
+                    <div className="space-y-1">
+                        {secondaryNav.map((item) => {
+                            const Icon = item.icon;
+                            const active = isActiveLink(item.to);
 
-
-
-            <aside className={`hidden lg:flex lg:flex-shrink-0 transition-all duration-300 ease-in-out relative z-20 ${isCollapsed ? 'w-28' : 'w-64'}`}>
-
-
-
-                <SidebarContent
-
-
-
-                    isCollapsed={isCollapsed}
-
-
-
-                    onToggle={() => setIsCollapsed(!isCollapsed)}
-
-
-
-                    isSurveyVisible={isSurveyVisible}
-
-
-
-                    setIsSurveyVisible={setIsSurveyVisible}
-
-
-
-                    isBetaSurveyVisible={isBetaSurveyVisible}
-
-
-
-                    setIsBetaSurveyVisible={setIsBetaSurveyVisible}
-
-
-
-                />
-
-
-
+                            return (
+                                <Link
+                                    key={item.to}
+                                    to={item.to}
+                                    className={cn(
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                        active
+                                            ? "bg-accent text-accent-foreground"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <Icon className="h-4 w-4" />
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </nav>
             </aside>
 
+            {/* Main Content */}
+            <div className="flex flex-col sm:gap-4 sm:pl-64">
+                {/* Top Bar with Breadcrumbs */}
+                <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
+                    <Breadcrumb className="hidden md:flex">
+                        <BreadcrumbList>
+                            {breadcrumbs.map((crumb, index) => (
+                                <React.Fragment key={crumb.href}>
+                                    {index > 0 && <BreadcrumbSeparator />}
+                                    <BreadcrumbItem>
+                                        {index === breadcrumbs.length - 1 ? (
+                                            <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                                        ) : (
+                                            <BreadcrumbLink asChild>
+                                                <Link to={crumb.href}>{crumb.label}</Link>
+                                            </BreadcrumbLink>
+                                        )}
+                                    </BreadcrumbItem>
+                                </React.Fragment>
+                            ))}
+                        </BreadcrumbList>
+                    </Breadcrumb>
 
-
-            {/* Mobile Sidebar */}
-
-
-
-            <div className={`fixed inset-0 z-40 flex lg:hidden ${sidebarOpen ? '' : 'pointer-events-none'}`}>
-
-
-
-                {/* Overlay */}
-
-
-
-                <div 
-
-
-
-                    className={`absolute inset-0 bg-black/60 transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}
-
-
-
-                    onClick={() => setSidebarOpen(false)}
-
-
-
-                ></div>
-
-
-
-                {/* Drawer */}
-
-
-
-                <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white/80 backdrop-blur-lg transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-
-
-
-                    <div className={`absolute top-0 right-0 -mr-12 pt-2 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
-
-
-
-                        <button
-
-
-
-                            type="button"
-
-
-
-                            className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-
-
-
-                            onClick={() => setSidebarOpen(false)}
-
-
-
-                        >
-
-
-
-                            <span className="sr-only">Cerrar menú</span>
-
-
-
-                            <X className="h-6 w-6 text-white" aria-hidden="true" />
-
-
-
-                        </button>
-
-
-
+                    {/* Mobile Header - Logo */}
+                    <div className="flex items-center gap-2 sm:hidden">
+                        <Link to="/" className="flex items-center gap-2">
+                            <img
+                                src="/images/trefalogo.png"
+                                alt="TREFA"
+                                className="h-6 w-auto object-contain"
+                            />
+                        </Link>
                     </div>
+                </header>
 
-
-
-                    {/* The mobile sidebar should always be full width, so we pass hardcoded props */}
-
-
-
-                    <SidebarContent
-
-
-
-                        isCollapsed={false}
-
-
-
-                        onToggle={() => setSidebarOpen(false)}
-
-
-
-                        isSurveyVisible={isSurveyVisible}
-
-
-
-                        setIsSurveyVisible={setIsSurveyVisible}
-
-
-
-                        isBetaSurveyVisible={isBetaSurveyVisible}
-
-
-
-                        setIsBetaSurveyVisible={setIsBetaSurveyVisible}
-
-
-
-                    />
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-            <div className="flex-1 flex flex-col overflow-hidden">
-
-                {/* Mobile Hamburger Menu Button */}
-                <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                    <button
-                        type="button"
-                        className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
-                        onClick={() => setSidebarOpen(true)}
-                    >
-                        <span className="sr-only">Abrir menú</span>
-                        <Menu className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                    <Link to="/escritorio" className="flex items-center">
-                        <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-6" />
-                    </Link>
-                    <div className="w-10"></div> {/* Spacer for center alignment */}
-                </div>
-
-                {/* Top Menu for Admin/Sales */}
-                <TopMenu />
-
-                <main ref={mainContentRef} className="flex-1 relative overflow-y-auto focus:outline-none">
-
-
-
-                    <div className={`py-8 px-4 sm:px-6 lg:px-8 ${noPadding ? '' : 'pb-24 lg:pb-8'}`}>
-
-
-
-                        <Outlet />
-
-
-
-                    </div>
-
-
-
+                {/* Page Content */}
+                <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+                    <Outlet />
                 </main>
-
-
-
             </div>
 
+            {/* Mobile Bottom Navigation */}
+            <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-background sm:hidden">
+                {navItems.slice(0, 4).map((item) => {
+                    const Icon = item.icon;
+                    const active = isActiveLink(item.to, item.end);
 
-
-            <BottomNav />
-
-
-
-            {/* <EbookCta /> */}
-
-
-
+                    return (
+                        <Link
+                            key={item.to}
+                            to={item.to}
+                            className={cn(
+                                "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs font-medium",
+                                active
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                            )}
+                        >
+                            <Icon className="h-5 w-5" />
+                            <span className="truncate">{item.label}</span>
+                        </Link>
+                    );
+                })}
+            </nav>
         </div>
-
-
-
     );
-
-
-
 };
-
-
-
-
-
-
 
 export default DashboardLayout;

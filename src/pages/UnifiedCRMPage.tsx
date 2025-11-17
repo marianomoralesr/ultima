@@ -12,7 +12,10 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { supabase } from '../../supabaseClient';
-import StatsCard from '../components/StatsCard';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
 import {
     processLeads,
     getStatusLabel,
@@ -44,26 +47,22 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
     const [pageSize, setPageSize] = useState(25);
     const queryClient = useQueryClient();
 
-    // Determine which service and query keys to use based on role
     const isAdmin = userRole === 'admin';
     const leadsQueryKey = isAdmin ? ['adminLeads'] : ['salesLeads', user?.id];
     const statsQueryKey = isAdmin ? ['adminStats'] : ['salesStats', user?.id];
 
-    // Fetch leads (role-specific)
     const { data: leads = [], isLoading: isLoadingLeads, isError: isErrorLeads, error: errorLeads } = useQuery<any[], Error>({
         queryKey: leadsQueryKey,
         queryFn: () => isAdmin ? AdminService.getAllLeads() : SalesService.getMyAssignedLeads(user?.id || ''),
         enabled: !!user?.id,
     });
 
-    // Fetch stats (role-specific)
     const { data: stats = {}, isLoading: isLoadingStats, isError: isErrorStats, error: errorStats } = useQuery<any, Error>({
         queryKey: statsQueryKey,
         queryFn: () => isAdmin ? AdminService.getDashboardStats() : SalesService.getMyLeadsStats(user?.id || ''),
         enabled: !!user?.id,
     });
 
-    // Fetch asesores for admin
     React.useEffect(() => {
         if (isAdmin) {
             supabase
@@ -81,14 +80,11 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
         }
     }, [isAdmin]);
 
-    // Process leads with corrected status and priority flags
     const processedLeads = useMemo(() => processLeads(leads), [leads]);
 
-    // Apply filters and sorting
     const filteredAndSortedLeads = useMemo(() => {
         let filtered = processedLeads;
 
-        // Search filter
         if (searchTerm) {
             const lowercasedQuery = searchTerm.toLowerCase();
             filtered = filtered.filter(lead =>
@@ -101,12 +97,10 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
             );
         }
 
-        // Status filter
         if (filterStatus !== 'all') {
             filtered = filtered.filter(lead => lead.correctedStatus === filterStatus);
         }
 
-        // Contactado filter
         if (filterContactado !== 'all') {
             filtered = filtered.filter(lead => {
                 if (filterContactado === 'contacted') return lead.contactado === true;
@@ -115,12 +109,10 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
             });
         }
 
-        // Priority filter
         if (filterPriority === 'needs_action') {
             filtered = filtered.filter(lead => lead.needsAction);
         }
 
-        // Sorting
         const sorted = [...filtered].sort((a, b) => {
             let aVal: any;
             let bVal: any;
@@ -135,7 +127,6 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                     bVal = b.last_sign_in_at ? new Date(b.last_sign_in_at).getTime() : 0;
                     break;
                 case 'status':
-                    // Sort by status with priority: pending_docs, submitted, reviewing, approved, draft, rejected
                     const statusPriority: Record<string, number> = {
                         'pending_docs': 1,
                         'submitted': 2,
@@ -148,7 +139,6 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                     bVal = statusPriority[b.correctedStatus || ''] || 999;
                     break;
                 case 'contactado':
-                    // false (not contacted) should come first when sorting ascending
                     aVal = a.contactado ? 1 : 0;
                     bVal = b.contactado ? 1 : 0;
                     break;
@@ -164,7 +154,6 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
         return sorted;
     }, [processedLeads, searchTerm, filterStatus, filterContactado, filterPriority, sortColumn, sortDirection]);
 
-    // Pagination logic
     const paginatedLeads = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
@@ -177,12 +166,10 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
         return processedLeads.filter(lead => lead.needsAction).length;
     }, [processedLeads]);
 
-    // Reset to page 1 when filters change
     React.useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, filterStatus, filterContactado, filterPriority]);
 
-    // Handlers
     const handleSort = (column: SortColumn) => {
         if (sortColumn === column) {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -222,7 +209,6 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
         try {
             await ApplicationService.updateApplicationStatus(lead.latest_app_id, newStatus);
 
-            // Show feedback based on status
             const feedbackMessages: Record<string, { title: string; description: string; type: 'success' | 'warning' | 'info' | 'error' }> = {
                 'submitted': {
                     title: '✅ Solicitud marcada como Completa',
@@ -293,33 +279,6 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
         }
     };
 
-    const startEditingSource = (leadId: string, currentSource: string | null) => {
-        setEditingSource(leadId);
-        setTempSource(currentSource || '');
-    };
-
-    const saveSource = async (leadId: string) => {
-        try {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ source: tempSource || null })
-                .eq('id', leadId);
-
-            if (error) throw error;
-
-            await queryClient.invalidateQueries({ queryKey: leadsQueryKey });
-            setEditingSource(null);
-            toast.success('Fuente actualizada');
-        } catch (err: any) {
-            toast.error(`Error: ${err.message}`);
-        }
-    };
-
-    const cancelEditingSource = () => {
-        setEditingSource(null);
-        setTempSource('');
-    };
-
     const handleRefresh = () => {
         queryClient.invalidateQueries({ queryKey: leadsQueryKey });
         queryClient.invalidateQueries({ queryKey: statsQueryKey });
@@ -332,9 +291,9 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center h-96">
-                <AlertTriangle className="w-12 h-12 text-yellow-500 mb-4" />
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">Sesión Requerida</h2>
-                <p className="text-gray-600">Debes iniciar sesión para acceder a esta página</p>
+                <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
+                <h2 className="text-xl font-semibold mb-2">Sesión Requerida</h2>
+                <p className="text-muted-foreground">Debes iniciar sesión para acceder a esta página</p>
             </div>
         );
     }
@@ -342,473 +301,446 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-96">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
     if (isError) {
         return (
-            <div className="p-4 bg-red-100 text-red-800 rounded-md">
-                <AlertTriangle className="inline w-5 h-5 mr-2"/>
-                {error?.message}
-            </div>
+            <Card className="border-destructive">
+                <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 text-destructive">
+                        <AlertTriangle className="w-5 h-5"/>
+                        <span>{error?.message}</span>
+                    </div>
+                </CardContent>
+            </Card>
         );
     }
 
     const profileBasePath = isAdmin ? '/escritorio/admin/cliente' : '/escritorio/ventas/cliente';
 
     return (
-        <div className="space-y-6">
+        <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
             {/* Priority Action Bar */}
             {leadsNeedingAction > 0 && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 shadow-sm">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center shadow-md">
-                                <AlertCircle className="w-6 h-6 text-white" />
+                <Card className="border-amber-200 bg-amber-50/50">
+                    <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+                                    <AlertCircle className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold">
+                                        {leadsNeedingAction} Lead{leadsNeedingAction > 1 ? 's' : ''} Necesitan Atención
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Leads sin contactar o con solicitudes pendientes
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-amber-900">
-                                    {leadsNeedingAction} Lead{leadsNeedingAction > 1 ? 's' : ''} Necesitan Atención
-                                </h3>
-                                <p className="text-sm text-amber-700">
-                                    Hay leads sin contactar o con solicitudes pendientes de actualización
-                                </p>
-                            </div>
+                            <Button onClick={() => setFilterPriority('needs_action')}>
+                                Ver Urgentes
+                            </Button>
                         </div>
-                        <button
-                            onClick={() => setFilterPriority('needs_action')}
-                            className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg shadow-md transition-all transform hover:scale-105"
-                        >
-                            Ver Urgentes
-                        </button>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             )}
 
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
+                    <h2 className="text-3xl font-bold tracking-tight">
                         {isAdmin ? 'CRM - Gestión de Leads' : 'Mis Leads Asignados'}
-                    </h1>
-                    <p className="text-gray-600 mt-1">
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
                         {isAdmin
                             ? 'Gestiona todos los leads y asigna asesores'
-                            : 'Gestiona tus clientes asignados y da seguimiento a sus solicitudes'}
+                            : 'Gestiona tus clientes asignados y da seguimiento'}
                     </p>
                 </div>
-                <button
-                    onClick={handleRefresh}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
-                >
-                    <RefreshCw className="w-4 h-4" />
+                <Button variant="outline" onClick={handleRefresh}>
+                    <RefreshCw className="w-4 h-4 mr-2" />
                     Refrescar
-                </button>
+                </Button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard
-                    title={isAdmin ? "Total de Leads" : "Mis Leads Totales"}
-                    value={stats.total_leads || 0}
-                    change=""
-                    changeType="neutral"
-                    icon={Users}
-                    color="blue"
-                />
-                <StatsCard
-                    title="Con Solicitud Activa"
-                    value={stats.leads_with_active_app || 0}
-                    change=""
-                    changeType="neutral"
-                    icon={FileText}
-                    color="purple"
-                />
-                <StatsCard
-                    title="Solicitud Incompleta"
-                    value={stats.leads_with_unfinished_app || stats.leads_not_contacted || 0}
-                    change=""
-                    changeType="neutral"
-                    icon={User}
-                    color="yellow"
-                />
-                <StatsCard
-                    title="Necesitan Seguimiento"
-                    value={leadsNeedingAction}
-                    change=""
-                    changeType="neutral"
-                    icon={Clock}
-                    color="red"
-                />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            {isAdmin ? "Total de Leads" : "Mis Leads"}
+                        </CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.total_leads || 0}</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Con Solicitud Activa</CardTitle>
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.leads_with_active_app || 0}</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Solicitud Incompleta</CardTitle>
+                        <User className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.leads_with_unfinished_app || stats.leads_not_contacted || 0}</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Necesitan Seguimiento</CardTitle>
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{leadsNeedingAction}</div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Main Content */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-                {/* Search and Title */}
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
-                    <h2 className="text-xl font-bold text-gray-800">
-                        {isAdmin ? 'Directorio de Clientes' : 'Mis Clientes'}
-                    </h2>
-                    <div className="relative w-full sm:w-72">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Buscar por nombre, email o fuente..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        />
-                    </div>
-                </div>
-
-                {/* Filters */}
-                <div className="flex flex-wrap gap-3 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">Filtros:</span>
-                    </div>
-
-                    <select
-                        value={filterPriority}
-                        onChange={e => setFilterPriority(e.target.value)}
-                        className="text-sm px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white font-semibold"
-                    >
-                        <option value="all">Todos (Prioridad)</option>
-                        <option value="needs_action">⚡ Necesitan Acción</option>
-                    </select>
-
-                    <select
-                        value={filterContactado}
-                        onChange={e => setFilterContactado(e.target.value)}
-                        className="text-sm px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                    >
-                        <option value="all">Todos (Contactado)</option>
-                        <option value="not_contacted">No Contactados</option>
-                        <option value="contacted">Contactados</option>
-                    </select>
-
-                    <select
-                        value={filterStatus}
-                        onChange={e => setFilterStatus(e.target.value)}
-                        className="text-sm px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                    >
-                        <option value="all">Todos (Estado Solicitud)</option>
-                        <option value="draft">{getStatusEmoji('draft')} Borrador</option>
-                        <option value="submitted">{getStatusEmoji('submitted')} Completas</option>
-                        <option value="pending_docs">{getStatusEmoji('pending_docs')} Faltan Docs</option>
-                        <option value="reviewing">{getStatusEmoji('reviewing')} En Revisión</option>
-                        <option value="approved">{getStatusEmoji('approved')} Aprobadas</option>
-                        <option value="rejected">{getStatusEmoji('rejected')} Rechazadas</option>
-                    </select>
-
-                    {(searchTerm || filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all') && (
-                        <button
-                            onClick={() => {
-                                setSearchTerm('');
-                                setFilterStatus('all');
-                                setFilterContactado('all');
-                                setFilterPriority('all');
-                            }}
-                            className="text-sm px-3 py-1.5 text-primary-600 hover:text-primary-700 font-medium"
-                        >
-                            Limpiar Filtros
-                        </button>
-                    )}
-
-                    <div className="ml-auto flex items-center gap-4">
-                        <div className="text-sm text-gray-600">
-                            {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length !== 1 ? 's' : ''}
+            <Card>
+                <CardHeader>
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <CardTitle>
+                            {isAdmin ? 'Directorio de Clientes' : 'Mis Clientes'}
+                        </CardTitle>
+                        <div className="relative w-full sm:w-72">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                                type="text"
+                                placeholder="Buscar por nombre, email..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                className="pl-9"
+                            />
                         </div>
-                        <select
-                            value={pageSize}
-                            onChange={(e) => {
-                                setPageSize(Number(e.target.value));
-                                setCurrentPage(1);
-                            }}
-                            className="text-sm px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                        >
-                            <option value={10}>10 por página</option>
-                            <option value={25}>25 por página</option>
-                            <option value={50}>50 por página</option>
-                            <option value={100}>100 por página</option>
-                        </select>
                     </div>
-                </div>
+                </CardHeader>
+                <CardContent>
+                    {/* Filters */}
+                    <div className="flex flex-wrap gap-2 mb-4 p-3 bg-muted rounded-lg">
+                        <div className="flex items-center gap-2">
+                            <Filter className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Filtros:</span>
+                        </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10">
-                            <tr>
-                                <th scope="col" className="px-4 py-3">
-                                    <button
-                                        onClick={() => handleSort('name')}
-                                        className="flex items-center gap-1 hover:text-primary-600"
-                                    >
-                                        Cliente
-                                        {sortColumn === 'name' ? (
-                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
-                                    </button>
-                                </th>
-                                <th scope="col" className="px-4 py-3">
-                                    Fuente
-                                </th>
-                                <th scope="col" className="px-4 py-3">
-                                    <button
-                                        onClick={() => handleSort('last_sign_in_at')}
-                                        className="flex items-center gap-1 hover:text-primary-600"
-                                    >
-                                        Último Acceso
-                                        {sortColumn === 'last_sign_in_at' ? (
-                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
-                                    </button>
-                                </th>
-                                <th scope="col" className="px-4 py-3">
-                                    <button
-                                        onClick={() => handleSort('status')}
-                                        className="flex items-center gap-1 hover:text-primary-600"
-                                    >
-                                        Estado Solicitud
-                                        {sortColumn === 'status' ? (
-                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
-                                    </button>
-                                </th>
-                                <th scope="col" className="px-4 py-3 text-center">
-                                    <button
-                                        onClick={() => handleSort('contactado')}
-                                        className="flex items-center gap-1 hover:text-primary-600 mx-auto"
-                                    >
-                                        Contactado
-                                        {sortColumn === 'contactado' ? (
-                                            sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-                                        ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
-                                    </button>
-                                </th>
-                                {isAdmin && <th scope="col" className="px-4 py-3">Asesor</th>}
-                                <th scope="col" className="px-4 py-3 text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedLeads.length > 0 ? (
-                                paginatedLeads.map(lead => {
-                                    const statusColor = getStatusColor(lead.correctedStatus || '');
-                                    const isUpdating = updatingStatuses.has(lead.id);
+                        <select
+                            value={filterPriority}
+                            onChange={e => setFilterPriority(e.target.value)}
+                            className="text-sm px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                        >
+                            <option value="all">Todos (Prioridad)</option>
+                            <option value="needs_action">⚡ Necesitan Acción</option>
+                        </select>
 
-                                    return (
-                                        <tr
-                                            key={lead.id}
-                                            className={`border-b hover:bg-gray-50 transition-colors ${lead.needsAction ? 'bg-amber-50/30' : 'bg-white'}`}
-                                        >
-                                            {/* Cliente (Name + Contact + Priority) */}
-                                            <td className="px-4 py-4">
-                                                <div className="flex items-start gap-3">
-                                                    {/* Priority Indicator */}
-                                                    <div className="mt-0.5">
-                                                        {lead.needsAction ? (
-                                                            <AlertCircle className="w-5 h-5 text-amber-600 animate-pulse" title="Necesita acción" />
-                                                        ) : (
-                                                            <CheckCircle2 className="w-5 h-5 text-green-500" title="Al día" />
-                                                        )}
-                                                    </div>
+                        <select
+                            value={filterContactado}
+                            onChange={e => setFilterContactado(e.target.value)}
+                            className="text-sm px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                        >
+                            <option value="all">Todos (Contactado)</option>
+                            <option value="not_contacted">No Contactados</option>
+                            <option value="contacted">Contactados</option>
+                        </select>
 
-                                                    {/* Name and Contact */}
-                                                    <div className="flex flex-col gap-1 min-w-0">
-                                                        <Link to={`${profileBasePath}/${lead.id}`} className="font-semibold text-gray-900 hover:text-primary-600 hover:underline truncate">
-                                                            {`${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Sin Nombre'}
-                                                        </Link>
-                                                        <div className="flex items-center gap-1 text-xs text-gray-600">
-                                                            <Mail className="w-3 h-3 text-gray-400" />
-                                                            <span className="truncate max-w-[200px]" title={lead.email}>{lead.email}</span>
-                                                        </div>
-                                                        {lead.phone && (
-                                                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                                <Phone className="w-3 h-3 text-gray-400" />
-                                                                <span>{lead.phone}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </td>
+                        <select
+                            value={filterStatus}
+                            onChange={e => setFilterStatus(e.target.value)}
+                            className="text-sm px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                        >
+                            <option value="all">Todos (Estado)</option>
+                            <option value="draft">{getStatusEmoji('draft')} Borrador</option>
+                            <option value="submitted">{getStatusEmoji('submitted')} Completas</option>
+                            <option value="pending_docs">{getStatusEmoji('pending_docs')} Faltan Docs</option>
+                            <option value="reviewing">{getStatusEmoji('reviewing')} En Revisión</option>
+                            <option value="approved">{getStatusEmoji('approved')} Aprobadas</option>
+                            <option value="rejected">{getStatusEmoji('rejected')} Rechazadas</option>
+                        </select>
 
-                                            {/* Fuente */}
-                                            <td className="px-4 py-4">
-                                                <div className="flex flex-col gap-1">
-                                                    {lead.utm_campaign && (
-                                                        <div className="text-xs font-semibold text-primary-700" title="Campaña">
-                                                            {lead.utm_campaign}
-                                                        </div>
-                                                    )}
-                                                    {lead.utm_source && (
-                                                        <div className="text-xs text-gray-600" title="UTM Source">
-                                                            <span className="text-gray-400">utm:</span> {lead.utm_source}
-                                                        </div>
-                                                    )}
-                                                    {lead.source && !lead.utm_source && !lead.utm_campaign && (
-                                                        <div className="text-xs text-gray-700" title="Source">
-                                                            {lead.source}
-                                                        </div>
-                                                    )}
-                                                    {!lead.utm_campaign && !lead.utm_source && !lead.source && (
-                                                        <span className="text-xs text-gray-400">-</span>
-                                                    )}
-                                                </div>
-                                            </td>
+                        {(searchTerm || filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all') && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setFilterStatus('all');
+                                    setFilterContactado('all');
+                                    setFilterPriority('all');
+                                }}
+                            >
+                                Limpiar
+                            </Button>
+                        )}
 
-                                            {/* Último Acceso */}
-                                            <td className="px-4 py-4">
-                                                <div className="text-xs text-gray-700" title={lead.last_sign_in_at ? new Date(lead.last_sign_in_at).toLocaleString('es-MX') : 'Nunca'}>
-                                                    {formatRelativeTime(lead.last_sign_in_at)}
-                                                </div>
-                                                {lead.latest_app_car_info?._vehicleTitle && (
-                                                    <div className="text-[10px] text-gray-500 mt-1 truncate max-w-[150px]" title={lead.latest_app_car_info._vehicleTitle}>
-                                                        {lead.latest_app_car_info._vehicleTitle}
-                                                    </div>
-                                                )}
-                                            </td>
+                        <div className="ml-auto flex items-center gap-3">
+                            <span className="text-sm text-muted-foreground">
+                                {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length !== 1 ? 's' : ''}
+                            </span>
+                            <select
+                                value={pageSize}
+                                onChange={(e) => {
+                                    setPageSize(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                className="text-sm px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                            >
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                        </div>
+                    </div>
 
-                                            {/* Estado Solicitud */}
-                                            <td className="px-4 py-4">
-                                                {lead.correctedStatus && lead.latest_app_id ? (
-                                                    <div className="flex flex-col gap-2">
-                                                        <select
-                                                            value={lead.correctedStatus}
-                                                            onChange={(e) => updateApplicationStatus(lead, e.target.value)}
-                                                            disabled={isUpdating}
-                                                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border-2 ${statusColor.bg} ${statusColor.text} ${statusColor.border} cursor-pointer hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]`}
-                                                        >
-                                                            <option value="draft">Borrador</option>
-                                                            <option value="submitted">Completa</option>
-                                                            <option value="pending_docs">Faltan Docs</option>
-                                                            <option value="reviewing">En Revisión</option>
-                                                            <option value="approved">Aprobada</option>
-                                                            <option value="rejected">Rechazada</option>
-                                                        </select>
-                                                        {isUpdating && (
-                                                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                                <Loader2 className="w-3 h-3 animate-spin" />
-                                                                <span>Actualizando...</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-xs text-gray-400">Sin solicitud</span>
-                                                )}
-                                            </td>
+                    {/* Table */}
+                    <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-muted">
+                                    <tr className="border-b">
+                                        <th className="px-4 py-3 text-left font-medium">
+                                            <button
+                                                onClick={() => handleSort('name')}
+                                                className="flex items-center gap-1 hover:text-primary"
+                                            >
+                                                Cliente
+                                                {sortColumn === 'name' ? (
+                                                    sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                                ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                            </button>
+                                        </th>
+                                        <th className="px-4 py-3 text-left font-medium">Fuente</th>
+                                        <th className="px-4 py-3 text-left font-medium">
+                                            <button
+                                                onClick={() => handleSort('last_sign_in_at')}
+                                                className="flex items-center gap-1 hover:text-primary"
+                                            >
+                                                Último Acceso
+                                                {sortColumn === 'last_sign_in_at' ? (
+                                                    sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                                ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                            </button>
+                                        </th>
+                                        <th className="px-4 py-3 text-left font-medium">
+                                            <button
+                                                onClick={() => handleSort('status')}
+                                                className="flex items-center gap-1 hover:text-primary"
+                                            >
+                                                Estado
+                                                {sortColumn === 'status' ? (
+                                                    sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                                ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                            </button>
+                                        </th>
+                                        <th className="px-4 py-3 text-center font-medium">
+                                            <button
+                                                onClick={() => handleSort('contactado')}
+                                                className="flex items-center gap-1 hover:text-primary mx-auto"
+                                            >
+                                                Contactado
+                                                {sortColumn === 'contactado' ? (
+                                                    sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                                                ) : <ArrowUpDown className="w-3 h-3 opacity-40" />}
+                                            </button>
+                                        </th>
+                                        {isAdmin && <th className="px-4 py-3 text-left font-medium">Asesor</th>}
+                                        <th className="px-4 py-3 text-center font-medium">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedLeads.length > 0 ? (
+                                        paginatedLeads.map(lead => {
+                                            const statusColor = getStatusColor(lead.correctedStatus || '');
+                                            const isUpdating = updatingStatuses.has(lead.id);
 
-                                            {/* Contactado Checkbox */}
-                                            <td className="px-4 py-4 text-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={lead.contactado}
-                                                    onChange={() => toggleContactado(lead.id, lead.contactado)}
-                                                    className="w-5 h-5 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer"
-                                                />
-                                            </td>
-
-                                            {/* Asesor Assignment (admin only) */}
-                                            {isAdmin && (
-                                                <td className="px-4 py-4">
-                                                    <select
-                                                        value={lead.asesor_asignado_id || ''}
-                                                        onChange={(e) => updateAsesorAsignado(lead.id, e.target.value || null)}
-                                                        className="text-xs px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white cursor-pointer min-w-[130px]"
-                                                    >
-                                                        <option value="">Sin asignar</option>
-                                                        {asesores.map(asesor => (
-                                                            <option key={asesor.id} value={asesor.id}>
-                                                                {asesor.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </td>
-                                            )}
-
-                                            {/* Actions */}
-                                            <td className="px-4 py-4 text-center">
-                                                <Link
-                                                    to={`${profileBasePath}/${lead.id}`}
-                                                    className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-all shadow-sm hover:shadow-md transform hover:scale-105"
+                                            return (
+                                                <tr
+                                                    key={lead.id}
+                                                    className={`border-b hover:bg-accent transition-colors ${lead.needsAction ? 'bg-amber-50/30' : ''}`}
                                                 >
-                                                    Abrir
-                                                </Link>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-start gap-2">
+                                                            {lead.needsAction ? (
+                                                                <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                                            ) : (
+                                                                <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                                            )}
+                                                            <div className="min-w-0">
+                                                                <Link to={`${profileBasePath}/${lead.id}`} className="font-medium hover:text-primary hover:underline block truncate">
+                                                                    {`${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'Sin Nombre'}
+                                                                </Link>
+                                                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                                                    <Mail className="w-3 h-3" />
+                                                                    <span className="truncate max-w-[180px]">{lead.email}</span>
+                                                                </div>
+                                                                {lead.phone && (
+                                                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                                        <Phone className="w-3 h-3" />
+                                                                        <span>{lead.phone}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="text-xs space-y-0.5">
+                                                            {lead.utm_campaign && <div className="font-semibold">{lead.utm_campaign}</div>}
+                                                            {lead.utm_source && <div className="text-muted-foreground">utm: {lead.utm_source}</div>}
+                                                            {lead.source && !lead.utm_source && !lead.utm_campaign && <div>{lead.source}</div>}
+                                                            {!lead.utm_campaign && !lead.utm_source && !lead.source && <span className="text-muted-foreground">-</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="text-xs">{formatRelativeTime(lead.last_sign_in_at)}</div>
+                                                        {lead.latest_app_car_info?._vehicleTitle && (
+                                                            <div className="text-xs text-muted-foreground mt-1 truncate max-w-[140px]">
+                                                                {lead.latest_app_car_info._vehicleTitle}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        {lead.correctedStatus && lead.latest_app_id ? (
+                                                            <div className="flex flex-col gap-1.5">
+                                                                <select
+                                                                    value={lead.correctedStatus}
+                                                                    onChange={(e) => updateApplicationStatus(lead, e.target.value)}
+                                                                    disabled={isUpdating}
+                                                                    className={`text-xs font-semibold px-2 py-1 rounded border-2 cursor-pointer hover:opacity-80 transition-all disabled:opacity-50 ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
+                                                                >
+                                                                    <option value="draft">Borrador</option>
+                                                                    <option value="submitted">Completa</option>
+                                                                    <option value="pending_docs">Faltan Docs</option>
+                                                                    <option value="reviewing">En Revisión</option>
+                                                                    <option value="approved">Aprobada</option>
+                                                                    <option value="rejected">Rechazada</option>
+                                                                </select>
+                                                                {isUpdating && (
+                                                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                                        Actualizando...
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-muted-foreground">Sin solicitud</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={lead.contactado}
+                                                            onChange={() => toggleContactado(lead.id, lead.contactado)}
+                                                            className="w-4 h-4 rounded border-input cursor-pointer"
+                                                        />
+                                                    </td>
+                                                    {isAdmin && (
+                                                        <td className="px-4 py-3">
+                                                            <select
+                                                                value={lead.asesor_asignado_id || ''}
+                                                                onChange={(e) => updateAsesorAsignado(lead.id, e.target.value || null)}
+                                                                className="text-xs px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background cursor-pointer"
+                                                            >
+                                                                <option value="">Sin asignar</option>
+                                                                {asesores.map(asesor => (
+                                                                    <option key={asesor.id} value={asesor.id}>
+                                                                        {asesor.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </td>
+                                                    )}
+                                                    <td className="px-4 py-3 text-center">
+                                                        <Button size="sm" asChild>
+                                                            <Link to={`${profileBasePath}/${lead.id}`}>
+                                                                Abrir
+                                                            </Link>
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={isAdmin ? 7 : 6} className="px-6 py-12 text-center text-muted-foreground">
+                                                {searchTerm || filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all'
+                                                    ? 'No se encontraron leads con los filtros seleccionados.'
+                                                    : 'No hay leads disponibles.'}
                                             </td>
                                         </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan={isAdmin ? 6 : 5} className="px-6 py-12 text-center text-gray-500">
-                                        {searchTerm || filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all'
-                                            ? 'No se encontraron leads con los filtros seleccionados.'
-                                            : 'No hay leads disponibles.'}
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                    <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
-                        <div className="text-sm text-gray-600">
-                            Página {currentPage} de {totalPages} • Mostrando {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredAndSortedLeads.length)} de {filteredAndSortedLeads.length} leads
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                Anterior
-                            </button>
-
-                            {/* Page numbers */}
-                            <div className="flex items-center gap-1">
-                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                    let pageNum;
-                                    if (totalPages <= 5) {
-                                        pageNum = i + 1;
-                                    } else if (currentPage <= 3) {
-                                        pageNum = i + 1;
-                                    } else if (currentPage >= totalPages - 2) {
-                                        pageNum = totalPages - 4 + i;
-                                    } else {
-                                        pageNum = currentPage - 2 + i;
-                                    }
-
-                                    return (
-                                        <button
-                                            key={pageNum}
-                                            onClick={() => setCurrentPage(pageNum)}
-                                            className={`w-10 h-10 text-sm font-medium rounded-lg transition-colors ${
-                                                currentPage === pageNum
-                                                    ? 'bg-primary-600 text-white'
-                                                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                                            }`}
-                                        >
-                                            {pageNum}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                Siguiente
-                            </button>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                )}
-            </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-4 flex items-center justify-between">
+                            <div className="text-sm text-muted-foreground">
+                                Página {currentPage} de {totalPages} • {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredAndSortedLeads.length)} de {filteredAndSortedLeads.length}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Anterior
+                                </Button>
+
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        let pageNum;
+                                        if (totalPages <= 5) {
+                                            pageNum = i + 1;
+                                        } else if (currentPage <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (currentPage >= totalPages - 2) {
+                                            pageNum = totalPages - 4 + i;
+                                        } else {
+                                            pageNum = currentPage - 2 + i;
+                                        }
+
+                                        return (
+                                            <Button
+                                                key={pageNum}
+                                                variant={currentPage === pageNum ? "default" : "outline"}
+                                                size="sm"
+                                                className="w-9"
+                                                onClick={() => setCurrentPage(pageNum)}
+                                            >
+                                                {pageNum}
+                                            </Button>
+                                        );
+                                    })}
+                                </div>
+
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Siguiente
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 };

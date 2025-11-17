@@ -21,6 +21,10 @@ import { toast } from 'sonner';
 import CreateUserModal from '../components/CreateUserModal';
 import UserAnalyticsModal from '../components/UserAnalyticsModal';
 import ApplicationAnalyticsPanel from '../components/ApplicationAnalyticsPanel';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 interface SalesUser {
     id: string;
@@ -75,32 +79,16 @@ const AdminUserManagementPage: React.FC = () => {
         }
     };
 
-    // Utility function to convert UTC date to GMT-6 (Monterrey, Mexico)
-    const toGMT6 = (dateString: string | null): Date | null => {
-        if (!dateString) return null;
-        const date = new Date(dateString);
-        // GMT-6 is -360 minutes offset
-        const gmt6Offset = -6 * 60;
-        const localOffset = date.getTimezoneOffset();
-        const offsetDiff = gmt6Offset - localOffset;
-        return new Date(date.getTime() + offsetDiff * 60 * 1000);
-    };
-
-    // Format date in GMT-6 timezone
     const formatDate = (dateString: string | null) => {
         if (!dateString) return 'Nunca';
-        const date = toGMT6(dateString);
-        if (!date) return 'Nunca';
-
+        const date = new Date(dateString);
         return date.toLocaleDateString('es-MX', {
             year: 'numeric',
             month: 'short',
-            day: 'numeric',
-            timeZone: 'America/Monterrey'
+            day: 'numeric'
         });
     };
 
-    // Format relative time in Spanish (hace 30 mins, hace 2 horas, etc.)
     const formatRelativeTime = (dateString: string | null) => {
         if (!dateString) return 'Nunca';
 
@@ -127,33 +115,31 @@ const AdminUserManagementPage: React.FC = () => {
     const getStatusBadge = (user: SalesUser) => {
         if (!user.is_active) {
             return (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    <XCircle className="w-3 h-3 mr-1" />
+                <Badge variant="secondary" className="gap-1">
+                    <XCircle className="w-3 h-3" />
                     Inactivo
-                </span>
+                </Badge>
             );
         }
         if (user.is_overloaded) {
             return (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    <AlertCircle className="w-3 h-3 mr-1" />
+                <Badge variant="destructive" className="gap-1">
+                    <AlertCircle className="w-3 h-3" />
                     Sobrecargado
-                </span>
+                </Badge>
             );
         }
         return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <CheckCircle className="w-3 h-3 mr-1" />
+            <Badge variant="default" className="gap-1">
+                <CheckCircle className="w-3 h-3" />
                 Activo
-            </span>
+            </Badge>
         );
     };
 
     const getActivityBadge = (lastSignIn: string | null) => {
         if (!lastSignIn) return (
-            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-                Sin actividad
-            </span>
+            <Badge variant="outline">Sin actividad</Badge>
         );
 
         const date = new Date(lastSignIn);
@@ -161,29 +147,13 @@ const AdminUserManagementPage: React.FC = () => {
         const diffDays = Math.ceil((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
         if (diffDays <= 1) {
-            return (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
-                    En línea
-                </span>
-            );
+            return <Badge variant="default">En línea</Badge>;
         } else if (diffDays <= 7) {
-            return (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
-                    Activo
-                </span>
-            );
+            return <Badge variant="secondary">Activo</Badge>;
         } else if (diffDays <= 30) {
-            return (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-700">
-                    Poco activo
-                </span>
-            );
+            return <Badge variant="outline">Poco activo</Badge>;
         } else {
-            return (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-700">
-                    Inactivo
-                </span>
-            );
+            return <Badge variant="destructive">Inactivo</Badge>;
         }
     };
 
@@ -196,287 +166,245 @@ const AdminUserManagementPage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-full">
-                <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            <div className="flex justify-center items-center h-96">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
     if (isError) {
         return (
-            <div className="p-4 bg-red-100 text-red-800 rounded-md">
-                <AlertTriangle className="inline w-5 h-5 mr-2" />
-                {error?.message}
-            </div>
+            <Card className="border-destructive">
+                <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 text-destructive">
+                        <AlertTriangle className="w-5 h-5" />
+                        <span>{error?.message}</span>
+                    </div>
+                </CardContent>
+            </Card>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios y Solicitudes</h1>
-                    <p className="text-gray-600 mt-1">
-                        Administra el equipo de ventas y analiza las solicitudes de financiamiento
+                    <h2 className="text-3xl font-bold tracking-tight">Gestión de Usuarios y Solicitudes</h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Administra el equipo de ventas y analiza las solicitudes
                     </p>
                 </div>
                 {activeTab === 'users' && (
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors shadow-sm"
-                    >
-                        <UserPlus className="w-5 h-5" />
+                    <Button onClick={() => setIsCreateModalOpen(true)}>
+                        <UserPlus className="w-4 h-4 mr-2" />
                         Crear Usuario de Ventas
-                    </button>
+                    </Button>
                 )}
             </div>
 
             {/* Tabs */}
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="flex border-b">
-                    <button
-                        onClick={() => setActiveTab('users')}
-                        className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                            activeTab === 'users'
-                                ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
-                    >
-                        <div className="flex items-center justify-center gap-2">
-                            <Users className="w-5 h-5" />
-                            <span>Usuarios de Ventas</span>
-                        </div>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('applications')}
-                        className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                            activeTab === 'applications'
-                                ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
-                    >
-                        <div className="flex items-center justify-center gap-2">
-                            <FileText className="w-5 h-5" />
-                            <span>Análisis de Solicitudes</span>
-                        </div>
-                    </button>
-                </div>
-            </div>
+            <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                    <TabsTrigger value="users" className="gap-2">
+                        <Users className="w-4 h-4" />
+                        Usuarios de Ventas
+                    </TabsTrigger>
+                    <TabsTrigger value="applications" className="gap-2">
+                        <FileText className="w-4 h-4" />
+                        Análisis de Solicitudes
+                    </TabsTrigger>
+                </TabsList>
 
-            {/* Tab Content */}
-            {activeTab === 'users' && (
-                <>
+                <TabsContent value="users" className="space-y-4">
                     {/* Stats Overview */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Users className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Total Usuarios</p>
-                            <p className="text-2xl font-bold text-gray-900">{salesUsers.length}</p>
-                        </div>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
+                                <Users className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{salesUsers.length}</div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Activos</CardTitle>
+                                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{activeUsers}</div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Leads Totales</CardTitle>
+                                <Activity className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{totalLeads}</div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Contactados</CardTitle>
+                                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{totalContacted}</div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Actualizados</CardTitle>
+                                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{totalLeadsActualizados}</div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Sobrecargados</CardTitle>
+                                <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{overloadedUsers}</div>
+                            </CardContent>
+                        </Card>
                     </div>
-                </div>
 
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-lg">
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Usuarios Activos</p>
-                            <p className="text-2xl font-bold text-gray-900">{activeUsers}</p>
-                        </div>
-                    </div>
-                </div>
+                    {/* Users Table */}
+                    <Card>
+                        <CardContent className="p-0">
+                            <div className="rounded-md border overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-muted">
+                                            <tr className="border-b">
+                                                <th className="px-6 py-3 text-left font-medium">Usuario</th>
+                                                <th className="px-6 py-3 text-left font-medium">Estado</th>
+                                                <th className="px-6 py-3 text-left font-medium">Actividad</th>
+                                                <th className="px-6 py-3 text-left font-medium">Leads</th>
+                                                <th className="px-6 py-3 text-left font-medium">Métricas</th>
+                                                <th className="px-6 py-3 text-left font-medium">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y">
+                                            {salesUsers.map((user) => (
+                                                <tr key={user.id} className="hover:bg-accent transition-colors">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                                <span className="text-sm font-semibold">
+                                                                    {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-medium">
+                                                                    {user.first_name} {user.last_name}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                                                    <Calendar className="w-3 h-3" />
+                                                                    Desde {formatDate(user.created_at)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {getStatusBadge(user)}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="space-y-1">
+                                                            {getActivityBadge(user.last_sign_in_at)}
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {formatRelativeTime(user.last_sign_in_at)}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="text-sm">
+                                                            <div className="font-medium">
+                                                                {user.leads_assigned} asignados
+                                                            </div>
+                                                            <div className="text-xs text-muted-foreground">
+                                                                Última: {formatDate(user.last_assigned_at)}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="space-y-1 text-xs">
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-muted-foreground">Contactados:</span>
+                                                                <span className="font-medium">
+                                                                    {user.leads_contacted}/{user.leads_assigned}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-muted-foreground">Actualizados:</span>
+                                                                <span className="font-medium">
+                                                                    {user.leads_actualizados}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-muted-foreground">Procesadas:</span>
+                                                                <span className="font-medium">
+                                                                    {user.solicitudes_procesadas}/{user.solicitudes_enviadas}
+                                                                </span>
+                                                            </div>
+                                                            <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
+                                                                <div
+                                                                    className="bg-primary h-1.5 rounded-full transition-all"
+                                                                    style={{
+                                                                        width: `${user.leads_assigned > 0
+                                                                            ? (user.leads_contacted / user.leads_assigned) * 100
+                                                                            : 0
+                                                                            }%`
+                                                                    }}
+                                                                ></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setSelectedUserId(user.id)}
+                                                            >
+                                                                <Eye className="w-3 h-3 mr-1" />
+                                                                Ver
+                                                            </Button>
+                                                            <Button
+                                                                variant={user.is_active ? "destructive" : "default"}
+                                                                size="sm"
+                                                                onClick={() => handleToggleUserStatus(user.id, user.is_active)}
+                                                                disabled={toggleUserStatusMutation.isPending}
+                                                            >
+                                                                {user.is_active ? 'Desactivar' : 'Activar'}
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
 
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                            <Activity className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Leads Totales</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalLeads}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-100 rounded-lg">
-                            <TrendingUp className="w-6 h-6 text-purple-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Contactados</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalContacted}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-100 rounded-lg">
-                            <TrendingUp className="w-6 h-6 text-indigo-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Leads Actualizados</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalLeadsActualizados}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-red-100 rounded-lg">
-                            <AlertCircle className="w-6 h-6 text-red-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600">Sobrecargados</p>
-                            <p className="text-2xl font-bold text-gray-900">{overloadedUsers}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Users Table */}
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Usuario
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Estado
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actividad
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Leads
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Métricas
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Acciones
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {salesUsers.map((user) => (
-                                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
-                                                <span className="text-primary-700 font-semibold">
-                                                    {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                                                </span>
-                                            </div>
-                                            <div className="ml-4">
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {user.first_name} {user.last_name}
-                                                </div>
-                                                <div className="text-sm text-gray-500 flex items-center">
-                                                    <Calendar className="w-3 h-3 mr-1" />
-                                                    Desde {formatDate(user.created_at)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {getStatusBadge(user)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="space-y-1">
-                                            {getActivityBadge(user.last_sign_in_at)}
-                                            <div className="text-xs text-gray-500">
-                                                Última sesión: {formatRelativeTime(user.last_sign_in_at)}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm">
-                                            <div className="font-medium text-gray-900">
-                                                {user.leads_assigned} asignados
-                                            </div>
-                                            <div className="text-gray-500">
-                                                Última asignación: {formatDate(user.last_assigned_at)}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="space-y-1 text-sm">
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Contactados:</span>
-                                                <span className="font-medium text-green-600">
-                                                    {user.leads_contacted}/{user.leads_assigned}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Leads Actualizados:</span>
-                                                <span className="font-medium text-indigo-600">
-                                                    {user.leads_actualizados}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-gray-600">Solicitudes Procesadas:</span>
-                                                <span className="font-medium text-blue-600">
-                                                    {user.solicitudes_procesadas}/{user.solicitudes_enviadas}
-                                                </span>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="bg-primary-600 h-2 rounded-full transition-all"
-                                                    style={{
-                                                        width: `${user.leads_assigned > 0
-                                                            ? (user.leads_contacted / user.leads_assigned) * 100
-                                                            : 0
-                                                            }%`
-                                                    }}
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setSelectedUserId(user.id)}
-                                                className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                                            >
-                                                <Eye className="w-4 h-4 mr-1" />
-                                                Ver Detalles
-                                            </button>
-                                            <button
-                                                onClick={() => handleToggleUserStatus(user.id, user.is_active)}
-                                                className={`inline-flex items-center px-3 py-1 border rounded-md transition-colors ${user.is_active
-                                                    ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
-                                                    : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                                                    }`}
-                                                disabled={toggleUserStatusMutation.isPending}
-                                            >
-                                                {user.is_active ? 'Desactivar' : 'Activar'}
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-                </>
-            )}
-
-            {/* Applications Analytics Tab */}
-            {activeTab === 'applications' && (
-                <ApplicationAnalyticsPanel />
-            )}
+                <TabsContent value="applications">
+                    <ApplicationAnalyticsPanel />
+                </TabsContent>
+            </Tabs>
 
             {/* Modals */}
             <CreateUserModal

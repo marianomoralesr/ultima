@@ -68,6 +68,7 @@ const AdminComprasDashboardPage = lazy(() => import('./pages/AdminComprasDashboa
 const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
 const UnifiedCRMPage = lazy(() => import('./pages/UnifiedCRMPage'));
 const MarketingAnalyticsDashboardPage = lazy(() => import('./pages/MarketingAnalyticsDashboardPage'));
+const CustomerJourneysPage = lazy(() => import('./pages/CustomerJourneysPage'));
 const R2ImageManagerPage = lazy(() => import('./pages/R2ImageManagerPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
@@ -201,6 +202,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/marketing" element={<MarketingHubPage />} />
                   <Route path="admin/marketing-config" element={<MarketingConfigPage />} />
                   <Route path="admin/marketing-analytics" element={<MarketingAnalyticsDashboardPage />} />
+                  <Route path="admin/customer-journeys" element={<CustomerJourneysPage />} />
                   <Route path="admin/survey-analytics" element={<SurveyAnalyticsDashboard />} />
                   <Route path="admin/tracking-analytics" element={<UnifiedTrackingDashboard />} />
                   <Route path="admin/r2-images" element={<R2ImageManagerPage />} />

@@ -37,7 +37,8 @@ import {
     Grid3x3,
     HelpCircle,
     DollarSign,
-    BarChart3
+    BarChart3,
+    Route
 } from 'lucide-react';
 
 // @ts-ignore
@@ -94,6 +95,13 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/faq', label: 'FAQs', icon: HelpCircle },
     ];
 
+    const adminNavItems = [
+        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+        { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
+        { to: '/escritorio/admin/marketing-analytics', label: 'Analytics', icon: TrendingUp },
+        { to: '/escritorio/admin/config', label: 'Configuración', icon: Settings },
+    ];
+
     const userRoleText = isAdmin ? 'Administrador' : isSales ? 'Ventas' : 'Usuario';
 
     return (
@@ -124,6 +132,37 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                         </NavLink>
                     ))}
                 </nav>
+
+                {/* Admin Section */}
+                {isAdmin && (
+                    <div className="mt-6 pt-6 border-t">
+                        {!isCollapsed && (
+                            <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center">
+                                <Settings className="w-4 h-4 mr-2" />
+                                Administración
+                            </h3>
+                        )}
+                        <nav className="space-y-2">
+                            {adminNavItems.map(item => (
+                                <NavLink
+                                    key={item.to}
+                                    to={item.to}
+                                    className={({ isActive }) =>
+                                        `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
+                                            isActive
+                                                ? 'bg-indigo-100 text-indigo-700'
+                                                : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
+                                        }`
+                                    }
+                                    title={isCollapsed ? item.label : undefined}
+                                >
+                                    <item.icon className={`${isCollapsed ? 'w-6 h-6' : 'w-4 h-4'} flex-shrink-0 text-gray-600 ${!isCollapsed ? 'mr-3' : ''}`} />
+                                    <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.6rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>{item.label}</span>
+                                </NavLink>
+                            ))}
+                        </nav>
+                    </div>
+                )}
 
                 {!isCollapsed && (
                     <div className="mt-6 pt-6 border-t">

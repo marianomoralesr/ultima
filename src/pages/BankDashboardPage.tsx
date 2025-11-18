@@ -12,6 +12,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import BankPINVerify from '../components/BankPINVerify';
 
 const BankDashboardPage: React.FC = () => {
@@ -303,19 +304,19 @@ const BankDashboardPage: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="status">Filtrar por estado</Label>
-                <select
-                  id="status"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="all">Todos</option>
-                  <option value="pending">Pendientes</option>
-                  <option value="reviewing">En revisión</option>
-                  <option value="approved">Aprobadas</option>
-                  <option value="rejected">Rechazadas</option>
-                  <option value="feedback_provided">Con retroalimentación</option>
-                </select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="pending">Pendientes</SelectItem>
+                    <SelectItem value="reviewing">En revisión</SelectItem>
+                    <SelectItem value="approved">Aprobadas</SelectItem>
+                    <SelectItem value="rejected">Rechazadas</SelectItem>
+                    <SelectItem value="feedback_provided">Con retroalimentación</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>

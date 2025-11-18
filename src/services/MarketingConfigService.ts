@@ -415,7 +415,7 @@ class MarketingConfigService {
       let query = supabase
         .from('tracking_events')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
 
       if (filters?.eventType) {
         query = query.eq('event_type', filters.eventType);
@@ -429,9 +429,10 @@ class MarketingConfigService {
       if (filters?.endDate) {
         query = query.lte('created_at', filters.endDate);
       }
-      if (filters?.limit) {
-        query = query.limit(filters.limit);
-      }
+
+      // Apply limit: use provided limit or default to 100000 to override Supabase's 1000 default
+      const limitValue = filters?.limit ?? 100000;
+      query = query.limit(limitValue);
 
       const { data, error } = await query;
 

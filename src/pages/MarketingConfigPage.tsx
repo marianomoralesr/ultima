@@ -271,7 +271,8 @@ export default function MarketingConfigPage() {
   };
 
   const loadRecentEvents = async () => {
-    const events = await marketingConfigService.getTrackingEvents({ limit: 50 });
+    // Removed limit to fetch all events (was limited to 50, now fetches all)
+    const events = await marketingConfigService.getTrackingEvents({ limit: 100000 });
     setRecentEvents(events);
     if (isMonitoring) {
       // Add new events to live stream

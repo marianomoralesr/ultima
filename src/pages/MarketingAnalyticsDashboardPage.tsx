@@ -66,10 +66,12 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     setError(null);
     try {
       // Query tracking_events table (same table marketing-config uses)
+      // Note: Removed limit to fetch all events (Supabase default is 1000)
       let query = supabase
         .from('tracking_events')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .limit(100000); // Set high limit to fetch all events
 
       if (filters.startDate) {
         query = query.gte('created_at', filters.startDate);
@@ -84,7 +86,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         query = query.eq('utm_source', filters.utmSource);
       }
 
-      const { data, error: queryError } = await query;
+      const { data, error: queryError, count } = await query;
 
       if (queryError) {
         console.error('Error loading tracking events:', queryError);

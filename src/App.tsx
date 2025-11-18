@@ -76,6 +76,7 @@ const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
 const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const FinanciamientosPage = lazy(() => import('./pages/FinanciamientosPage'));
+const FinanciamientoLandingPage = lazy(() => import('./pages/FinanciamientoLandingPage'));
 const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
 const ApplicationAnalyticsPage = lazy(() => import('./pages/ApplicationAnalyticsPage'));
 const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
@@ -125,6 +126,9 @@ function App(): React.JSX.Element {
           <Route element={<InventoryLayout />}>
             <Route path="financiamientos" element={<FinanciamientosPage />} />
           </Route>
+
+          {/* New Financiamiento Landing Page */}
+          <Route path="financiamiento" element={<FinanciamientoLandingPage />} />
 
           {/* Routes that need vehicle and filter context */}
           <Route element={<InventoryLayout />}>

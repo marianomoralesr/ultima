@@ -104,6 +104,12 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
         { to: '/escritorio/admin/config', label: 'Configuración', icon: Settings },
     ];
 
+    const salesNavItems = [
+        { to: '/escritorio/ventas/dashboard', label: 'Dashboard Ventas', icon: LayoutDashboard },
+        { to: '/escritorio/ventas/crm', label: 'CRM / Leads', icon: Users },
+        { to: '/escritorio/ventas/performance', label: 'Rendimiento', icon: TrendingUp },
+    ];
+
     const userRoleText = isAdmin ? 'Administrador' : isSales ? 'Ventas' : 'Usuario';
 
     return (
@@ -153,6 +159,37 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                                         `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
                                             isActive
                                                 ? 'bg-indigo-100 text-indigo-700'
+                                                : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
+                                        }`
+                                    }
+                                    title={isCollapsed ? item.label : undefined}
+                                >
+                                    <item.icon className={`${isCollapsed ? 'w-6 h-6' : 'w-4 h-4'} flex-shrink-0 text-gray-600 ${!isCollapsed ? 'mr-3' : ''}`} />
+                                    <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.6rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>{item.label}</span>
+                                </NavLink>
+                            ))}
+                        </nav>
+                    </div>
+                )}
+
+                {/* Sales Section */}
+                {isSales && !isAdmin && (
+                    <div className="mt-6 pt-6 border-t">
+                        {!isCollapsed && (
+                            <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center">
+                                <TrendingUp className="w-4 h-4 mr-2" />
+                                Ventas
+                            </h3>
+                        )}
+                        <nav className="space-y-2">
+                            {salesNavItems.map(item => (
+                                <NavLink
+                                    key={item.to}
+                                    to={item.to}
+                                    className={({ isActive }) =>
+                                        `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
+                                            isActive
+                                                ? 'bg-emerald-100 text-emerald-700'
                                                 : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
                                         }`
                                     }

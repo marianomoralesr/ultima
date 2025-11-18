@@ -10,6 +10,10 @@ import type { Profile } from '../types/types';
 import { calculateRFC } from '../utils/rfcCalculator';
 import { toast } from 'sonner';
 import { conversionTracking } from '../services/ConversionTrackingService';
+import { Label } from '../components/ui/label';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 
 
 const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas', ];
@@ -23,6 +27,16 @@ const CELLPHONE_COMPANIES = [
   'Weex (Dish)',
   'Pillofon',
   'Otro',
+];
+
+const SALES_AGENTS = [
+  { id: 'd21e808e-083c-48fd-be78-d52ee7837146', name: 'Anahi Garza Garcia' },
+  { id: 'cb55da28-ef7f-4632-9fcd-a8d9f37f1463', name: 'Carlos Isidro Berrones' },
+  { id: 'e49bf74c-308f-4e8d-b683-3575d7214e98', name: 'Daniel Rodríguez' },
+  { id: '7e239ec5-aceb-4e9f-ae67-2ac16733609b', name: 'David Rojas' },
+  { id: 'fe901e9e-c3f2-41a1-b5a0-6d95c9d81344', name: 'David Marconi Mazariegos' },
+  { id: 'a4165ce3-e52b-4f8d-9123-327c0179f73c', name: 'Israel Ramírez' },
+  { id: '4c8c43bb-c936-44a2-ab82-f40326387770', name: 'Ramón Araujo' },
 ];
 
 // Utility function to normalize names to Title Case
@@ -103,10 +117,11 @@ const ProfilePage: React.FC = () => {
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [calculatedRfc, setCalculatedRfc] = useState('');
-  const [asesorAutorizadoAcceso, setAsesorAutorizadoAcceso] = useState(false);
   const [assignedAgentName, setAssignedAgentName] = useState<string>();
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [hasPriorAdvisor, setHasPriorAdvisor] = useState<string>('no');
+  const [selectedSalesAgentId, setSelectedSalesAgentId] = useState<string>('');
   
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -138,10 +153,11 @@ const ProfilePage: React.FC = () => {
         how_did_you_know: profile.how_did_you_know || '',
       });
       setCalculatedRfc(profile.rfc || '');
-      setAsesorAutorizadoAcceso(profile.asesor_autorizado_acceso || false);
       setPreviewUrl(profile.picture_url || null);
 
       if (profile.asesor_asignado_id) {
+        setHasPriorAdvisor('yes');
+        setSelectedSalesAgentId(profile.asesor_asignado_id);
         ProfileService.getProfile(profile.asesor_asignado_id).then(agentProfile => {
           if (agentProfile) {
             setAssignedAgentName(`${agentProfile.first_name || ''} ${agentProfile.last_name || ''}`.trim());
@@ -160,6 +176,15 @@ const ProfilePage: React.FC = () => {
       setCalculatedRfc(rfc || 'Completa los campos para calcular');
     }
   }, [firstName, lastName, motherLastName, birthDate, homoclave]);
+
+  useEffect(() => {
+    if (selectedSalesAgentId) {
+      const selectedAgent = SALES_AGENTS.find(agent => agent.id === selectedSalesAgentId);
+      if (selectedAgent) {
+        setAssignedAgentName(selectedAgent.name);
+      }
+    }
+  }, [selectedSalesAgentId]);
 
   const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -194,14 +219,19 @@ const ProfilePage: React.FC = () => {
         email: user.email, // Ensure email is always included
         ...normalizedData,
         rfc: finalRfc ?? undefined,
-        asesor_autorizado_acceso: asesorAutorizadoAcceso,
         picture_url: pictureUrl
       };
 
-      if (asesorAutorizadoAcceso && !profile?.asesor_asignado_id) {
+      // If user has a prior advisor and selected one, assign it directly (skips round-robin)
+      if (hasPriorAdvisor === 'yes' && selectedSalesAgentId) {
+        payload.asesor_asignado_id = selectedSalesAgentId;
+        payload.asesor_autorizado_acceso = true;
+      } else if (!profile?.asesor_asignado_id) {
+        // If no prior advisor and no advisor assigned yet, use round-robin
         const assignedAdvisorId = await ProfileService.assignAdvisorToUser(user.id);
         if (assignedAdvisorId) {
           payload.asesor_asignado_id = assignedAdvisorId;
+          payload.asesor_autorizado_acceso = true;
         }
       }
 
@@ -214,7 +244,7 @@ const ProfilePage: React.FC = () => {
         email: user.email,
         profileComplete: checkProfileCompleteness(payload as Profile),
         hasProfilePicture: !!pictureUrl,
-        asesorAutorizado: asesorAutorizadoAcceso
+        asesorAutorizado: !!payload.asesor_autorizado_acceso
       });
 
       setSaveState('saved');
@@ -229,9 +259,6 @@ const ProfilePage: React.FC = () => {
       setSaveState('idle');
     }
   };
-  
-  const inputClassName = "mt-1 block w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 placeholder-gray-500 disabled:bg-gray-100 disabled:cursor-not-allowed";
-  const phoneInputClassName = "flex-1 w-full px-4 py-2.5 bg-white border border-gray-300 rounded-r-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 placeholder-gray-500";
 
   if (loading) {
     return (
@@ -330,29 +357,29 @@ const ProfilePage: React.FC = () => {
                 <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
                 Información de Contacto
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Teléfono</Label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-white text-gray-500 text-sm font-semibold">MX +52</span>
-                    <input id="phone" {...profileForm.register('phone')} className={phoneInputClassName} placeholder="10 dígitos" />
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm font-medium">MX +52</span>
+                    <Input id="phone" {...profileForm.register('phone')} placeholder="10 dígitos" className="rounded-l-none" />
                   </div>
-                  {profileForm.formState.errors.phone && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.phone?.message as React.ReactNode}</p>}
+                  {profileForm.formState.errors.phone && <p className="text-sm text-red-600">{profileForm.formState.errors.phone?.message as React.ReactNode}</p>}
                 </div>
-                <div>
-                  <label htmlFor="cellphone_company" className="block text-sm font-medium text-gray-700 mb-1">Compañía Telefónica</label>
-                  <select id="cellphone_company" {...profileForm.register('cellphone_company')} className={inputClassName}>
+                <div className="space-y-2">
+                  <Label htmlFor="cellphone_company">Compañía Telefónica</Label>
+                  <select id="cellphone_company" {...profileForm.register('cellphone_company')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     <option value="">Seleccionar...</option>
                     {CELLPHONE_COMPANIES.map((company) => (
                       <option key={company} value={company}>{company}</option>
                     ))}
                   </select>
-                  {profileForm.formState.errors.cellphone_company && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.cellphone_company?.message as React.ReactNode}</p>}
+                  {profileForm.formState.errors.cellphone_company && <p className="text-sm text-red-600">{profileForm.formState.errors.cellphone_company?.message as React.ReactNode}</p>}
                 </div>
-                <div className="md:col-span-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                  <input id="email" type="email" value={user?.email || ''} readOnly disabled className={inputClassName} />
-                  <p className="text-xs text-gray-500 mt-1">Este correo está vinculado a tu cuenta y no puede ser modificado.</p>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="email">Correo Electrónico</Label>
+                  <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
+                  <p className="text-xs text-muted-foreground">Este correo está vinculado a tu cuenta y no puede ser modificado.</p>
                 </div>
               </div>
             </div>
@@ -363,24 +390,24 @@ const ProfilePage: React.FC = () => {
                 <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
                 Datos Personales
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">Nombre(s)</label>
-                  <input id="first_name" {...profileForm.register('first_name')} className={inputClassName} placeholder="Tu(s) nombre(s)" />
-                  {profileForm.formState.errors.first_name && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.first_name?.message as React.ReactNode}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">Nombre(s)</Label>
+                  <Input id="first_name" {...profileForm.register('first_name')} placeholder="Tu(s) nombre(s)" />
+                  {profileForm.formState.errors.first_name && <p className="text-sm text-red-600">{profileForm.formState.errors.first_name?.message as React.ReactNode}</p>}
                 </div>
-                <div>
-                  <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno</label>
-                  <input id="last_name" {...profileForm.register('last_name')} className={inputClassName} placeholder="Apellido paterno" />
-                  {profileForm.formState.errors.last_name && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.last_name?.message as React.ReactNode}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Apellido Paterno</Label>
+                  <Input id="last_name" {...profileForm.register('last_name')} placeholder="Apellido paterno" />
+                  {profileForm.formState.errors.last_name && <p className="text-sm text-red-600">{profileForm.formState.errors.last_name?.message as React.ReactNode}</p>}
                 </div>
-                <div>
-                  <label htmlFor="mother_last_name" className="block text-sm font-medium text-gray-700 mb-1">Apellido Materno</label>
-                  <input id="mother_last_name" {...profileForm.register('mother_last_name')} className={inputClassName} placeholder="Apellido materno" />
-                  {profileForm.formState.errors.mother_last_name && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.mother_last_name?.message as React.ReactNode}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="mother_last_name">Apellido Materno</Label>
+                  <Input id="mother_last_name" {...profileForm.register('mother_last_name')} placeholder="Apellido materno" />
+                  {profileForm.formState.errors.mother_last_name && <p className="text-sm text-red-600">{profileForm.formState.errors.mother_last_name?.message as React.ReactNode}</p>}
                 </div>
               </div>
-              <p className="text-xs text-blue-600 mt-2 flex items-center">
+              <p className="text-xs text-blue-600 mt-3 flex items-center">
                 <Info className="w-4 h-4 mr-1" />
                 Los nombres se formatearán automáticamente con mayúsculas y minúsculas apropiadas.
               </p>
@@ -392,32 +419,32 @@ const ProfilePage: React.FC = () => {
                 <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
                 Información Fiscal
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="birth_date" className="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
-                  <input id="birth_date" type="date" {...profileForm.register('birth_date')} className={inputClassName} />
-                  {profileForm.formState.errors.birth_date && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.birth_date.message as React.ReactNode}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="birth_date">Fecha de Nacimiento</Label>
+                  <Input id="birth_date" type="date" {...profileForm.register('birth_date')} />
+                  {profileForm.formState.errors.birth_date && <p className="text-sm text-red-600">{profileForm.formState.errors.birth_date.message as React.ReactNode}</p>}
                 </div>
-                <div>
-                  <label htmlFor="homoclave" className="block text-sm font-medium text-gray-700 mb-1">Homoclave (RFC)</label>
-                  <input id="homoclave" {...profileForm.register('homoclave')} className={inputClassName} maxLength={3} placeholder="Últimos 3 dígitos" />
-                  {profileForm.formState.errors.homoclave && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.homoclave.message as React.ReactNode}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="homoclave">Homoclave (RFC)</Label>
+                  <Input id="homoclave" {...profileForm.register('homoclave')} maxLength={3} placeholder="Últimos 3 dígitos" />
+                  {profileForm.formState.errors.homoclave && <p className="text-sm text-red-600">{profileForm.formState.errors.homoclave.message as React.ReactNode}</p>}
                 </div>
-                <div className="md:col-span-2">
-                  <label htmlFor="rfc" className="block text-sm font-medium text-gray-700 mb-1">RFC Calculado</label>
-                  <input
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="rfc">RFC Calculado</Label>
+                  <Input
                     id="rfc"
                     type="text"
                     value={calculatedRfc}
                     readOnly
                     disabled
-                    className={`${inputClassName} bg-gray-100 font-mono font-bold text-primary-700`}
+                    className="font-mono font-bold"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Este campo se calcula automáticamente con los datos proporcionados.</p>
+                  <p className="text-xs text-muted-foreground">Este campo se calcula automáticamente con los datos proporcionados.</p>
                 </div>
-                <div className="md:col-span-2">
-                  <label htmlFor="fiscal_situation" className="block text-sm font-medium text-gray-700 mb-1">Situación Fiscal</label>
-                  <select {...profileForm.register('fiscal_situation')} className={inputClassName}>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="fiscal_situation">Situación Fiscal</Label>
+                  <select {...profileForm.register('fiscal_situation')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     <option value="">Seleccionar...</option>
                     <option value="asalariado">Empleado con nómina</option>
                     <option value="honorarios">Honorarios</option>
@@ -425,7 +452,7 @@ const ProfilePage: React.FC = () => {
                     <option value="pensionado">Pensionado</option>
                     <option value="actividad_empresarial">Persona Física con Actividad Empresarial</option>
                   </select>
-                  {profileForm.formState.errors.fiscal_situation && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.fiscal_situation?.message as React.ReactNode}</p>}
+                  {profileForm.formState.errors.fiscal_situation && <p className="text-sm text-red-600">{profileForm.formState.errors.fiscal_situation?.message as React.ReactNode}</p>}
                 </div>
               </div>
             </div>
@@ -436,58 +463,96 @@ const ProfilePage: React.FC = () => {
                 <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
                 Estado Civil y Género
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="civil_status" className="block text-sm font-medium text-gray-700 mb-1">Estado Civil</label>
-                  <select {...profileForm.register('civil_status')} className={inputClassName}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="civil_status">Estado Civil</Label>
+                  <select {...profileForm.register('civil_status')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     <option value="">Seleccionar...</option>
                     <option value="soltero">Soltero(a)</option>
                     <option value="casado">Casado(a)</option>
                     <option value="viudo">Viudo(a)</option>
                     <option value="union">Unión Libre</option>
                   </select>
-                  {profileForm.formState.errors.civil_status && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.civil_status?.message as React.ReactNode}</p>}
+                  {profileForm.formState.errors.civil_status && <p className="text-sm text-red-600">{profileForm.formState.errors.civil_status?.message as React.ReactNode}</p>}
                 </div>
-                <div>
-                  <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">Género</label>
-                  <select {...profileForm.register('gender')} className={inputClassName}>
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Género</Label>
+                  <select {...profileForm.register('gender')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     <option value="">Seleccionar...</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Femenino">Femenino</option>
                   </select>
-                  {profileForm.formState.errors.gender && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.gender?.message as React.ReactNode}</p>}
+                  {profileForm.formState.errors.gender && <p className="text-sm text-red-600">{profileForm.formState.errors.gender?.message as React.ReactNode}</p>}
                 </div>
                 {isMarried && (
-                  <div className="md:col-span-2">
-                    <label htmlFor="spouse_name" className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo del Cónyuge</label>
-                    <input id="spouse_name" {...profileForm.register('spouse_name')} className={inputClassName} placeholder="Nombre completo del cónyuge" />
-                    {profileForm.formState.errors.spouse_name && <p className="text-sm text-red-600 mt-1">{profileForm.formState.errors.spouse_name.message as React.ReactNode}</p>}
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="spouse_name">Nombre Completo del Cónyuge</Label>
+                    <Input id="spouse_name" {...profileForm.register('spouse_name')} placeholder="Nombre completo del cónyuge" />
+                    {profileForm.formState.errors.spouse_name && <p className="text-sm text-red-600">{profileForm.formState.errors.spouse_name.message as React.ReactNode}</p>}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <label className="flex items-start cursor-pointer">
-                <input
-                  id="asesor_autorizado_acceso"
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-primary-600 rounded mt-1"
-                  checked={asesorAutorizadoAcceso}
-                  onChange={(e) => setAsesorAutorizadoAcceso(e.target.checked)}
-                />
-                <div className="ml-3">
-                  <span className="font-semibold text-gray-800">Autorizar acceso a mi asesor</span>
-                  <p className="text-sm text-gray-600">
-                    {assignedAgentName 
-                      ? `Autorizar a ${assignedAgentName} el acceso a mi cuenta para dar seguimiento a mi solicitud.`
-                      : 'Autorizar el acceso a mi cuenta a mi asesor asignado para dar seguimiento a mi solicitud.'
-                    }
-                  </p>
+            {/* Prior TREFA Advisor Section */}
+            <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">5</span>
+                Asignación de Asesor
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                    ¿Ya he sido atendido por un asesor de TREFA?
+                  </Label>
+                  <RadioGroup value={hasPriorAdvisor} onValueChange={setHasPriorAdvisor} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="no-prior-advisor" />
+                      <Label htmlFor="no-prior-advisor" className="font-normal cursor-pointer">No</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="yes-prior-advisor" />
+                      <Label htmlFor="yes-prior-advisor" className="font-normal cursor-pointer">Sí</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
-              </label>
+
+                {hasPriorAdvisor === 'yes' && (
+                  <div>
+                    <Label htmlFor="sales-agent-select" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Selecciona tu asesor
+                    </Label>
+                    <Select value={selectedSalesAgentId} onValueChange={setSelectedSalesAgentId}>
+                      <SelectTrigger id="sales-agent-select" className="w-full">
+                        <SelectValue placeholder="Selecciona un asesor..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SALES_AGENTS.map((agent) => (
+                          <SelectItem key={agent.id} value={agent.id}>
+                            {agent.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {assignedAgentName && selectedSalesAgentId && (
+                      <p className="text-xs text-blue-600 mt-2 flex items-center">
+                        <Info className="w-4 h-4 mr-1" />
+                        Se asignará a {assignedAgentName} como tu asesor y tendrá acceso a tu cuenta para dar seguimiento.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {hasPriorAdvisor === 'no' && (
+                  <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <Info className="w-4 h-4 inline mr-2" />
+                    Se te asignará un asesor automáticamente al guardar tu perfil.
+                  </p>
+                )}
+              </div>
             </div>
-            
+
             <div className="flex justify-end pt-4">
               <button 
                 type="submit" 

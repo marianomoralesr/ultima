@@ -25,7 +25,7 @@ El sistema evalúa **8 criterios principales** que determinan la elegibilidad y 
 
 | Respuesta del Usuario | Scotiabank | BBVA | Banorte | Banregio | Afirme | Hey Banco |
 |----------------------|------------|------|---------|----------|--------|-----------|
-| Menos de 6 meses | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo |
+| Menos de 6 meses | 0 | 0 | 0 | 0 | 0| 0 |
 | De 6 meses a 1 año | 2 | 2 | 2 | 2 | 2 | 2 |
 | De 1 a 2 años | 3 | 3 | 3 | 3 | 3 | 3 |
 | Más de 2 años | 4 | 4 | 4 | 4 | 4 | 4 |
@@ -59,10 +59,10 @@ El sistema evalúa **8 criterios principales** que determinan la elegibilidad y 
 | Respuesta del Usuario | Scotiabank | BBVA | Banorte | Banregio | Afirme | Hey Banco |
 |----------------------|------------|------|---------|----------|--------|-----------|
 | Excelente | 5 | 5 | 5 | 5 | 5 | 5 |
-| Bueno | 3 | 4 | **5** | 3 | 3 | 3 |
-| Regular | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo |
+| Bueno | 3 | 4 | **4** | 4 | 4 | 4 |
+| Regular | ❌ Rechazo | ❌ Rechazo | 3 | 3 | ❌ Rechazo | 3 |
 | Malo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo |
-| Sin historial crediticio | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo | ❌ Rechazo |
+| Sin historial crediticio | ❌ Rechazo | 1 | 1 | ❌ Rechazo | 2 | ❌ Rechazo |
 
 **Impacto:** Es uno de los criterios más importantes. Solo se aprueban solicitudes con historial "Excelente" o "Bueno". Banorte es más flexible con historial "Bueno" (5 puntos vs 3-4 de otros bancos).
 

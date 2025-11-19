@@ -13,7 +13,10 @@ import {
     Home,
     Users,
     BarChart3,
-    Package
+    Package,
+    Route,
+    Building2,
+    LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -30,7 +33,7 @@ import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
 
 const DashboardLayout: React.FC = () => {
-    const { profile, isAdmin, isSales } = useAuth();
+    const { profile, isAdmin, isSales, signOut } = useAuth();
     const location = useLocation();
 
     // Navigation items based on user role
@@ -45,6 +48,8 @@ const DashboardLayout: React.FC = () => {
             { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
             { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },
             { to: '/escritorio/admin/marketing', label: 'Marketing', icon: BarChart3 },
+            { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
+            { to: '/bancos/dashboard', label: 'Portal Bancario', icon: Building2 },
         ] : []),
         ...(isSales ? [
             { to: '/escritorio/ventas/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -178,6 +183,17 @@ const DashboardLayout: React.FC = () => {
                                 </Link>
                             );
                         })}
+
+                        {/* Sign Out Button */}
+                        <button
+                            onClick={() => signOut()}
+                            className={cn(
+                                "w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <LogOut className="h-4 w-4" />
+                            Cerrar Sesión
+                        </button>
                     </div>
                 </nav>
             </aside>

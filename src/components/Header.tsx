@@ -16,29 +16,14 @@ const Header: React.FC = () => {
     const [megaMenuOpen, setMegaMenuOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { session, profile, signOut } = useAuth();
-    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-    const profileMenuRef = useRef<HTMLDivElement>(null);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
     const location = useLocation();
     const navigate = useNavigate();
     const isListPage = location.pathname === '/autos';
     const isSalesUser = profile?.role === 'sales';
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
-                setProfileMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     const handleSignOut = async () => {
         await signOut();
-        setProfileMenuOpen(false);
         setMobileMenuOpen(false);
     };
 
@@ -90,42 +75,24 @@ const Header: React.FC = () => {
                   </div>
 
                   {session ? (
-                     <div className="relative hidden lg:block" ref={profileMenuRef}>
-                        <button
-                            onClick={() => setProfileMenuOpen(o => !o)}
-                            className="flex items-center gap-2 text-base font-semibold transition-colors text-gray-700 hover:text-primary-600"
+                     <>
+                        {/* Dashboard Button */}
+                        <Link
+                            to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"}
+                            className="hidden lg:block text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
                         >
-                            <UserIcon className="w-8 h-8 rounded-full p-1.5 bg-white text-gray-500" />
-                            <span className="hidden sm:inline">{profile?.first_name ? `Hola, ${profile.first_name}` : ' '}</span>
+                            Dashboard
+                        </Link>
+
+                        {/* Sign Out Button */}
+                        <button
+                            onClick={handleSignOut}
+                            className="hidden lg:flex items-center gap-2 text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
+                        >
+                            <LogOutIcon className="w-4 h-4" />
+                            Cerrar Sesión
                         </button>
-                        {profileMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-40 bg-white">
-                                {isSalesUser ? (
-                                    <Link
-                                        to="/escritorio/ventas/crm"
-                                        onClick={() => setProfileMenuOpen(false)}
-                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Mis Leads
-                                    </Link>
-                                ) : (
-                                    <Link
-                                        to="/escritorio"
-                                        onClick={() => setProfileMenuOpen(false)}
-                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    >
-                                        Dashboard
-                                    </Link>
-                                )}
-                                <button
-                                    onClick={handleSignOut}
-                                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-red-600 font-semibold hover:bg-red-50 active:bg-red-100"
-                                >
-                                    <LogOutIcon className="w-4 h-4" /> Cerrar Sesión
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                     </>
                   ) : (
                     <Link
                       to="/acceder"

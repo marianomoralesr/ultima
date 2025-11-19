@@ -133,17 +133,12 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         Object.entries(events).map(([event_type, count]) => ({ page, event_type, count }))
       ).sort((a, b) => b.count - a.count);
 
-      // Facebook Pixel events (standard FB events)
-      const fbPixelEventTypes = [
-        'InitialRegistration', 'PersonalInformationComplete', 'PerfilacionBancariaComplete',
-        'LeadComplete', 'Lead', 'ViewContent', 'InitiateCheckout', 'CompleteRegistration',
-        'Purchase', 'AddToCart', 'PageView'
-      ];
+      // Facebook Pixel events - Show ALL events that have been tracked
+      // No filtering needed - Facebook Pixel receives all events
       const fbPixelCounts: Record<string, number> = {};
       eventsData.forEach(e => {
-        if (fbPixelEventTypes.includes(e.event_type)) {
-          fbPixelCounts[e.event_type] = (fbPixelCounts[e.event_type] || 0) + 1;
-        }
+        // Include all event types
+        fbPixelCounts[e.event_type] = (fbPixelCounts[e.event_type] || 0) + 1;
       });
       const facebookPixelEvents = Object.entries(fbPixelCounts)
         .map(([event_type, count]) => ({ event_type, count }))

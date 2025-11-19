@@ -391,14 +391,33 @@ class ConversionTrackingService {
       console.log(`✅ GTM Event: ${eventName}`, { ...metadata, ...utmParams });
     }
 
-    // Send directly to Facebook Pixel with UTMs
+    // Send to Facebook Pixel with UTMs
+    // Map custom events to FB standard events where possible for better Meta tracking
     if ((window as any).fbq) {
-      (window as any).fbq('track', eventType, {
+      // Map our custom event types to Facebook standard events
+      const eventMapping: Record<string, string> = {
+        'InitialRegistration': 'CompleteRegistration',
+        'LeadComplete': 'Lead',
+        'ApplicationSubmission': 'SubmitApplication',
+        'ComienzaSolicitud': 'InitiateCheckout',
+        'PersonalInformationComplete': 'CompleteRegistration',
+        'ConversionLandingPage': 'Lead'
+      };
+
+      const fbEventType = eventMapping[eventType] || eventType;
+      const standardFBEvents = ['PageView', 'ViewContent', 'Lead', 'CompleteRegistration', 'InitiateCheckout', 'Purchase', 'AddToCart', 'AddPaymentInfo', 'AddToWishlist', 'Contact', 'CustomizeProduct', 'Donate', 'FindLocation', 'Schedule', 'Search', 'StartTrial', 'SubmitApplication', 'Subscribe'];
+
+      const isStandardEvent = standardFBEvents.includes(fbEventType);
+      const fbMethod = isStandardEvent ? 'track' : 'trackCustom';
+
+      (window as any).fbq(fbMethod, fbEventType, {
         content_name: eventName,
+        event_source_url: window.location.href,
         ...metadata,
         ...utmParams
       });
-      console.log(`✅ Facebook Pixel Event: ${eventType}`, { ...metadata, ...utmParams });
+
+      console.log(`✅ Facebook Pixel ${isStandardEvent ? 'Standard' : 'Custom'} Event: ${fbEventType} (from ${eventType})`, { ...metadata, ...utmParams });
     }
 
     // Save to tracking_events table with UTMs

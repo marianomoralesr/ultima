@@ -198,11 +198,11 @@ class ConversionTrackingService {
      * Página: /escritorio/aplicacion
      * Cuándo: Usuario envía su solicitud de financiamiento completa
      *
-     * IMPORTANT: Only tracks for users who came from the landing page (/financiamientos)
-     * These users have a ConversionLandingPage event in their session
+     * FIXED 11/19: Now tracks ALL application submissions regardless of source
+     * Includes from_landing_page flag for attribution analysis
      */
     submitted: async (metadata: ConversionMetadata = {}): Promise<void> => {
-      // Check if user came from the landing page by looking for ConversionLandingPage event
+      // FIXED: Now tracks ALL application submissions, not just landing page users
       const userId = metadata.userId;
       if (!userId) {
         console.warn('⚠️ LeadComplete not tracked: No userId provided');
@@ -211,6 +211,7 @@ class ConversionTrackingService {
 
       try {
         // Check if this user has a ConversionLandingPage event (registered via landing page)
+        // This is for attribution purposes, but we still track even if they didn't come from landing page
         const { data: landingPageEvent, error } = await supabase
           .from('tracking_events')
           .select('id')
@@ -221,24 +222,26 @@ class ConversionTrackingService {
 
         if (error) {
           console.error('Error checking ConversionLandingPage event:', error);
-          return;
+          // Continue tracking even if there's an error checking landing page
         }
 
-        // Only track LeadComplete if user came from landing page
+        // ALWAYS track LeadComplete for all application submissions
+        // Include from_landing_page flag for attribution analysis
+        this.track('LeadComplete', 'Lead Complete', {
+          ...metadata,
+          page: '/escritorio/aplicacion',
+          applicationStage: 'submitted',
+          value: metadata.vehiclePrice || 0,
+          currency: 'MXN',
+          content_name: 'Lead Complete',
+          status: 'completed',
+          from_landing_page: !!landingPageEvent  // Track attribution but don't gate the event
+        });
+
         if (landingPageEvent) {
-          this.track('LeadComplete', 'Lead Complete', {
-            ...metadata,
-            page: '/escritorio/aplicacion',
-            applicationStage: 'submitted',
-            value: metadata.vehiclePrice || 0,
-            currency: 'MXN',
-            content_name: 'Lead Complete',
-            status: 'completed',
-            from_landing_page: true  // Add flag to indicate this came from landing page
-          });
-          console.log('✅ LeadComplete tracked for landing page user:', userId);
+          console.log('✅ LeadComplete tracked (from landing page):', userId);
         } else {
-          console.log('ℹ️ LeadComplete NOT tracked - user did not come from landing page:', userId);
+          console.log('✅ LeadComplete tracked (direct/other source):', userId);
         }
       } catch (error) {
         console.error('Error tracking LeadComplete:', error);

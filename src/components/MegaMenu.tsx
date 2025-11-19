@@ -19,17 +19,17 @@ import {
   PickupIcon,
   HatchbackIcon,
   LayoutGridIcon,
-  // FIX: Replaced 'Award' with 'AwardIcon' to match the exported component.
   AwardIcon,
-  // FIX: Changed import from HelpCircle to HelpCircleIcon to resolve module export error.
   HelpCircleIcon
 } from './icons';
 import type { Profile } from '../types/types';
 import MiniValuationForm from './MiniValuationForm';
-
 import { BRAND_LOGOS } from '../utils/constants';
-
 import { useConfig } from '../context/ConfigContext';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
 
 interface MegaMenuProps {
   isOpen: boolean;
@@ -59,7 +59,6 @@ const toolsNavLinks = [
     { name: 'Survey Analytics', to: '/escritorio/admin/survey-analytics', authRequired: true, adminRequired: true, icon: FileTextIcon },
 ];
 
-
 const HelpWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const handleContactClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -68,47 +67,61 @@ const HelpWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     };
 
     return (
-        <div className="w-full h-full rounded-lg p-6 flex flex-col justify-between text-left bg-gradient-to-br from-blue-600 to-blue-800 text-white overflow-hidden relative shadow-lg">
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/images/pattern-lines.svg)', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-            <div className="relative z-20">
-                <h3 className="font-extrabold text-xl leading-tight">¿Necesitas Ayuda?</h3>
-                <p className="mt-2 text-base text-white/90">Un experto de TREFA está listo para ayudarte a encontrar tu auto ideal.</p>
-            </div>
-            <a
-                href="#"
-                onClick={handleContactClick}
-                className="mt-6 flex rounded-md font-bold text-base py-3 px-4 bg-green-500 hover:bg-green-600 transition-colors items-center justify-center gap-2 relative z-20 shadow-md"
-            >
-                <WhatsAppIcon className="w-5 h-5" />
-                <span>Contactar Asesor</span>
-            </a>
-        </div>
+        <Card className="bg-gradient-to-br from-blue-600 to-blue-800 text-white border-none">
+            <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold">¿Necesitas Ayuda?</CardTitle>
+                <CardDescription className="text-white/90 text-sm">
+                    Un experto de TREFA está listo para ayudarte a encontrar tu auto ideal.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button
+                    onClick={handleContactClick}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white gap-2"
+                    size="sm"
+                >
+                    <WhatsAppIcon className="w-4 h-4" />
+                    Contactar Asesor
+                </Button>
+            </CardContent>
+        </Card>
     );
 };
 
 const AccountWidget: React.FC<{ profile: Profile; onSignOut: () => void; onLinkClick: (to: string) => void; }> = ({ profile, onSignOut, onLinkClick }) => (
-    <div className="w-full h-full rounded-lg p-6 flex flex-col justify-between text-left bg-white border border-gray-200">
-        <div>
-            <h2 className="text-sm font-semibold text-gray-500 mb-4">Mi Cuenta</h2>
-            <div className="flex items-center gap-4">
-                <UserCircleIcon className="w-12 h-12 text-gray-400" />
-                <div>
-                    <p className="font-bold text-gray-800">{profile.first_name} {profile.last_name}</p>
-                    <p className="text-sm text-gray-500 truncate">{profile.email}</p>
+    <Card>
+        <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-gray-500 font-semibold">Mi Cuenta</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+            <div className="flex items-center gap-3">
+                <UserCircleIcon className="w-10 h-10 text-gray-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm text-gray-800 truncate">{profile.first_name} {profile.last_name}</p>
+                    <p className="text-xs text-gray-500 truncate">{profile.email}</p>
                 </div>
             </div>
-            <button onClick={() => onLinkClick('/escritorio/profile')} className="w-full flex justify-between items-center text-left p-3 mt-4 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
+            <Button
+                onClick={() => onLinkClick('/escritorio/profile')}
+                variant="outline"
+                size="sm"
+                className="w-full justify-between"
+            >
                 <span>Editar Perfil</span>
-                <ArrowRightIcon className="w-4 h-4" />
-            </button>
-        </div>
-        <button onClick={onSignOut} className="w-full flex items-center justify-center gap-2 p-3 mt-4 rounded-lg font-semibold text-red-600 hover:bg-red-50 transition-colors">
-            <LogOutIcon className="w-5 h-5" />
-            <span>Cerrar Sesión</span>
-        </button>
-    </div>
+                <ArrowRightIcon className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+                onClick={onSignOut}
+                variant="destructive"
+                size="sm"
+                className="w-full gap-2"
+            >
+                <LogOutIcon className="w-4 h-4" />
+                Cerrar Sesión
+            </Button>
+        </CardContent>
+    </Card>
 );
-
 
 const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
     const { session, profile, signOut, isAdmin } = useAuth();
@@ -116,6 +129,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
     const { config } = useConfig();
     const navigate = useNavigate();
     const menuRef = useRef<HTMLDivElement>(null);
+
+    // All carrocerias/body types
     const classifications = [
         { name: 'SUV', slug: 'suv', icon: SuvIcon, imageUrl: '/images/suv-filter.png' },
         { name: 'Sedán', slug: 'sedan', icon: SedanIcon, imageUrl: '/images/sedan-filter.png' },
@@ -123,16 +138,45 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
         { name: 'Hatchback', slug: 'hatchback', icon: HatchbackIcon, imageUrl: '/images/hatchback-filter.png' },
     ];
 
+    // All brands (removed .slice(0, 12) limit)
     const marcas = useMemo(() => {
-        if (!allVehicles) return []; // This prevents the crash
+        if (!allVehicles) return [];
         const allMarcas = allVehicles.map(v => v.automarca).filter(Boolean);
         const uniqueMarcas = [...new Set(allMarcas)];
-        return uniqueMarcas.slice(0, 12).map(marcaName => ({
+        return uniqueMarcas.sort().map(marcaName => ({
             id: marcaName,
             name: marcaName,
             slug: marcaName.toLowerCase().replace(/\s+/g, '-'),
             logoUrl: BRAND_LOGOS[marcaName] || '/images/trefalogo.png'
         }));
+    }, [allVehicles]);
+
+    // All models sorted alphabetically with brand logos
+    const models = useMemo(() => {
+        if (!allVehicles) return [];
+        const modelSet = new Map<string, { model: string; brand: string; }>();
+
+        allVehicles.forEach(v => {
+            if (v.automodelo && v.automarca) {
+                const key = `${v.automarca}-${v.automodelo}`;
+                if (!modelSet.has(key)) {
+                    modelSet.set(key, {
+                        model: v.automodelo,
+                        brand: v.automarca,
+                    });
+                }
+            }
+        });
+
+        return Array.from(modelSet.values())
+            .sort((a, b) => a.model.localeCompare(b.model))
+            .map(item => ({
+                id: `${item.brand}-${item.model}`,
+                name: item.model,
+                brand: item.brand,
+                slug: item.model.toLowerCase().replace(/\s+/g, '-'),
+                logoUrl: BRAND_LOGOS[item.brand] || '/images/trefalogo.png'
+            }));
     }, [allVehicles]);
 
     useEffect(() => {
@@ -161,7 +205,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
         onClose();
         signOut();
     };
-    
+
     const handleLinkClick = (to: string, authRequired: boolean) => {
         onClose();
         if (authRequired && !session) {
@@ -178,6 +222,10 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
             navigate(`/marcas/${filterValue.toLowerCase()}`);
         } else if (filterKey === 'classification') {
             navigate(`/carroceria/${filterValue.toLowerCase()}`);
+        } else if (filterKey === 'automodelo') {
+            const params = new URLSearchParams();
+            params.set('automodelo', filterValue);
+            navigate(`/autos?${params.toString()}`);
         } else {
             const params = new URLSearchParams();
             if (filterValue) {
@@ -186,7 +234,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
             navigate(`/autos?${params.toString()}`);
         }
     };
-    
+
     const visibleAccountLinks = accountNavLinks.filter(link => {
         if (!link.authRequired || !session) return false;
         if (link.adminRequired && !isAdmin) return false;
@@ -209,84 +257,164 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
         >
             <div className="mt-2 bg-white rounded-b-2xl shadow-2xl border border-gray-200/80">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-px">
-                    {/* Navigation & Filters Section */}
-                    <div className="lg:col-span-3 p-8 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-8">
-                         {/* Column 1: Main Navigation */}
-                        <div>
-                            <h2 className="text font-semibold text-gray-800 mb-4">Navegación</h2>
-                             <nav className="space-y-1">
-                                {mainNavLinks.map(link => {
-                                    if (link.authRequired && !session) return null;
-                                    if (link.featureFlag && !config[link.featureFlag]) return null;
-                                    return (
-                                        <button key={link.name} onClick={() => handleLinkClick(link.to, link.authRequired)} className="text-sm w-full text-left p-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3">
-                                            {link.icon && <link.icon className="w-5 h-5 text-primary-600" />}
-                                            <span>{link.name}</span>
-                                        </button>
-                                    );
-                                })}
-                            </nav>
-                             <h2 className="font-semibold text-gray-800 mb-4 mt-8">Mi Cuenta</h2>
-                             <nav className="space-y-1">
-                                {visibleAccountLinks.map(link => (
-                                    <button key={link.name} onClick={() => handleLinkClick(link.to, link.authRequired)} className="text-sm w-full text-left p-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3">
-                                        {link.icon && <link.icon className="w-5 h-5 text-primary-600" />}
-                                        <span>{link.name}</span>
-                                    </button>
-                                ))}
-                            </nav>
-                             {visibleToolsLinks.length > 0 && (
-                                <>
-                                    <h2 className="font-semibold text-gray-800 mb-4 mt-8">Herramientas</h2>
-                                    <nav className="space-y-1">
-                                        {visibleToolsLinks.map(link => (
-                                            <button key={link.name} onClick={() => handleLinkClick(link.to, link.authRequired)} className="text-sm w-full text-left p-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-3">
-                                                {link.icon && <link.icon className="w-5 h-5 text-primary-600" />}
-                                                <span>{link.name}</span>
-                                            </button>
-                                        ))}
+                    {/* Main Content Section - 3 columns */}
+                    <div className="lg:col-span-3 p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+                        {/* Column 1: Navigation */}
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Navegación</h3>
+                                <nav className="space-y-0.5">
+                                    {mainNavLinks.map(link => {
+                                        if (link.authRequired && !session) return null;
+                                        if (link.featureFlag && !config[link.featureFlag]) return null;
+                                        const Icon = link.icon;
+                                        return (
+                                            <Button
+                                                key={link.name}
+                                                onClick={() => handleLinkClick(link.to, link.authRequired)}
+                                                variant="ghost"
+                                                size="sm"
+                                                className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                            >
+                                                <Icon className="w-4 h-4 text-primary-600" />
+                                                {link.name}
+                                            </Button>
+                                        );
+                                    })}
+                                </nav>
+                            </div>
+
+                            {visibleAccountLinks.length > 0 && (
+                                <div>
+                                    <Separator className="my-3" />
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Mi Cuenta</h3>
+                                    <nav className="space-y-0.5">
+                                        {visibleAccountLinks.map(link => {
+                                            const Icon = link.icon;
+                                            return (
+                                                <Button
+                                                    key={link.name}
+                                                    onClick={() => handleLinkClick(link.to, link.authRequired)}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                                >
+                                                    <Icon className="w-4 h-4 text-primary-600" />
+                                                    {link.name}
+                                                </Button>
+                                            );
+                                        })}
                                     </nav>
-                                </>
+                                </div>
+                            )}
+
+                            {visibleToolsLinks.length > 0 && (
+                                <div>
+                                    <Separator className="my-3" />
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Herramientas</h3>
+                                    <nav className="space-y-0.5">
+                                        {visibleToolsLinks.map(link => {
+                                            const Icon = link.icon;
+                                            return (
+                                                <Button
+                                                    key={link.name}
+                                                    onClick={() => handleLinkClick(link.to, link.authRequired)}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                                >
+                                                    <Icon className="w-4 h-4 text-primary-600" />
+                                                    {link.name}
+                                                </Button>
+                                            );
+                                        })}
+                                    </nav>
+                                </div>
                             )}
                         </div>
+
                         {/* Column 2: Carrocería */}
                         <div>
-                            <h2 className="font-semibold text-gray-800 mb-4">Carrocería</h2>
-                            <div className="grid grid-cols-1 gap-4">
-                                {classifications.map(c => (
-                                    <button key={c.name} onClick={() => handleFilterClick('classification', c.slug)} className="text-sm w-full flex flex-col items-center justify-center p rounded font-semibold text-gray-600 hover:bg-gray-100 transition-colors border border-gray-100">
-                                        <img src={c.imageUrl} alt={c.name} className="w-24 h-24" />
-                                    </button>
-                                ))}
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Carrocería</h3>
+                            <div className="grid grid-cols-1 gap-2">
+                                {classifications.map(c => {
+                                    const Icon = c.icon;
+                                    return (
+                                        <Button
+                                            key={c.name}
+                                            onClick={() => handleFilterClick('classification', c.slug)}
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-auto py-2 flex-col gap-1"
+                                        >
+                                            <img src={c.imageUrl} alt={c.name} className="w-16 h-16 object-contain" />
+                                            <span className="text-xs font-medium">{c.name}</span>
+                                        </Button>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         {/* Column 3: Marcas */}
                         <div>
-                            <h2 className="font-semibold text-gray-800 mb-4">Marcas Populares</h2>
-                            <nav className="space-y-1 max-h-96 overflow-y-auto pr-2">
-                                {marcas.map(marca => (
-                                                                                                              <button key={marca.id} onClick={() => handleFilterClick('automarca', marca.slug)} className="w-full flex items-center gap-2 p-2 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                                                                                                                 {marca.logoUrl && <img src={marca.logoUrl} alt={`${marca.name} Logo`} className="w-8 h-8 object-contain" />}
-                                                                                                                 <span>{marca.name}</span>
-                                                                                                             </button>
-                                ))}
-                                  <button onClick={() => handleFilterClick('automarca', '')} className="w-full text-left p-2 rounded-lg font-semibold text-sm text-primary-600 hover:bg-primary-50 transition-colors">
-                                    Ver todas las marcas &rarr;
-                                </button>
-                            </nav>
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Marcas</h3>
+                            <ScrollArea className="h-[320px] pr-2">
+                                <div className="space-y-0.5">
+                                    {marcas.map(marca => (
+                                        <Button
+                                            key={marca.id}
+                                            onClick={() => handleFilterClick('automarca', marca.slug)}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                        >
+                                            <img src={marca.logoUrl} alt={`${marca.name} Logo`} className="w-5 h-5 object-contain" />
+                                            {marca.name}
+                                        </Button>
+                                    ))}
+                                    <Button
+                                        onClick={() => handleFilterClick('automarca', '')}
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full justify-start text-xs font-semibold text-primary-600 hover:text-primary-700 h-8"
+                                    >
+                                        Ver todas las marcas →
+                                    </Button>
+                                </div>
+                            </ScrollArea>
+                        </div>
+
+                        {/* Column 4: Modelos */}
+                        <div>
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Modelos</h3>
+                            <ScrollArea className="h-[320px] pr-2">
+                                <div className="space-y-0.5">
+                                    {models.map(model => (
+                                        <Button
+                                            key={model.id}
+                                            onClick={() => handleFilterClick('automodelo', model.slug)}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                        >
+                                            <img src={model.logoUrl} alt={`${model.brand} Logo`} className="w-5 h-5 object-contain flex-shrink-0" />
+                                            <span className="truncate">{model.name}</span>
+                                        </Button>
+                                    ))}
+                                </div>
+                            </ScrollArea>
                         </div>
                     </div>
 
-                    {/* Widgets Section */}
-                    <div className="lg:col-span-2 p-6 bg-gray-50 rounded-br-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
+                    {/* Widgets Section - 2 columns */}
+                    <div className="lg:col-span-2 p-6 bg-gray-50 rounded-br-2xl space-y-4">
                         <MiniValuationForm onClose={onClose} />
-                         {session && profile ? (
+                        {session && profile ? (
                             <AccountWidget profile={profile} onSignOut={handleSignOut} onLinkClick={(to) => handleLinkClick(to, true)} />
                         ) : (
                             <HelpWidget onClose={onClose} />
                         )}
-                    </div>  
+                    </div>
                 </div>
             </div>
         </div>

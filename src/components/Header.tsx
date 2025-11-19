@@ -4,6 +4,7 @@ import { UserIcon, LogOutIcon, ChevronDownIcon } from './icons';
 import { useAuth } from '../context/AuthContext';
 import MegaMenu from './MegaMenu';
 import HeaderSearchBar from './HeaderSearchBar';
+import { Button } from './ui/button';
 
 const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,41 +67,46 @@ const Header: React.FC = () => {
 
             {/* Right Section */}
             <div className={`flex justify-end items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
-                <div className="flex items-center space-x-2 lg:space-x-6">
+                <div className="flex items-center space-x-2 lg:space-x-4">
                   <div className="hidden lg:block">
-                      <button ref={menuButtonRef} onClick={() => setMegaMenuOpen(o => !o)} className="flex items-center gap-2 rounded-lg px-4 py-2 text-base font-bold transition-colors text-primary-600 border-b hover:bg-gray-100">
+                      <Button
+                          ref={menuButtonRef}
+                          onClick={() => setMegaMenuOpen(o => !o)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:bg-gray-100"
+                      >
                           <span>Menú</span>
-                          <ChevronDownIcon className={`w-5 h-5 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} fill="currentColor"/>
-                      </button>
+                          <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} fill="currentColor"/>
+                      </Button>
                   </div>
 
                   {session ? (
                      <>
                         {/* Dashboard Button */}
-                        <Link
-                            to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"}
-                            className="hidden lg:block text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
-                        >
-                            Dashboard
-                        </Link>
+                        <Button asChild size="sm" className="hidden lg:flex">
+                            <Link to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"}>
+                                Dashboard
+                            </Link>
+                        </Button>
 
                         {/* Sign Out Button */}
-                        <button
+                        <Button
                             onClick={handleSignOut}
-                            className="hidden lg:flex items-center gap-2 text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
+                            variant="destructive"
+                            size="sm"
+                            className="hidden lg:flex items-center gap-1.5"
                         >
-                            <LogOutIcon className="w-4 h-4" />
+                            <LogOutIcon className="w-3.5 h-3.5" />
                             Cerrar Sesión
-                        </button>
+                        </Button>
                      </>
                   ) : (
-                    <Link
-                      to="/acceder"
-                      data-gtm-id="header-login-button"
-                      className="hidden lg:block text-base font-semibold transition-all duration-300 px-5 py-2.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md transform-gpu active:scale-95"
-                    >
-                      Iniciar Sesión
-                    </Link>
+                    <Button asChild size="sm" className="hidden lg:flex bg-orange-600 hover:bg-orange-700">
+                        <Link to="/acceder" data-gtm-id="header-login-button">
+                            Iniciar Sesión
+                        </Link>
+                    </Button>
                   )}
                 </div>
             </div>

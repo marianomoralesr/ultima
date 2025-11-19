@@ -132,28 +132,39 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
 
   const [view, setView] = useState<'list' | 'grid'>('grid');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
 
-  // Animation for the filter sheet
-  const [{ y, opacity }, api] = useSpring(() => ({ y: window.innerHeight, opacity: 0, config: { tension: 300, friction: 30 } }));
+  // Separate animations for sheet and overlay for better UX
+  const [{ y, opacity }, api] = useSpring(() => ({
+    y: window.innerHeight,
+    opacity: 0,
+    config: { tension: 300, friction: 30 }
+  }));
+
+  const [{ overlayOpacity }, overlayApi] = useSpring(() => ({
+    overlayOpacity: 0,
+    config: { duration: 200 }
+  }));
 
   const openSheet = useCallback(() => {
     setIsFilterSheetOpen(true);
-    setIsClosing(false);
+    // Fade in overlay immediately
+    overlayApi.start({ overlayOpacity: 1, immediate: false });
     // Use a small timeout to ensure the component is mounted before animating
     setTimeout(() => {
       api.start({ y: 0, opacity: 1, immediate: false });
     }, 10);
-  }, [api]);
+  }, [api, overlayApi]);
 
   const closeSheet = useCallback(() => {
-    setIsClosing(true);
+    // Fade out overlay immediately for instant feedback
+    overlayApi.start({ overlayOpacity: 0, immediate: false });
+    // Animate sheet down
     api.start({ y: window.innerHeight, opacity: 0, immediate: false });
+    // Close sheet after animation completes
     setTimeout(() => {
       setIsFilterSheetOpen(false);
-      setIsClosing(false);
-    }, 300); // Delay state update to allow animation to complete
-  }, [api]);
+    }, 300);
+  }, [api, overlayApi]);
 
   useEffect(() => {
     const handleToggle = () => {
@@ -279,8 +290,16 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
   }, [debouncedSearchTerm]);
 
   useEffect(() => {
-    document.body.style.overflow = isFilterSheetOpen ? 'hidden' : 'auto';
-    return () => { document.body.style.overflow = 'auto'; };
+    // Prevent body scroll when sheet is open
+    if (isFilterSheetOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        document.body.style.overflow = 'auto';
+      }, 100);
+      return () => clearTimeout(timer);
+    }
   }, [isFilterSheetOpen]);
 
   const vehiclesPerPage = 20;
@@ -557,10 +576,14 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
         <RecentlyViewed layout="carousel" />
       </main>
 
-      {(isFilterSheetOpen || isClosing) && (
-        <div className="fixed inset-0 bg-black/50 z-[90] lg:hidden" onClick={closeSheet}></div>
+      {isFilterSheetOpen && (
+        <animated.div
+          className="fixed inset-0 bg-black/50 z-[90] lg:hidden"
+          style={{ opacity: overlayOpacity }}
+          onClick={closeSheet}
+        ></animated.div>
       )}
-      {(isFilterSheetOpen || isClosing) && (
+      {isFilterSheetOpen && (
         <animated.div
           className="fixed bottom-0 left-0 right-0 max-h-[85vh] bg-white backdrop-blur-sm rounded-t-2xl flex flex-col z-[95] lg:hidden overflow-hidden"
           style={{ y, opacity }}

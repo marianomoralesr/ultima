@@ -184,11 +184,11 @@ const BankLoginPage: React.FC = () => {
       }
 
       // Check if bank rep profile exists
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile, error: profileError } = await supabase
         .from('bank_representative_profiles')
         .select('*')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle();
 
       if (!existingProfile) {
         // Create new bank rep profile

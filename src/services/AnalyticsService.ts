@@ -80,8 +80,8 @@ export class AnalyticsService {
     static async getDashboardMetrics(userId?: string, role?: string, filters?: DashboardFilters): Promise<DashboardMetrics> {
         try {
             const isAdmin = role === 'admin';
-            const baseLeadQuery = supabase.from('profiles').select('*');
-            const baseAppQuery = supabase.from('financing_applications').select('*');
+            const baseLeadQuery = supabase.from('profiles').select('*').limit(100000);
+            const baseAppQuery = supabase.from('financing_applications').select('*').limit(100000);
 
             // Filter by sales rep if not admin
             let leadQuery = isAdmin ? baseLeadQuery : baseLeadQuery.eq('asesor_asignado_id', userId);
@@ -128,7 +128,7 @@ export class AnalyticsService {
             // Try to fetch Kommo leads if the table exists
             let kommoLeadsData: any[] = [];
             try {
-                let kommoLeadsQuery = supabase.from('profiles').select('kommo_data');
+                let kommoLeadsQuery = supabase.from('profiles').select('kommo_data').limit(100000);
 
                 // Apply date filters to Kommo data if provided
                 if (filters?.startDate) {
@@ -496,12 +496,14 @@ export class AnalyticsService {
             const leadQuery = supabase
                 .from('profiles')
                 .select('created_at')
-                .gte('created_at', thirtyDaysAgo.toISOString());
+                .gte('created_at', thirtyDaysAgo.toISOString())
+                .limit(100000);
 
             const appQuery = supabase
                 .from('financing_applications')
                 .select('created_at')
-                .gte('created_at', thirtyDaysAgo.toISOString());
+                .gte('created_at', thirtyDaysAgo.toISOString())
+                .limit(100000);
 
             if (!isAdmin && userId) {
                 leadQuery.eq('asesor_asignado_id', userId);
@@ -576,26 +578,30 @@ export class AnalyticsService {
                 .from('profiles')
                 .select('id, created_at')
                 .gte('created_at', currentPeriodStart.toISOString())
-                .lte('created_at', now.toISOString());
+                .lte('created_at', now.toISOString())
+                .limit(100000);
 
             const currentAppQuery = supabase
                 .from('financing_applications')
                 .select('id, status, created_at')
                 .gte('created_at', currentPeriodStart.toISOString())
-                .lte('created_at', now.toISOString());
+                .lte('created_at', now.toISOString())
+                .limit(100000);
 
             // Fetch previous period data
             const previousLeadQuery = supabase
                 .from('profiles')
                 .select('id, created_at')
                 .gte('created_at', previousPeriodStart.toISOString())
-                .lte('created_at', previousPeriodEnd.toISOString());
+                .lte('created_at', previousPeriodEnd.toISOString())
+                .limit(100000);
 
             const previousAppQuery = supabase
                 .from('financing_applications')
                 .select('id, status, created_at')
                 .gte('created_at', previousPeriodStart.toISOString())
-                .lte('created_at', previousPeriodEnd.toISOString());
+                .lte('created_at', previousPeriodEnd.toISOString())
+                .limit(100000);
 
             // Apply role-based filtering
             if (!isAdmin && userId) {

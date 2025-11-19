@@ -71,7 +71,8 @@ export class BusinessAnalyticsService {
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
                 .select('id, ordencompra, title, ordenstatus, precio, view_count')
-                .order('title', { ascending: true });
+                .order('title', { ascending: true })
+                .limit(100000);
 
             if (vehicleError) {
                 console.error('[BusinessAnalytics] Error fetching inventory vehicles:', vehicleError);
@@ -89,7 +90,8 @@ export class BusinessAnalyticsService {
             const { data: applications, error: appError } = await supabase
                 .from('financing_applications')
                 .select('id, status, car_info')
-                .in('status', ['pending', 'submitted', 'processing', 'approved', 'in_progress']);
+                .in('status', ['pending', 'submitted', 'processing', 'approved', 'in_progress'])
+                .limit(100000);
 
             if (appError) {
                 console.error('[BusinessAnalytics] Error fetching applications:', appError);
@@ -170,7 +172,8 @@ export class BusinessAnalyticsService {
             const { data: applications, error: appError } = await supabase
                 .from('financing_applications')
                 .select('id, status, car_info')
-                .neq('status', 'draft');
+                .neq('status', 'draft')
+                .limit(100000);
 
             if (appError) throw appError;
 
@@ -345,14 +348,16 @@ export class BusinessAnalyticsService {
             const { data: vehicles, error: vehicleError } = await supabase
                 .from('inventario_cache')
                 .select('id, precio')
-                .eq('ordenstatus', 'Disponible');
+                .eq('ordenstatus', 'Disponible')
+                .limit(100000);
 
             if (vehicleError) throw vehicleError;
 
             const { data: applications, error: appError } = await supabase
                 .from('financing_applications')
                 .select('car_info')
-                .neq('status', 'draft');
+                .neq('status', 'draft')
+                .limit(100000);
 
             if (appError) throw appError;
 
@@ -401,7 +406,8 @@ export class BusinessAnalyticsService {
             const { data: applications, error } = await supabase
                 .from('financing_applications')
                 .select('status')
-                .neq('status', 'draft');
+                .neq('status', 'draft')
+                .limit(100000);
 
             if (error) throw error;
 

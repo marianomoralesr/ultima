@@ -61,10 +61,10 @@ const BankingProfileSummary: React.FC<BankingProfileSummaryProps> = ({ bankProfi
                         <p className="text-sm font-semibold text-gray-800">{respuestas.trabajo_tiempo}</p>
                     </div>
                 )}
-                {respuestas.banco_nomina && (
+                {(respuestas.cuenta_bancaria || respuestas.banco_nomina) && (
                     <div className="bg-white p-3 rounded-lg">
-                        <p className="text-xs text-gray-500">Banco de Nómina</p>
-                        <p className="text-sm font-semibold text-gray-800">{respuestas.banco_nomina}</p>
+                        <p className="text-xs text-gray-500">Cuenta Bancaria Principal</p>
+                        <p className="text-sm font-semibold text-gray-800">{respuestas.cuenta_bancaria || respuestas.banco_nomina}</p>
                     </div>
                 )}
                 {respuestas.ingreso_mensual && (

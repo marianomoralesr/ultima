@@ -12,7 +12,7 @@ import { conversionTracking } from '../services/ConversionTrackingService';
 
 const bankProfileSchema = z.object({
   trabajo_tiempo: z.string().min(1, 'La antigüedad es requerida'),
-  banco_nomina: z.string().min(1, 'El banco de nómina es requerido'),
+  cuenta_bancaria: z.string().min(1, 'La cuenta bancaria es requerida'),
   historial_crediticio: z.string().min(1, 'El historial es requerido'),
   creditos_vigentes: z.string().min(1, 'Este campo es requerido'),
   atrasos_12_meses: z.string().min(1, 'Este campo es requerido'),
@@ -31,14 +31,15 @@ const calculateBankScores = (data: BankProfileFormData): { recommendedBank: stri
         puntajes[banco] = { total: 0, rechazo: false, motivos: [] };
     }
 
+    // Scoring Matrix - Order: ["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco"]
     const scoringMatrix: { [key: string]: { [key: string]: (string | number)[] } } = {
         trabajo_tiempo: {
             "Menos de 6 meses": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
             "De 6 meses a 1 año": [2, 2, 2, 2, 2, 2],
-            "de 1 a 2 años": [3, 3, 3, 3, 3, 3],
+            "De 1 a 2 años": [3, 3, 3, 3, 3, 3],
             "Más de 2 años": [4, 4, 4, 4, 4, 4],
         },
-        banco_nomina: {
+        cuenta_bancaria: {
             "Scotiabank": [4, 1, 1, 1, 1, 1],
             "BBVA": [1, 4, 1, 1, 1, 1],
             "Banorte": [1, 1, 4, 1, 1, 1],
@@ -46,13 +47,14 @@ const calculateBankScores = (data: BankProfileFormData): { recommendedBank: stri
             "Afirme": [1, 1, 1, 1, 4, 1],
             "Hey Banco": [1, 1, 1, 1, 1, 4],
             "Otro banco": [1, 1, 1, 1, 1, 1],
+            "No tengo cuenta bancaria": [1, 1, 1, 1, 1, 1],
         },
         historial_crediticio: {
             "Excelente": [5, 5, 5, 5, 5, 5],
-            "Bueno": [3, 4, 5, 3, 3, 3],
-            "Regular": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
+            "Bueno": [3, 4, 4, 4, 4, 4],
+            "Regular": ["Rechazo", "Rechazo", 3, 3, "Rechazo", 3],
             "Malo": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
-            "Sin historial crediticio": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
+            "Sin historial crediticio": ["Rechazo", 1, 1, "Rechazo", 2, "Rechazo"],
         },
         creditos_vigentes: {
             "Ninguno": [3, 3, 3, 3, 3, 3],
@@ -79,11 +81,11 @@ const calculateBankScores = (data: BankProfileFormData): { recommendedBank: stri
             "Proceso digital con pocos trámites": [0, 0, 0, 0, 0, 0],
         },
         ingreso_mensual: {
-            "Menos de $10,000 MXN, sin comprobación formal": ["Rechazo", 1, "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
-            "Menos de $15,000 MXN, con comprobación": ["Rechazo", 2, "Rechazo", 2, 2, 2],
-            "Entre $15,000 y $20,000 MXN, con comprobación": [3, 3, 3, 3, 3, 3],
-            "Entre $20,000 y $30,000 MXN, con comprobación": [4, 4, 4, 4, 4, 4],
-            "Más de $30,000 MXN, con comprobación": [5, 5, 5, 5, 5, 5],
+            "Menos de $10,000 sin comprobación": ["Rechazo", 1, "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
+            "Menos de $15,000 con comprobación": ["Rechazo", 2, "Rechazo", 2, 2, 2],
+            "Entre $15,000 y $20,000 con comprobación": [3, 3, 3, 3, 3, 3],
+            "Entre $20,000 y $30,000 con comprobación": [4, 4, 4, 4, 4, 4],
+            "Más de $30,000 con comprobación": [5, 5, 5, 5, 5, 5],
         }
     };
     
@@ -107,13 +109,23 @@ const calculateBankScores = (data: BankProfileFormData): { recommendedBank: stri
             let incomeCategory = incomeValue; // default to the selected option
             if (incomeValue.startsWith('$')) {
                 const numericIncome = parseInt(incomeValue.replace(/[^0-9]/g, ''), 10);
-                if (numericIncome > 30000) incomeCategory = "Más de $30,000 MXN, con comprobación";
-                else if (numericIncome >= 20000) incomeCategory = "Entre $20,000 y $30,000 MXN, con comprobación";
-                else if (numericIncome >= 15000) incomeCategory = "Entre $15,000 y $20,000 MXN, con comprobación";
-                else incomeCategory = "Menos de $15,000 MXN, con comprobación";
+                if (numericIncome > 30000) incomeCategory = "Más de $30,000 con comprobación";
+                else if (numericIncome >= 20000) incomeCategory = "Entre $20,000 y $30,000 con comprobación";
+                else if (numericIncome >= 15000) incomeCategory = "Entre $15,000 y $20,000 con comprobación";
+                else if (numericIncome >= 10000) incomeCategory = "Menos de $15,000 con comprobación";
+                else incomeCategory = "Menos de $10,000 sin comprobación";
             }
-            evaluar(incomeCategory, scoringMatrix[key], key);
-        } else {
+            // Map old income categories to new ones
+            if (incomeCategory === "Menos de $10,000 MXN, sin comprobación formal") incomeCategory = "Menos de $10,000 sin comprobación";
+            if (incomeCategory === "Menos de $15,000 MXN, con comprobación") incomeCategory = "Menos de $15,000 con comprobación";
+            if (incomeCategory === "Entre $15,000 y $20,000 MXN, con comprobación") incomeCategory = "Entre $15,000 y $20,000 con comprobación";
+            if (incomeCategory === "Entre $20,000 y $30,000 MXN, con comprobación") incomeCategory = "Entre $20,000 y $30,000 con comprobación";
+            if (incomeCategory === "Más de $30,000 MXN, con comprobación") incomeCategory = "Más de $30,000 con comprobación";
+
+            evaluar(incomeCategory, scoringMatrix.ingreso_mensual, 'ingreso_mensual');
+        } else if (key === 'cuenta_bancaria') {
+            evaluar(data[key], scoringMatrix.cuenta_bancaria, 'cuenta_bancaria');
+        } else if (scoringMatrix[key]) {
             evaluar(data[key as keyof BankProfileFormData], scoringMatrix[key], key);
         }
     });
@@ -188,7 +200,19 @@ const PerfilacionBancariaPage: React.FC = () => {
         const fetchBankProfile = async () => {
             const existingProfile = await BankProfilingService.getUserBankProfile(user.id);
             if (existingProfile) {
-                if (existingProfile.respuestas) reset(existingProfile.respuestas);
+                if (existingProfile.respuestas) {
+                    // Migration: handle old banco_nomina field name
+                    const migratedData = { ...existingProfile.respuestas };
+                    if (migratedData.banco_nomina && !migratedData.cuenta_bancaria) {
+                        migratedData.cuenta_bancaria = migratedData.banco_nomina;
+                        delete migratedData.banco_nomina;
+                    }
+                    // Migration: handle old trabajo_tiempo value "de 1 a 2 años" -> "De 1 a 2 años"
+                    if (migratedData.trabajo_tiempo === 'de 1 a 2 años') {
+                        migratedData.trabajo_tiempo = 'De 1 a 2 años';
+                    }
+                    reset(migratedData);
+                }
                 setRecommendedBank(existingProfile.banco_recomendado);
                 setSecondRecommendedBank(existingProfile.banco_segunda_opcion);
                 if (existingProfile.is_complete) setStatus('success');
@@ -323,8 +347,15 @@ const PerfilacionBancariaPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                 <RadioField control={control} name="trabajo_tiempo" label="Antigüedad en tu empleo actual" options={['Menos de 6 meses', 'De 6 meses a 1 año', 'de 1 a 2 años', 'Más de 2 años']} error={errors.trabajo_tiempo?.message} />
-                 <RadioField control={control} name="banco_nomina" label="¿En qué banco manejas tu nómina?" options={["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco", "Otro banco"]} error={errors.banco_nomina?.message} />
+                 <RadioField control={control} name="trabajo_tiempo" label="Antigüedad en tu empleo actual" options={['Menos de 6 meses', 'De 6 meses a 1 año', 'De 1 a 2 años', 'Más de 2 años']} error={errors.trabajo_tiempo?.message} />
+                 <RadioFieldWithHelper
+                    control={control}
+                    name="cuenta_bancaria"
+                    label="¿En qué banco tienes tu cuenta bancaria principal?"
+                    helper="Aplica para nómina, cuenta empresarial, cuenta de cheques o cuenta personal donde manejas tus ingresos"
+                    options={["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco", "Otro banco", "No tengo cuenta bancaria"]}
+                    error={errors.cuenta_bancaria?.message}
+                 />
                  <RadioField control={control} name="historial_crediticio" label="¿Cómo es tu historial crediticio?" options={["Excelente", "Bueno", "Regular", "Malo", "Sin historial crediticio"]} error={errors.historial_crediticio?.message} />
                  <RadioField control={control} name="creditos_vigentes" label="¿Tienes otros créditos vigentes?" options={["Ninguno", "1 o 2", "3 o más (regularizados)", "Varios pagos pendientes"]} error={errors.creditos_vigentes?.message} />
                  <RadioField control={control} name="atrasos_12_meses" label="¿Has tenido atrasos en pagos en los últimos 12 meses?" options={["Ninguno", "Sí, pero lo regularicé", "Más de 1 mes", "Varios pagos sin regularizar"]} error={errors.atrasos_12_meses?.message} />
@@ -419,19 +450,46 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
     );
 };
 
+const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, helper?: string, options: string[], error?: React.ReactNode }> = ({ control, name, label, helper, options, error }) => (
+    <Controller name={name} control={control} render={({ field }) => (
+        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200 transition-all focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-200/50">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">{label}</h3>
+            {helper && <p className="text-sm text-gray-600 mb-4 flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-500" />{helper}</p>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {options.map(opt => (
+                    <button
+                        type="button"
+                        key={opt}
+                        onClick={() => field.onChange(opt)}
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400
+                            ${field.value === opt
+                                ? 'bg-primary-600 border-primary-600 text-white shadow-md'
+                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50'
+                            }`}
+                    >
+                       <span className="flex-grow">{opt}</span>
+                       {field.value === opt && <CheckCircle className="w-5 h-5 text-white flex-shrink-0 ml-3" />}
+                    </button>
+                ))}
+            </div>
+            {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+        </div>
+    )} />
+);
+
 const RadioField: React.FC<{ control: any, name: any, label: string, options: string[], error?: React.ReactNode }> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
         <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200 transition-all focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-200/50">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">{label}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {options.map(opt => (
-                    <button 
-                        type="button" 
-                        key={opt} 
-                        onClick={() => field.onChange(opt)} 
+                    <button
+                        type="button"
+                        key={opt}
+                        onClick={() => field.onChange(opt)}
                         className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400
-                            ${field.value === opt 
-                                ? 'bg-primary-600 border-primary-600 text-white shadow-md' 
+                            ${field.value === opt
+                                ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50'
                             }`}
                     >

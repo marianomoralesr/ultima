@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useVehicles } from '../context/VehicleContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../../supabaseClient';
 import {
   UserCircleIcon,
   LogOutIcon,
@@ -60,13 +61,57 @@ const toolsNavLinks = [
 
 const PricingRangeWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const navigate = useNavigate();
+    const { data: brandsAndModels } = useQuery({
+        queryKey: ['mega-menu-brands-models'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('inventario_cache')
+                .select('automarca, automodelo, precio')
+                .eq('ordenstatus', 'Comprado')
+                .not('automarca', 'is', null)
+                .not('automodelo', 'is', null);
+
+            if (error) throw error;
+            return data || [];
+        },
+        staleTime: 10 * 60 * 1000,
+        gcTime: 30 * 60 * 1000,
+    });
+
+    // Calculate vehicle counts for each price range
+    const getPriceRangeCounts = () => {
+        if (!brandsAndModels) return {};
+
+        const ranges = {
+            '1': 0, // $250,000 o menos
+            '2': 0, // $250,000 - $300,000
+            '3': 0, // $300,000 - $350,000
+            '4': 0, // $350,000 - $450,000
+            '5': 0, // $450,000 o más
+        };
+
+        brandsAndModels.forEach(v => {
+            const precio = v.precio;
+            if (!precio) return;
+
+            if (precio < 250000) ranges['1']++;
+            else if (precio >= 250000 && precio < 300000) ranges['2']++;
+            else if (precio >= 300000 && precio < 350000) ranges['3']++;
+            else if (precio >= 350000 && precio < 450000) ranges['4']++;
+            else if (precio >= 450000) ranges['5']++;
+        });
+
+        return ranges;
+    };
+
+    const counts = getPriceRangeCounts();
 
     const priceRanges = [
-        { label: 'Menos de $150,000', min: 0, max: 150000 },
-        { label: '$150,000 - $250,000', min: 150000, max: 250000 },
-        { label: '$250,000 - $350,000', min: 250000, max: 350000 },
-        { label: '$350,000 - $500,000', min: 350000, max: 500000 },
-        { label: 'Más de $500,000', min: 500000, max: 999999999 },
+        { label: '$250,000 o menos', min: 0, max: 250000, count: counts['1'] || 0 },
+        { label: '$250,000 - $300,000', min: 250000, max: 300000, count: counts['2'] || 0 },
+        { label: '$300,000 - $350,000', min: 300000, max: 350000, count: counts['3'] || 0 },
+        { label: '$350,000 - $450,000', min: 350000, max: 450000, count: counts['4'] || 0 },
+        { label: '$450,000 o más', min: 450000, max: 999999999, count: counts['5'] || 0 },
     ];
 
     const handlePriceClick = (min: number, max: number) => {
@@ -95,7 +140,9 @@ const PricingRangeWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                             size="sm"
                             className="w-full justify-between h-9 hover:bg-primary-50 hover:text-primary-700"
                         >
-                            <span className="text-xs font-medium">{range.label}</span>
+                            <span className="text-xs font-medium">
+                                {range.label} {range.count > 0 && <span className="text-gray-500">({range.count})</span>}
+                            </span>
                             <ArrowRightIcon className="w-3.5 h-3.5" />
                         </Button>
                     ))}
@@ -171,10 +218,27 @@ const AccountWidget: React.FC<{ profile: Profile; onSignOut: () => void; onLinkC
 
 const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
     const { session, profile, signOut, isAdmin } = useAuth();
-    const { vehicles: allVehicles } = useVehicles();
     const { config } = useConfig();
     const navigate = useNavigate();
     const menuRef = useRef<HTMLDivElement>(null);
+
+    // Fetch all brands and models for mega menu (independent of VehicleContext filters)
+    const { data: brandsAndModels } = useQuery({
+        queryKey: ['mega-menu-brands-models'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('inventario_cache')
+                .select('automarca, automodelo')
+                .eq('ordenstatus', 'Comprado')
+                .not('automarca', 'is', null)
+                .not('automodelo', 'is', null);
+
+            if (error) throw error;
+            return data || [];
+        },
+        staleTime: 10 * 60 * 1000, // 10 minutes - brands/models don't change frequently
+        gcTime: 30 * 60 * 1000, // 30 minutes
+    });
 
     // All carrocerias/body types
     const classifications = [
@@ -186,8 +250,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
 
     // All brands (removed .slice(0, 12) limit)
     const marcas = useMemo(() => {
-        if (!allVehicles) return [];
-        const allMarcas = allVehicles.map(v => v.automarca).filter(Boolean);
+        if (!brandsAndModels) return [];
+        const allMarcas = brandsAndModels.map(v => v.automarca).filter(Boolean);
         const uniqueMarcas = [...new Set(allMarcas)];
         return uniqueMarcas.sort().map(marcaName => ({
             id: marcaName,
@@ -195,14 +259,14 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
             slug: marcaName.toLowerCase().replace(/\s+/g, '-'),
             logoUrl: BRAND_LOGOS[marcaName] || '/images/trefalogo.png'
         }));
-    }, [allVehicles]);
+    }, [brandsAndModels]);
 
     // All models sorted alphabetically with brand logos
     const models = useMemo(() => {
-        if (!allVehicles) return [];
+        if (!brandsAndModels) return [];
         const modelSet = new Map<string, { model: string; brand: string; }>();
 
-        allVehicles.forEach(v => {
+        brandsAndModels.forEach(v => {
             if (v.automodelo && v.automarca) {
                 const key = `${v.automarca}-${v.automodelo}`;
                 if (!modelSet.has(key)) {
@@ -223,7 +287,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                 slug: item.model.toLowerCase().replace(/\s+/g, '-'),
                 logoUrl: BRAND_LOGOS[item.brand] || '/images/trefalogo.png'
             }));
-    }, [allVehicles]);
+    }, [brandsAndModels]);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {

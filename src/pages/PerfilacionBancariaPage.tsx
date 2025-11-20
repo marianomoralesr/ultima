@@ -24,68 +24,68 @@ const bankProfileSchema = z.object({
 type BankProfileFormData = z.infer<typeof bankProfileSchema>;
 
 const calculateBankScores = (data: BankProfileFormData): { recommendedBank: string; secondOption: string | null; lowScore: boolean; } => {
-    const bancos = ["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco"];
+    const bancos = ["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco", "Renueva Car"];
     const puntajes: { [key: string]: { total: number; rechazo: boolean; motivos: string[] } } = {};
 
     for (const banco of bancos) {
         puntajes[banco] = { total: 0, rechazo: false, motivos: [] };
     }
 
-    // Scoring Matrix - Order: ["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco"]
+    // Scoring Matrix - Order: ["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco", "Renueva Car"]
     const scoringMatrix: { [key: string]: { [key: string]: (string | number)[] } } = {
         trabajo_tiempo: {
-            "Menos de 6 meses": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
-            "De 6 meses a 1 año": [2, 2, 2, 2, 2, 2],
-            "De 1 a 2 años": [3, 3, 3, 3, 3, 3],
-            "Más de 2 años": [4, 4, 4, 4, 4, 4],
+            "Menos de 6 meses": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", 3],
+            "De 6 meses a 1 año": [2, 2, 2, 2, 2, 2, 4],
+            "De 1 a 2 años": [3, 3, 3, 3, 3, 3, 5],
+            "Más de 2 años": [4, 4, 4, 4, 4, 4, 5],
         },
         cuenta_bancaria: {
-            "Scotiabank": [4, 1, 1, 1, 1, 1],
-            "BBVA": [1, 4, 1, 1, 1, 1],
-            "Banorte": [1, 1, 4, 1, 1, 1],
-            "Banregio": [1, 1, 1, 4, 1, 1],
-            "Afirme": [1, 1, 1, 1, 4, 1],
-            "Hey Banco": [1, 1, 1, 1, 1, 4],
-            "Otro banco": [1, 1, 1, 1, 1, 1],
-            "No tengo cuenta bancaria": [1, 1, 1, 1, 1, 1],
+            "Scotiabank": [4, 1, 1, 1, 1, 1, 1],
+            "BBVA": [1, 4, 1, 1, 1, 1, 1],
+            "Banorte": [1, 1, 4, 1, 1, 1, 1],
+            "Banregio": [1, 1, 1, 4, 1, 1, 1],
+            "Afirme": [1, 1, 1, 1, 4, 1, 1],
+            "Hey Banco": [1, 1, 1, 1, 1, 4, 1],
+            "Otro banco": [1, 1, 1, 1, 1, 1, 2],
+            "No tengo cuenta bancaria": [1, 1, 1, 1, 1, 1, 3],
         },
         historial_crediticio: {
-            "Excelente": [5, 5, 5, 5, 5, 5],
-            "Bueno": [3, 4, 4, 4, 4, 4],
-            "Regular": ["Rechazo", "Rechazo", 3, 3, "Rechazo", 3],
-            "Malo": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
-            "Sin historial crediticio": ["Rechazo", 1, 1, "Rechazo", 2, "Rechazo"],
+            "Excelente": [5, 5, 5, 5, 5, 5, 2],
+            "Bueno": [3, 4, 4, 4, 4, 4, 3],
+            "Regular": ["Rechazo", "Rechazo", 3, 3, "Rechazo", 3, 4],
+            "Malo": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", 2, 5],
+            "Sin historial crediticio": ["Rechazo", 1, 1, "Rechazo", 2, "Rechazo", 4],
         },
         creditos_vigentes: {
-            "Ninguno": [3, 3, 3, 3, 3, 3],
-            "1 o 2": [5, 5, 5, 5, 5, 5],
-            "3 o más (regularizados)": [2, 2, 2, 2, 2, 2],
-            "Varios pagos pendientes": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
+            "Ninguno": [3, 3, 3, 3, 3, 3, 4],
+            "1 o 2": [5, 5, 5, 5, 5, 5, 3],
+            "3 o más (regularizados)": [2, 2, 2, 2, 2, 2, 3],
+            "Varios pagos pendientes": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", 4],
         },
         atrasos_12_meses: {
-            "Ninguno": [5, 5, 5, 5, 5, 5],
-            "Sí, pero lo regularicé": [2, 2, 2, 2, 2, 2],
-            "Más de 1 mes": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
-            "Varios pagos sin regularizar": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
+            "Ninguno": [5, 5, 5, 5, 5, 5, 3],
+            "Sí, pero lo regularicé": [2, 2, 2, 2, 2, 2, 4],
+            "Más de 1 mes": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", 4],
+            "Varios pagos sin regularizar": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", 3],
         },
         enganche: {
-            "Menos del 25%": [1, 1, 1, 1, 1, 1],
-            "Enganche mínimo (25%)": [2, 2, 2, 2, 2, 2],
-            "Más del mínimo (30% a 35%)": [3, 3, 3, 3, 3, 3],
-            "Enganche recomendado (35% o más)": [5, 5, 5, 5, 5, 5],
+            "Menos del 25%": [1, 1, 1, 1, 1, 1, 2],
+            "Enganche mínimo (25%)": [2, 2, 2, 2, 2, 2, 3],
+            "Más del mínimo (30% a 35%)": [3, 3, 3, 3, 3, 3, 4],
+            "Enganche recomendado (35% o más)": [5, 5, 5, 5, 5, 5, 5],
         },
         prioridad_financiamiento: {
-            "Tasa de interés más baja": [0, 0, 0, 0, 0, 0],
-            "Pagos mensuales fijos": [3, 3, 3, 3, 3, 3],
-            "Rapidez en la aprobación": [3, 3, 3, 3, 3, 3],
-            "Proceso digital con pocos trámites": [0, 0, 0, 0, 0, 0],
+            "Tasa de interés más baja": [0, 0, 0, 0, 0, 0, 0],
+            "Pagos mensuales fijos": [3, 3, 3, 3, 3, 3, 3],
+            "Rapidez en la aprobación": [3, 3, 3, 3, 3, 3, 4],
+            "Proceso digital con pocos trámites": [0, 0, 0, 0, 0, 0, 0],
         },
         ingreso_mensual: {
-            "Menos de $10,000 sin comprobación": ["Rechazo", 1, "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
-            "Menos de $15,000 con comprobación": ["Rechazo", 2, "Rechazo", 2, 2, 2],
-            "Entre $15,000 y $20,000 con comprobación": [3, 3, 3, 3, 3, 3],
-            "Entre $20,000 y $30,000 con comprobación": [4, 4, 4, 4, 4, 4],
-            "Más de $30,000 con comprobación": [5, 5, 5, 5, 5, 5],
+            "Menos de $10,000 sin comprobación": ["Rechazo", 1, "Rechazo", "Rechazo", "Rechazo", "Rechazo", 3],
+            "Menos de $15,000 con comprobación": ["Rechazo", 2, "Rechazo", 2, 2, 2, 4],
+            "Entre $15,000 y $20,000 con comprobación": [3, 3, 3, 3, 3, 3, 4],
+            "Entre $20,000 y $30,000 con comprobación": [4, 4, 4, 4, 4, 4, 3],
+            "Más de $30,000 con comprobación": [5, 5, 5, 5, 5, 5, 2],
         }
     };
     

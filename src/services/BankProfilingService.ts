@@ -59,6 +59,7 @@ export const getBankColor = (bankName: string): { bgColor: string, textColor: st
     if (name.includes('banregio')) return { bgColor: 'bg-white', textColor: 'text-orange-500', logoName: 'Banregio' };
     if (name.includes('afirme')) return { bgColor: 'bg-green-600', textColor: 'text-white', logoName: 'Afirme' };
     if (name.includes('hey banco')) return { bgColor: 'bg-gray-800', textColor: 'text-white', logoName: 'Hey' };
+    if (name.includes('renueva car')) return { bgColor: 'bg-blue-600', textColor: 'text-white', logoName: 'Renueva Car' };
     if (name.includes('kuna')) return { bgColor: 'bg-purple-600', textColor: 'text-white', logoName: 'Kuna' };
     
     return { bgColor: 'bg-gray-200', textColor: 'text-gray-800', logoName: bankName };
@@ -70,5 +71,6 @@ export const getBankLogo = (bankName: string): string => {
     if (name.includes('banorte')) return "Ban";
     if (name.includes('banregio')) return "BanR";
     if (name.includes('hey banco')) return 'Hey Banco';
+    if (name.includes('renueva car')) return 'RC';
     return bankName.charAt(0).toUpperCase();
 };

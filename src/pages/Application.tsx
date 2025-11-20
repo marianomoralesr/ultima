@@ -84,7 +84,7 @@ type ApplicationFormData = z.infer<typeof baseApplicationSchema>;
 
 const Application: React.FC = () => {
     const navigate = useNavigate();
-    const { user, profile, loading: authLoading } = useAuth();
+    const { user, profile, loading: authLoading, isAdmin } = useAuth();
     const { vehicles } = useVehicles();
     const [searchParams] = useSearchParams();
     const { id: applicationIdFromUrl } = useParams<{ id: string }>();
@@ -146,10 +146,13 @@ const Application: React.FC = () => {
                 }
                 setRecommendedBank(bankProfile.banco_recomendado);
 
-                const hasActiveApp = await ApplicationService.hasActiveApplication(user.id);
-                if (hasActiveApp && !applicationIdFromUrl) {
-                    setPageStatus('active_application_exists');
-                    return;
+                // Admin users can create unlimited applications
+                if (!isAdmin) {
+                    const hasActiveApp = await ApplicationService.hasActiveApplication(user.id);
+                    if (hasActiveApp && !applicationIdFromUrl) {
+                        setPageStatus('active_application_exists');
+                        return;
+                    }
                 }
                 
                 setPageStatus('ready');

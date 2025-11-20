@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# Load database configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/db-config.sh"
 # Database Restoration Script for Supabase
 # This script restores a database backup
 
@@ -10,7 +14,7 @@ export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 
 # Configuration
 PROJECT_REF="jjepfehmuybpctdzipnu"
-DB_PASSWORD="Lifeintechnicolor2!"
+# DB_PASSWORD is now loaded from db-config.sh
 
 # Colors for output
 GREEN='\033[0;32m'

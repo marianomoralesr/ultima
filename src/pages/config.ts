@@ -1,28 +1,48 @@
 const env = (import.meta as any)?.env ?? {};
 
+// ========================================
+// SECURITY: All credentials MUST come from environment variables
+// No fallback values are provided to prevent credential exposure
+// ========================================
+
+// Helper to get required env var
+const getRequiredEnv = (key: string, description: string): string => {
+  const value = env[key];
+  if (!value) {
+    console.error(`FATAL: Missing required environment variable: ${key}`);
+    console.error(`Description: ${description}`);
+    console.error(`Please add ${key} to your .env.local file or deployment environment`);
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+};
+
+// Helper to get optional env var with default
+const getOptionalEnv = (key: string, defaultValue: string): string => {
+  return env[key] || defaultValue;
+};
+
 // --- Supabase Configuration ---
-const SUPABASE_URL = env.VITE_SUPABASE_URL || 'https://jjepfehmuybpctdzipnu.supabase.co';
-const SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZXBmZWhtdXlicGN0ZHppcG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTk2MDMsImV4cCI6MjA1OTc3NTYwM30.yaMESZqaoLvkbVSgdHxpU-Vb7q-naxj95QxcpRYPrX4';
+const SUPABASE_URL = getRequiredEnv('VITE_SUPABASE_URL', 'Supabase project URL');
+const SUPABASE_ANON_KEY = getRequiredEnv('VITE_SUPABASE_ANON_KEY', 'Supabase anonymous key');
 
 // --- Airtable Configuration ---
-// Using environment variables with fallbacks for development
-const AIRTABLE_VALUATION_API_KEY = env.VITE_AIRTABLE_VALUATION_API_KEY || 'patgjhCDUrCQ915MV.8595dc00077c25d786992f793e5370e4a45af5b6929668beb47ff49511ddb414';
-const AIRTABLE_VALUATION_BASE_ID = env.VITE_AIRTABLE_VALUATION_BASE_ID || 'appbOPKYqQRW2HgyB';
-const AIRTABLE_VALUATION_TABLE_ID = env.VITE_AIRTABLE_VALUATION_TABLE_ID || 'tblGuvYLMnZXr6o8f';
-const AIRTABLE_VALUATION_VIEW = env.VITE_AIRTABLE_VALUATION_VIEW || 'viwEQ9YuMH4Y7XMs9';
-const AIRTABLE_LEAD_CAPTURE_API_KEY = env.VITE_AIRTABLE_LEAD_CAPTURE_API_KEY || 'patgjhCDUrCQ915MV.8595dc00077c25d786992f793e5370e4a45af5b6929668beb47ff49511ddb414';
-const AIRTABLE_LEAD_CAPTURE_BASE_ID = env.VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID || 'appbOPKYqQRW2HgyB';
-const AIRTABLE_LEAD_CAPTURE_TABLE_ID = env.VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID || 'tblLFY58uCrcX7dPK';
-const AIRTABLE_VALUATIONS_STORAGE_TABLE_ID = env.VITE_AIRTABLE_VALUATIONS_STORAGE_TABLE_ID || 'tbl66UyGNcOfOxQUm';
+const AIRTABLE_VALUATION_API_KEY = getRequiredEnv('VITE_AIRTABLE_VALUATION_API_KEY', 'Airtable API key for valuations');
+const AIRTABLE_VALUATION_BASE_ID = getOptionalEnv('VITE_AIRTABLE_VALUATION_BASE_ID', 'appbOPKYqQRW2HgyB');
+const AIRTABLE_VALUATION_TABLE_ID = getOptionalEnv('VITE_AIRTABLE_VALUATION_TABLE_ID', 'tblGuvYLMnZXr6o8f');
+const AIRTABLE_VALUATION_VIEW = getOptionalEnv('VITE_AIRTABLE_VALUATION_VIEW', 'viwEQ9YuMH4Y7XMs9');
+const AIRTABLE_LEAD_CAPTURE_API_KEY = getRequiredEnv('VITE_AIRTABLE_LEAD_CAPTURE_API_KEY', 'Airtable API key for lead capture');
+const AIRTABLE_LEAD_CAPTURE_BASE_ID = getOptionalEnv('VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID', 'appbOPKYqQRW2HgyB');
+const AIRTABLE_LEAD_CAPTURE_TABLE_ID = getOptionalEnv('VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID', 'tblLFY58uCrcX7dPK');
+const AIRTABLE_VALUATIONS_STORAGE_TABLE_ID = getOptionalEnv('VITE_AIRTABLE_VALUATIONS_STORAGE_TABLE_ID', 'tbl66UyGNcOfOxQUm');
 
 // --- Intelimotor API Configuration ---
-const INTELIMOTOR_BUSINESS_UNIT_ID = env.VITE_INTELIMOTOR_BUSINESS_UNIT_ID || '629f91e85853b40012e58308';
-const INTELIMOTOR_API_KEY = env.VITE_INTELIMOTOR_API_KEY || '920b45727bb711069c950bbda204182f883d5bd1b17a6d0c6ccd0d673dace457';
-const INTELIMOTOR_API_SECRET = env.VITE_INTELIMOTOR_API_SECRET || 'ee4b975fb97eb1573624adfe45cb5c78ca53f3a002729e61b499dd182cb23a6a';
+const INTELIMOTOR_BUSINESS_UNIT_ID = getOptionalEnv('VITE_INTELIMOTOR_BUSINESS_UNIT_ID', '629f91e85853b40012e58308');
+const INTELIMOTOR_API_KEY = getRequiredEnv('VITE_INTELIMOTOR_API_KEY', 'Intelimotor API key');
+const INTELIMOTOR_API_SECRET = getRequiredEnv('VITE_INTELIMOTOR_API_SECRET', 'Intelimotor API secret');
 
 // --- Car Studio API Configuration ---
-// For AI-powered image editing.
-const CAR_STUDIO_API_KEY = env.VITE_CAR_STUDIO_API_KEY || 'e3c31fe81d1345b9a91996043d452d91';
+const CAR_STUDIO_API_KEY = getRequiredEnv('VITE_CAR_STUDIO_API_KEY', 'CarStudio API key for image editing');
 
 // --- Webhook Configuration ---
 const LEAD_CONNECTOR_WEBHOOK_URL = env.VITE_LEAD_CONNECTOR_WEBHOOK_URL || 'https://services.leadconnectorhq.com/hooks/LJhjk6eFZEHwptjuIF0a/webhook-trigger/eprKrEBZDa2DNegPGQ3T';

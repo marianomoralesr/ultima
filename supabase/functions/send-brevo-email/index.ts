@@ -556,11 +556,11 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
             </div>
             <div class="content">
               <h1 class="title">🎁 ¡Tu Cupón de Beneficios te Espera!</h1>
-              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, gracias por tu confianza en TREFA. Queremos recompensarte por ayudarnos a mejorar.</p>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, al enviar tu solicitud de financiamiento, aceptaste participar en nuestra encuesta anónima. ¡Gracias por ayudarnos a mejorar!</p>
 
               <div class="voucher-card">
                 <div class="voucher-title">✨ Cupón Especial de TREFA ✨</div>
-                <p class="voucher-subtitle">Responde nuestra breve encuesta y desbloquea beneficios exclusivos</p>
+                <p class="voucher-subtitle">Responde nuestra encuesta anónima y desbloquea beneficios exclusivos</p>
 
                 <div class="qr-container">
                   <img src="${qrCodeUrl}" alt="Código QR de validación" style="display: block; margin: 0 auto;" />
@@ -583,8 +583,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
                   <span class="benefit-icon">🚗</span>
                   <div>
                     <div class="benefit-text">
-                      <strong>1 año de lavado de auto GRATIS</strong><br>
-                      <span style="color: #556675; font-size: 14px;">Cada 2 semanas - Válido en nuestros centros autorizados</span>
+                      <strong>1 año de lavado de auto GRATIS</strong>
                     </div>
                   </div>
                 </div>
@@ -595,8 +594,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
                   <span class="benefit-icon">📋</span>
                   <div>
                     <div class="benefit-text">
-                      <strong>Costo de placas GRATIS</strong><br>
-                      <span style="color: #556675; font-size: 14px;">Aplicable al tramitar las placas de tu vehículo</span>
+                      <strong>Costo de placas GRATIS</strong>
                     </div>
                   </div>
                 </div>
@@ -608,8 +606,8 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
                 ¿Cómo Obtener tu Cupón?
               </h2>
               <ul style="max-width: 500px; margin: 24px auto;">
-                <li>Haz clic en el botón de abajo para acceder a la encuesta</li>
-                <li>Responde 41 preguntas breves sobre tu experiencia (solo 5-7 minutos)</li>
+                <li>Haz clic en el botón de abajo para acceder a la encuesta anónima</li>
+                <li>Responde preguntas breves sobre tu experiencia con TREFA</li>
                 <li>Al terminar, recibirás tu cupón digital de inmediato</li>
                 <li>Presenta tu código QR al canjear el beneficio</li>
               </ul>
@@ -620,9 +618,9 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
                 </a>
               </div>
 
-              <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 16px; border-radius: 8px; margin: 32px 0;">
-                <p style="margin: 0; color: #92400E; font-size: 14px; line-height: 1.6;">
-                  <strong>⏱️ Nota Importante:</strong> Esta encuesta nos ayuda a mejorar nuestros servicios. Tu opinión es muy valiosa para nosotros y para futuros clientes.
+              <div style="background: #F0F9FF; border-left: 4px solid #0369A1; padding: 16px; border-radius: 8px; margin: 32px 0;">
+                <p style="margin: 0; color: #0C4A6E; font-size: 14px; line-height: 1.6;">
+                  <strong>🔒 Privacidad Garantizada:</strong> Esta encuesta es completamente anónima. Tus respuestas nos ayudan a mejorar nuestros servicios para ti y futuros clientes.
                 </p>
               </div>
 

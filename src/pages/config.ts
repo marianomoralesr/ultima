@@ -8,13 +8,16 @@ const env = (import.meta as any)?.env ?? {};
 // Helper to get required env var
 const getRequiredEnv = (key: string, description: string): string => {
   const value = env[key];
-  if (!value) {
+
+  // Only validate in development - in production, values are baked in at build time
+  if (!value && import.meta.env.DEV) {
     console.error(`FATAL: Missing required environment variable: ${key}`);
     console.error(`Description: ${description}`);
     console.error(`Please add ${key} to your .env.local file or deployment environment`);
     throw new Error(`Missing required environment variable: ${key}`);
   }
-  return value;
+
+  return value || '';
 };
 
 // Helper to get optional env var with default

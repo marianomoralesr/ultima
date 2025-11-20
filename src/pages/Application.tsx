@@ -1345,51 +1345,31 @@ const SummarySection: React.FC<{title: string, icon: React.ElementType, children
 // --- FINANCING PREFERENCES SECTION ---
 const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; setValue: any; getValues: any }> = ({ control, vehicleInfo, setValue, getValues }) => {
     const [loanTerm, setLoanTerm] = useState(60);
-    const [downPayment, setDownPayment] = useState(0);
-    const [monthlyPayment, setMonthlyPayment] = useState(0);
+    const [downPaymentRaw, setDownPaymentRaw] = useState('');
 
     // Get vehicle pricing and financing info
     const vehiclePrice = vehicleInfo?.precio || vehicleInfo?._precio || 0;
     const recommendedDownPayment = vehicleInfo?.enganche_recomendado || vehicleInfo?._enganche_recomendado || 0;
-    const minDownPayment = vehicleInfo?.enganchemin || vehicleInfo?._enganchemin || 0;
+    const minDownPayment = Math.round(vehiclePrice * 0.25); // 25% of vehicle price
     const maxTerm = vehicleInfo?.plazomax || 60;
-    const recommendedMonthlyPayment = vehicleInfo?.mensualidad_recomendada || 0;
-    const minMonthlyPayment = vehicleInfo?.mensualidad_minima || 0;
 
-    // Calculate monthly payment
-    // For 60 months: use vehicle's recommended monthly payment if available
-    // For other terms: calculate using 15% interest rate
-    const calculateMonthlyPayment = useCallback((price: number, down: number, termMonths: number) => {
-        const loanAmount = price - down;
-        if (loanAmount <= 0 || termMonths <= 0) return 0;
+    // Format number with thousands separator
+    const formatNumber = (value: number | string): string => {
+        const numStr = String(value).replace(/[^0-9]/g, '');
+        if (!numStr) return '';
+        return parseInt(numStr, 10).toLocaleString('es-MX');
+    };
 
-        // For 60 months and if vehicle has recommended payment, use it
-        if (termMonths === 60 && recommendedMonthlyPayment > 0) {
-            // Adjust the recommended payment proportionally if down payment differs from recommended
-            if (down !== recommendedDownPayment && recommendedDownPayment > 0) {
-                const recommendedLoanAmount = price - recommendedDownPayment;
-                const actualLoanAmount = price - down;
-                const ratio = actualLoanAmount / recommendedLoanAmount;
-                return Math.round(recommendedMonthlyPayment * ratio);
-            }
-            return recommendedMonthlyPayment;
-        }
-
-        // For other terms or if no recommended payment, calculate with 15% interest rate
-        const annualRate = 0.15;
-        const monthlyRate = annualRate / 12;
-
-        // Monthly payment formula: P = L * [r(1+r)^n] / [(1+r)^n - 1]
-        const payment = (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths))) /
-                       (Math.pow(1 + monthlyRate, termMonths) - 1);
-
-        return Math.round(payment);
-    }, [recommendedMonthlyPayment, recommendedDownPayment]);
+    // Parse formatted string back to number
+    const parseFormattedNumber = (formatted: string): number => {
+        const numStr = formatted.replace(/[^0-9]/g, '');
+        return numStr ? parseInt(numStr, 10) : 0;
+    };
 
     // Initialize down payment with recommended value and term with vehicle's max
     useEffect(() => {
-        if (recommendedDownPayment > 0 && downPayment === 0) {
-            setDownPayment(recommendedDownPayment);
+        if (recommendedDownPayment > 0 && !downPaymentRaw) {
+            setDownPaymentRaw(formatNumber(recommendedDownPayment));
             setValue('down_payment_amount', recommendedDownPayment);
         }
         // Set initial loan term to vehicle's max term (capped at 60)
@@ -1397,16 +1377,14 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
         if (loanTerm !== initialTerm) {
             setLoanTerm(initialTerm);
         }
-    }, [recommendedDownPayment, downPayment, setValue, maxTerm]);
+    }, [recommendedDownPayment, downPaymentRaw, setValue, maxTerm]);
 
-    // Recalculate monthly payment when term or down payment changes
+    // Update form value when term or down payment changes
     useEffect(() => {
-        const payment = calculateMonthlyPayment(vehiclePrice, downPayment, loanTerm);
-        setMonthlyPayment(payment);
+        const downPaymentValue = parseFormattedNumber(downPaymentRaw);
         setValue('loan_term_months', loanTerm);
-        setValue('down_payment_amount', downPayment);
-        setValue('estimated_monthly_payment', payment);
-    }, [loanTerm, downPayment, vehiclePrice, calculateMonthlyPayment, setValue]);
+        setValue('down_payment_amount', downPaymentValue);
+    }, [loanTerm, downPaymentRaw, setValue]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0 }).format(amount);
@@ -1456,7 +1434,7 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                     </div>
                 </div>
 
-                {/* Down Payment Input */}
+                {/* Down Payment Input with Real-time Currency Formatting */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Enganche
@@ -1464,20 +1442,21 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                     <div className="relative">
                         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
                         <input
-                            type="number"
-                            value={downPayment}
-                            onChange={(e) => setDownPayment(Number(e.target.value))}
-                            min={minDownPayment}
-                            max={vehiclePrice}
-                            step={1000}
+                            type="text"
+                            value={downPaymentRaw}
+                            onChange={(e) => {
+                                const formatted = formatNumber(e.target.value);
+                                setDownPaymentRaw(formatted);
+                            }}
+                            placeholder="0"
                             className="block w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7"
                         />
                     </div>
                     <div className="mt-2 flex justify-between text-xs text-gray-500">
-                        <span>Mínimo: {formatCurrency(minDownPayment)}</span>
+                        <span>Mínimo (25%): {formatCurrency(minDownPayment)}</span>
                         <button
                             type="button"
-                            onClick={() => setDownPayment(recommendedDownPayment)}
+                            onClick={() => setDownPaymentRaw(formatNumber(recommendedDownPayment))}
                             className="text-primary-600 hover:text-primary-700 font-semibold"
                         >
                             Recomendado: {formatCurrency(recommendedDownPayment)}
@@ -1486,29 +1465,25 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                 </div>
             </div>
 
-            {/* Monthly Payment Display */}
+            {/* Summary Display */}
             <div className="bg-gradient-to-r from-primary-50 to-orange-50 rounded-xl p-6 border-2 border-primary-200">
-                <div className="text-center">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Mensualidad Aproximada</p>
-                    <p className="text-4xl font-bold text-primary-700">{formatCurrency(monthlyPayment)}</p>
-                    <p className="text-xs text-gray-600 mt-3">
-                        *Cálculo estimado. La mensualidad final será determinada por el banco.
-                    </p>
-                </div>
-                <div className="mt-4 pt-4 border-t border-primary-200 grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                         <p className="text-xs text-gray-600">Precio del Auto</p>
                         <p className="text-sm font-semibold text-gray-800">{formatCurrency(vehiclePrice)}</p>
                     </div>
                     <div>
                         <p className="text-xs text-gray-600">Enganche</p>
-                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(downPayment)}</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(parseFormattedNumber(downPaymentRaw))}</p>
                     </div>
                     <div>
                         <p className="text-xs text-gray-600">Monto a Financiar</p>
-                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(vehiclePrice - downPayment)}</p>
+                        <p className="text-sm font-semibold text-gray-800">{formatCurrency(vehiclePrice - parseFormattedNumber(downPaymentRaw))}</p>
                     </div>
                 </div>
+                <p className="text-xs text-gray-600 mt-3 text-center">
+                    *La mensualidad final será determinada por el banco.
+                </p>
             </div>
         </div>
     );

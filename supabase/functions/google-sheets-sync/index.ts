@@ -127,6 +127,7 @@ function flattenApplicationData(app: ApplicationData): Record<string, any> {
     // Advisor information
     'idAsesorAsignado': profile.asesor_asignado_id || '',
     'nombreAsesor': profile.advisor_name || '',
+    'correoAsesor': profile.advisor_email || '',
   };
 }
 
@@ -327,6 +328,27 @@ serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Initialize Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Fetch advisor email if asesor_asignado_id exists
+    let advisorEmail = '';
+    const profile = application.personal_info_snapshot || {};
+    if (profile.asesor_asignado_id) {
+      const { data: advisorData, error: advisorError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', profile.asesor_asignado_id)
+        .single();
+
+      if (!advisorError && advisorData) {
+        advisorEmail = advisorData.email || '';
+      }
+    }
+
+    // Add advisor email to profile snapshot for flattening
+    profile.advisor_email = advisorEmail;
 
     // Parse Google credentials
     const credentials: GoogleSheetsCredentials = JSON.parse(GOOGLE_SHEETS_CREDENTIALS);

@@ -44,89 +44,90 @@ function flattenApplicationData(app: ApplicationData): Record<string, any> {
 
   return {
     // Application metadata
-    'idSolicitud': app.id,
-    'idUsuario': app.user_id,
-    'estado': app.status,
-    'fechaCreacion': app.created_at,
-    'fechaActualizacion': app.updated_at,
-    'bancoRecomendado': (app.selected_banks && app.selected_banks.length > 0) ? app.selected_banks[0] : '',
+    'ID de Solicitud': app.id,
+    'ID de Usuario': app.user_id,
+    'Estado': app.status,
+    'Fecha de Creación': app.created_at,
+    'Fecha de Actualización': app.updated_at,
+    'Banco Recomendado': (app.selected_banks && app.selected_banks.length > 0) ? app.selected_banks[0] : '',
 
     // Personal information from profile snapshot
-    'nombre': profile.first_name || '',
-    'apellidoPaterno': profile.last_name || '',
-    'apellidoMaterno': profile.mother_last_name || '',
-    'nombreCompleto': `${profile.first_name || ''} ${profile.last_name || ''} ${profile.mother_last_name || ''}`.trim(),
-    'correoElectronico': profile.email || '',
-    'telefono': profile.phone || '',
-    'rfc': profile.rfc || '',
-    'homoclave': profile.homoclave || '',
-    'fechaNacimiento': profile.birth_date || '',
-    'estadoCivil': profile.civil_status || '',
-    'nombreConyuge': profile.spouse_name || '',
-    'situacionFiscal': profile.fiscal_situation || '',
+    'Nombre': profile.first_name || '',
+    'Apellido Paterno': profile.last_name || '',
+    'Apellido Materno': profile.mother_last_name || '',
+    'Nombre Completo': `${profile.first_name || ''} ${profile.last_name || ''} ${profile.mother_last_name || ''}`.trim(),
+    'Correo Electrónico': profile.email || '',
+    'Teléfono': profile.phone || '',
+    'RFC': profile.rfc || '',
+    'Homoclave': profile.homoclave || '',
+    'Fecha de Nacimiento': profile.birth_date || '',
+    'Estado Civil': profile.civil_status || '',
+    'Nombre del Cónyuge': profile.spouse_name || '',
+    'Situación Fiscal': profile.fiscal_situation || '',
 
     // Profile address (from profile snapshot)
-    'direccionPerfil': profile.address || '',
-    'coloniaPerfil': profile.colony || '',
-    'ciudadPerfil': profile.city || '',
-    'estadoPerfil': profile.state || '',
-    'codigoPostalPerfil': profile.zip_code || '',
+    'Dirección (Perfil)': profile.address || '',
+    'Colonia (Perfil)': profile.colony || '',
+    'Ciudad (Perfil)': profile.city || '',
+    'Estado (Perfil)': profile.state || '',
+    'Código Postal (Perfil)': profile.zip_code || '',
 
     // Current address from application (may differ from profile)
-    'direccionActual': appData.current_address || profile.address || '',
-    'coloniaActual': appData.current_colony || profile.colony || '',
-    'ciudadActual': appData.current_city || profile.city || '',
-    'estadoActual': appData.current_state || profile.state || '',
-    'codigoPostalActual': appData.current_zip_code || profile.zip_code || '',
-    'tiempoEnDireccion': appData.time_at_address || '',
-    'tipoVivienda': appData.housing_type || '',
+    'Dirección Actual': appData.current_address || profile.address || '',
+    'Colonia Actual': appData.current_colony || profile.colony || '',
+    'Ciudad Actual': appData.current_city || profile.city || '',
+    'Estado Actual': appData.current_state || profile.state || '',
+    'Código Postal Actual': appData.current_zip_code || profile.zip_code || '',
+    'Tiempo en Dirección': appData.time_at_address || '',
+    'Tipo de Vivienda': appData.housing_type || '',
 
     // Personal details from application
-    'nivelEstudios': appData.grado_de_estudios || '',
-    'dependientesEconomicos': appData.dependents || '',
+    'Nivel de Estudios': appData.grado_de_estudios || '',
+    'Dependientes Económicos': appData.dependents || '',
 
     // Employment information
-    'clasificacionFiscal': appData.fiscal_classification || '',
-    'nombreEmpresa': appData.company_name || '',
-    'telefonoEmpresa': appData.company_phone || '',
-    'nombreSupervisor': appData.supervisor_name || '',
-    'sitioWebEmpresa': appData.company_website || '',
-    'direccionEmpresa': appData.company_address || '',
-    'industriaEmpresa': appData.company_industry || '',
-    'puestoTrabajo': appData.job_title || '',
-    'antiguedadTrabajo': appData.job_seniority || '',
-    'ingresoMensualNeto': appData.net_monthly_income || '',
+    'Clasificación Fiscal': appData.fiscal_classification || '',
+    'Nombre de la Empresa': appData.company_name || '',
+    'Teléfono de la Empresa': appData.company_phone || '',
+    'Nombre del Supervisor': appData.supervisor_name || '',
+    'Sitio Web de la Empresa': appData.company_website || '',
+    'Dirección de la Empresa': appData.company_address || '',
+    'Industria de la Empresa': appData.company_industry || '',
+    'Puesto de Trabajo': appData.job_title || '',
+    'Antigüedad en el Trabajo': appData.job_seniority || '',
+    'Ingreso Mensual Neto': appData.net_monthly_income || '',
 
     // References
-    'nombreReferenciaAmistad': appData.friend_reference_name || '',
-    'telefonoReferenciaAmistad': appData.friend_reference_phone || '',
-    'relacionReferenciaAmistad': appData.friend_reference_relationship || '',
-    'nombreReferenciaFamiliar': appData.family_reference_name || '',
-    'telefonoReferenciaFamiliar': appData.family_reference_phone || '',
-    'parentesco': appData.parentesco || '',
+    'Nombre Referencia Amistad': appData.friend_reference_name || '',
+    'Teléfono Referencia Amistad': appData.friend_reference_phone || '',
+    'Relación Referencia Amistad': appData.friend_reference_relationship || '',
+    'Nombre Referencia Familiar': appData.family_reference_name || '',
+    'Teléfono Referencia Familiar': appData.family_reference_phone || '',
+    'Parentesco': appData.parentesco || '',
 
     // Financing preferences
-    'plazoCreditoMeses': appData.loan_term_months || '',
-    'enganche': appData.down_payment_amount || '',
-    'mensualidadEstimada': appData.estimated_monthly_payment || '',
+    'Plazo del Crédito (Meses)': appData.loan_term_months || '',
+    'Enganche': appData.down_payment_amount || '',
+    'Mensualidad Estimada': appData.estimated_monthly_payment || '',
 
     // Vehicle information
-    'auto': carInfo._vehicleTitle || carInfo.vehicleTitle || '',
-    'ordenCompra': carInfo._ordenCompra || carInfo.ordencompra || appData.ordencompra || '',
-    'precioVehiculo': carInfo.precio || '',
-    'engancheRecomendado': carInfo.enganche_recomendado || '',
-    'engancheMinimo': carInfo.enganchemin || '',
-    'mensualidadRecomendada': carInfo.mensualidad_recomendada || '',
-    'plazoMaximo': carInfo.plazomax || '',
-    'urlImagenVehiculo': carInfo._featureImage || carInfo.featureImage || '',
+    'Vehículo': carInfo._vehicleTitle || carInfo.vehicleTitle || '',
+    'Orden de Compra': carInfo._ordenCompra || carInfo.ordencompra || appData.ordencompra || '',
+    'Precio del Vehículo': carInfo.precio || '',
+    'Enganche Recomendado': carInfo.enganche_recomendado || '',
+    'Enganche Mínimo': carInfo.enganchemin || '',
+    'Mensualidad Recomendada': carInfo.mensualidad_recomendada || '',
+    'Plazo Máximo': carInfo.plazomax || '',
+    'URL Imagen del Vehículo': carInfo._featureImage || carInfo.featureImage || '',
 
     // Consent
-    'terminosAceptados': appData.terms_and_conditions ? 'Sí' : 'No',
-    'consentimientoEncuesta': appData.consent_survey ? 'Sí' : 'No',
+    'Términos Aceptados': appData.terms_and_conditions ? 'Sí' : 'No',
+    'Consentimiento de Encuesta': appData.consent_survey ? 'Sí' : 'No',
 
     // Advisor information
-    'idAsesorAsignado': profile.asesor_asignado_id || '',
-    'nombreAsesor': profile.advisor_name || '',
+    'ID del Asesor Asignado': profile.asesor_asignado_id || '',
+    'Nombre del Asesor': profile.advisor_name || '',
+    'Correo del Asesor': profile.advisor_email || '',
   };
 }
 
@@ -327,6 +328,27 @@ serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Initialize Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Fetch advisor email if asesor_asignado_id exists
+    let advisorEmail = '';
+    const profile = application.personal_info_snapshot || {};
+    if (profile.asesor_asignado_id) {
+      const { data: advisorData, error: advisorError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', profile.asesor_asignado_id)
+        .single();
+
+      if (!advisorError && advisorData) {
+        advisorEmail = advisorData.email || '';
+      }
+    }
+
+    // Add advisor email to profile snapshot for flattening
+    profile.advisor_email = advisorEmail;
 
     // Parse Google credentials
     const credentials: GoogleSheetsCredentials = JSON.parse(GOOGLE_SHEETS_CREDENTIALS);

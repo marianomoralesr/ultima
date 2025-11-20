@@ -9,7 +9,7 @@ import { supabase } from '../../supabaseClient';
 import { toast } from 'sonner';
 import { Gift, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 
-// Comprehensive survey questions (41 total)
+// Comprehensive survey questions (48 total: 41 original - 8 removed + 15 added)
 const surveyQuestions = [
   // Demographics (5 questions)
   {
@@ -81,6 +81,55 @@ const surveyQuestions = [
     ]
   },
 
+  // TREFA Application Process (5 questions)
+  {
+    id: 'completed-banking-profile',
+    question: 'Finalicé mi perfilamiento bancario',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Verdadero' },
+      { value: '0', label: 'Falso' }
+    ]
+  },
+  {
+    id: 'started-credit-application',
+    question: 'Inicié mi solicitud de crédito',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Verdadero' },
+      { value: '0', label: 'Falso' }
+    ]
+  },
+  {
+    id: 'submitted-complete-application',
+    question: 'Envié mi solicitud de financiamiento completa',
+    type: 'likert-4',
+    options: [
+      { value: '1', label: 'Verdadero' },
+      { value: '0', label: 'Falso' }
+    ]
+  },
+  {
+    id: 'information-reasonable',
+    question: 'La información solicitada me parece razonable',
+    type: 'likert-4',
+    options: [
+      { value: '2', label: 'Sí' },
+      { value: '0', label: 'No' },
+      { value: '1', label: 'No lo sé' }
+    ]
+  },
+  {
+    id: 'trust-data-sharing',
+    question: 'Siento confianza al compartir mis datos personales con TREFA',
+    type: 'likert-4',
+    options: [
+      { value: '2', label: 'Sí' },
+      { value: '0', label: 'No' },
+      { value: '1', label: 'No lo sé' }
+    ]
+  },
+
   // Discovery & Source (3 questions)
   {
     id: 'source',
@@ -117,6 +166,18 @@ const surveyQuestions = [
       { value: '3', label: 'A veces, algunas cosas sí, otras no' },
       { value: '2', label: 'No realmente, no me ayuda mucho' },
       { value: '1', label: 'No he visto su contenido' }
+    ]
+  },
+  {
+    id: 'ad-recall',
+    question: '¿Has visto nuestros anuncios en Facebook/Instagram/Google?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'facebook', label: 'Sí, en Facebook' },
+      { value: 'instagram', label: 'Sí, en Instagram' },
+      { value: 'google', label: 'Sí, en Google' },
+      { value: 'multiple', label: 'Sí, en varias plataformas' },
+      { value: 'no', label: 'No he visto anuncios' }
     ]
   },
 
@@ -159,25 +220,15 @@ const surveyQuestions = [
     }
   },
   {
-    id: 'transparency-importance',
-    question: '¿Qué tan importante es la transparencia en precios y proceso?',
-    type: 'rating-horizontal',
-    min: 1,
-    max: 10,
-    labels: {
-      min: 'Poco importante',
-      max: 'Muy importante'
-    }
-  },
-  {
-    id: 'dealer-trust',
-    question: '¿Confías más en TREFA que en agencias tradicionales?',
-    type: 'likert-4',
+    id: 'trefa-vs-private-seller',
+    question: '¿Consideras que TREFA tiene ventajas sobre comprar directo de particular?',
+    type: 'multiple-choice',
     options: [
-      { value: '1', label: 'Confío más en agencias' },
-      { value: '2', label: 'Similar confianza' },
-      { value: '3', label: 'Confío un poco más en TREFA' },
-      { value: '4', label: 'Confío mucho más en TREFA' }
+      { value: 'si-garantia', label: 'Sí, por la garantía y seguridad' },
+      { value: 'si-transparencia', label: 'Sí, por la transparencia' },
+      { value: 'si-financiamiento', label: 'Sí, por las opciones de financiamiento' },
+      { value: 'si-multiple', label: 'Sí, por múltiples razones' },
+      { value: 'no', label: 'No veo ventajas significativas' }
     ]
   },
 
@@ -274,17 +325,6 @@ const surveyQuestions = [
     ]
   },
   {
-    id: 'trade-in-interest',
-    question: '¿Te interesa dar tu auto actual a cuenta?',
-    type: 'likert-4',
-    options: [
-      { value: '1', label: 'No tengo auto actual' },
-      { value: '2', label: 'No me interesa' },
-      { value: '3', label: 'Tal vez' },
-      { value: '4', label: 'Sí, definitivamente' }
-    ]
-  },
-  {
     id: 'dealer-visit-intention',
     question: '¿Planeas visitar físicamente el auto antes de comprar?',
     type: 'likert-4',
@@ -293,6 +333,55 @@ const surveyQuestions = [
       { value: '3', label: 'Probablemente sí' },
       { value: '2', label: 'No es necesario' },
       { value: '1', label: 'Prefiero proceso 100% digital' }
+    ]
+  },
+  {
+    id: 'competitor-consideration',
+    question: '¿Consideras alguna otra agencia o lote?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'no', label: 'No, ninguna' },
+      { value: 'agencia-nueva', label: 'Sí, agencias de autos nuevos' },
+      { value: 'agencia-seminuevos', label: 'Sí, agencias de seminuevos' },
+      { value: 'lote-local', label: 'Sí, lotes locales' },
+      { value: 'plataforma-online', label: 'Sí, otras plataformas online' }
+    ]
+  },
+  {
+    id: 'brand-interest',
+    question: '¿Qué marcas de autos te interesan? (Puedes seleccionar varias)',
+    type: 'multiple-choice',
+    options: [
+      { value: 'toyota', label: 'Toyota' },
+      { value: 'nissan', label: 'Nissan' },
+      { value: 'honda', label: 'Honda' },
+      { value: 'mazda', label: 'Mazda' },
+      { value: 'ford', label: 'Ford' },
+      { value: 'chevrolet', label: 'Chevrolet' },
+      { value: 'volkswagen', label: 'Volkswagen' },
+      { value: 'bmw', label: 'BMW' },
+      { value: 'mercedes-benz', label: 'Mercedes-Benz' },
+      { value: 'audi', label: 'Audi' },
+      { value: 'kia', label: 'Kia' },
+      { value: 'hyundai', label: 'Hyundai' },
+      { value: 'jeep', label: 'Jeep' },
+      { value: 'ram', label: 'RAM' },
+      { value: 'dodge', label: 'Dodge' },
+      { value: 'gmc', label: 'GMC' },
+      { value: 'cadillac', label: 'Cadillac' },
+      { value: 'volvo', label: 'Volvo' },
+      { value: 'subaru', label: 'Subaru' },
+      { value: 'mitsubishi', label: 'Mitsubishi' },
+      { value: 'suzuki', label: 'Suzuki' },
+      { value: 'peugeot', label: 'Peugeot' },
+      { value: 'renault', label: 'Renault' },
+      { value: 'seat', label: 'SEAT' },
+      { value: 'fiat', label: 'Fiat' },
+      { value: 'chrysler', label: 'Chrysler' },
+      { value: 'buick', label: 'Buick' },
+      { value: 'lincoln', label: 'Lincoln' },
+      { value: 'mg', label: 'MG' },
+      { value: 'otras', label: 'Otras marcas' }
     ]
   },
 
@@ -343,19 +432,8 @@ const surveyQuestions = [
       { value: 'combinacion', label: 'Combinación de opciones' }
     ]
   },
-  {
-    id: 'delivery-preference',
-    question: '¿Te interesaría entrega a domicilio?',
-    type: 'likert-4',
-    options: [
-      { value: '1', label: 'No, prefiero recogerlo' },
-      { value: '2', label: 'No es importante' },
-      { value: '3', label: 'Sería conveniente' },
-      { value: '4', label: 'Sí, es muy importante' }
-    ]
-  },
 
-  // Financing & Budget (3 questions)
+  // Financing & Budget (5 questions)
   {
     id: 'financing-importance',
     question: '¿Qué tan importante es el financiamiento para tu compra?',
@@ -368,13 +446,26 @@ const surveyQuestions = [
     }
   },
   {
-    id: 'financing-dependency',
-    question: 'Mi compra depende de la aprobación del financiamiento.',
-    type: 'likert-4',
+    id: 'bank-vs-leasing',
+    question: '¿Prefieres financiamiento a través de banco o arrendadora?',
+    type: 'multiple-choice',
     options: [
-      { value: '4', label: 'Verdadero' },
-      { value: '1', label: 'Falso' }
+      { value: 'banco', label: 'Banco' },
+      { value: 'arrendadora', label: 'Arrendadora' },
+      { value: 'cualquiera', label: 'Cualquiera que me apruebe' },
+      { value: 'no-se', label: 'No sé la diferencia' }
     ]
+  },
+  {
+    id: 'approval-speed-importance',
+    question: '¿Qué tan importante es la rapidez en el proceso de aprobación?',
+    type: 'rating-horizontal',
+    min: 1,
+    max: 10,
+    labels: {
+      min: 'Poco importante',
+      max: 'Muy importante'
+    }
   },
   {
     id: 'down-payment-capacity',
@@ -389,7 +480,19 @@ const surveyQuestions = [
     ]
   },
 
-  // Service & Experience (3 questions)
+  // Service & Experience (4 questions)
+  {
+    id: 'communication-preference',
+    question: '¿Qué canal de comunicación prefieres?',
+    type: 'multiple-choice',
+    options: [
+      { value: 'whatsapp', label: 'WhatsApp' },
+      { value: 'email', label: 'Email' },
+      { value: 'llamada', label: 'Llamada telefónica' },
+      { value: 'app', label: 'App/Plataforma web' },
+      { value: 'presencial', label: 'Presencial' }
+    ]
+  },
   {
     id: 'response-time-satisfaction',
     question: '¿Qué tan satisfecho estás con nuestros tiempos de respuesta?',
@@ -424,7 +527,7 @@ const surveyQuestions = [
     ]
   },
 
-  // Improvements & Feedback (3 questions)
+  // Improvements & Feedback (6 questions)
   {
     id: 'improvement',
     question: '¿En qué podríamos mejorar?',
@@ -439,29 +542,22 @@ const surveyQuestions = [
     ]
   },
   {
-    id: 'dislike',
-    question: '¿Qué es lo que menos te gusta actualmente?',
-    type: 'multiple-choice',
-    options: [
-      { value: 'tiempo-respuesta', label: 'Tiempo de respuesta' },
-      { value: 'falta-opciones', label: 'Falta de opciones de pago' },
-      { value: 'proceso-complicado', label: 'Proceso complicado' },
-      { value: 'poca-transparencia', label: 'Poca transparencia' },
-      { value: 'nada', label: 'No tengo quejas' }
-    ]
+    id: 'financing-process-improvement',
+    question: '¿De qué manera podríamos mejorar nuestro proceso de solicitud de financiamiento?',
+    type: 'text',
+    placeholder: 'Comparte tus sugerencias aquí...'
   },
   {
-    id: 'missing-feature',
-    question: '¿Qué te gustaría que tuviéramos que no tenemos?',
-    type: 'multiple-choice',
-    options: [
-      { value: 'mas-fotos', label: 'Más fotos y videos' },
-      { value: 'video-llamada', label: 'Videollamada con asesor' },
-      { value: 'chat-vivo', label: 'Chat en vivo' },
-      { value: 'app-movil', label: 'App móvil' },
-      { value: 'comparador', label: 'Comparador de autos' },
-      { value: 'nada', label: 'Está completo' }
-    ]
+    id: 'completion-motivation',
+    question: '¿Qué te motivó a completar tu solicitud hasta el final?',
+    type: 'text',
+    placeholder: 'Cuéntanos qué te mantuvo en el proceso...'
+  },
+  {
+    id: 'near-abandonment',
+    question: '¿Hubo algo que casi te hizo abandonar el proceso?',
+    type: 'text',
+    placeholder: 'Comparte tu experiencia...'
   },
 
   // Overall Satisfaction (3 questions)
@@ -474,17 +570,6 @@ const surveyQuestions = [
       { value: '2', label: 'Poco satisfecho' },
       { value: '3', label: 'Satisfecho' },
       { value: '4', label: 'Muy satisfecho' }
-    ]
-  },
-  {
-    id: 'would-recommend',
-    question: '¿Recomendarías TREFA a un familiar o amigo?',
-    type: 'likert-4',
-    options: [
-      { value: '1', label: 'Definitivamente no' },
-      { value: '2', label: 'Probablemente no' },
-      { value: '3', label: 'Probablemente sí' },
-      { value: '4', label: 'Definitivamente sí' }
     ]
   },
   {
@@ -604,7 +689,8 @@ const AnonymousSurveyPage: React.FC = () => {
   };
 
   const currentQuestionData = surveyQuestions[currentQuestion];
-  const isAnswered = answers[currentQuestionData?.id] !== undefined;
+  // Text questions are optional, so they're always considered "answered"
+  const isAnswered = currentQuestionData?.type === 'text' || answers[currentQuestionData?.id] !== undefined;
 
   // Welcome Screen
   if (showWelcome) {
@@ -816,6 +902,22 @@ const AnonymousSurveyPage: React.FC = () => {
                   </div>
                 ))}
               </RadioGroup>
+            )}
+
+            {/* Text Input */}
+            {currentQuestionData?.type === 'text' && (
+              <div className="space-y-3">
+                <textarea
+                  value={answers[currentQuestionData.id] || ''}
+                  onChange={(e) => setAnswers(prev => ({ ...prev, [currentQuestionData.id]: e.target.value }))}
+                  placeholder={currentQuestionData.placeholder || 'Escribe tu respuesta aquí...'}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all resize-none text-base"
+                />
+                <p className="text-sm text-gray-500">
+                  Esta pregunta es opcional. Puedes dejarla en blanco si prefieres.
+                </p>
+              </div>
             )}
 
             <Separator className="my-6" />

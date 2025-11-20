@@ -10,7 +10,7 @@ interface EmailRequest {
   to: string;
   toName: string;
   subject: string;
-  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code';
+  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code' | 'survey_invitation';
   templateData: Record<string, any>;
 }
 
@@ -462,6 +462,175 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
             <div class="footer">
               <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
               <p class="footer-text">Sistema de Valuación de Vehículos</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+    case 'survey_invitation':
+      // Generate unique QR code validation token
+      const qrCodeData = `trefa-survey-${data.userId}-${Date.now()}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeData)}`;
+      const surveyUrl = data.surveyUrl || 'https://trefa.mx/encuesta-anonima';
+
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          ${baseStyles}
+          <style>
+            .voucher-card {
+              background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+              border-radius: 16px;
+              padding: 32px;
+              text-align: center;
+              margin: 32px 0;
+              box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            }
+            .voucher-title {
+              font-size: 24px;
+              font-weight: 700;
+              color: #FFFFFF;
+              margin: 0 0 8px 0;
+            }
+            .voucher-subtitle {
+              font-size: 16px;
+              color: rgba(255, 255, 255, 0.9);
+              margin: 0 0 24px 0;
+            }
+            .qr-container {
+              background: #FFFFFF;
+              padding: 20px;
+              border-radius: 12px;
+              display: inline-block;
+              margin: 24px 0;
+            }
+            .benefits-list {
+              background: #F7F8FA;
+              border-radius: 12px;
+              padding: 24px;
+              margin: 32px 0;
+              text-align: left;
+            }
+            .benefit-item {
+              display: flex;
+              align-items: start;
+              margin: 16px 0;
+              padding: 12px;
+              background: #FFFFFF;
+              border-radius: 8px;
+              border-left: 4px solid #3B82F6;
+            }
+            .benefit-icon {
+              font-size: 24px;
+              margin-right: 16px;
+              flex-shrink: 0;
+            }
+            .benefit-text {
+              color: #0B2540;
+              font-size: 16px;
+              line-height: 1.6;
+            }
+            .cta-button {
+              background: linear-gradient(135deg, #FF6801 0%, #F56100 100%);
+              color: #FFFFFF;
+              text-decoration: none;
+              padding: 18px 40px;
+              border-radius: 12px;
+              font-weight: 700;
+              font-size: 18px;
+              display: inline-block;
+              margin: 24px 0;
+              box-shadow: 0 6px 16px rgba(255, 104, 1, 0.3);
+              transition: all 0.3s ease;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">🎁 ¡Tu Cupón de Beneficios te Espera!</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, al enviar tu solicitud de financiamiento, aceptaste participar en nuestra encuesta anónima. ¡Gracias por ayudarnos a mejorar!</p>
+
+              <div class="voucher-card">
+                <div class="voucher-title">✨ Cupón Especial de TREFA ✨</div>
+                <p class="voucher-subtitle">Responde nuestra encuesta anónima y desbloquea beneficios exclusivos</p>
+
+                <div class="qr-container">
+                  <img src="${qrCodeUrl}" alt="Código QR de validación" style="display: block; margin: 0 auto;" />
+                  <p style="margin: 12px 0 0 0; font-size: 12px; color: #556675; font-weight: 600;">
+                    Código de Validación
+                  </p>
+                </div>
+
+                <p style="color: rgba(255, 255, 255, 0.85); font-size: 14px; margin: 8px 0 0 0;">
+                  Este QR valida tu participación en la encuesta
+                </p>
+              </div>
+
+              <div class="benefits-list">
+                <h3 style="font-size: 20px; color: #0B2540; font-weight: 700; margin: 0 0 20px 0; text-align: center;">
+                  🌟 Elige Uno de Estos Increíbles Beneficios
+                </h3>
+
+                <div class="benefit-item">
+                  <span class="benefit-icon">🚗</span>
+                  <div>
+                    <div class="benefit-text">
+                      <strong>1 año de lavado de auto GRATIS</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="text-align: center; margin: 16px 0; color: #556675; font-weight: 600;">O</div>
+
+                <div class="benefit-item">
+                  <span class="benefit-icon">📋</span>
+                  <div>
+                    <div class="benefit-text">
+                      <strong>Costo de placas GRATIS</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">
+                ¿Cómo Obtener tu Cupón?
+              </h2>
+              <ul style="max-width: 500px; margin: 24px auto;">
+                <li>Haz clic en el botón de abajo para acceder a la encuesta anónima</li>
+                <li>Responde preguntas breves sobre tu experiencia con TREFA</li>
+                <li>Al terminar, recibirás tu cupón digital de inmediato</li>
+                <li>Presenta tu código QR al canjear el beneficio</li>
+              </ul>
+
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${surveyUrl}" class="cta-button">
+                  📝 Responder Encuesta Ahora
+                </a>
+              </div>
+
+              <div style="background: #F0F9FF; border-left: 4px solid #0369A1; padding: 16px; border-radius: 8px; margin: 32px 0;">
+                <p style="margin: 0; color: #0C4A6E; font-size: 14px; line-height: 1.6;">
+                  <strong>🔒 Privacidad Garantizada:</strong> Esta encuesta es completamente anónima. Tus respuestas nos ayudan a mejorar nuestros servicios para ti y futuros clientes.
+                </p>
+              </div>
+
+              <p style="font-size: 14px; color: #556675; text-align: center; margin-top: 32px;">
+                ¿Tienes preguntas? Responde a este correo y te ayudaremos con gusto.
+              </p>
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
+              <p class="footer-text">Tu opinión nos ayuda a ser mejores</p>
               <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
             </div>
           </div>

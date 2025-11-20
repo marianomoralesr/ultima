@@ -23,7 +23,6 @@ import {
   HelpCircleIcon
 } from './icons';
 import type { Profile } from '../types/types';
-import MiniValuationForm from './MiniValuationForm';
 import { BRAND_LOGOS } from '../utils/constants';
 import { useConfig } from '../context/ConfigContext';
 import { Button } from './ui/button';
@@ -58,6 +57,53 @@ const toolsNavLinks = [
     { name: 'Marketing Hub', to: '/escritorio/admin/marketing', authRequired: true, adminRequired: true, icon: LayoutDashboardIcon },
     { name: 'Survey Analytics', to: '/escritorio/admin/survey-analytics', authRequired: true, adminRequired: true, icon: FileTextIcon },
 ];
+
+const PricingRangeWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+    const navigate = useNavigate();
+
+    const priceRanges = [
+        { label: 'Menos de $150,000', min: 0, max: 150000 },
+        { label: '$150,000 - $250,000', min: 150000, max: 250000 },
+        { label: '$250,000 - $350,000', min: 250000, max: 350000 },
+        { label: '$350,000 - $500,000', min: 350000, max: 500000 },
+        { label: 'Más de $500,000', min: 500000, max: 999999999 },
+    ];
+
+    const handlePriceClick = (min: number, max: number) => {
+        onClose();
+        const params = new URLSearchParams();
+        params.set('preciomin', min.toString());
+        params.set('preciomax', max.toString());
+        navigate(`/autos?${params.toString()}`);
+    };
+
+    return (
+        <Card>
+            <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-gray-500 font-semibold">Buscar por Precio</CardTitle>
+                <CardDescription className="text-xs">
+                    Encuentra autos en tu rango de presupuesto
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-1.5">
+                    {priceRanges.map((range, index) => (
+                        <Button
+                            key={index}
+                            onClick={() => handlePriceClick(range.min, range.max)}
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-between h-9 hover:bg-primary-50 hover:text-primary-700"
+                        >
+                            <span className="text-xs font-medium">{range.label}</span>
+                            <ArrowRightIcon className="w-3.5 h-3.5" />
+                        </Button>
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
 
 const HelpWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const handleContactClick = (e: React.MouseEvent) => {
@@ -408,7 +454,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
 
                     {/* Widgets Section - 2 columns */}
                     <div className="lg:col-span-2 p-6 bg-gray-50 rounded-br-2xl space-y-4">
-                        <MiniValuationForm onClose={onClose} />
+                        <PricingRangeWidget onClose={onClose} />
                         {session && profile ? (
                             <AccountWidget profile={profile} onSignOut={handleSignOut} onLinkClick={(to) => handleLinkClick(to, true)} />
                         ) : (

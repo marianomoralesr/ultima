@@ -143,14 +143,20 @@ const BottomNav: React.FC = () => {
                         <button
                             ref={buttonRef}
                             onClick={isListPage ? handleFilterClick : () => setIsMenuOpen(o => !o)}
-                            className={`w-14 h-14 rounded-full flex items-center justify-center transform -translate-y-4 shadow-lg transition-all duration-300 active:scale-95 ${isMenuOpen && !isListPage ? 'bg-primary-700 rotate-[225deg]' : 'bg-primary-600'}`}
+                            className={`relative w-14 h-14 rounded-full flex items-center justify-center transform -translate-y-4 transition-all duration-300 active:scale-95 shadow-[0_8px_20px_rgba(234,88,12,0.4),0_4px_8px_rgba(234,88,12,0.2)] hover:shadow-[0_10px_25px_rgba(234,88,12,0.5),0_6px_12px_rgba(234,88,12,0.3)] ${isMenuOpen && !isListPage ? 'bg-gradient-to-br from-orange-600 to-orange-700 rotate-[225deg] ring-4 ring-orange-300/50' : 'bg-gradient-to-br from-orange-500 to-orange-600'}`}
+                            style={{
+                                boxShadow: isMenuOpen && !isListPage
+                                    ? '0 12px 28px rgba(234,88,12,0.6), 0 6px 12px rgba(234,88,12,0.3), inset 0 -2px 6px rgba(0,0,0,0.2)'
+                                    : '0 8px 20px rgba(234,88,12,0.4), 0 4px 8px rgba(234,88,12,0.2), inset 0 -2px 4px rgba(0,0,0,0.15)'
+                            }}
                             aria-expanded={!isListPage && isMenuOpen}
                             aria-label={isListPage ? "Abrir filtros" : "Abrir menú"}
                         >
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20"></div>
                             {isListPage ? (
-                                <FilterIcon className="w-7 h-7 text-white" />
+                                <FilterIcon className="w-7 h-7 text-white relative z-10" />
                             ) : (
-                                <ChevronUpIcon className="w-8 h-8 text-white transition-transform duration-300" />
+                                <ChevronUpIcon className="w-8 h-8 text-white relative z-10 transition-transform duration-300" />
                             )}
                         </button>
                     </div>

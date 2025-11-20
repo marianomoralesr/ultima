@@ -8,9 +8,12 @@ set -e
 # Add PostgreSQL to PATH
 export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 
+# Load database configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/db-config.sh"
+
 # Configuration
 PROJECT_REF="jjepfehmuybpctdzipnu"
-DB_PASSWORD="Lifeintechnicolor2!"
 
 # Colors
 GREEN='\033[0;32m'

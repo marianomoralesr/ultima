@@ -62,7 +62,8 @@ export const ApplicationService = {
         return result ? { ...result, status: 'submitted', updated_at: new Date().toISOString() } : null;
     }
 
-    const newStatus = applicationData.documents_pending ? 'pending_docs' : 'submitted';
+    // Auto-assign to recommended bank and set status to 'reviewing' when application is submitted
+    const newStatus = 'reviewing'; // Changed from 'submitted' or 'pending_docs' to 'reviewing'
     const patch: Record<string, any> = { status: newStatus };
     for (const [k, v] of Object.entries(applicationData)) {
       if (v !== undefined && k !== 'documents_pending') patch[k] = v;
@@ -118,7 +119,7 @@ export const ApplicationService = {
       .from('financing_applications')
       .select('id, status')
       .eq('user_id', userId)
-      .in('status', ['submitted', 'reviewing', 'pending_docs'])
+      .in('status', ['submitted', 'reviewing', 'pending_docs', 'approved', 'in_review'])
       .limit(1)
       .maybeSingle();
 

@@ -39,10 +39,8 @@ const SurveyInvitation: React.FC<{ onClose: () => void }> = ({ onClose }) => (
                 Responde una breve encuesta sobre tu experiencia y recibe un bono especial para tu próxima compra o financiamiento. ¡Solo te tomará 3 minutos!
             </p>
             <div className="mt-4">
-                <a 
-                    href="https://trefa-buyer-persona-survey-analytics-898935312460.us-west1.run.app/#/survey"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <a
+                    href="/encuesta-anonima"
                     className="inline-flex items-center px-5 py-2 bg-white text-trefa-blue font-semibold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md"
                 >
                     Realizar Encuesta <ArrowRight className="w-4 h-4 ml-2" />

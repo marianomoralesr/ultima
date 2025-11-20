@@ -69,9 +69,9 @@ const calculateBankScores = (data: BankProfileFormData): { recommendedBank: stri
             "Varios pagos sin regularizar": ["Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo", "Rechazo"],
         },
         enganche: {
-            "Menos del 15%": [1, 1, 1, 1, 1, 1],
-            "Enganche mínimo (15%)": [1, 1, 1, 1, 1, 1],
-            "Más del mínimo (20% a 30%)": [3, 3, 3, 3, 3, 3],
+            "Menos del 25%": [1, 1, 1, 1, 1, 1],
+            "Enganche mínimo (25%)": [2, 2, 2, 2, 2, 2],
+            "Más del mínimo (30% a 35%)": [3, 3, 3, 3, 3, 3],
             "Enganche recomendado (35% o más)": [5, 5, 5, 5, 5, 5],
         },
         prioridad_financiamiento: {
@@ -382,7 +382,7 @@ const PerfilacionBancariaPage: React.FC = () => {
                  <RadioField control={control} name="historial_crediticio" label="¿Cómo es tu historial crediticio?" options={["Excelente", "Bueno", "Regular", "Malo", "Sin historial crediticio"]} error={errors.historial_crediticio?.message} />
                  <RadioField control={control} name="creditos_vigentes" label="¿Tienes otros créditos vigentes?" options={["Ninguno", "1 o 2", "3 o más (regularizados)", "Varios pagos pendientes"]} error={errors.creditos_vigentes?.message} />
                  <RadioField control={control} name="atrasos_12_meses" label="¿Has tenido atrasos en pagos en los últimos 12 meses?" options={["Ninguno", "Sí, pero lo regularicé", "Más de 1 mes", "Varios pagos sin regularizar"]} error={errors.atrasos_12_meses?.message} />
-                 <RadioField control={control} name="enganche" label="¿Qué porcentaje de enganche planeas dar?" options={["Menos del 15%", "Enganche mínimo (15%)", "Más del mínimo (20% a 30%)", "Enganche recomendado (35% o más)"]} error={errors.enganche?.message} />
+                 <RadioField control={control} name="enganche" label="¿Qué porcentaje de enganche planeas dar?" options={["Menos del 25%", "Enganche mínimo (25%)", "Más del mínimo (30% a 35%)", "Enganche recomendado (35% o más)"]} error={errors.enganche?.message} />
                  <RadioField control={control} name="prioridad_financiamiento" label="¿Cuál es tu prioridad en el financiamiento?" options={["Tasa de interés más baja", "Pagos mensuales fijos", "Rapidez en la aprobación", "Proceso digital con pocos trámites"]} error={errors.prioridad_financiamiento?.message} />
                  <IncomeRadioField control={control} name="ingreso_mensual" label="Ingresos mensuales comprobables" options={["Menos de $15,000", "$15,000 - $25,000", "$25,001 - $40,000"]} error={errors.ingreso_mensual?.message} />
 

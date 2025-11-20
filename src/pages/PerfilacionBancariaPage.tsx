@@ -170,7 +170,7 @@ const BankCard: React.FC<{ bankName: string, title: string, description: string 
 
 
 const PerfilacionBancariaPage: React.FC = () => {
-    const { user, profile, loading: authLoading } = useAuth();
+    const { user, profile, loading: authLoading, isAdmin } = useAuth();
     const navigate = useNavigate();
     const [status, setStatus] = useState<'loading' | 'profile_incomplete' | 'ready' | 'error' | 'success'>('loading');
     const [showConfetti, setShowConfetti] = useState(false);
@@ -226,7 +226,8 @@ const PerfilacionBancariaPage: React.FC = () => {
     }, [user, profile, authLoading, reset]);
 
     useEffect(() => {
-        if (status === 'success') {
+        // Skip auto-redirect for admins - they can test the form unlimited times
+        if (status === 'success' && !isAdmin) {
             const path = localStorage.getItem('loginRedirect') || '/escritorio/aplicacion';
 
             localStorage.removeItem('loginRedirect');
@@ -237,7 +238,7 @@ const PerfilacionBancariaPage: React.FC = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [status, navigate]);
+    }, [status, navigate, isAdmin]);
 
 
     const onSubmit = async (data: BankProfileFormData) => {
@@ -314,7 +315,7 @@ const PerfilacionBancariaPage: React.FC = () => {
                         <p><strong>Nota:</strong> Tu perfil no coincide con los requisitos de nuestros bancos principales. Te recomendamos <strong>contactar a un asesor</strong> para explorar alternativas especializadas. Aún puedes continuar tu solicitud con el banco recomendado.</p>
                     </div>
                 )}
-                
+
                 <div className="mt-10 bg-gray-50 p-8 rounded-2xl border border-gray-200">
                     <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">¿Qué Sigue Ahora?</h2>
                     <p className="text-gray-600 text-center mb-6 max-w-xl mx-auto">
@@ -323,10 +324,32 @@ const PerfilacionBancariaPage: React.FC = () => {
                         <strong className="text-gray-800">Recuerda:</strong> Esto no es un compromiso. Si tu crédito es aprobado, puedes usarlo para cualquier auto de nuestro inventario.
                     </p>
                     <div className="text-center">
-                        <div className="flex items-center justify-center gap-2 text-gray-700">
-                            <Loader2 className="w-5 h-5 animate-spin"/>
-                            <p>Serás redirigido en unos segundos...</p>
-                        </div>
+                        {isAdmin ? (
+                            <div className="space-y-4">
+                                <div className="bg-blue-100 border border-blue-300 p-3 rounded-lg text-blue-800 text-sm">
+                                    <p className="font-semibold">Modo Admin</p>
+                                    <p>Puedes probar el formulario cuantas veces quieras sin ser redirigido.</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setStatus('ready');
+                                        setRecommendedBank(null);
+                                        setSecondRecommendedBank(null);
+                                        setIsLowScore(false);
+                                        setShowConfetti(false);
+                                        reset();
+                                    }}
+                                    className="inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-colors"
+                                >
+                                    Probar de Nuevo
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center gap-2 text-gray-700">
+                                <Loader2 className="w-5 h-5 animate-spin"/>
+                                <p>Serás redirigido en unos segundos...</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

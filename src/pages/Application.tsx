@@ -14,6 +14,7 @@ import StepIndicator from '../components/StepIndicator';
 import { ApplicationService } from '../services/ApplicationService';
 import { BankProfilingService } from '../services/BankProfilingService';
 import { ProfileService } from '../services/profileService';
+import VehicleService from '../services/VehicleService';
 
 import FileUpload from '../components/FileUpload';
 import { DocumentService, UploadedDocument } from '../services/documentService';
@@ -199,7 +200,8 @@ const Application: React.FC = () => {
 
                     let initialData: Record<string, any> = {};
                     if (finalOrdenCompra) {
-                        const vehicle = vehicles.find(v => v.ordencompra === finalOrdenCompra);
+                        // Fetch vehicle directly by ordencompra instead of searching in paginated results
+                        const vehicle = await VehicleService.getVehicleByOrdenCompra(finalOrdenCompra);
                         if (vehicle) {
                             const featureImage = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
                             const carData = {
@@ -217,7 +219,7 @@ const Application: React.FC = () => {
                             setVehicleInfo(carData);
                             setValue('ordencompra', vehicle.ordencompra);
                         } else {
-                            console.warn(`Vehicle with ordencompra ${finalOrdenCompra} not found in vehicles array`);
+                            console.warn(`Vehicle with ordencompra ${finalOrdenCompra} not found`);
                         }
                         sessionStorage.removeItem('pendingOrdenCompra');
                     } else {

@@ -6,10 +6,11 @@ import { useAuth } from '../context/AuthContext';
 import PrintableApplication from '../components/PrintableApplication';
 import { UserDataService } from '../services/UserDataService';
 import { PrintIcon, WhatsAppIcon } from '../components/icons';
+import { APPLICATION_STATUS, getStatusConfig, type ApplicationStatus } from '../constants/applicationStatus';
 
 interface ApplicationData {
   id: string;
-  status: 'draft' | 'submitted' | 'reviewing' | 'pending_docs' | 'approved' | 'rejected';
+  status: ApplicationStatus;
   created_at: string;
   car_info: any;
   personal_info_snapshot: any;
@@ -17,13 +18,19 @@ interface ApplicationData {
   application_data: any;
 }
 
-const statusMap = {
-    draft: { text: "Borrador", icon: FileText, color: "text-gray-500", bgColor: "bg-gray-100" },
-    submitted: { text: "Enviada", icon: Clock, color: "text-blue-600", bgColor: "bg-blue-100" },
-    reviewing: { text: "En Revisión", icon: Clock, color: "text-indigo-600", bgColor: "bg-indigo-100" },
-    pending_docs: { text: "Documentos Pendientes", icon: FileText, color: "text-yellow-600", bgColor: "bg-yellow-100" },
-    approved: { text: "Aprobada", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
-    rejected: { text: "Rechazada", icon: AlertTriangle, color: "text-red-600", bgColor: "bg-red-100" },
+const statusMap: Record<string, { text: string; icon: any; color: string; bgColor: string }> = {
+    [APPLICATION_STATUS.DRAFT]: { text: "Borrador", icon: FileText, color: "text-gray-500", bgColor: "bg-gray-100" },
+    [APPLICATION_STATUS.COMPLETA]: { text: "Completa", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
+    [APPLICATION_STATUS.FALTAN_DOCUMENTOS]: { text: "Faltan Documentos", icon: FileText, color: "text-yellow-600", bgColor: "bg-yellow-100" },
+    [APPLICATION_STATUS.EN_REVISION]: { text: "En Revisión", icon: Clock, color: "text-indigo-600", bgColor: "bg-indigo-100" },
+    [APPLICATION_STATUS.APROBADA]: { text: "Aprobada", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
+    [APPLICATION_STATUS.RECHAZADA]: { text: "Rechazada", icon: AlertTriangle, color: "text-red-600", bgColor: "bg-red-100" },
+    // Legacy status mappings for backward compatibility
+    [APPLICATION_STATUS.SUBMITTED]: { text: "Enviada", icon: Clock, color: "text-blue-600", bgColor: "bg-blue-100" },
+    [APPLICATION_STATUS.REVIEWING]: { text: "En Revisión", icon: Clock, color: "text-indigo-600", bgColor: "bg-indigo-100" },
+    [APPLICATION_STATUS.PENDING_DOCS]: { text: "Documentos Pendientes", icon: FileText, color: "text-yellow-600", bgColor: "bg-yellow-100" },
+    [APPLICATION_STATUS.APPROVED]: { text: "Aprobada", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
+    'rejected': { text: "Rechazada", icon: AlertTriangle, color: "text-red-600", bgColor: "bg-red-100" },
 };
 
 const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ application }) => {
@@ -33,15 +40,22 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
 
     const getStatusDescription = () => {
         switch(application.status) {
-            case 'submitted':
-            case 'reviewing':
+            case APPLICATION_STATUS.COMPLETA:
+            case APPLICATION_STATUS.SUBMITTED:
+            case APPLICATION_STATUS.EN_REVISION:
+            case APPLICATION_STATUS.REVIEWING:
+            case APPLICATION_STATUS.IN_REVIEW:
                 return `¡Felicidades, ${profile.first_name}! Hemos recibido tu solicitud y nuestro equipo ya la está revisando. Normalmente, recibirás una respuesta en las próximas 24 horas hábiles.`;
-            case 'pending_docs':
+            case APPLICATION_STATUS.FALTAN_DOCUMENTOS:
+            case APPLICATION_STATUS.PENDING_DOCS:
                 return 'Hemos revisado tu solicitud, pero necesitamos que subas algunos documentos para continuar. Por favor, ve a tu dashboard para completar este paso.';
-            case 'approved':
+            case APPLICATION_STATUS.APROBADA:
+            case APPLICATION_STATUS.APPROVED:
                 return '¡Excelentes noticias! Tu solicitud de financiamiento ha sido aprobada. Un asesor se pondrá en contacto contigo para coordinar los siguientes pasos.';
+            case APPLICATION_STATUS.RECHAZADA:
             case 'rejected':
                 return 'Después de una revisión cuidadosa, no pudimos aprobar tu solicitud en este momento. Te invitamos a contactar a un asesor para explorar otras opciones.';
+            case APPLICATION_STATUS.DRAFT:
             default:
                 return 'Este es un borrador de tu solicitud. Puedes continuar editándola cuando quieras.';
         }
@@ -199,11 +213,11 @@ const SeguimientoPage: React.FC = () => {
                                             {status.text}
                                         </span>
                                     </div>
-                                    <Link 
-                                        to={app.status === 'draft' ? `/escritorio/aplicacion/${app.id}` : `/escritorio/seguimiento/${app.id}`} 
+                                    <Link
+                                        to={app.status === APPLICATION_STATUS.DRAFT ? `/escritorio/aplicacion/${app.id}` : `/escritorio/seguimiento/${app.id}`}
                                         className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700"
                                     >
-                                        <Eye className="w-4 h-4"/> {app.status === 'draft' ? 'Continuar' : 'Ver Detalles'}
+                                        <Eye className="w-4 h-4"/> {app.status === APPLICATION_STATUS.DRAFT ? 'Continuar' : 'Ver Detalles'}
                                     </Link>
                                 </div>
                               );

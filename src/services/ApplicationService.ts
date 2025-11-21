@@ -1,5 +1,6 @@
 import { supabase } from '../../supabaseClient';
 import type { ApplicationListItem, LatestApplicationData, UpdatedApplicationData } from '../types/types';
+import { APPLICATION_STATUS } from '../constants/applicationStatus';
 
 export const ApplicationService = {
   async submitApplication(applicationData: Record<string, any>): Promise<{ id: string } | null> {
@@ -151,7 +152,20 @@ export const ApplicationService = {
       .from('financing_applications')
       .select('id, status')
       .eq('user_id', userId)
-      .in('status', ['submitted', 'reviewing', 'pending_docs', 'approved', 'in_review', 'Completa', 'Faltan Documentos'])
+      .in('status', [
+        APPLICATION_STATUS.COMPLETA,
+        APPLICATION_STATUS.FALTAN_DOCUMENTOS,
+        APPLICATION_STATUS.EN_REVISION,
+        APPLICATION_STATUS.APROBADA,
+        APPLICATION_STATUS.RECHAZADA,
+        // Legacy statuses for backward compatibility
+        APPLICATION_STATUS.SUBMITTED,
+        APPLICATION_STATUS.REVIEWING,
+        APPLICATION_STATUS.PENDING_DOCS,
+        APPLICATION_STATUS.APPROVED,
+        APPLICATION_STATUS.IN_REVIEW,
+        'rejected'
+      ])
       .limit(1)
       .maybeSingle();
 

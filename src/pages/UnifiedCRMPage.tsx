@@ -23,6 +23,7 @@ import {
     getStatusEmoji,
     formatRelativeTime
 } from '../utils/crmHelpers';
+import { APPLICATION_STATUS } from '../constants/applicationStatus';
 
 interface UnifiedCRMPageProps {
     userRole: 'admin' | 'sales';
@@ -128,11 +129,17 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                     break;
                 case 'status':
                     const statusPriority: Record<string, number> = {
-                        'pending_docs': 1,
-                        'submitted': 2,
-                        'reviewing': 3,
-                        'approved': 4,
-                        'draft': 5,
+                        [APPLICATION_STATUS.FALTAN_DOCUMENTOS]: 1,
+                        [APPLICATION_STATUS.PENDING_DOCS]: 1,
+                        [APPLICATION_STATUS.COMPLETA]: 2,
+                        [APPLICATION_STATUS.SUBMITTED]: 2,
+                        [APPLICATION_STATUS.EN_REVISION]: 3,
+                        [APPLICATION_STATUS.REVIEWING]: 3,
+                        [APPLICATION_STATUS.IN_REVIEW]: 3,
+                        [APPLICATION_STATUS.APROBADA]: 4,
+                        [APPLICATION_STATUS.APPROVED]: 4,
+                        [APPLICATION_STATUS.DRAFT]: 5,
+                        [APPLICATION_STATUS.RECHAZADA]: 6,
                         'rejected': 6
                     };
                     aVal = statusPriority[a.correctedStatus || ''] || 999;
@@ -210,25 +217,55 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
             await ApplicationService.updateApplicationStatus(lead.latest_app_id, newStatus);
 
             const feedbackMessages: Record<string, { title: string; description: string; type: 'success' | 'warning' | 'info' | 'error' }> = {
-                'submitted': {
+                [APPLICATION_STATUS.COMPLETA]: {
                     title: '✅ Solicitud marcada como Completa',
                     description: 'Asegúrate de que todos los documentos estén presentes.',
                     type: 'success'
                 },
-                'pending_docs': {
+                [APPLICATION_STATUS.SUBMITTED]: {
+                    title: '✅ Solicitud marcada como Completa',
+                    description: 'Asegúrate de que todos los documentos estén presentes.',
+                    type: 'success'
+                },
+                [APPLICATION_STATUS.FALTAN_DOCUMENTOS]: {
                     title: '⚠️ Faltan Documentos',
                     description: 'Contacta al cliente para solicitar los documentos faltantes.',
                     type: 'warning'
                 },
-                'reviewing': {
+                [APPLICATION_STATUS.PENDING_DOCS]: {
+                    title: '⚠️ Faltan Documentos',
+                    description: 'Contacta al cliente para solicitar los documentos faltantes.',
+                    type: 'warning'
+                },
+                [APPLICATION_STATUS.EN_REVISION]: {
                     title: '📋 En Revisión',
                     description: 'La solicitud está siendo revisada.',
                     type: 'info'
                 },
-                'approved': {
+                [APPLICATION_STATUS.REVIEWING]: {
+                    title: '📋 En Revisión',
+                    description: 'La solicitud está siendo revisada.',
+                    type: 'info'
+                },
+                [APPLICATION_STATUS.IN_REVIEW]: {
+                    title: '📋 En Revisión',
+                    description: 'La solicitud está siendo revisada.',
+                    type: 'info'
+                },
+                [APPLICATION_STATUS.APROBADA]: {
                     title: '🎉 Solicitud Aprobada',
                     description: 'Contacta al cliente para informarle.',
                     type: 'success'
+                },
+                [APPLICATION_STATUS.APPROVED]: {
+                    title: '🎉 Solicitud Aprobada',
+                    description: 'Contacta al cliente para informarle.',
+                    type: 'success'
+                },
+                [APPLICATION_STATUS.RECHAZADA]: {
+                    title: '❌ Solicitud Rechazada',
+                    description: 'Contacta al cliente para explicar la situación.',
+                    type: 'error'
                 },
                 'rejected': {
                     title: '❌ Solicitud Rechazada',
@@ -461,12 +498,12 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                             className="text-sm px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
                         >
                             <option value="all">Todos (Estado)</option>
-                            <option value="draft">{getStatusEmoji('draft')} Borrador</option>
-                            <option value="submitted">{getStatusEmoji('submitted')} Completas</option>
-                            <option value="pending_docs">{getStatusEmoji('pending_docs')} Faltan Docs</option>
-                            <option value="reviewing">{getStatusEmoji('reviewing')} En Revisión</option>
-                            <option value="approved">{getStatusEmoji('approved')} Aprobadas</option>
-                            <option value="rejected">{getStatusEmoji('rejected')} Rechazadas</option>
+                            <option value={APPLICATION_STATUS.DRAFT}>{getStatusEmoji(APPLICATION_STATUS.DRAFT)} Borrador</option>
+                            <option value={APPLICATION_STATUS.COMPLETA}>{getStatusEmoji(APPLICATION_STATUS.COMPLETA)} Completas</option>
+                            <option value={APPLICATION_STATUS.FALTAN_DOCUMENTOS}>{getStatusEmoji(APPLICATION_STATUS.FALTAN_DOCUMENTOS)} Faltan Docs</option>
+                            <option value={APPLICATION_STATUS.EN_REVISION}>{getStatusEmoji(APPLICATION_STATUS.EN_REVISION)} En Revisión</option>
+                            <option value={APPLICATION_STATUS.APROBADA}>{getStatusEmoji(APPLICATION_STATUS.APROBADA)} Aprobadas</option>
+                            <option value={APPLICATION_STATUS.RECHAZADA}>{getStatusEmoji(APPLICATION_STATUS.RECHAZADA)} Rechazadas</option>
                         </select>
 
                         {(searchTerm || filterStatus !== 'all' || filterContactado !== 'all' || filterPriority !== 'all') && (
@@ -619,12 +656,12 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                                                                     disabled={isUpdating}
                                                                     className={`text-xs font-semibold px-2 py-1 rounded border-2 cursor-pointer hover:opacity-80 transition-all disabled:opacity-50 ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
                                                                 >
-                                                                    <option value="draft">Borrador</option>
-                                                                    <option value="submitted">Completa</option>
-                                                                    <option value="pending_docs">Faltan Docs</option>
-                                                                    <option value="reviewing">En Revisión</option>
-                                                                    <option value="approved">Aprobada</option>
-                                                                    <option value="rejected">Rechazada</option>
+                                                                    <option value={APPLICATION_STATUS.DRAFT}>Borrador</option>
+                                                                    <option value={APPLICATION_STATUS.COMPLETA}>Completa</option>
+                                                                    <option value={APPLICATION_STATUS.FALTAN_DOCUMENTOS}>Faltan Docs</option>
+                                                                    <option value={APPLICATION_STATUS.EN_REVISION}>En Revisión</option>
+                                                                    <option value={APPLICATION_STATUS.APROBADA}>Aprobada</option>
+                                                                    <option value={APPLICATION_STATUS.RECHAZADA}>Rechazada</option>
                                                                 </select>
                                                                 {isUpdating && (
                                                                     <div className="flex items-center gap-1 text-xs text-muted-foreground">

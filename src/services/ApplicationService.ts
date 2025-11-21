@@ -62,8 +62,12 @@ export const ApplicationService = {
         return result ? { ...result, status: 'submitted', updated_at: new Date().toISOString() } : null;
     }
 
-    // Auto-assign to recommended bank and set status to 'reviewing' when application is submitted
-    const newStatus = 'reviewing'; // Changed from 'submitted' or 'pending_docs' to 'reviewing'
+    // Check if application has required documents
+    const hasAllDocuments = await this.checkApplicationDocuments(applicationId, applicationData);
+
+    // Set status based on documents: "Completa" if has docs, "Faltan Documentos" if not
+    const newStatus = hasAllDocuments ? 'Completa' : 'Faltan Documentos';
+
     const patch: Record<string, any> = { status: newStatus };
     for (const [k, v] of Object.entries(applicationData)) {
       if (v !== undefined && k !== 'documents_pending') patch[k] = v;
@@ -88,6 +92,34 @@ export const ApplicationService = {
     }
 
     return data;
+  },
+
+  async checkApplicationDocuments(applicationId: string, applicationData: Record<string, any>): Promise<boolean> {
+    // Check for uploaded documents in application data or existing application
+    const requiredDocFields = [
+      'ine_url',
+      'comprobante_domicilio_url',
+      'comprobante_ingresos_url'
+    ];
+
+    // First check if documents are provided in the current update
+    const hasDocsInData = requiredDocFields.some(field =>
+      applicationData[field] && String(applicationData[field]).trim() !== ''
+    );
+
+    if (hasDocsInData) return true;
+
+    // If not in data, check existing application
+    const { data: app, error } = await supabase
+      .from('financing_applications')
+      .select(requiredDocFields.join(', '))
+      .eq('id', applicationId)
+      .maybeSingle();
+
+    if (error || !app) return false;
+
+    // Check if at least the INE is uploaded (minimum requirement)
+    return Boolean(app.ine_url && String(app.ine_url).trim() !== '');
   },
 
   async updateApplicationStatus(applicationId: string, status: string) {
@@ -115,11 +147,11 @@ export const ApplicationService = {
   },
 
   async hasActiveApplication(userId: string): Promise<boolean> {
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('financing_applications')
       .select('id, status')
       .eq('user_id', userId)
-      .in('status', ['submitted', 'reviewing', 'pending_docs', 'approved', 'in_review'])
+      .in('status', ['submitted', 'reviewing', 'pending_docs', 'approved', 'in_review', 'Completa', 'Faltan Documentos'])
       .limit(1)
       .maybeSingle();
 

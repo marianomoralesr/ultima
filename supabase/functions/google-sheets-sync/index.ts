@@ -127,7 +127,10 @@ function flattenApplicationData(app: ApplicationData): Record<string, any> {
     // Advisor information
     'ID del Asesor Asignado': profile.asesor_asignado_id || '',
     'Nombre del Asesor': profile.advisor_name || '',
-    'Correo del Asesor': profile.advisor_email || '',
+    'Correo Electrónico del Asesor': profile.advisor_email || '',
+
+    // Additional contact information
+    'Compañía Celular': appData.mobile_carrier || profile.mobile_carrier || '',
   };
 }
 

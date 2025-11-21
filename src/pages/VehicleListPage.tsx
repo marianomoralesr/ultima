@@ -130,7 +130,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     keywords: 'inventario, autos seminuevos, trefa, financiamiento, comprar auto'
   });
 
-  const [view, setView] = useState<'list' | 'grid'>('grid');
+  const [view, setView] = useState<'list' | 'grid'>('list');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Separate animations for sheet and overlay for better UX
@@ -470,24 +470,24 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
                         <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                       <Button
                         variant={view === 'list' ? 'default' : 'outline'}
                         size="icon"
                         onClick={() => setView('list')}
                         aria-label="Vista de lista"
-                        className="h-9 w-9"
+                        className="h-10 w-10 md:h-11 md:w-11 transition-all"
                       >
-                        <ListIcon className="w-4 h-4" />
+                        <ListIcon className="w-5 h-5" />
                       </Button>
                       <Button
                         variant={view === 'grid' ? 'default' : 'outline'}
                         size="icon"
                         onClick={() => setView('grid')}
                         aria-label="Vista de cuadrícula"
-                        className="h-9 w-9"
+                        className="h-10 w-10 md:h-11 md:w-11 transition-all"
                       >
-                        <LayoutGridIcon className="w-4 h-4" />
+                        <LayoutGridIcon className="w-5 h-5" />
                       </Button>
                     </div>
                   </div>

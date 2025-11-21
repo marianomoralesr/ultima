@@ -76,7 +76,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
   return (
     <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group relative border-2 ${isSeparado ? 'opacity-70 border-red-300' : 'border-transparent'} ${isRezago ? 'rezago-border' : ''} ${isPopular ? 'popular-card' : ''}`}
+      className={`rounded-[18px] shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group relative border-2 ${isSeparado ? 'bg-gray-50 border-gray-400' : 'bg-white border-transparent'} ${isRezago ? 'rezago-border' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
       {/* Recently Added Badge */}
       {isRecentlyAdded && (
@@ -104,7 +104,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row bg-white rounded-2xl overflow-hidden">
+      <div className={`flex flex-col md:flex-row rounded-[18px] overflow-hidden ${isSeparado ? 'bg-gray-50' : 'bg-white'}`}>
         <div className="md:w-[42%] md:flex-shrink-0 relative">
           <ImageCarousel
             images={imagesForCarousel}
@@ -143,6 +143,9 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
               whatsappUrl={whatsappUrl}
               onToggleFavorite={handleToggleFavorite}
               isFavorite={favoriteStatus}
+              marca={vehicle.marca}
+              carroceria={vehicle.carroceria}
+              precio={vehicle.precio}
             />
           </div>
         </div>

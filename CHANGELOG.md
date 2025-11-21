@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Agregado
+- **Botón "Ver autos similares disponibles" para vehículos separados**
+  - Nuevo botón que aparece automáticamente en tarjetas de vehículos separados
+  - Botón de "Financiar" deshabilitado visualmente para vehículos separados
+  - Navegación dinámica a página de resultados con filtros inteligentes:
+    - Misma marca del vehículo
+    - Misma carrocería
+    - Rango de precio ±20% del vehículo original
+  - Mejora en la experiencia de usuario al buscar alternativas disponibles
+
+### Mejorado
+- **Tarjetas de vehículos en vista de lista**
+  - Navegación de galería de imágenes simplificada con flechas transparentes
+  - Indicadores de navegación (dots) con dot activo elongado para mejor visibilidad
+  - Imagen del vehículo ahora ocupa ~3/7 del ancho de la tarjeta para mayor protagonismo
+  - Altura de tarjeta aumentada (h-64/md:h-80) para mejor visualización
+  - Bordes animados más pronunciados para vehículos rezago y populares
+  - Border radius incrementado a 18px para esquinas más suaves
+- **Indicadores visuales para vehículos separados**
+  - Badge "SEPARADO" con icono de candado en esquina superior derecha
+  - Borde gris sutil (border-gray-400) en lugar de rojo
+  - Fondo gris claro (bg-gray-50) para diferenciación visual
+  - Bordes 2px más gruesos para mejor visibilidad
+- **Sistema de estados de solicitudes centralizado**
+  - Constantes centralizadas en `applicationStatus.ts`
+  - Estados estandarizados: borrador, completa, faltan documentos, en revisión, aprobada, rechazada
+  - Actualización en tiempo real desde la base de datos
+  - Homogeneidad de estados en toda la aplicación
+  - Compatibilidad con estados legacy para retrocompatibilidad
+
+### Corregido
+- **Z-index de bordes en tarjetas de vehículos**
+  - Eliminadas esquinas afiladas que aparecían sobre otros elementos
+  - Jerarquía de capas correcta: badges (z-30), toast (z-40), link (z-20)
+  - Overflow oculto en contenedor principal para bordes limpios
+- **Página de seguimiento (SeguimientoPage)**
+  - Ahora muestra correctamente el estado "Faltan Documentos" después de enviar solicitud sin documentos
+  - Lectura en tiempo real del estado desde la base de datos
+- **Asignación automática de estados de solicitudes**
+  - Estado "Completa" cuando se incluyen todos los documentos requeridos
+  - Estado "Faltan Documentos" cuando se envía solicitud sin documentos
+  - Verificación dinámica de documentos (INE, comprobante de domicilio, comprobante de ingresos)
+
+### Técnico
+- Refactorización de VehicleCardActions para soportar filtrado dinámico
+- Nuevos props en VehicleCard: marca, carroceria, precio
+- Layout de botones actualizado de flex-row a flex-col para apilamiento vertical
+- Función `handleSimilarVehiclesClick` para generación dinámica de URLs
+- Método `checkApplicationDocuments` en ApplicationService
+- Importación de constantes centralizadas en 6 archivos clave
+- Actualización de helpers CRM para usar nuevos estados
+
 ## [1.1.0] - 2025-11-08
 
 ### Fixed

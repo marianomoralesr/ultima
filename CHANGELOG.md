@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Corregido
+- **Email notification system updated with new status mappings**
+  - Updated `send-brevo-email` Edge Function to support new centralized status names
+  - Updated `automated-email-notifications` Edge Function to use new status values
+  - New status mappings: Completa, Faltan Documentos, En Revisión, Aprobada, Rechazada
+  - Legacy status mappings maintained for backwards compatibility
+  - Application submission email subject: 'Autos TREFA | Solicitud Recibida con Éxito'
+  - Status change email subject: 'Notificaciones TREFA | Cambio el status de tu solicitud'
+  - Fixed 24-hour reminder emails to check for 'Borrador' status instead of 'draft'
+  - Fixed confirmation emails to check for 'Completa' and 'Faltan Documentos' statuses
+
 ### Agregado
 - **Botón "Ver autos similares disponibles" para vehículos separados**
   - Nuevo botón que aparece automáticamente en tarjetas de vehículos separados

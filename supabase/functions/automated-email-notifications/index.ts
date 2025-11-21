@@ -539,7 +539,7 @@ serve(async (req) => {
           email
         )
       `)
-      .eq('status', 'draft')
+      .eq('status', 'Borrador')
       .lt('created_at', yesterday.toISOString());
 
     if (!appsError && incompleteApps) {
@@ -600,7 +600,7 @@ serve(async (req) => {
           email
         )
       `)
-      .eq('status', 'submitted')
+      .in('status', ['Completa', 'Faltan Documentos'])
       .gte('created_at', yesterday.toISOString());
 
     if (!submittedError && submittedApps) {
@@ -633,7 +633,7 @@ serve(async (req) => {
             await sendBrevoEmail(
               profile.email,
               clientName,
-              'Confirmación | TREFA - Recibimos tu Solicitud de Financiamiento',
+              'Autos TREFA | Solicitud Recibida con Éxito',
               htmlContent
             );
 
@@ -641,7 +641,7 @@ serve(async (req) => {
             const { error: logError } = await supabase.from('user_email_notifications').insert({
               user_id: profile.id,
               email_type: 'application_submitted',
-              subject: 'Confirmación | TREFA - Recibimos tu Solicitud de Financiamiento',
+              subject: 'Autos TREFA | Solicitud Recibida con Éxito',
               sent_at: new Date().toISOString(),
               status: 'sent',
               metadata: { application_id: app.id }

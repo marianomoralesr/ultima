@@ -50,3 +50,5 @@ coverage/
 backups/
 *.sql
 supabase/.temp/
+y
+y.pub

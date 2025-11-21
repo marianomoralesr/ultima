@@ -36,6 +36,95 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: true,
+    // Enable source maps only for debugging (disable in production for smaller builds)
+    sourcemap: process.env.NODE_ENV === 'development',
+
+    // Increase chunk size warning limit
+    chunkSizeWarningLimit: 1000,
+
+    // Optimize build performance
+    minify: 'esbuild', // esbuild is faster than terser
+
+    // Target modern browsers for smaller output
+    target: 'es2020',
+
+    rollupOptions: {
+      output: {
+        // Manual chunk splitting for better caching
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            // React and related libraries
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+
+            // UI library chunks
+            if (id.includes('@radix-ui')) {
+              return 'radix-ui';
+            }
+
+            // Charts and visualization
+            if (id.includes('recharts') || id.includes('framer-motion')) {
+              return 'visualization';
+            }
+
+            // PDF and canvas libraries
+            if (id.includes('jspdf') || id.includes('html2canvas')) {
+              return 'pdf-tools';
+            }
+
+            // Supabase and data libraries
+            if (id.includes('@supabase') || id.includes('@tanstack/react-query')) {
+              return 'data-vendor';
+            }
+
+            // AWS SDK
+            if (id.includes('@aws-sdk')) {
+              return 'aws-vendor';
+            }
+
+            // Other vendor code
+            return 'vendor';
+          }
+
+          // Split large page components
+          if (id.includes('/src/pages/')) {
+            const pageName = id.split('/pages/')[1]?.split('.')[0];
+            return `page-${pageName}`;
+          }
+        },
+
+        // Optimize chunk naming for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+
+    // Optimize asset handling
+    assetsInlineLimit: 4096, // 4kb - inline small assets as base64
+  },
+
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@supabase/supabase-js',
+      '@tanstack/react-query',
+    ],
+    exclude: ['@aws-sdk/client-s3'], // Large dependencies to exclude from pre-bundling
+  },
+
+  // Enable esbuild optimizations
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' },
+    legalComments: 'none', // Remove comments in production
+    treeShaking: true,
   },
 });

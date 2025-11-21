@@ -26,9 +26,14 @@
 
     // ✅ Optional but nice for container builds
     "rootDir": ".",
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+
+    // ⚡ Performance optimizations
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "assumeChangesOnlyAffectDirectDependencies": true
   },
   "include": ["src", "vite-env.d.ts"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "dist", "build"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -16,7 +16,9 @@ import {
     Package,
     Route,
     Building2,
-    LogOut
+    LogOut,
+    Menu,
+    X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -31,10 +33,12 @@ import {
 } from './ui/breadcrumb';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
+import BottomNav from './BottomNav';
 
 const DashboardLayout: React.FC = () => {
     const { profile, isAdmin, isSales, signOut } = useAuth();
     const location = useLocation();
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     // Navigation items based on user role
     const navItems = [
@@ -221,8 +225,17 @@ const DashboardLayout: React.FC = () => {
                         </BreadcrumbList>
                     </Breadcrumb>
 
-                    {/* Mobile Header - Logo */}
+                    {/* Mobile Header - Logo and Hamburger (admins only) */}
                     <div className="flex items-center gap-2 sm:hidden">
+                        {(isAdmin || isSales) && (
+                            <button
+                                onClick={() => setIsMobileSidebarOpen(true)}
+                                className="p-2 hover:bg-accent rounded-lg"
+                                aria-label="Abrir menú"
+                            >
+                                <Menu className="h-5 w-5" />
+                            </button>
+                        )}
                         <Link to="/" className="flex items-center gap-2">
                             <img
                                 src="/images/trefalogo.png"
@@ -234,34 +247,143 @@ const DashboardLayout: React.FC = () => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+                <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 pb-20 sm:pb-4">
                     <Outlet />
                 </main>
             </div>
 
-            {/* Mobile Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-background sm:hidden">
-                {navItems.slice(0, 4).map((item) => {
-                    const Icon = item.icon;
-                    const active = isActiveLink(item.to, item.end);
+            {/* Mobile Sidebar for Admins/Sales (triggered by hamburger) */}
+            {(isAdmin || isSales) && (
+                <>
+                    {/* Overlay */}
+                    <div
+                        className={cn(
+                            "fixed inset-0 z-40 bg-black/60 sm:hidden transition-opacity duration-300",
+                            isMobileSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                        )}
+                        onClick={() => setIsMobileSidebarOpen(false)}
+                    />
 
-                    return (
-                        <Link
-                            key={item.to}
-                            to={item.to}
-                            className={cn(
-                                "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs font-medium",
-                                active
-                                    ? "text-primary"
-                                    : "text-muted-foreground"
-                            )}
-                        >
-                            <Icon className="h-5 w-5" />
-                            <span className="truncate">{item.label}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
+                    {/* Mobile Sidebar */}
+                    <aside
+                        className={cn(
+                            "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r shadow-2xl sm:hidden transition-transform duration-300 overflow-y-auto",
+                            isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+                        )}
+                    >
+                        <nav className="flex flex-col gap-4 px-4 py-6">
+                            {/* Close Button */}
+                            <div className="flex items-center justify-between">
+                                <Link
+                                    to="/"
+                                    className="flex items-center gap-2"
+                                    onClick={() => setIsMobileSidebarOpen(false)}
+                                >
+                                    <img
+                                        src="/images/trefalogo.png"
+                                        alt="TREFA"
+                                        className="h-8 w-auto object-contain"
+                                    />
+                                </Link>
+                                <button
+                                    onClick={() => setIsMobileSidebarOpen(false)}
+                                    className="p-2 hover:bg-accent rounded-lg"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            {/* User Profile Card */}
+                            <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                                <Avatar className="h-10 w-10">
+                                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                                        {profile?.first_name?.[0]?.toUpperCase() || 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="text-sm font-medium leading-none truncate">
+                                        {profile?.first_name || 'Usuario'}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground truncate">
+                                        {profile?.email}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Main Navigation */}
+                            <div className="flex-1 space-y-1">
+                                {navItems.map((item) => {
+                                    const Icon = item.icon;
+                                    const active = isActiveLink(item.to, item.end);
+
+                                    return (
+                                        <Link
+                                            key={item.to}
+                                            to={item.to}
+                                            onClick={() => setIsMobileSidebarOpen(false)}
+                                            className={cn(
+                                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                                active
+                                                    ? "bg-accent text-accent-foreground"
+                                                    : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                        >
+                                            <Icon className="h-4 w-4" />
+                                            {item.label}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+
+                            <Separator />
+
+                            {/* Secondary Navigation */}
+                            <div className="space-y-1">
+                                {secondaryNav.map((item) => {
+                                    const Icon = item.icon;
+                                    const active = isActiveLink(item.to);
+
+                                    return (
+                                        <Link
+                                            key={item.to}
+                                            to={item.to}
+                                            onClick={() => setIsMobileSidebarOpen(false)}
+                                            className={cn(
+                                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                                active
+                                                    ? "bg-accent text-accent-foreground"
+                                                    : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                        >
+                                            <Icon className="h-4 w-4" />
+                                            {item.label}
+                                        </Link>
+                                    );
+                                })}
+
+                                {/* Sign Out Button */}
+                                <button
+                                    onClick={() => {
+                                        setIsMobileSidebarOpen(false);
+                                        signOut();
+                                    }}
+                                    className={cn(
+                                        "w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground"
+                                    )}
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    Cerrar Sesión
+                                </button>
+                            </div>
+                        </nav>
+                    </aside>
+                </>
+            )}
+
+            {/* Use the shared BottomNav component */}
+            <BottomNav />
         </div>
     );
 };

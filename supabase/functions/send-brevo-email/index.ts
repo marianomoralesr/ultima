@@ -100,6 +100,52 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
 
     case 'status_changed':
       const statusMessages: Record<string, { title: string; message: string; nextSteps: string[] }> = {
+        'Completa': {
+          title: 'Solicitud Completa Recibida',
+          message: 'Hemos recibido tu solicitud completa con todos los documentos requeridos.',
+          nextSteps: [
+            'Estamos verificando tus documentos y datos proporcionados',
+            'Evaluando tu perfil crediticio',
+            'Te contactaremos con una actualización pronto'
+          ]
+        },
+        'Faltan Documentos': {
+          title: 'Documentos Pendientes',
+          message: 'Necesitamos que completes algunos documentos para continuar con tu solicitud.',
+          nextSteps: [
+            'Revisa la lista de documentos requeridos en tu portal',
+            'Sube los documentos faltantes lo antes posible',
+            'Una vez recibidos, continuaremos con el proceso'
+          ]
+        },
+        'En Revisión': {
+          title: 'Tu Solicitud está en Revisión',
+          message: 'Nuestro equipo está analizando tu información detalladamente.',
+          nextSteps: [
+            'Estamos verificando tus documentos y datos proporcionados',
+            'Evaluando tu perfil crediticio',
+            'Te contactaremos si necesitamos información adicional'
+          ]
+        },
+        'Aprobada': {
+          title: '¡Felicidades! Tu Solicitud fue Aprobada',
+          message: 'Tu solicitud de financiamiento ha sido aprobada exitosamente.',
+          nextSteps: [
+            'Un asesor se pondrá en contacto contigo para finalizar detalles',
+            'Revisa las condiciones de financiamiento en tu portal',
+            'Prepara tu documentación para la firma del contrato'
+          ]
+        },
+        'Rechazada': {
+          title: 'Actualización de tu Solicitud',
+          message: 'Lamentablemente, no pudimos aprobar tu solicitud en este momento.',
+          nextSteps: [
+            'Puedes solicitar una revisión o más información sobre el motivo',
+            'Te invitamos a mejorar tu perfil crediticio',
+            'Podrás aplicar nuevamente en el futuro'
+          ]
+        },
+        // Legacy status mappings for backwards compatibility
         reviewing: {
           title: 'Tu Solicitud está en Revisión',
           message: 'Nuestro equipo está analizando tu información detalladamente.',

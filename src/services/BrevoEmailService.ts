@@ -54,7 +54,7 @@ export const BrevoEmailService = {
         return this.sendEmail({
             to: clientEmail,
             toName: clientName,
-            subject: '✅ Solicitud de Financiamiento Recibida - TREFA',
+            subject: 'Autos TREFA | Solicitud Recibida con Éxito',
             templateType: 'application_submitted',
             templateData: {
                 clientName,
@@ -149,7 +149,7 @@ export const BrevoEmailService = {
         return this.sendEmail({
             to: clientEmail,
             toName: clientName,
-            subject: `📋 Actualización de tu Solicitud - TREFA`,
+            subject: 'Notificaciones TREFA | Cambio el status de tu solicitud',
             templateType: 'status_changed',
             templateData: {
                 clientName,

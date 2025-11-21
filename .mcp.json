@@ -49,6 +49,17 @@
       "env": {
         "POSTGRES_CONNECTION_STRING": "postgresql://user:password@localhost:5432/dbname"
       }
+    },
+    "Figma Dev Mode MCP": {
+      "url": "http://127.0.0.1:3845/mcp"
+    },
+    "fb-ads-mcp-server": {
+      "command": "python",
+      "args": [
+        "/path/to/your/fb-ads-mcp-server/server.py",
+        "--fb-token",
+        "YOUR_META_ACCESS_TOKEN"
+      ]
     }
   }
 }

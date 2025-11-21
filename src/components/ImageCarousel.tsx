@@ -95,18 +95,58 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, alt, className, i
       </motion.div>
 
       {allImages.length > 1 && (
-        <div className="absolute bottom-3 right-0 flex justify-end gap-2 z-30 pr-4">
-          {allImages.slice(0, 5).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-3 w-3 md:h-2.5 md:w-2.5 rounded-full transition-all duration-200 ${
-                index === currentIndex ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/75'
-              }`}
-              aria-label={`View image ${index + 1}`}
-            />
-          ))}
-        </div>
+        <>
+          {/* Navigation Arrows */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setCurrentIndex((prev) => Math.max(prev - 1, 0));
+            }}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-all duration-200 ${
+              currentIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
+            aria-label="Previous image"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setCurrentIndex((prev) => Math.min(prev + 1, allImages.length - 1));
+            }}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-all duration-200 ${
+              currentIndex === allImages.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
+            aria-label="Next image"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {/* Dots Navigation */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex justify-center gap-1.5 z-30">
+            {allImages.slice(0, 5).map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCurrentIndex(index);
+                }}
+                className={`h-2 w-2 rounded-full transition-all duration-200 ${
+                  index === currentIndex ? 'bg-white scale-125 w-6' : 'bg-white/50 hover:bg-white/75'
+                }`}
+                aria-label={`View image ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

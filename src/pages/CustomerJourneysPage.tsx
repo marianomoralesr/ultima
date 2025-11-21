@@ -21,6 +21,7 @@ import {
 import { CustomerJourneyService, type CustomerJourney, type JourneyStep } from '../services/CustomerJourneyService';
 import { downloadGTMExport, downloadEventsJSON } from '../utils/gtmExport';
 import { journeyEventRegistration } from '../services/JourneyEventRegistration';
+import CustomerJourneysGuide from '../components/CustomerJourneysGuide';
 
 // Predefined event templates based on existing tracking events
 const EVENT_TEMPLATES = [
@@ -606,6 +607,9 @@ const CustomerJourneysPage: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Guide Section */}
+      <CustomerJourneysGuide />
 
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">

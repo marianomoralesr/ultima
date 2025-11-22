@@ -299,7 +299,7 @@ const FinanceHighlightItem: React.FC<{ title: string; subtitle: string; downPaym
     <div className={`p-3 md:p-4 rounded-lg ${isRecommended ? 'bg-primary-50 border-primary-200' : 'bg-gray-100 border-gray-200'} border`}>
         <p className={`font-bold text-sm md:text-base ${isRecommended ? 'text-primary-800' : 'text-gray-800'}`}>{title}</p>
         <p className="text-xs text-gray-500">{subtitle}</p>
-        <p className="text-xs font-semibold text-orange-600 mt-1">Plazo: {term} meses | Tasa: 17%</p>
+        <p className="text-xs font-semibold text-orange-600 mt-1">Plazo: {term} meses | Tasa: 15% promedio</p>
         <div className="mt-3 space-y-2 text-sm text-gray-800">
             <div className="flex justify-between"><span>Enganche:</span> <span className="font-semibold">{downPayment}</span></div>
             <div className="flex justify-between"><span>Mensualidad Aprox:</span> <span className="font-semibold">{monthlyPayment}</span></div>
@@ -349,7 +349,10 @@ const FinancingHighlights: React.FC<{ vehicle: WordPressVehicle }> = React.memo(
                     isRecommended
                 />
             </div>
-            <p className="text-xs text-gray-500 mt-4">*Porcentajes aproximados, pueden variar según año del vehículo</p>
+            <p className="text-xs text-gray-500 mt-4">
+                *Porcentajes aproximados, pueden variar según año del vehículo.<br/>
+                Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
+            </p>
         </div>
     );
 });
@@ -570,10 +573,13 @@ const TabsSection: React.FC<{
                     </div>
                     <div className="mt-4 pt-4 border-t border-dashed">
                         <SummaryRow label="Mensualidad estimada" value={formatPrice(financeData.monthlyPayment)} isLarge />
-                        <SummaryRow label="Monto a financiar" value={formatPrice(financeData.displayedPrice - downPayment)} />
+                        {/* Hide monto a financiar as requested */}
                         <SummaryRow label="Total pagado al final" value={formatPrice(financeData.totalPayment)} />
+                        <SummaryRow label="Tasa de interés" value="15% promedio" />
                     </div>
-                    <p className="text-xs text-gray-500 text-center pt-2">*Tasa 17% anual. Incluye seguro 5% del precio (amortizado mensualmente).</p>
+                    <p className="text-xs text-gray-500 text-center pt-2">
+                        Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
+                    </p>
                 </div>
             )}
             {activeTab === 'inspection' && (

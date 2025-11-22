@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator } from 'lucide-react';
 import { formatPrice } from '../utils/formatters';
+import { calculateMonthlyPayment, calculateTotalPaid } from '../utils/financeCalculator';
 
 const FinancialProjection: React.FC = () => {
   const [vehiclePrice, setVehiclePrice] = useState(300000);
@@ -12,26 +13,17 @@ const FinancialProjection: React.FC = () => {
   const minDownPayment = vehiclePrice * 0.15;
 
   useEffect(() => {
-    // Ensure down payment is always at least 20% of the price
+    // Ensure down payment is always at least 15% of the price
     if (downPayment < minDownPayment) {
       setDownPayment(minDownPayment);
     }
   }, [vehiclePrice, downPayment, minDownPayment]);
-  
+
   useEffect(() => {
-    const calculatePayment = () => {
-      if (loanAmount <= 0) {
-        setMonthlyPayment(0);
-        return;
-      }
-      // Using a fixed annual interest rate of 12.99% for calculation, but not displaying it per user request.
-      const monthlyRate = 14.99 / 100 / 12;
-      const n = term;
-      const payment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
-      setMonthlyPayment(payment);
-    };
-    calculatePayment();
-  }, [loanAmount, term]);
+    // Use the financeCalculator with the correct logic (17% annual rate, 5% insurance)
+    const payment = calculateMonthlyPayment(vehiclePrice, downPayment, term, 17.0, true);
+    setMonthlyPayment(payment);
+  }, [vehiclePrice, downPayment, term]);
 
   const totalPayment = monthlyPayment > 0 ? (monthlyPayment * term) + downPayment : vehiclePrice;
   const loanTerms = [12, 24, 36, 48, 60];
@@ -99,20 +91,20 @@ const FinancialProjection: React.FC = () => {
                 <p className="text-sm">Banco Recomendado: pendiente</p>
                 <p className="text-3xl font-bold">{formatPrice(monthlyPayment)}</p>
                 <p className="text-sm font-medium">por mes</p>
+                <p className="text-xs mt-2">Tasa: 15% promedio</p>
             </div>
             <div className="text-sm space-y-2">
+                {/* Hide monto a financiar as requested */}
                 <div className="flex justify-between">
-                    <span className="text-gray-600">Monto a financiar:</span>
-                    <span className="font-semibold text-gray-800">{formatPrice(loanAmount)}</span>
-                </div>
-                 <div className="flex justify-between">
                     <span className="text-gray-600">Total a pagar:</span>
                     <span className="font-semibold text-gray-800">{formatPrice(totalPayment)}</span>
                 </div>
             </div>
         </div>
       </div>
-      <p className="text-xs text-gray-400 mt-6 text-center">Esta es una estimación. La tasa y pago final dependen de la evaluación del banco.</p>
+      <p className="text-xs text-gray-500 mt-6 text-center">
+        Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
+      </p>
     </div>
   );
 };

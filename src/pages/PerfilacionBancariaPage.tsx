@@ -431,7 +431,7 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
     const customIncomeDisplayValue = isOtherSelected ? (field.value || '').replace(/^\$/, '') : '';
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200 transition-all focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-200/50">
+        <div className="p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">{label}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {allOptions.map(opt => {
@@ -502,7 +502,7 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
 
 const RadioField: React.FC<{ control: any, name: any, label: string, options: string[], error?: React.ReactNode }> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200 transition-all focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-200/50">
+        <div className="p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">{label}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {options.map(opt => (

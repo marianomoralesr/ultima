@@ -281,7 +281,7 @@ const ProfilePage: React.FC = () => {
       <div className="space-y-8">
 
         {/* Profile Information */}
-        <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="bg-white text-gray-900 rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
+        <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="text-gray-900">
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-xl font-bold text-gray-900 flex items-center">
               <User className="w-5 h-5 mr-3 text-primary-600" />

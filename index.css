@@ -420,9 +420,9 @@ h1-be-vietnam-pro-black {
 
   .header-search-container {
     position: relative;
-    padding: 2px;
+    padding: 1px;
     margin-top:3px;
-    background: linear-gradient(90deg, #FF6801, #a98804, #FF6801);
+    background: linear-gradient(90deg, #ea580c, #f97316, #ea580c);
     background-size: 200% 200%;
     animation: neon-glow 8s linear infinite;
     border-radius: 9999px; /* rounded-full */
@@ -599,9 +599,9 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
     content: '';
     position: absolute;
     inset: -4px;
-    border-radius: 1.5rem;
+    border-radius: calc(1.5rem + 4px); /* Match card roundness + border offset */
     padding: 4px;
-    background: linear-gradient(90deg, #ea580c, #f97316, #fb923c, #fdba74, #fb923c, #f97316, #ea580c);
+    background: linear-gradient(90deg, #ea580c, #f97316, #fb923c, #f97316, #ea580c);
     background-size: 400% 100%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -620,10 +620,10 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
   .popular-card {
     position: relative;
     border: 6px solid transparent !important;
-    border-radius: 1.5rem;
+    border-radius: calc(1.5rem + 6px); /* Match card roundness + border width */
     background:
       linear-gradient(white, white) padding-box,
-      linear-gradient(135deg, #ea580c, #f97316, #fb923c, #fdba74, #fb923c, #f97316, #ea580c) border-box;
+      linear-gradient(135deg, #ea580c, #f97316, #fb923c, #f97316, #ea580c) border-box;
     background-size: 100% 100%, 600% 600%;
     animation: popular-gradient-move 5s ease-in-out infinite;
     z-index: 0;

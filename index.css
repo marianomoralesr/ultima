@@ -599,10 +599,10 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
     content: '';
     position: absolute;
     inset: -4px;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     padding: 4px;
-    background: linear-gradient(90deg, #f97316, #fbbf24, #facc15, #f97316);
-    background-size: 300% 100%;
+    background: linear-gradient(90deg, #ea580c, #f97316, #fb923c, #fdba74, #fb923c, #f97316, #ea580c);
+    background-size: 400% 100%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -613,18 +613,18 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
 
   @keyframes rezago-gradient-move {
     0% { background-position: 0% 50%; }
-    100% { background-position: 300% 50%; }
+    100% { background-position: 400% 50%; }
   }
 
   /* Popular Card - Enhanced Animated Gradient Border (1000+ views) */
   .popular-card {
     position: relative;
     border: 6px solid transparent !important;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     background:
       linear-gradient(white, white) padding-box,
-      linear-gradient(135deg, #FF6801, #FF8C00, #FFD700, #FF4500, #FF6801) border-box;
-    background-size: 100% 100%, 500% 500%;
+      linear-gradient(135deg, #ea580c, #f97316, #fb923c, #fdba74, #fb923c, #f97316, #ea580c) border-box;
+    background-size: 100% 100%, 600% 600%;
     animation: popular-gradient-move 5s ease-in-out infinite;
     z-index: 0;
   }

@@ -59,9 +59,9 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   const CardContent = (
     <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
+      className={`bg-white rounded-3xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
-        <div className={`block relative ${isPopular ? 'overflow-hidden rounded-t-xl' : ''}`}>
+        <div className={`block relative ${isPopular ? 'overflow-hidden rounded-t-3xl' : ''}`}>
             <ImageCarousel
               images={imagesForCarousel}
               alt={vehicle.titulo}

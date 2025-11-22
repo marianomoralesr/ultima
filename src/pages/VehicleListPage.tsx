@@ -130,7 +130,10 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     keywords: 'inventario, autos seminuevos, trefa, financiamiento, comprar auto'
   });
 
-  const [view, setView] = useState<'list' | 'grid'>('list');
+  // Default to grid on mobile, list on desktop
+  const [view, setView] = useState<'list' | 'grid'>(() => {
+    return window.innerWidth < 1024 ? 'grid' : 'list';
+  });
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Separate animations for sheet and overlay for better UX

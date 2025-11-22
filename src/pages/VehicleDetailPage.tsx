@@ -68,19 +68,9 @@ const TABS = [
   { id: 'inspection', label: 'Inspección', icon: ShieldCheckIcon },
 ];
 
-const cardStyle = "bg-white p-3 sm:p-4 lg:p-6 rounded-xl lg:rounded-2xl shadow-sm border border-gray-200/80";
+import { calculateMonthlyPayment, calculateTotalPaid, getValidTermOptions } from '../utils/financeCalculator';
 
-const calculateMonthlyPayment = (price: number, dp: number, term: number, annualRate: number): number => {
-    const loanAmount = price - dp;
-    if (loanAmount <= 0 || term <= 0 || !isFinite(loanAmount)) return 0;
-    const monthlyRate = annualRate / 12 / 100;
-    if (monthlyRate === 0) return loanAmount / term;
-    const n = term;
-    const numerator = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, n);
-    const denominator = Math.pow(1 + monthlyRate, n) - 1;
-    if (denominator === 0) return 0;
-    return numerator / denominator;
-};
+const cardStyle = "bg-white p-3 sm:p-4 lg:p-6 rounded-xl lg:rounded-2xl shadow-sm border border-gray-200/80";
 
 // =================================================================================
 // SUB-COMPONENTS
@@ -309,7 +299,7 @@ const FinanceHighlightItem: React.FC<{ title: string; subtitle: string; downPaym
     <div className={`p-3 md:p-4 rounded-lg ${isRecommended ? 'bg-primary-50 border-primary-200' : 'bg-gray-100 border-gray-200'} border`}>
         <p className={`font-bold text-sm md:text-base ${isRecommended ? 'text-primary-800' : 'text-gray-800'}`}>{title}</p>
         <p className="text-xs text-gray-500">{subtitle}</p>
-        <p className="text-xs font-semibold text-orange-600 mt-1">Plazo: {term} meses | Tasa: 12.99%</p>
+        <p className="text-xs font-semibold text-orange-600 mt-1">Plazo: {term} meses | Tasa: 17%</p>
         <div className="mt-3 space-y-2 text-sm text-gray-800">
             <div className="flex justify-between"><span>Enganche:</span> <span className="font-semibold">{downPayment}</span></div>
             <div className="flex justify-between"><span>Mensualidad Aprox:</span> <span className="font-semibold">{monthlyPayment}</span></div>
@@ -321,20 +311,21 @@ const FinancingHighlights: React.FC<{ vehicle: WordPressVehicle }> = React.memo(
     const financing = useMemo(() => {
         const price = vehicle.precio;
         const term = vehicle.plazomax || 60;
-        const rate = 12.99;
+        const rate = 17.0; // Correct interest rate per calculator-prompt.txt
 
-        const engancheMinimo = vehicle.enganchemin > 0 ? vehicle.enganchemin : price * 0.15;
-        const mensualidadMinima = vehicle.mensualidad_minima > 0 
-            ? vehicle.mensualidad_minima 
-            : calculateMonthlyPayment(price, engancheMinimo, term, rate);
+        // Use API values if available, otherwise calculate with correct defaults
+        const engancheMinimo = vehicle.enganchemin > 0 ? vehicle.enganchemin : price * 0.25; // 25% min
+        const mensualidadMinima = vehicle.mensualidad_minima > 0
+            ? vehicle.mensualidad_minima
+            : calculateMonthlyPayment(price, engancheMinimo, term, rate, true); // Include insurance
 
         const engancheRecomendado = vehicle.enganche_recomendado > 0
             ? vehicle.enganche_recomendado
-            : price * 0.35;
+            : price * 0.40; // 40% recommended
         const mensualidadRecomendada = vehicle.mensualidad_recomendada > 0
             ? vehicle.mensualidad_recomendada
-            : calculateMonthlyPayment(price, engancheRecomendado, term, rate);
-        
+            : calculateMonthlyPayment(price, engancheRecomendado, term, rate, true); // Include insurance
+
         return { engancheMinimo, mensualidadMinima, engancheRecomendado, mensualidadRecomendada, term };
     }, [vehicle]);
 
@@ -344,20 +335,21 @@ const FinancingHighlights: React.FC<{ vehicle: WordPressVehicle }> = React.memo(
             <div className="space-y-3 md:space-y-4 text-gray-700 text-sm md:text-base">
                 <FinanceHighlightItem
                     title="Dejando un Enganche Mínimo"
-                    subtitle="*Incluye seguro y otros cargos"
+                    subtitle="(25% del valor del auto)*"
                     downPayment={formatPrice(financing.engancheMinimo)}
                     monthlyPayment={formatPrice(financing.mensualidadMinima)}
                     term={financing.term}
                 />
                 <FinanceHighlightItem
                     title="Dejando un Enganche Recomendado"
-                    subtitle="(35% del valor del auto)"
+                    subtitle="(40% del valor del auto)*"
                     downPayment={formatPrice(financing.engancheRecomendado)}
                     monthlyPayment={formatPrice(financing.mensualidadRecomendada)}
                     term={financing.term}
                     isRecommended
                 />
             </div>
+            <p className="text-xs text-gray-500 mt-4">*Porcentajes aproximados, pueden variar según año del vehículo</p>
         </div>
     );
 });
@@ -581,7 +573,7 @@ const TabsSection: React.FC<{
                         <SummaryRow label="Monto a financiar" value={formatPrice(financeData.displayedPrice - downPayment)} />
                         <SummaryRow label="Total pagado al final" value={formatPrice(financeData.totalPayment)} />
                     </div>
-                    <p className="text-xs text-gray-500 text-center pt-2">*Estos montos no incluyen costos de seguro.</p>
+                    <p className="text-xs text-gray-500 text-center pt-2">*Tasa 17% anual. Incluye seguro 5% del precio (amortizado mensualmente).</p>
                 </div>
             )}
             {activeTab === 'inspection' && (
@@ -751,15 +743,15 @@ const VehicleDetailPage: React.FC = () => {
 
     const financeData = useMemo(() => {
         if (!vehicle) return null;
-        const CALC_INTEREST_RATE = 16.0; // Use a fixed 16% rate for the interactive calculator
+        const CALC_INTEREST_RATE = 17.0; // Correct interest rate per calculator-prompt.txt
         const price = parseFloat(String(vehicle.precio_reduccion)) || vehicle.precio;
-        const monthlyPayment = calculateMonthlyPayment(price, downPayment, loanTerm, CALC_INTEREST_RATE);
+        const monthlyPayment = calculateMonthlyPayment(price, downPayment, loanTerm, CALC_INTEREST_RATE, true); // Include insurance
 
         return {
             displayedPrice: price,
             hasReduction: price < vehicle.precio,
-            minDownPayment: vehicle.engancheMinimo || price * 0.15,
-            maxDownPayment: price > (vehicle.engancheMinimo || price * 0.15) ? price : (vehicle.engancheMinimo || price * 0.15) + 1,
+            minDownPayment: vehicle.enganchemin || price * 0.25, // 25% minimum
+            maxDownPayment: price > (vehicle.enganchemin || price * 0.25) ? price : (vehicle.enganchemin || price * 0.25) + 1,
             monthlyPayment,
             upperMonthlyPayment: 0, // No longer a range
             totalPayment: monthlyPayment > 0 ? (monthlyPayment * loanTerm) + downPayment : price,

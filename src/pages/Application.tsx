@@ -1349,10 +1349,11 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
     const [loanTerm, setLoanTerm] = useState(60);
     const [downPaymentRaw, setDownPaymentRaw] = useState('');
 
-    // Get vehicle pricing and financing info
+    // Get vehicle pricing and financing info from API
     const vehiclePrice = vehicleInfo?.precio || vehicleInfo?._precio || 0;
-    const recommendedDownPayment = vehicleInfo?.enganche_recomendado || vehicleInfo?._enganche_recomendado || 0;
-    const minDownPayment = Math.round(vehiclePrice * 0.25); // 25% of vehicle price
+    // Use API values if available, otherwise calculate defaults
+    const minDownPayment = vehicleInfo?.enganchemin || vehicleInfo?._enganchemin || Math.round(vehiclePrice * 0.25); // From API or 25% default
+    const recommendedDownPayment = vehicleInfo?.enganche_recomendado || vehicleInfo?._enganche_recomendado || Math.round(vehiclePrice * 0.40); // From API or 40% default
     const maxTerm = vehicleInfo?.plazomax || 60;
 
     // Format number with thousands separator
@@ -1368,18 +1369,18 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
         return numStr ? parseInt(numStr, 10) : 0;
     };
 
-    // Initialize down payment with recommended value and term with vehicle's max
+    // Initialize down payment with MINIMUM value (25% or API value) and term with vehicle's max
     useEffect(() => {
-        if (recommendedDownPayment > 0 && !downPaymentRaw) {
-            setDownPaymentRaw(formatNumber(recommendedDownPayment));
-            setValue('down_payment_amount', recommendedDownPayment);
+        if (minDownPayment > 0 && !downPaymentRaw) {
+            setDownPaymentRaw(formatNumber(minDownPayment));
+            setValue('down_payment_amount', minDownPayment);
         }
         // Set initial loan term to vehicle's max term (capped at 60)
         const initialTerm = Math.min(maxTerm, 60);
         if (loanTerm !== initialTerm) {
             setLoanTerm(initialTerm);
         }
-    }, [recommendedDownPayment, downPaymentRaw, setValue, maxTerm]);
+    }, [minDownPayment, downPaymentRaw, setValue, maxTerm]);
 
     // Update form value when term or down payment changes
     useEffect(() => {
@@ -1454,16 +1455,18 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                             className="block w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7"
                         />
                     </div>
-                    <div className="mt-2 flex justify-between text-xs text-gray-500">
-                        <span>Mínimo (25%): {formatCurrency(minDownPayment)}</span>
+                    <div className="mt-3 flex gap-2">
                         <button
                             type="button"
                             onClick={() => setDownPaymentRaw(formatNumber(recommendedDownPayment))}
-                            className="text-primary-600 hover:text-primary-700 font-semibold"
+                            className="flex-1 px-3 py-2 bg-primary-50 border-2 border-primary-200 text-primary-700 rounded-lg text-xs font-semibold hover:bg-primary-100 transition-colors"
                         >
-                            Recomendado: {formatCurrency(recommendedDownPayment)}
+                            Usar Recomendado (40%): {formatCurrency(recommendedDownPayment)}
                         </button>
                     </div>
+                    <p className="mt-2 text-xs text-gray-500">
+                        Mínimo permitido: {formatCurrency(minDownPayment)} (25%)
+                    </p>
                 </div>
             </div>
 

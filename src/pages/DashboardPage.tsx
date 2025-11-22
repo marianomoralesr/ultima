@@ -28,6 +28,7 @@ import type { Profile } from '../types/types';
 import { FileTextIcon, DownloadIcon } from '../components/icons';
 import OnboardingModal from '../components/OnboardingModal';
 import { proxyImage } from '../utils/proxyImage';
+import { OnboardingStepper } from '../components/OnboardingStepper';
 
 
 // New Survey Component
@@ -268,6 +269,7 @@ const Dashboard: React.FC = () => {
   const [isSurveyVisible, setIsSurveyVisible] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState<number>(1);
 
   const loadData = useCallback(async () => {
     if (!user?.id) return;
@@ -298,6 +300,43 @@ const Dashboard: React.FC = () => {
     }
   }, [user, userLoading, loadData]);
 
+  const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
+  const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);
+
+  // Effect for calculating onboarding step
+  useEffect(() => {
+    if (!profile || !user) return;
+
+    // Required profile fields
+    const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
+    const isProfileComplete = requiredFields.every(field => profile?.[field] && String(profile[field]).trim() !== '');
+
+    // Step 1: Registration (always completed if user is logged in)
+    let step = 1;
+
+    // Step 2: Banking Profile
+    if (isProfileComplete && !isBankProfileComplete) {
+      step = 2;
+    }
+
+    // Step 3: Select Vehicle (profile and bank complete, but no applications yet)
+    if (isProfileComplete && isBankProfileComplete && applications.length === 0) {
+      step = 3;
+    }
+
+    // Step 4: Submit Application (has applications but none submitted)
+    if (isProfileComplete && isBankProfileComplete && applications.length > 0 && submittedApps.length === 0) {
+      step = 4;
+    }
+
+    // If they have submitted apps, hide the stepper completely (step > 4)
+    if (submittedApps.length > 0) {
+      step = 5; // Beyond the last step, will hide stepper
+    }
+
+    setOnboardingStep(step);
+  }, [profile, user, isBankProfileComplete, applications, submittedApps]);
+
   // Effect for showing the onboarding modal (only for new users without profile data)
   useEffect(() => {
     if (user?.id && profile && !onboardingChecked) {
@@ -314,9 +353,6 @@ const Dashboard: React.FC = () => {
       setOnboardingChecked(true); // Mark as checked to prevent re-running
     }
   }, [user?.id, profile, onboardingChecked]); // Check when profile loads
-  
-  const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
-  const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);
 
   const handleDeleteDraft = async (draftId: string) => {
     if (!user || !window.confirm('¿Estás seguro de que quieres eliminar este borrador? Esta acción no se puede deshacer.')) return;
@@ -380,7 +416,16 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main Content Column */}
         <div className="lg:col-span-2 space-y-8 lg:pl-5">
-            <OnboardingGuide profile={profile} isBankProfileComplete={isBankProfileComplete} />
+            {/* Show OnboardingStepper only if not on step 5 (which means they've submitted apps) */}
+            {onboardingStep < 5 && (
+              <OnboardingStepper
+                currentStep={onboardingStep}
+                onStepClick={(step) => {
+                  // Handle step navigation
+                  console.log('User clicked step:', step);
+                }}
+              />
+            )}
 
              {submittedApps.length > 0 ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

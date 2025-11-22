@@ -160,23 +160,25 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
               </div>
             )}
             {step === 3 && (
-              <div className="space-y-2">
-                <p className="text-sm text-gray-700">En este paso podrás:</p>
-                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                  <li>Explorar vehículos disponibles</li>
-                  <li>Comparar opciones de financiamiento</li>
-                  <li>Calcular pagos mensuales</li>
-                </ul>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-700">Explora nuestro inventario y encuentra el vehículo ideal para ti.</p>
+                <button
+                  onClick={() => window.location.href = '/inventario'}
+                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Explorar Inventario
+                </button>
               </div>
             )}
             {step === 4 && (
-              <div className="space-y-2">
-                <p className="text-sm text-gray-700">Documentos requeridos:</p>
-                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                  <li>Identificación oficial</li>
-                  <li>Comprobante de domicilio</li>
-                  <li>Comprobante de ingresos</li>
-                </ul>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-700">Completa tu solicitud de financiamiento con la información requerida.</p>
+                <button
+                  onClick={() => window.location.href = '/escritorio/solicitud'}
+                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Iniciar Solicitud
+                </button>
               </div>
             )}
           </div>
@@ -231,13 +233,13 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             Progreso del proceso
           </span>
           <span className="text-sm font-medium text-orange-600">
-            {Math.round(((currentStep - 1) / 4) * 100)}% completado
+            {Math.round((currentStep / 4) * 100)}% completado
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentStep - 1) / 4) * 100}%` }}
+            style={{ width: `${(currentStep / 4) * 100}%` }}
           />
         </div>
       </div>

@@ -299,7 +299,7 @@ const FinanceHighlightItem: React.FC<{ title: string; subtitle: string; downPaym
     <div className={`p-3 md:p-4 rounded-lg ${isRecommended ? 'bg-primary-50 border-primary-200' : 'bg-gray-100 border-gray-200'} border`}>
         <p className={`font-bold text-sm md:text-base ${isRecommended ? 'text-primary-800' : 'text-gray-800'}`}>{title}</p>
         <p className="text-xs text-gray-500">{subtitle}</p>
-        <p className="text-xs font-semibold text-orange-600 mt-1">Plazo: {term} meses | Tasa: 15% promedio</p>
+        <p className="text-xs font-semibold text-orange-600 mt-1">Plazo: {term} meses | Tasa: 12.99%</p>
         <div className="mt-3 space-y-2 text-sm text-gray-800">
             <div className="flex justify-between"><span>Enganche:</span> <span className="font-semibold">{downPayment}</span></div>
             <div className="flex justify-between"><span>Mensualidad Aprox:</span> <span className="font-semibold">{monthlyPayment}</span></div>
@@ -560,8 +560,12 @@ const TabsSection: React.FC<{
             {activeTab === 'calculator' && financeData && (
                 <div className="space-y-6">
                     <div>
-                        <label htmlFor="downPayment" className="block text-sm font-medium text-gray-700">Enganche: <span className="font-bold">{formatPrice(downPayment)}</span></label>
-                        <input id="downPayment" type="range" min={financeData.minDownPayment} max={financeData.maxDownPayment} value={downPayment} onChange={e => setDownPayment(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600" />
+                        <label htmlFor="downPayment" className="block text-sm font-medium text-gray-700 mb-2">Enganche: <span className="font-bold">{formatPrice(downPayment)}</span></label>
+                        <input id="downPayment" type="range" min={financeData.minDownPayment} max={financeData.maxDownPayment} step="5000" value={downPayment} onChange={e => setDownPayment(Number(e.target.value))} className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md" />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>{formatPrice(financeData.minDownPayment)}</span>
+                            <span>{formatPrice(financeData.maxDownPayment)}</span>
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses):</label>

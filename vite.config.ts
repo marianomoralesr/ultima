@@ -36,17 +36,8 @@ export default defineConfig({
     },
   },
   build: {
-    // Enable source maps only for debugging (disable in production for smaller builds)
-    sourcemap: process.env.NODE_ENV === 'development',
-
-    // Increase chunk size warning limit
+    sourcemap: true,
     chunkSizeWarningLimit: 1000,
-
-    // Optimize build performance
-    minify: 'esbuild', // esbuild is faster than terser
-
-    // Target modern browsers for smaller output
-    target: 'es2020',
 
     rollupOptions: {
       output: {
@@ -102,29 +93,5 @@ export default defineConfig({
       },
     },
 
-    // Enable CSS code splitting
-    cssCodeSplit: true,
-
-    // Optimize asset handling
-    assetsInlineLimit: 4096, // 4kb - inline small assets as base64
-  },
-
-  // Optimize dependencies
-  optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      '@supabase/supabase-js',
-      '@tanstack/react-query',
-    ],
-    exclude: ['@aws-sdk/client-s3'], // Large dependencies to exclude from pre-bundling
-  },
-
-  // Enable esbuild optimizations
-  esbuild: {
-    logOverride: { 'this-is-undefined-in-esm': 'silent' },
-    legalComments: 'none', // Remove comments in production
-    treeShaking: true,
   },
 });

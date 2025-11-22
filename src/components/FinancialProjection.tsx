@@ -91,19 +91,12 @@ const FinancialProjection: React.FC = () => {
                 <p className="text-sm">Banco Recomendado: pendiente</p>
                 <p className="text-3xl font-bold">{formatPrice(monthlyPayment)}</p>
                 <p className="text-sm font-medium">por mes</p>
-                <p className="text-xs mt-2">Tasa: 15% promedio</p>
-            </div>
-            <div className="text-sm space-y-2">
-                {/* Hide monto a financiar as requested */}
-                <div className="flex justify-between">
-                    <span className="text-gray-600">Total a pagar:</span>
-                    <span className="font-semibold text-gray-800">{formatPrice(totalPayment)}</span>
-                </div>
+                <p className="text-xs mt-2">Tasa: 12.99%* puede variar</p>
             </div>
         </div>
       </div>
       <p className="text-xs text-gray-500 mt-6 text-center">
-        Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
+        *Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
       </p>
     </div>
   );

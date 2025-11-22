@@ -573,12 +573,10 @@ const TabsSection: React.FC<{
                     </div>
                     <div className="mt-4 pt-4 border-t border-dashed">
                         <SummaryRow label="Mensualidad estimada" value={formatPrice(financeData.monthlyPayment)} isLarge />
-                        {/* Hide monto a financiar as requested */}
-                        <SummaryRow label="Total pagado al final" value={formatPrice(financeData.totalPayment)} />
-                        <SummaryRow label="Tasa de interés" value="15% promedio" />
+                        <SummaryRow label="Tasa de interés" value="12.99%* puede variar" />
                     </div>
                     <p className="text-xs text-gray-500 text-center pt-2">
-                        Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
+                        *Tasa de interés puede variar según el banco. Incluye seguro con valor del 5% del auto (amortizado mensualmente).
                     </p>
                 </div>
             )}

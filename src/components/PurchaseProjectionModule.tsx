@@ -5,7 +5,7 @@ const PurchaseProjectionModule: React.FC = () => {
   const [vehiclePrice, setVehiclePrice] = useState<number | ''>(0);
   const [downPayment, setDownPayment] = useState<number | ''>(0);
   const [loanTerm, setLoanTerm] = useState<number | ''>(60); // Default to 60 months
-  const [interestRate, setInterestRate] = useState<number | ''>(15); // Default to 15% annual
+  const [interestRate, setInterestRate] = useState<number | ''>(12.99); // Default to 12.99% annual
   const [monthlyPayment, setMonthlyPayment] = useState<number | null>(null);
 
   const calculateMonthlyPayment = () => {
@@ -79,14 +79,15 @@ const PurchaseProjectionModule: React.FC = () => {
           </select>
         </div>
         <div>
-          <label htmlFor="interestRate" className="block text-sm font-medium text-gray-700">Tasa de Interés Anual (%)</label>
+          <label htmlFor="interestRate" className="block text-sm font-medium text-gray-700">Tasa de Interés Anual (%)*</label>
           <input
             type="number"
             id="interestRate"
             value={interestRate}
             onChange={(e) => setInterestRate(e.target.value === '' ? '' : Number(e.target.value))}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Ej: 15"
+            placeholder="Ej: 12.99"
+            step="0.01"
           />
         </div>
         <button
@@ -103,6 +104,7 @@ const PurchaseProjectionModule: React.FC = () => {
           <p className="text-2xl font-bold text-primary-900 mt-1">
             {monthlyPayment.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
           </p>
+          <p className="text-xs text-gray-600 mt-2">*La tasa puede variar según el banco</p>
         </div>
       )}
     </div>

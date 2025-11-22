@@ -467,6 +467,15 @@ const Application: React.FC = () => {
                 ).catch(err => console.error('[Application] Error sending advisor email:', err));
             }
 
+            // Send survey invitation email if user consented
+            if (data.consent_survey && clientEmail) {
+                BrevoEmailService.sendSurveyInvitation(
+                    clientEmail,
+                    clientName,
+                    user.id
+                ).catch(err => console.error('[Application] Error sending survey invitation:', err));
+            }
+
             // Track application submission
             conversionTracking.trackApplication.submitted({
                 applicationId: applicationId,

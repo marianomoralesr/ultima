@@ -101,15 +101,15 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   // Define the onboarding steps
   const steps = [
     {
-      title: 'Registro Completado',
-      description: 'Has creado tu cuenta exitosamente',
-      icon: CheckCircle,
-      completed: true, // Always completed since user is in dashboard
+      title: 'Información Personal',
+      description: 'Completa tu perfil personal',
+      icon: User,
+      completed: currentStep > 1,
     },
     {
       title: 'Perfilamiento Bancario',
       description: 'Completa tu perfil bancario para solicitudes de crédito',
-      icon: User,
+      icon: FileText,
       completed: currentStep > 2,
     },
     {
@@ -131,53 +131,81 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
     const stepData = steps[step - 1];
     const Icon = stepData.icon;
 
+    // Determine card color based on step status
+    let cardBgColor = 'bg-blue-50'; // Current step - light blue
+    let cardBorderColor = 'border-blue-200';
+    let iconBgColor = 'bg-blue-100';
+    let iconColor = 'text-blue-600';
+
+    if (stepData.completed) {
+      // Completed steps - light gray
+      cardBgColor = 'bg-gray-50';
+      cardBorderColor = 'border-gray-200';
+      iconBgColor = 'bg-gray-100';
+      iconColor = 'text-gray-600';
+    } else if (step === currentStep) {
+      // Current active step - light green
+      cardBgColor = 'bg-green-50';
+      cardBorderColor = 'border-green-200';
+      iconBgColor = 'bg-green-100';
+      iconColor = 'text-green-600';
+    }
+
     return (
-      <div className="w-full rounded-lg border border-orange-200 bg-orange-50 p-6 shadow-sm">
+      <div className={`w-full rounded-lg border ${cardBorderColor} ${cardBgColor} p-6 shadow-sm`}>
         <div className="flex items-start gap-4">
-          <div className="rounded-full bg-orange-100 p-3">
-            <Icon className="h-6 w-6 text-orange-600" />
+          <div className={`rounded-full ${iconBgColor} p-3`}>
+            <Icon className={`h-6 w-6 ${iconColor}`} />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {stepData.title}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              {stepData.description}
-            </p>
-            {step === 1 && (
-              <div className="text-sm text-green-600 font-medium">
-                ✓ Este paso ya está completado
-              </div>
-            )}
-            {step === 2 && (
-              <div className="space-y-2">
-                <p className="text-sm text-gray-700">Para continuar, necesitas:</p>
-                <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                  <li>Información de ingresos mensuales</li>
-                  <li>Historial crediticio</li>
-                  <li>Referencias bancarias</li>
-                </ul>
-              </div>
-            )}
-            {step === 3 && (
-              <div className="space-y-3">
-                <p className="text-sm text-gray-700">Explora nuestro inventario y encuentra el vehículo ideal para ti.</p>
+            {step === 1 && currentStep === 1 && (
+              <>
+                <p className="text-gray-700 mb-4">
+                  Para continuar necesitas terminar de llenar tu información de perfil
+                </p>
                 <button
-                  onClick={() => window.location.href = '/inventario'}
+                  onClick={() => window.location.href = '/escritorio/profile'}
                   className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
                 >
-                  Explorar Inventario
+                  Completar Perfil
+                </button>
+              </>
+            )}
+            {step === 2 && currentStep === 2 && (
+              <>
+                <div className="flex items-start gap-2 mb-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-gray-700 font-medium">
+                    Cumples con todos los requisitos para crear tu perfilamiento bancario
+                  </p>
+                </div>
+                <button
+                  onClick={() => window.location.href = '/escritorio/profile?tab=perfil-bancario'}
+                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Crear Perfilamiento Bancario
+                </button>
+              </>
+            )}
+            {step === 3 && currentStep === 3 && (
+              <div className="space-y-3">
+                <p className="text-gray-700">Ya puedes seleccionar tu vehículo para continuar con tu solicitud.</p>
+                <button
+                  onClick={() => window.location.href = '/escritorio/aplicacion'}
+                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  Seleccionar Vehículo
                 </button>
               </div>
             )}
-            {step === 4 && (
+            {step === 4 && currentStep === 4 && (
               <div className="space-y-3">
-                <p className="text-sm text-gray-700">Completa tu solicitud de financiamiento con la información requerida.</p>
+                <p className="text-gray-700">Completa y envía tu solicitud de financiamiento.</p>
                 <button
-                  onClick={() => window.location.href = '/escritorio/solicitud'}
+                  onClick={() => window.location.href = '/escritorio/aplicacion'}
                   className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
                 >
-                  Iniciar Solicitud
+                  Enviar Solicitud
                 </button>
               </div>
             )}
@@ -233,13 +261,15 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             Progreso del proceso
           </span>
           <span className="text-sm font-medium text-orange-600">
-            {Math.round((currentStep / 4) * 100)}% completado
+            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '100'}% completado
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 4) * 100}%` }}
+            style={{
+              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '100%'
+            }}
           />
         </div>
       </div>

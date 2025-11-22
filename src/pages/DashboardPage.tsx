@@ -311,20 +311,21 @@ const Dashboard: React.FC = () => {
     const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
     const isProfileComplete = requiredFields.every(field => profile?.[field] && String(profile[field]).trim() !== '');
 
-    // Step 1: Registration (always completed if user is logged in)
+    // Step 1: Personal Information (incomplete profile)
     let step = 1;
 
-    // Step 2: Banking Profile
+    // Step 2: Banking Profile (profile complete, need banking profile)
     if (isProfileComplete && !isBankProfileComplete) {
       step = 2;
     }
 
-    // Step 3: Select Vehicle (profile and bank complete, but no applications yet)
+    // Step 3: Select Vehicle (banking profile submitted, need to select vehicle)
+    // User reaches this step once they submit their banking profile, even if no applications exist yet
     if (isProfileComplete && isBankProfileComplete && applications.length === 0) {
       step = 3;
     }
 
-    // Step 4: Submit Application (has applications but none submitted)
+    // Step 4: Submit Application (vehicle selected via draft, but not submitted)
     if (isProfileComplete && isBankProfileComplete && applications.length > 0 && submittedApps.length === 0) {
       step = 4;
     }

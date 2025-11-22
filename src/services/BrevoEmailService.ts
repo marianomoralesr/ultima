@@ -13,7 +13,7 @@ interface EmailNotificationParams {
     to: string;
     toName: string;
     subject: string;
-    templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code';
+    templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code' | 'survey_invitation';
     templateData: Record<string, any>;
 }
 
@@ -413,5 +413,28 @@ export const BrevoEmailService = {
 
         const results = await Promise.all(promises);
         return results.every(result => result === true);
+    },
+
+    /**
+     * Send survey invitation with voucher to client
+     */
+    async sendSurveyInvitation(
+        clientEmail: string,
+        clientName: string,
+        userId: string
+    ): Promise<boolean> {
+        const surveyUrl = `${window.location.origin}/encuesta-anonima`;
+
+        return this.sendEmail({
+            to: clientEmail,
+            toName: clientName,
+            subject: '🎁 Tu Cupón de Beneficios TREFA te Espera',
+            templateType: 'survey_invitation',
+            templateData: {
+                clientName,
+                userId,
+                surveyUrl
+            }
+        });
     }
 };

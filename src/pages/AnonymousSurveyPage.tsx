@@ -661,8 +661,9 @@ const AnonymousSurveyPage: React.FC = () => {
     const code = generateCouponCode();
     setCouponCode(code);
 
+    // Format responses to match analytics expectations: numeric keys instead of nested structure
     const surveyData = {
-      answers,
+      ...answers,  // Spread answers directly (they already have numeric keys)
       coupon_code: code,
       timestamp: new Date().toISOString()
     };

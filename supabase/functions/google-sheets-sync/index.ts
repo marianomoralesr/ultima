@@ -17,6 +17,7 @@ interface ApplicationData {
   personal_info_snapshot: any;
   application_data: any;
   selected_banks: string[];
+  assigned_to?: string;
   created_at: string;
   updated_at: string;
 }
@@ -335,14 +336,16 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Fetch advisor email if asesor_asignado_id exists
+    // Fetch advisor email from assigned_to field (takes priority) or asesor_asignado_id
     let advisorEmail = '';
     const profile = application.personal_info_snapshot || {};
-    if (profile.asesor_asignado_id) {
+    const advisorId = application.assigned_to || profile.asesor_asignado_id;
+
+    if (advisorId) {
       const { data: advisorData, error: advisorError } = await supabase
         .from('profiles')
         .select('email')
-        .eq('id', profile.asesor_asignado_id)
+        .eq('id', advisorId)
         .single();
 
       if (!advisorError && advisorData) {

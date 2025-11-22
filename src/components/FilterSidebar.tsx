@@ -48,13 +48,13 @@ interface FilterSidebarProps {
 
 // --- HELPER COMPONENTS ---
 
-const CheckboxFilterGroup: React.FC<{
+const CheckboxFilterGroup = React.memo<{
     options: (string | number)[];
     selected: (string | number)[];
     onChange: (value: string | number) => void;
     counts: Record<string | number, number>;
     labelFormatter?: (option: string | number) => string;
-}> = React.memo(({ options, selected, onChange, counts, labelFormatter = String }) => (
+}>(({ options, selected, onChange, counts, labelFormatter = String }) => (
     <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
         {options.map(option => {
             const optionId = `filter-${String(option).replace(/\s/g, '-')}`;
@@ -75,7 +75,9 @@ const CheckboxFilterGroup: React.FC<{
     </div>
 ));
 
-const ToggleSwitch: React.FC<{ label: string; isEnabled: boolean; onToggle: () => void; }> = React.memo(({ label, isEnabled, onToggle }) => (
+CheckboxFilterGroup.displayName = 'CheckboxFilterGroup';
+
+const ToggleSwitch = React.memo<{ label: string; isEnabled: boolean; onToggle: () => void; }>(({ label, isEnabled, onToggle }) => (
     <div className="flex items-center justify-between py-3">
         <span className="font-semibold text-gray-800 text-sm">{label}</span>
         <button onClick={onToggle} type="button" role="switch" aria-checked={isEnabled} className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${isEnabled ? 'bg-primary-600' : 'bg-gray-300'}`}>
@@ -83,6 +85,8 @@ const ToggleSwitch: React.FC<{ label: string; isEnabled: boolean; onToggle: () =
         </button>
     </div>
 ));
+
+ToggleSwitch.displayName = 'ToggleSwitch';
 
 // --- MAIN COMPONENT ---
 
@@ -181,7 +185,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
 
             <AccordionItem title="Marca" startOpen>
                 <div className="grid grid-cols-4 gap-2">
-                    {(filterOptions?.marcas || []).slice(0, 8).map(m => {
+                    {(filterOptions?.marcas || []).slice(0, 12).map(m => {
                         const isSelected = (currentFilters.marca || []).includes(m.name as string);
                         return (
                             <button
@@ -199,22 +203,22 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
                         );
                     })}
                 </div>
-                {(filterOptions?.marcas || []).length > 8 && (
+                {(filterOptions?.marcas || []).length > 12 && (
                     <AccordionItem title="Más marcas">
-                        <CheckboxFilterGroup options={(filterOptions?.marcas || []).slice(8).map(m => m.name)} selected={currentFilters.marca || []} onChange={(v) => handleCheckboxChange('marca', v)} counts={counts.marcas} />
+                        <CheckboxFilterGroup options={(filterOptions?.marcas || []).slice(12).map(m => m.name)} selected={currentFilters.marca || []} onChange={(v) => handleCheckboxChange('marca', v)} counts={counts.marcas} />
                     </AccordionItem>
                 )}
             </AccordionItem>
 
             <AccordionItem title="Precio">
                 <div className="px-4">
-                    <PriceRangeSlider min={filterOptions?.minPrice || 0} max={filterOptions?.maxPrice || 1000000} initialMin={currentFilters.minPrice} initialMax={currentFilters.maxPrice} onPriceChange={handlePriceChange} />
+                    <PriceRangeSlider min={filterOptions?.minPrice || 0} max={filterOptions?.maxPrice || 1000000} initialMin={currentFilters.minPrice} initialMax={currentFilters.maxPrice} onPriceChange={handlePriceChange} requireApply={true} />
                 </div>
             </AccordionItem>
 
             <AccordionItem title="Enganche">
                 <div className="px-4">
-                    <PriceRangeSlider min={filterOptions?.enganchemin || 0} max={filterOptions?.maxEnganche || 500000} initialMin={currentFilters.enganchemin} initialMax={currentFilters.maxEnganche} onPriceChange={handleEngancheChange} />
+                    <PriceRangeSlider min={filterOptions?.enganchemin || 0} max={filterOptions?.maxEnganche || 500000} initialMin={currentFilters.enganchemin} initialMax={currentFilters.maxEnganche} onPriceChange={handleEngancheChange} requireApply={true} />
                 </div>
             </AccordionItem>
 
@@ -280,18 +284,22 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
     }
 
     return (
-        <Card className="w-full lg:w-96 h-fit sticky top-28">
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">Filtrar por</CardTitle>
-                    <FilterIcon className="w-6 h-6 text-muted-foreground" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                {FilterBody}
-            </CardContent>
-        </Card>
+        <div className="w-full lg:w-96 sticky top-4 self-start">
+            <div className="max-h-[calc(100vh-2rem)] overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <Card className="w-full">
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-xl">Filtrar por</CardTitle>
+                            <FilterIcon className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {FilterBody}
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
     );
 };
 
-export default FilterSidebar;
+export default React.memo(FilterSidebar);

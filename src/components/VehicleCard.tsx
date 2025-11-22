@@ -12,7 +12,6 @@ import VehicleCardHeader from './VehicleCard/VehicleCardHeader';
 import VehicleCardSpecs from './VehicleCard/VehicleCardSpecs';
 import VehicleCardPrice from './VehicleCard/VehicleCardPrice';
 import VehicleCardActions from './VehicleCard/VehicleCardActions';
-import PriceDropNotificationToggle from './PriceDropNotificationToggle';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -114,6 +113,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             sucursal={vehicle.ubicacion}
             clasificacionid={vehicle.clasificacionid}
             carroceria={vehicle.carroceria}
+            isPopular={isPopular}
             className="w-full h-64 md:h-80"
           />
         </div>
@@ -135,7 +135,6 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
                 precio={vehicle.precio}
                 mensualidadRecomendada={vehicle.mensualidad_recomendada}
               />
-              <PriceDropNotificationToggle vehicleId={vehicle.id} />
             </div>
             <VehicleCardActions
               isSeparado={isSeparado}
@@ -146,6 +145,8 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
               marca={vehicle.marca}
               carroceria={vehicle.carroceria}
               precio={vehicle.precio}
+              vehicleTitle={vehicle.titulo}
+              vehicleSlug={vehicle.slug}
             />
           </div>
         </div>

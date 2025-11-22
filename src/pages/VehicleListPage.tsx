@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import type { VehicleFilters } from '../types/types';
@@ -9,9 +9,10 @@ import VehicleCard from '../components/VehicleCard';
 import VehicleCardSkeleton from '../components/VehicleCardSkeleton';
 import VehicleGridCard from '../components/VehicleGridCard';
 import InjectionCard from '../components/InjectionCard';
-import RecentlyViewed from '../components/RecentlyViewed';
 import Pagination from '../components/Pagination';
 import FilterSidebar from '../components/FilterSidebar';
+
+const RecentlyViewed = lazy(() => import('../components/RecentlyViewed'));
 import { ListIcon, LayoutGridIcon, SearchIcon, ChevronDownIcon, MapPinIcon } from '../components/icons';
 import useSEO from '../hooks/useSEO';
 import useDebounce from '../hooks/useDebounce';
@@ -56,10 +57,10 @@ const VehicleListPage: React.FC = () => {
     retry: 2,
   });
 
-const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
-    if (count === 0) return 'No se encontraron autos | TREFA';
+  const dynamicTitle = useMemo(() => {
+    if (totalCount === 0) return 'No se encontraron autos | TREFA';
 
-    const parts = [`${count}`];
+    const parts = [`${totalCount}`];
     const marca = filters.marca?.[0];
     const carroceria = filters.carroceria?.[0];
     const ubicacion = filters.ubicacion?.[0];
@@ -81,11 +82,11 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     parts.push('disponibles');
 
     return `${parts.join(' ')} | TREFA`;
-  };
+  }, [totalCount, filters.marca, filters.carroceria, filters.ubicacion]);
 
   // Generate dynamic results display with highlighted count
-  const generateResultsDisplay = (count: number, filters: VehicleFilters) => {
-    if (count === 0) {
+  const resultsDisplay = useMemo(() => {
+    if (totalCount === 0) {
       return <span>No se encontraron autos</span>;
     }
 
@@ -98,7 +99,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     const parts: (string | JSX.Element)[] = [];
 
     // Add count in orange
-    parts.push(<span key="count" className="text-orange-500 font-bold">{count}</span>);
+    parts.push(<span key="count" className="text-orange-500 font-bold">{totalCount}</span>);
 
     // Build descriptive text
     if (marca) {
@@ -122,10 +123,10 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     parts.push(' disponibles');
 
     return <>{parts}</>;
-  };
+  }, [totalCount, filters.marca, filters.carroceria, filters.ubicacion, filters.transmision]);
 
   useSEO({
-    title: generateDynamicTitle(totalCount, filters),
+    title: dynamicTitle,
     description: 'Explora nuestro inventario de autos seminuevos certificados. Encuentra el auto perfecto para ti con opciones de financiamiento.',
     keywords: 'inventario, autos seminuevos, trefa, financiamiento, comprar auto'
   });
@@ -135,6 +136,19 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     return window.innerWidth < 1024 ? 'grid' : 'list';
   });
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [showGridTooltip, setShowGridTooltip] = useState(false);
+
+  // Show grid view tooltip after page loads
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowGridTooltip(true);
+      const hideTimer = setTimeout(() => {
+        setShowGridTooltip(false);
+      }, 3000); // Hide after 3 seconds
+      return () => clearTimeout(hideTimer);
+    }, 1000); // Show after 1 second
+    return () => clearTimeout(timer);
+  }, []);
 
   // Separate animations for sheet and overlay for better UX
   const [{ y, opacity }, api] = useSpring(() => ({
@@ -306,7 +320,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
   }, [isFilterSheetOpen]);
 
   const vehiclesPerPage = 20;
-  const totalPages = Math.ceil(totalCount / vehiclesPerPage);
+  const totalPages = useMemo(() => Math.ceil(totalCount / vehiclesPerPage), [totalCount]);
 
   const activeFiltersList = useMemo(() => {
     const list: { key: keyof VehicleFilters, value: string | number | boolean, label: string }[] = [];
@@ -358,30 +372,12 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
     return list;
   }, [filters]);
 
-  const renderSkeletons = () => {
+  const renderSkeletons = useCallback(() => {
     const count = view === 'list' ? 4 : 12;
-    return [...Array(count)].map((_, i) =>
-      view === 'list' ? (
-        <div key={i} className="bg-white p-5 rounded-2xl shadow-sm animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="h-48 bg-gray-200 rounded-lg md:col-span-1"></div>
-            <div className="md:col-span-2 space-y-4 pt-4">
-              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div key={i} className="bg-white rounded-2xl shadow-sm animate-pulse overflow-hidden">
-          <div className="aspect-[4/3] bg-gray-200"></div>
-          <div className="p-4 space-y-3">
-            <div className="h-5 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-          </div>
-        </div>
-      )
-    );
-  };
+    return [...Array(count)].map((_, i) => (
+      <VehicleCardSkeleton key={i} isGrid={view === 'grid'} />
+    ));
+  }, [view]);
 
   const isLoading = vehiclesLoading;
 
@@ -427,80 +423,134 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
           </div>
           <div>
             <Card className="hidden lg:block mb-6">
-              <CardContent className="pt-6 space-y-4">
-                <div className="relative">
-                  <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
-                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  <Input
-                    id="search-vehicle"
-                    type="search"
-                    placeholder="Buscar por marca, modelo o año..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-10"
-                  />
-                </div>
-
-                <div className="border-t"></div>
-
-                <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-                  <div className="flex-1 space-y-2">
-                    <label className="text-sm font-medium">
-                      Filtros Rápidos
-                    </label>
-                    <Button
-                      variant={filters.hideSeparado ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleFiltersChange({ hideSeparado: !filters.hideSeparado })}
-                      className="w-full sm:w-auto"
-                    >
-                      <span>Ocultar Separados</span>
-                      {filters.hideSeparado && <span className="ml-2">✓</span>}
-                    </Button>
+              <CardContent className="pt-4 pb-4">
+                {/* Search and Sort Row */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative flex-1">
+                    <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
+                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <Input
+                      id="search-vehicle"
+                      type="search"
+                      placeholder="Buscar por marca, modelo o año..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 h-9"
+                    />
                   </div>
-
-                  <div className="flex items-center gap-2 flex-wrap lg:flex-nowrap">
-                    <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
-                      <SelectTrigger className="w-[200px] h-9">
-                        <SelectValue placeholder="Ordenar por" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="default">Más Recientes</SelectItem>
-                        <SelectItem value="relevance">Más Populares</SelectItem>
-                        <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
-                        <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
-                        <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
-                        <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                      <Button
-                        variant={view === 'list' ? 'default' : 'outline'}
-                        size="icon"
-                        onClick={() => setView('list')}
-                        aria-label="Vista de lista"
-                        className="h-10 w-10 md:h-11 md:w-11 transition-all"
-                      >
-                        <ListIcon className="w-5 h-5" />
-                      </Button>
+                  <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
+                    <SelectTrigger className="w-[180px] h-9">
+                      <SelectValue placeholder="Ordenar por" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Más Recientes</SelectItem>
+                      <SelectItem value="relevance">Más Populares</SelectItem>
+                      <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
+                      <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                      <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
+                      <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex gap-2 relative">
+                    <Button
+                      variant={view === 'list' ? 'default' : 'outline'}
+                      size="icon"
+                      onClick={() => setView('list')}
+                      aria-label="Vista de lista"
+                      className="h-9 w-9 transition-all"
+                    >
+                      <ListIcon className="w-4 h-4" />
+                    </Button>
+                    <div className="relative">
                       <Button
                         variant={view === 'grid' ? 'default' : 'outline'}
                         size="icon"
-                        onClick={() => setView('grid')}
+                        onClick={() => {
+                          setView('grid');
+                          setShowGridTooltip(false);
+                        }}
                         aria-label="Vista de cuadrícula"
-                        className="h-10 w-10 md:h-11 md:w-11 transition-all"
+                        className="h-9 w-9 transition-all"
                       >
-                        <LayoutGridIcon className="w-5 h-5" />
+                        <LayoutGridIcon className="w-4 h-4" />
                       </Button>
+                      {showGridTooltip && (
+                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-50 animate-fade-in shadow-lg">
+                          Ver en cuadrícula
+                          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t"></div>
+                <div className="border-t my-3" />
 
-                <div>
-                  <h1 className="text-base font-semibold">
-                    {generateResultsDisplay(totalCount, filters)}
+                {/* Filters Row */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Filtros:</span>
+                    <Button
+                      variant={filters.hideSeparado ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleFiltersChange({ hideSeparado: !filters.hideSeparado })}
+                      className="h-8"
+                    >
+                      <span>Ocultar Separados</span>
+                      {filters.hideSeparado && <span className="ml-2">✓</span>}
+                    </Button>
+                    <Button
+                      variant={(filters.orderby === 'relevance') ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleFiltersChange({ orderby: filters.orderby === 'relevance' ? undefined : 'relevance' })}
+                      className="h-8"
+                    >
+                      <span>Populares</span>
+                      {filters.orderby === 'relevance' && <span className="ml-2">✓</span>}
+                    </Button>
+                    <Button
+                      variant={filters.promotion?.includes('promoción') ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        const currentPromos = filters.promotion || [];
+                        const hasPromo = currentPromos.includes('promoción');
+                        handleFiltersChange({
+                          promotion: hasPromo ? currentPromos.filter(p => p !== 'promoción') : [...currentPromos, 'promoción']
+                        });
+                      }}
+                      className="h-8"
+                    >
+                      <span>Promociones</span>
+                      {filters.promotion?.includes('promoción') && <span className="ml-2">✓</span>}
+                    </Button>
+                    <Button
+                      variant={filters.promotion?.some(p => p.toLowerCase().includes('descuento')) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        const currentPromos = filters.promotion || [];
+                        const hasDescuento = currentPromos.some(p => p.toLowerCase().includes('descuento'));
+                        if (hasDescuento) {
+                          handleFiltersChange({
+                            promotion: currentPromos.filter(p => !p.toLowerCase().includes('descuento'))
+                          });
+                        } else {
+                          // Add all descuento promotions
+                          const descuentoPromos = filterOptions?.promotions?.filter(p =>
+                            String(p.name).toLowerCase().includes('descuento')
+                          ).map(p => p.name as string) || [];
+                          handleFiltersChange({
+                            promotion: [...currentPromos, ...descuentoPromos]
+                          });
+                        }
+                      }}
+                      className="h-8"
+                    >
+                      <span>Descuentos</span>
+                      {filters.promotion?.some(p => p.toLowerCase().includes('descuento')) && <span className="ml-2">✓</span>}
+                    </Button>
+                  </div>
+                  <h1 className="text-sm font-semibold whitespace-nowrap">
+                    {resultsDisplay}
                   </h1>
                 </div>
               </CardContent>
@@ -510,7 +560,7 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
               <CardContent className="pt-6 flex items-center justify-between">
                 <div>
                   <h1 className="text-sm font-semibold">
-                    {generateResultsDisplay(totalCount, filters)}
+                    {resultsDisplay}
                   </h1>
                   <p className="text-xs text-muted-foreground mt-0.5">Toca para filtrar</p>
                 </div>
@@ -576,7 +626,9 @@ const generateDynamicTitle = (count: number, filters: VehicleFilters) => {
             )}
           </div>
         </div>
-        <RecentlyViewed layout="carousel" />
+        <Suspense fallback={<div className="h-64"></div>}>
+          <RecentlyViewed layout="carousel" />
+        </Suspense>
       </main>
 
       {isFilterSheetOpen && (

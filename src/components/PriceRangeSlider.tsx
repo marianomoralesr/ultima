@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { formatPrice } from '../utils/formatters';
+import { Button } from './ui/button';
 
 interface PriceRangeSliderProps {
     min: number;
@@ -7,41 +8,61 @@ interface PriceRangeSliderProps {
     initialMin?: number;
     initialMax?: number;
     onPriceChange: (min: number, max: number) => void;
+    requireApply?: boolean; // New prop to control if Apply button is needed
 }
 
-const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({ min, max, initialMin, initialMax, onPriceChange }) => {
+const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({ min, max, initialMin, initialMax, onPriceChange, requireApply = false }) => {
     const [minVal, setMinVal] = useState(initialMin || min);
     const [maxVal, setMaxVal] = useState(initialMax || max);
+    const [appliedMin, setAppliedMin] = useState(initialMin || min);
+    const [appliedMax, setAppliedMax] = useState(initialMax || max);
     const minValRef = useRef(minVal);
     const maxValRef = useRef(maxVal);
     const rangeRef = useRef<HTMLDivElement>(null);
 
+    // Check if values have changed from applied values
+    const hasChanges = requireApply && (minVal !== appliedMin || maxVal !== appliedMax);
+
     // Sync state with props, especially when options load asynchronously or filters are cleared
     useEffect(() => {
-        setMinVal(initialMin !== undefined ? initialMin : min);
-        setMaxVal(initialMax !== undefined ? initialMax : max);
+        const newMin = initialMin !== undefined ? initialMin : min;
+        const newMax = initialMax !== undefined ? initialMax : max;
+        setMinVal(newMin);
+        setMaxVal(newMax);
+        setAppliedMin(newMin);
+        setAppliedMax(newMax);
     }, [min, max, initialMin, initialMax]);
 
     // Update refs for real-time access in event handlers
     useEffect(() => { minValRef.current = minVal; }, [minVal]);
     useEffect(() => { maxValRef.current = maxVal; }, [maxVal]);
 
-        // Debounce the callback to avoid excessive re-renders
+        // Debounce the callback to avoid excessive re-renders (only when requireApply is false)
         const debouncedOnPriceChange = useCallback(
-            debounce((minV, maxV) => onPriceChange(minV, maxV), 300),
-            [onPriceChange]
+            debounce((minV, maxV) => {
+                if (!requireApply) {
+                    onPriceChange(minV, maxV);
+                }
+            }, 300),
+            [onPriceChange, requireApply]
         );
-    
+
         const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const value = Math.min(Number(e.target.value), maxVal - 1);
             setMinVal(value);
             debouncedOnPriceChange(value, maxVal);
         };
-    
+
         const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const value = Math.max(Number(e.target.value), minVal + 1);
             setMaxVal(value);
             debouncedOnPriceChange(minVal, value);
+        };
+
+        const handleApply = () => {
+            setAppliedMin(minVal);
+            setAppliedMax(maxVal);
+            onPriceChange(minVal, maxVal);
         };
         
         // Calculate percentage for styling the range bar
@@ -124,6 +145,17 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({ min, max, initialMi
                 <span>{formatPrice(minVal, { showZeroAsCurrency: true })}</span>
                 <span>{formatPrice(maxVal, { showZeroAsCurrency: true })}</span>
             </div>
+            {requireApply && hasChanges && (
+                <div className="mt-4">
+                    <Button
+                        onClick={handleApply}
+                        size="sm"
+                        className="w-full"
+                    >
+                        Aplicar filtro
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };

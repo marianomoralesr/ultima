@@ -70,6 +70,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
               sucursal={vehicle.ubicacion}
               clasificacionid={vehicle.clasificacionid}
               carroceria={vehicle.carroceria}
+              isPopular={isPopular}
               className="aspect-[4/3]"
             />
             {isSeparado && (

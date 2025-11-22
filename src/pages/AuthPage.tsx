@@ -11,6 +11,7 @@ import { getVehicleImage } from '../utils/getVehicleImage';
 import { getEmailRedirectUrl } from './config';
 import { proxyImage } from '../utils/proxyImage';
 import { conversionTracking } from '../services/ConversionTrackingService';
+import { checkBasicProfileCompleteness } from '../components/AuthHandler';
 
 // Admin email addresses that should be redirected to admin dashboard
 const ADMIN_EMAILS = [
@@ -108,9 +109,17 @@ const AuthPage: React.FC = () => {
             sessionStorage.setItem('leadSourceData', JSON.stringify(sourceData));
         }
 
-        if (session) {
+        if (session && profile) {
             // Check if there's a pending redirect
             let redirectPath = localStorage.getItem('loginRedirect');
+
+            // Check if basic profile is incomplete for regular users
+            if (profile.role === 'user' && !checkBasicProfileCompleteness(profile)) {
+                // First-time users with incomplete profile go to profile page
+                localStorage.removeItem('loginRedirect');
+                navigate('/escritorio/profile', { replace: true });
+                return;
+            }
 
             // If no redirect is set, determine default based on email or role
             if (!redirectPath) {

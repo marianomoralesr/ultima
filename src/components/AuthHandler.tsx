@@ -28,6 +28,16 @@ export const checkApplicationProfileCompleteness = (p: Profile | null): boolean 
     });
 };
 
+// Check if profile has basic information complete (first_name, last_name, phone)
+export const checkBasicProfileCompleteness = (p: Profile | null): boolean => {
+    if (!p) return false;
+    const basicFields: (keyof Profile)[] = ['first_name', 'last_name', 'phone'];
+    return basicFields.every(field => {
+        const value = p[field];
+        return value !== null && value !== undefined && String(value).trim() !== '';
+    });
+};
+
 const AuthHandler: React.FC = () => {
   const { session, profile, loading } = useAuth();
   const navigate = useNavigate();
@@ -61,8 +71,15 @@ const AuthHandler: React.FC = () => {
       setTimeout(() => {
         localStorage.removeItem('loginRedirect');
 
-        // If the user was trying to get to the application page, check if their profile is complete first.
-        if (redirectPath.startsWith('/escritorio/aplicacion')) {
+        // Check if basic profile is incomplete for regular users
+        if (profile.role === 'user' && !checkBasicProfileCompleteness(profile)) {
+          // First-time users with incomplete profile go to profile page
+          navigate('/escritorio/profile', { replace: true });
+          return;
+        }
+
+        // If the user was trying to get to the application page, check if their full profile is complete first.
+        if (redirectPath && redirectPath.startsWith('/escritorio/aplicacion')) {
           if (!checkApplicationProfileCompleteness(profile)) {
             // If not complete, force them to the profile page first.
             navigate('/escritorio/profile', { replace: true });
@@ -71,7 +88,9 @@ const AuthHandler: React.FC = () => {
         }
 
         // Perform the redirect.
-        navigate(redirectPath, { replace: true });
+        if (redirectPath) {
+          navigate(redirectPath, { replace: true });
+        }
       }, redirectDelay);
     }
 

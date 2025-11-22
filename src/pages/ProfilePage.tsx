@@ -14,9 +14,12 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
+import { OnboardingStepper } from '../components/OnboardingStepper';
+import { ApplicationService } from '../services/ApplicationService';
+import { BankProfilingService } from '../services/BankProfilingService';
 
 
-const MEXICAN_STATES = [ 'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas', ];
+// Removed MEXICAN_STATES as it's not being used in this file
 
 const CELLPHONE_COMPANIES = [
   'Telcel',
@@ -122,7 +125,9 @@ const ProfilePage: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [hasPriorAdvisor, setHasPriorAdvisor] = useState<string>('no');
   const [selectedSalesAgentId, setSelectedSalesAgentId] = useState<string>('');
-  
+  const [showOnboardingStepper, setShowOnboardingStepper] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(2); // Start at step 2 (profile)
+
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
   });
@@ -167,6 +172,38 @@ const ProfilePage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
+
+  // Check if user should see onboarding stepper
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (!user?.id) return;
+
+      try {
+        // Check if user has submitted any applications
+        const applications = await ApplicationService.getUserApplications(user.id);
+        const hasSubmittedApplication = applications.some(app => app.status !== 'draft');
+
+        // Check bank profile status
+        const bankProfileComplete = await BankProfilingService.isBankProfileComplete(user.id);
+
+        // Show stepper if user hasn't submitted their first application
+        setShowOnboardingStepper(!hasSubmittedApplication);
+
+        // Update step based on profile completion
+        if (bankProfileComplete) {
+          setOnboardingStep(3); // Move to vehicle selection step
+        } else if (isProfileComplete) {
+          setOnboardingStep(2); // Stay on bank profiling step
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      }
+    };
+
+    if (!loading && user) {
+      checkOnboardingStatus();
+    }
+  }, [user, loading, isProfileComplete]);
 
   const [firstName, lastName, motherLastName, birthDate, homoclave] = watchProfileFields(['first_name', 'last_name', 'mother_last_name', 'birth_date', 'homoclave']);
 
@@ -269,16 +306,39 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="max-w-5xl mx-auto p-3 sm:p-4 lg:p-8">
       <Link
         to="/escritorio"
-        className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+        className="flex items-center text-gray-600 hover:text-gray-900 mb-4 lg:mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Volver al Dashboard
       </Link>
-      
-      <div className="space-y-8">
+
+      {/* Onboarding Stepper - Show for first-time users */}
+      {showOnboardingStepper && (
+        <div className="mb-6 lg:mb-8">
+          <OnboardingStepper
+            currentStep={onboardingStep}
+            className="bg-white rounded-xl shadow-sm p-4 lg:p-6"
+          />
+        </div>
+      )}
+
+      {/* Welcome Message for First-Time Users */}
+      {isFirstTimeUser && !isProfileComplete && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 lg:p-5 mb-6 rounded-r-lg">
+          <h3 className="font-bold text-gray-900 flex items-center text-base lg:text-lg">
+            <Info className="w-5 h-5 mr-2 text-blue-600" />
+            Antes de comenzar tu solicitud
+          </h3>
+          <p className="text-sm lg:text-base text-gray-700 mt-2">
+            Necesitas completar tu información personal y perfil bancario. Este proceso es rápido y nos permitirá encontrar las mejores opciones de financiamiento para ti.
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-6 lg:space-y-8">
 
         {/* Profile Information */}
         <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="text-gray-900">
@@ -350,14 +410,17 @@ const ProfilePage: React.FC = () => {
             </div>
           )}
 
-          <div className="space-y-6">
-            {/* Contact Information Section */}
-            <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">1</span>
-                Información de Contacto
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Optimized two-column layout for desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            {/* Left Column */}
+            <div className="space-y-4 lg:space-y-6">
+              {/* Contact Information Section */}
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+                <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                  <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">1</span>
+                  Información de Contacto
+                </h3>
+                <div className="space-y-3 lg:space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Teléfono</Label>
                   <div className="flex">
@@ -376,21 +439,21 @@ const ProfilePage: React.FC = () => {
                   </select>
                   {profileForm.formState.errors.cellphone_company && <p className="text-sm text-red-600">{profileForm.formState.errors.cellphone_company?.message as React.ReactNode}</p>}
                 </div>
-                <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="email">Correo Electrónico</Label>
-                  <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
-                  <p className="text-xs text-muted-foreground">Este correo está vinculado a tu cuenta y no puede ser modificado.</p>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Correo Electrónico</Label>
+                    <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
+                    <p className="text-xs text-muted-foreground">Este correo está vinculado a tu cuenta y no puede ser modificado.</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Personal Information Section */}
-            <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">2</span>
-                Datos Personales
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Personal Information Section */}
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+                <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                  <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">2</span>
+                  Datos Personales
+                </h3>
+                <div className="space-y-3 lg:space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">Nombre(s)</Label>
                   <Input id="first_name" {...profileForm.register('first_name')} placeholder="Tu(s) nombre(s)" />
@@ -406,19 +469,22 @@ const ProfilePage: React.FC = () => {
                   <Input id="mother_last_name" {...profileForm.register('mother_last_name')} placeholder="Apellido materno" />
                   {profileForm.formState.errors.mother_last_name && <p className="text-sm text-red-600">{profileForm.formState.errors.mother_last_name?.message as React.ReactNode}</p>}
                 </div>
+                </div>
+                <p className="text-xs text-blue-600 mt-3 flex items-center">
+                  <Info className="w-4 h-4 mr-1" />
+                  Los nombres se formatearán automáticamente con mayúsculas y minúsculas apropiadas.
+                </p>
               </div>
-              <p className="text-xs text-blue-600 mt-3 flex items-center">
-                <Info className="w-4 h-4 mr-1" />
-                Los nombres se formatearán automáticamente con mayúsculas y minúsculas apropiadas.
-              </p>
             </div>
 
-            {/* RFC and Fiscal Information Section */}
-            <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">3</span>
-                Información Fiscal
-              </h3>
+            {/* Right Column */}
+            <div className="space-y-4 lg:space-y-6">
+              {/* RFC and Fiscal Information Section */}
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+                <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                  <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">3</span>
+                  Información Fiscal
+                </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="birth_date">Fecha de Nacimiento</Label>
@@ -457,12 +523,12 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Family Status Section */}
-            <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">4</span>
-                Estado Civil y Género
-              </h3>
+              {/* Family Status Section */}
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+                <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
+                  <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">4</span>
+                  Estado Civil y Género
+                </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="civil_status">Estado Civil</Label>
@@ -493,13 +559,15 @@ const ProfilePage: React.FC = () => {
                 )}
               </div>
             </div>
+            </div>
+          </div>
 
-            {/* Prior TREFA Advisor Section */}
-            <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-primary-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm">5</span>
-                Asignación de Asesor
-              </h3>
+          {/* Prior TREFA Advisor Section - Full width below the grid */}
+          <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200 mt-4 lg:mt-6">
+            <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
+              <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">5</span>
+              Asignación de Asesor
+            </h3>
 
               <div className="space-y-4">
                 <div>
@@ -553,35 +621,25 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end pt-4">
-              <button 
-                type="submit" 
-                disabled={saveState === 'saving'} 
-                className={`inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70
-                  ${saveState === 'saved' 
-                    ? 'bg-green-500 hover:bg-green-600 focus:ring-green-500' 
-                    : 'bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 focus:ring-primary-500'
-                  }`}
-              >
-                {saveState === 'saving' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {saveState === 'saved' && <CheckCircle className="w-4 h-4 mr-2" />}
-                {saveState === 'saving' ? 'Guardando...' : saveState === 'saved' ? '¡Guardado!' : 'Guardar Cambios'}
-              </button>
-            </div>
+          <div className="flex justify-end pt-4">
+            <button
+              type="submit"
+              disabled={saveState === 'saving'}
+              className={`inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70
+                ${saveState === 'saved'
+                  ? 'bg-green-500 hover:bg-green-600 focus:ring-green-500'
+                  : 'bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 focus:ring-primary-500'
+                }`}
+            >
+              {saveState === 'saving' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {saveState === 'saved' && <CheckCircle className="w-4 h-4 mr-2" />}
+              {saveState === 'saving' ? 'Guardando...' : saveState === 'saved' ? '¡Guardado!' : 'Guardar Cambios'}
+            </button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
-const FormField: React.FC<{ label: string; error?: React.ReactNode; children: React.ReactNode; }> = ({ label, error, children }) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700">{label}</label>
-    <div className="mt-1">{children}</div>
-    {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
-  </div>
-);
-
 
 export default ProfilePage;

@@ -33,6 +33,10 @@ const ALLOWED_ORIGINS = [
   "https://trefa.mx",
   "https://www.trefa.mx",
   "https://staging.trefa.mx",
+  "https://app-staging-dqfqiqyola-uc.a.run.app", // Staging friendly URL
+  "https://app-staging-1052659336338.us-central1.run.app", // Staging internal URL
+  "https://app-dqfqiqyola-uc.a.run.app", // Production friendly URL
+  "https://app-1052659336338.us-central1.run.app", // Production internal URL
 ].filter(Boolean);
 
 // ----- Trust Proxy (Cloud Run) -----
@@ -100,11 +104,22 @@ const corsOptions = {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
 
+    // Allow same-origin requests (when the app loads its own assets)
+    // This handles cases where Cloud Run URLs change or have multiple formats
+    const requestHost = new URL(`${origin}/`).host;
+    const serverHost = new URL(`${FRONTEND_URL}/`).host;
+    const cloudRunHost = CLOUD_RUN_URL ? new URL(`${CLOUD_RUN_URL}/`).host : null;
+
+    if (requestHost === serverHost || (cloudRunHost && requestHost === cloudRunHost)) {
+      return callback(null, true);
+    }
+
     // Check if origin is in allowed list
     if (ALLOWED_ORIGINS.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.warn(`⚠️ Blocked CORS request from origin: ${origin}`);
+      console.warn(`   Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
       callback(new Error('Not allowed by CORS'));
     }
   },

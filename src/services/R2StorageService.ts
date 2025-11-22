@@ -10,7 +10,8 @@
  * 3. Configure environment variables
  */
 
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+// Use type imports only to avoid loading AWS SDK at module initialization
+import type { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const R2_ACCOUNT_ID = import.meta.env.VITE_CLOUDFLARE_ACCOUNT_ID;
 const R2_ACCESS_KEY_ID = import.meta.env.VITE_CLOUDFLARE_R2_ACCESS_KEY_ID;
@@ -21,24 +22,48 @@ const R2_BUCKET_NAME = 'trefa-images'; // Change to your bucket name
 class R2StorageService {
   private client: S3Client | null = null;
   private isConfigured: boolean = false;
+  private sdkPromise: Promise<typeof import('@aws-sdk/client-s3')> | null = null;
 
   constructor() {
-    // Only initialize if all R2 credentials are available
-    if (R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY) {
-      this.client = new S3Client({
-        region: 'auto',
-        endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-        credentials: {
-          accessKeyId: R2_ACCESS_KEY_ID,
-          secretAccessKey: R2_SECRET_ACCESS_KEY,
-        },
-      });
-      this.isConfigured = true;
-    } else {
+    // Check if all R2 credentials are available
+    this.isConfigured = !!(R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY);
+
+    if (!this.isConfigured) {
       console.warn(
         'R2 Storage not configured. Set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_R2_ACCESS_KEY_ID, and CLOUDFLARE_R2_SECRET_ACCESS_KEY in environment variables.'
       );
     }
+  }
+
+  /**
+   * Lazily initialize the S3Client when first needed
+   */
+  private async getClient(): Promise<S3Client> {
+    if (this.client) {
+      return this.client;
+    }
+
+    if (!this.isConfigured) {
+      throw new Error('R2 Storage is not configured');
+    }
+
+    // Dynamically import AWS SDK only when needed
+    if (!this.sdkPromise) {
+      this.sdkPromise = import('@aws-sdk/client-s3');
+    }
+
+    const { S3Client } = await this.sdkPromise;
+
+    this.client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID!,
+        secretAccessKey: R2_SECRET_ACCESS_KEY!,
+      },
+    });
+
+    return this.client;
   }
 
   /**
@@ -61,15 +86,14 @@ class R2StorageService {
     path: string,
     contentType?: string
   ): Promise<string> {
-    if (!this.client || !this.isConfigured) {
-      throw new Error('R2 Storage is not configured');
-    }
-
     if (!R2_PUBLIC_URL) {
       throw new Error('VITE_CLOUDFLARE_R2_PUBLIC_URL is not configured');
     }
 
     try {
+      const client = await this.getClient();
+      const { PutObjectCommand } = await this.sdkPromise!;
+
       const buffer = await file.arrayBuffer();
 
       const command = new PutObjectCommand({
@@ -80,7 +104,7 @@ class R2StorageService {
         CacheControl: 'public, max-age=31536000', // 1 year cache
       });
 
-      await this.client.send(command);
+      await client.send(command);
 
       // Return the public URL
       return `${R2_PUBLIC_URL}/${path}`;
@@ -96,17 +120,16 @@ class R2StorageService {
    * @param path - The path/key of the file to delete
    */
   async deleteFile(path: string): Promise<void> {
-    if (!this.client || !this.isConfigured) {
-      throw new Error('R2 Storage is not configured');
-    }
-
     try {
+      const client = await this.getClient();
+      const { DeleteObjectCommand } = await this.sdkPromise!;
+
       const command = new DeleteObjectCommand({
         Bucket: R2_BUCKET_NAME,
         Key: path,
       });
 
-      await this.client.send(command);
+      await client.send(command);
     } catch (error) {
       console.error('Error deleting from R2:', error);
       throw new Error(`Failed to delete file from R2: ${error instanceof Error ? error.message : 'Unknown error'}`);

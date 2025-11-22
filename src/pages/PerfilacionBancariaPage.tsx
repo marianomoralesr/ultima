@@ -357,19 +357,19 @@ const PerfilacionBancariaPage: React.FC = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto pb-24 md:pb-8">
             <div className="mb-8 text-center">
                 <Building2 className="w-12 h-12 text-primary-600 mx-auto mb-4" />
                 <h1 className="text-2xl font-bold text-gray-900">Perfilamiento Bancario</h1>
                 <p className="text-gray-600 mt-1">Completa este formulario para encontrar la mejor opción de crédito para ti.</p>
             </div>
-            
+
              <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-6 rounded-r-lg">
                 <h3 className="font-bold flex items-center"><Info className="w-5 h-5 mr-2" />¿Para qué es esto?</h3>
                 <p className="text-sm mt-1">Tus respuestas nos ayudan a determinar qué banco tiene la mayor probabilidad de aprobar tu crédito, ahorrándote tiempo y mejorando tus posibilidades de éxito.</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-8">
                  <RadioField control={control} name="trabajo_tiempo" label="Antigüedad en tu empleo actual" options={['Menos de 6 meses', 'De 6 meses a 1 año', 'De 1 a 2 años', 'Más de 2 años']} error={errors.trabajo_tiempo?.message} />
                  <RadioFieldWithHelper
                     control={control}

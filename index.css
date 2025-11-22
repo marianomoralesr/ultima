@@ -420,13 +420,8 @@ h1-be-vietnam-pro-black {
 
   .header-search-container {
     position: relative;
-    padding: 1px;
-    margin-top:3px;
-    background: linear-gradient(90deg, #ea580c, #f97316, #ea580c);
-    background-size: 200% 200%;
-    animation: neon-glow 8s linear infinite;
-    border-radius: 9999px; /* rounded-full */
     width: 100%;
+    /* Removed animated background that was obstructing the search bar */
   }
   .header-search-tooltip {
     position: absolute;

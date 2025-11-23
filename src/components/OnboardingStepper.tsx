@@ -31,6 +31,10 @@ interface OnboardingStepperProps {
    * Whether the user's profile is complete (for conditional Step 2 logic)
    */
   isProfileComplete?: boolean;
+  /**
+   * User's first name for personalized messages
+   */
+  userName?: string;
 }
 
 /**
@@ -102,6 +106,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   onStepClick,
   className = '',
   isProfileComplete = false,
+  userName = 'Usuario',
 }) => {
   // Define the onboarding steps with new descriptions
   const steps = [
@@ -128,10 +133,10 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
     },
     {
       title: 'Enviar Solicitud',
-      description: '⚪ Último Paso – te toma 1 minuto',
+      description: 'Complétala en 2 minutos',
       icon: Send,
       completed: currentStep > 4,
-      timeEstimate: '1 min',
+      timeEstimate: '2 min',
     },
   ];
 
@@ -182,35 +187,34 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             )}
             {step === 2 && currentStep === 2 && (
               <>
-                {isProfileComplete ? (
-                  // Profile is complete - show banking profile call to action
-                  <>
-                    <div className="flex items-start gap-2 mb-4">
-                      <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-gray-700 font-medium">
-                        Cumples con los requisitos para iniciar tu perfilamiento bancario
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => window.location.href = '/escritorio/perfilacion-bancaria'}
-                      className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
-                    >
-                      Comenzar perfilamiento bancario ahora
-                    </button>
-                  </>
-                ) : (
-                  // Profile is incomplete - redirect to complete profile first
-                  <>
-                    <p className="text-gray-700 mb-4">
-                      Por favor completa tu información personal para comenzar tu perfilamiento bancario
+                {/* Always show positive personalized message */}
+                <div className="flex items-start gap-3 mb-4 bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                  <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-gray-900 font-semibold text-base">
+                      {userName}, ¡tu registro fue exitoso y cumples con las condiciones para continuar!
                     </p>
-                    <button
-                      onClick={() => window.location.href = '/escritorio/profile'}
-                      className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
-                    >
-                      Completar la información de mi perfil
-                    </button>
-                  </>
+                    <p className="text-gray-700 text-sm mt-1">
+                      Estás muy cerca de reservar tu vehículo ideal 🚗
+                    </p>
+                  </div>
+                </div>
+
+                {/* Conditional CTA based on profile completion */}
+                {isProfileComplete ? (
+                  <button
+                    onClick={() => window.location.href = '/escritorio/perfilacion-bancaria'}
+                    className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+                  >
+                    Comenzar perfilamiento bancario ahora
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => window.location.href = '/escritorio/profile'}
+                    className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+                  >
+                    Completar la información de mi perfil
+                  </button>
                 )}
               </>
             )}

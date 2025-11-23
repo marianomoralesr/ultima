@@ -423,6 +423,7 @@ const Dashboard: React.FC = () => {
               <OnboardingStepper
                 currentStep={onboardingStep}
                 isProfileComplete={!!profile && requiredFields.every(field => profile?.[field] && String(profile[field]).trim() !== '')}
+                userName={profile?.first_name || 'Usuario'}
                 onStepClick={(step) => {
                   // Handle step navigation
                   console.log('User clicked step:', step);

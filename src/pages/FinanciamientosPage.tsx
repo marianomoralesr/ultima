@@ -738,61 +738,92 @@ const FinanciamientosPage: React.FC = () => {
       `}</style>
       <div className="financiamientos-page" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
       {/* Hero Section with Form */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-orange-50/30 py-12 sm:py-16 lg:py-20">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-primary/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-500/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/10 to-yellow-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
+      <section className="relative overflow-hidden bg-white py-12 sm:py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Logo with Animation - Extra Small Size */}
+          {/* Logo with Animation */}
           <motion.div
             initial={{ opacity: 0, scale: 1.2 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex justify-center mb-6 sm:mb-8"
+            className="flex justify-center mb-8 sm:mb-12"
           >
             <img
               src="/images/trefalogo.png"
               alt="TREFA Logo"
-              className="h-6 sm:h-10 md:h-12 w-auto"
+              className="h-8 sm:h-12 md:h-16 w-auto"
             />
           </motion.div>
 
-          {/* Massive Headline - Two lines only */}
-          <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+          {/* Modern Hero Grid - Content Left, Phone Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-5xl sm:text-6xl md:text-6xl lg:text-7xl font-black mb-3 sm:mb-4 px-4 tracking-tight leading-[0.95]"
-              style={{ fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 900, letterSpacing: '-0.02em' }}
+              className="space-y-6 lg:space-y-8"
             >
-              <span className="inline text-gray-900">
-                Estrena un auto seminuevo en{' '}
-              </span>
-              <span className="inline">
-                <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">
-                  menos de 24h
-                </span>
-              </span>
-            </motion.h1>
+              {/* Headline */}
+              <div className="space-y-4">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight tracking-tight">
+                  Cambia tu auto por un seminuevo por $0
+                </h1>
+                <p className="text-lg sm:text-xl text-gray-700 leading-relaxed">
+                  Entrega tu auto como enganche y elige el que más te guste de nuestro inventario. Llévate el resto a crédito por uno, dos o hasta cinco años.
+                </p>
+              </div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href="/inventario"
+                  className="inline-flex items-center justify-center px-6 py-4 text-base font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  Ver Inventario
+                </a>
+                <button
+                  onClick={() => {
+                    const videoSection = document.getElementById('video-section');
+                    videoSection?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="inline-flex items-center justify-center px-6 py-4 text-base font-semibold text-primary bg-white border-2 border-gray-200 hover:border-primary rounded-lg transition-all duration-200"
+                >
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Ver vídeo
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Right Side - Phone Mockup */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-              className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed mt-2 mb-8 sm:mb-10 font-normal px-4"
-              style={{ fontFamily: "'Be Vietnam Pro', sans-serif", letterSpacing: 'normal' }}
+              className="relative flex justify-center lg:justify-end"
             >
-              Enviamos tu solicitud al banco con la mayor probabilidad de aprobar tu crédito automotriz.
-            </motion.p>
+              <div className="relative w-full max-w-[320px] aspect-[9/19]">
+                {/* Phone Frame Shadow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 rounded-[2.5rem] shadow-2xl"></div>
+                {/* Phone Screen */}
+                <div className="absolute inset-[3%] bg-white rounded-[2.2rem] overflow-hidden shadow-inner">
+                  <img
+                    src="/images/trefalogo.png"
+                    alt="TREFA App"
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+              </div>
+            </motion.div>
           </div>
 
+          {/* Divider */}
+          <div className="mt-16 lg:mt-24 mb-12 border-t border-gray-200"></div>
+
           {/* Main Content Grid - 3/5 Video, 2/5 Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8 xl:gap-10 items-start max-w-[95%] mx-auto mt-6">
+          <div id="video-section" className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8 xl:gap-10 items-start max-w-[95%] mx-auto mt-6">
             {/* Video Player with Animated Gradient Border */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}

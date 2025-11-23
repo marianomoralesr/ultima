@@ -145,14 +145,32 @@ const Header: React.FC = () => {
                                         onClick={() => handleMobileLinkClick('/escritorio')}
                                         className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
                                     >
-                                        Mi Escritorio
+                                        Escritorio
                                     </button>
                                 )}
+                                <button
+                                    onClick={() => handleMobileLinkClick('/autos')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Inventario
+                                </button>
                                 <button
                                     onClick={() => handleMobileLinkClick('/escritorio/profile')}
                                     className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
                                 >
                                     Mi Perfil
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/escritorio/seguimiento')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Mis Solicitudes
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/promociones')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Promociones
                                 </button>
                                 <button
                                     onClick={() => handleMobileLinkClick('/escritorio/favoritos')}
@@ -161,10 +179,16 @@ const Header: React.FC = () => {
                                     Mis Favoritos
                                 </button>
                                 <button
-                                    onClick={() => handleMobileLinkClick('/escritorio/seguimiento')}
+                                    onClick={() => handleMobileLinkClick('/vender')}
                                     className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
                                 >
-                                    Mis Solicitudes
+                                    Vender mi auto
+                                </button>
+                                <button
+                                    onClick={() => handleMobileLinkClick('/ayuda')}
+                                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700"
+                                >
+                                    Ayuda/FAQs
                                 </button>
                                 <button
                                     onClick={handleSignOut}

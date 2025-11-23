@@ -408,7 +408,7 @@ const Dashboard: React.FC = () => {
   return (
     <>
       {showOnboarding && <OnboardingModal onClose={handleCompleteOnboarding} />}
-      <div className="space-y-8 lg:ml-6 lg:pl-6 text-neutral-800 max-w-full overflow-x-hidden">
+      <div className="space-y-8 lg:ml-6 lg:pl-6 text-neutral-800 max-w-full overflow-x-hidden bg-white">
         <div>
           <h1 className="text-2xl font-bold text-neutral-800 ">Bienvenido a tu Escritorio, {userName}</h1>
           <p className="mt-1 text-neutral-600">Administra tus solicitudes y explora opciones de financiamiento.</p>
@@ -427,6 +427,11 @@ const Dashboard: React.FC = () => {
                 }}
               />
             )}
+
+            {/* Mi Asesor - Show on mobile right after onboarding stepper */}
+            <div className="lg:hidden">
+                {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
+            </div>
 
              {submittedApps.length > 0 ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -493,11 +498,10 @@ const Dashboard: React.FC = () => {
             
             <FinancialProjection />
             
-            {/* Surveys and Advisor on Mobile */}
+            {/* Surveys and Ebook on Mobile */}
             <div className="lg:hidden space-y-8">
-                {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
                 {isSurveyVisible && <SurveyInvitation onClose={() => setIsSurveyVisible(false)} />}
-                { <EbookCta /> }
+                <EbookCta />
             </div>
 
             <VehicleCarousel isBankProfileComplete={isBankProfileComplete} />
@@ -534,7 +538,7 @@ const Dashboard: React.FC = () => {
                 </div>
             )}
             {isSurveyVisible && <SurveyInvitation onClose={() => setIsSurveyVisible(false)} />}
-            { <EbookCta /> }
+            <EbookCta />
         </aside>
       </div>
     </div>

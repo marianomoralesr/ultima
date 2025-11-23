@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { WordPressVehicle } from '../types/types';
 import { Search, X, Loader2 } from 'lucide-react';
 import LazyImage from './LazyImage';
 import { formatPrice } from '../utils/formatters';
 import { EyeIcon } from './icons';
-import { useVehicles } from '../context/VehicleContext';
+import VehicleService from '../services/VehicleService';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 
 interface VehicleSelectorProps {
@@ -16,28 +16,32 @@ interface VehicleSelectorProps {
 
 const VehicleSelector: React.FC<VehicleSelectorProps> = ({ isOpen, onClose, onSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { vehicles: allVehicles, isLoading } = useVehicles();
+  const [allVehicles, setAllVehicles] = useState<WordPressVehicle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const availableVehicles = useMemo(() => {
-    // Filter vehicles that are:
-    // 1. NOT separado (separado === false)
-    // 2. ordenstatus === 'Comprado' (available for purchase)
-    // This ensures we only show vehicles that are truly available for selection
-    return allVehicles.filter(v =>
-      v.separado === false &&
-      v.ordenstatus?.toLowerCase() === 'comprado'
-    );
-  }, [allVehicles]);
+  // Fetch ALL available vehicles when component opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoading(true);
+      VehicleService.getAllAvailableVehiclesForSelection().then(vehicles => {
+        setAllVehicles(vehicles as WordPressVehicle[]);
+        setIsLoading(false);
+      }).catch(err => {
+        console.error('Error loading vehicles:', err);
+        setIsLoading(false);
+      });
+    }
+  }, [isOpen]);
 
   const filteredVehicles = useMemo(() => {
-    if (!searchQuery) return availableVehicles;
+    if (!searchQuery) return allVehicles;
     const lowercasedQuery = searchQuery.toLowerCase();
-    return availableVehicles.filter(vehicle =>
+    return allVehicles.filter(vehicle =>
       vehicle.titulo.toLowerCase().includes(lowercasedQuery) ||
       vehicle.marca.toLowerCase().includes(lowercasedQuery) ||
       String(vehicle.autoano).includes(lowercasedQuery)
     );
-  }, [availableVehicles, searchQuery]);
+  }, [allVehicles, searchQuery]);
 
   if (!isOpen) return null;
 
@@ -79,33 +83,30 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ isOpen, onClose, onSe
               <p>No se encontraron autos.</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
             {filteredVehicles.map(vehicle => {
               const imageSrc = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
               return (
-                // FIX: Corrected property access from `ligawp` to `slug`
                 <div
                   key={vehicle.slug}
-                  className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
+                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
                 >
-                  <button onClick={() => onSelect(vehicle)} className="flex-grow flex items-center gap-4 text-left">
-                    <LazyImage src={imageSrc} alt={vehicle.titulo} className="w-24 h-20 rounded-md flex-shrink-0 border border-gray-200" />
+                  <button onClick={() => onSelect(vehicle)} className="flex-grow flex items-center gap-3 text-left">
+                    <LazyImage src={imageSrc} alt={vehicle.titulo} className="w-16 h-12 rounded-md flex-shrink-0 border border-gray-200 object-cover" />
                     <div className="flex-grow min-w-0">
-                      <p className="font-semibold text-gray-800 truncate" title={vehicle.titulo}>{vehicle.titulo}</p>
-                      {/* FIX: Corrected property name from 'autoprecio' to 'precio' */}
-                      <p className="text-sm text-gray-600">{formatPrice(vehicle.precio)}</p>
+                      <p className="text-sm font-semibold text-gray-800 truncate" title={vehicle.titulo}>{vehicle.titulo}</p>
+                      <p className="text-xs text-gray-600">{formatPrice(vehicle.precio)}</p>
                     </div>
                   </button>
                   <Link
-                    // FIX: Corrected property access from `ligawp` to `slug`
                     to={`/autos/${vehicle.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="flex-shrink-0 p-2 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                    className="flex-shrink-0 p-1.5 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                     aria-label={`Ver detalles de ${vehicle.titulo} en una nueva pestaña`}
                   >
-                    <EyeIcon className="w-5 h-5" />
+                    <EyeIcon className="w-4 h-4" />
                   </Link>
                 </div>
               );

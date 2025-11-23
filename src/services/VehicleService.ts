@@ -467,6 +467,28 @@ class VehicleService {
         }
     }
 
+    /**
+     * Fetch ALL available vehicles for selection (OrdenStatus=Comprado, separado=false)
+     * Used in VehicleSelector component for application page
+     */
+    public static async getAllAvailableVehiclesForSelection(): Promise<Vehicle[]> {
+        try {
+            const { data, error } = await supabase
+                .from('inventario_cache')
+                .select('*')
+                .eq('ordenstatus', 'Comprado')
+                .eq('separado', false)
+                .order('id', { ascending: false });
+
+            if (error) throw error;
+
+            return data ? this.normalizeVehicleData(data) : [];
+        } catch (error) {
+            console.error('Error fetching all available vehicles for selection:', error);
+            return [];
+        }
+    }
+
     public static async getAndRecordVehicleView(slug: string): Promise<Vehicle | null> {
         const vehicle = await this.getVehicleBySlug(slug);
         if (vehicle) {

@@ -62,6 +62,7 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .version-number {
@@ -101,85 +102,42 @@
             letter-spacing: 0.5px;
         }
 
-        .badge-fix {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-feature {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .badge-improvement {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .badge-pending {
-            background: #f8d7da;
-            color: #721c24;
-        }
+        .badge-feature { background: #dcfce7; color: #166534; }
+        .badge-fix { background: #fef3c7; color: #92400e; }
+        .badge-security { background: #fee2e2; color: #991b1b; }
+        .badge-perf { background: #dbeafe; color: #1e40af; }
+        .badge-docs { background: #f3e8ff; color: #6b21a8; }
 
         .change-list {
             list-style: none;
-            margin-left: 0;
         }
 
         .change-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #f9fafb;
+            transition: all 0.2s;
         }
 
-        .change-item:last-child {
-            border-bottom: none;
+        .change-item:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
         }
 
-        .change-icon {
-            flex-shrink: 0;
-            width: 24px;
-            height: 24px;
-            background: transparent;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-center;
-            color:#FF6801;
-            border: 2px solid #FF6801;
-            border-color: #FF6801;
-            font-size: 0.8em;
-            margin-top: 2px;
-        }
-
-        .change-text {
-            flex: 1;
-        }
-
-        .change-description {
-            color: #666;
-            font-size: 0.95em;
-            margin-top: 5px;
-        }
-
-        .commit-hash {
-            font-family: 'Courier New', monospace;
-            background: #f5f5f5;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            color: #666;
-            margin-left: 8px;
+        .change-item::before {
+            content: "→";
+            margin-right: 10px;
+            color: #FF6801;
+            font-weight: bold;
         }
 
         .footer {
-            background: #f8f9fa;
-            padding: 30px 40px;
+            background: #f9fafb;
+            padding: 30px;
             text-align: center;
             color: #666;
-            font-size: 0.9em;
+            border-top: 2px solid #f1f1f1;
         }
 
         @media (max-width: 768px) {
@@ -188,781 +146,433 @@
             }
 
             .header h1 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
 
             .content {
-                padding: 25px;
+                padding: 20px;
             }
 
             .version {
                 padding-left: 20px;
             }
 
-            .version-header {
-                flex-direction: column;
-                align-items: flex-start;
+            .version-number {
+                font-size: 1.5em;
             }
+        }
+
+        .commit-hash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            color: #888;
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .branch-name {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 Registro de Cambios</h1>
+            <h1>📋 Registro de Cambios</h1>
             <p>Autos TREFA - Historial de Actualizaciones</p>
-            <p style="font-size: 0.9em; margin-top: 5px; opacity: 0.9;">trefa.mx</p>
-            <p style="font-size: 1.1em; margin-top: 15px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 8px; display: inline-block;">
-                ⏱️ Total de Horas de Desarrollo: <span style="font-size: 1.3em;">1,850+</span> horas
-            </p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 23 de Noviembre, 2024</p>
         </div>
 
         <div class="content">
-            <!-- Version 1.3.1 - CRITICAL FIX -->
+
+            <!-- VERSIÓN 1.11.0 - Noviembre 23, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v1.3.1</span>
-                    <span class="version-date">2 de Noviembre, 2025</span>
-                    <span class="badge badge-fix" style="margin-left: 10px;">🚨 CORRECCIÓN CRÍTICA</span>
+                    <span class="version-number">v1.11.0</span>
+                    <span class="version-date">23 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Sistema de Diseño</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-fix">Corrección Crítica</span>
-                        <span>Sistema de Valuación con Intelimotor</span>
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">💰</div>
-                            <div class="change-text">
-                                <strong>CRÍTICO: Corregidas ofertas incorrectas en valuaciones de vehículos</strong>
-                                <p class="change-description">
-                                    <strong>⚠️ PROBLEMA IDENTIFICADO:</strong><br>
-                                    El sistema estaba generando ofertas INCORRECTAS que no provenían de la API de Intelimotor, causando pérdidas económicas reales a la empresa. Se detectaron los siguientes problemas críticos:<br><br>
+                            <strong>Sistema de Diseño Figma MCP:</strong> Documentación completa en español del sistema de diseño basado en shadcn/ui para integración con Figma usando Model Context Protocol
+                        </li>
+                        <li class="change-item">
+                            <strong>FIGMA_DESIGN_RULES.md:</strong> Guía de 10 secciones con tokens de diseño, componentes, patrones de implementación, gestión de assets, sistema de iconos y workflow Figma → Código
+                        </li>
+                    </ul>
+                </div>
 
-                                    <strong>1. Faltaba el parámetro lite=true (REQUERIDO):</strong><br>
-                                    • La API de Intelimotor requiere el parámetro lite=true en todas las solicitudes de valuación<br>
-                                    • Este parámetro NO estaba siendo enviado en ninguna llamada a la API<br>
-                                    • Sin lite=true, la API puede devolver datos incompletos o incorrectos<br><br>
-
-                                    <strong>2. Cálculos arbitrarios generaban ofertas falsas:</strong><br>
-                                    • Si no se recibía suggestedOffer de Intelimotor, el sistema calculaba ofertas usando fórmulas arbitrarias:<br>
-                                    &nbsp;&nbsp;- avgMarketValue - $5,000<br>
-                                    &nbsp;&nbsp;- (lowMarketValue + highMarketValue) / 2 - $5,000<br>
-                                    &nbsp;&nbsp;- lowMarketValue - $7,500<br>
-                                    &nbsp;&nbsp;- highMarketValue - $15,000<br>
-                                    • Estas ofertas NO venían de Intelimotor y eran INVENTADAS por el código<br>
-                                    • Esto causaba ofertas incorrectas que afectaban el negocio directamente<br><br>
-
-                                    <strong>3. Se usaba ofertaAutomatica como respaldo:</strong><br>
-                                    • El sistema intentaba usar ofertaAutomatica cuando no había suggestedOffer<br>
-                                    • Según instrucciones, SOLO debemos usar suggestedOffer<br><br>
-
-                                    <strong>✅ SOLUCIONES IMPLEMENTADAS:</strong><br><br>
-
-                                    <strong>A. Agregado lite=true a todas las llamadas API:</strong><br>
-                                    • Se agregó el parámetro "lite: true" al request body del POST a /valuations<br>
-                                    • Esto asegura que Intelimotor procese la solicitud correctamente<br>
-                                    • Archivo: src/Valuation/services/valuationService.ts línea 324<br><br>
-
-                                    <strong>B. Eliminados TODOS los cálculos arbitrarios:</strong><br>
-                                    • Se removieron completamente las 50+ líneas de código que calculaban ofertas falsas<br>
-                                    • Ahora el sistema SOLO acepta suggestedOffer directamente de Intelimotor<br>
-                                    • Si no hay suggestedOffer, se falla la valuación en lugar de inventar una oferta<br>
-                                    • Archivo: src/Valuation/services/valuationService.ts líneas 394-412<br><br>
-
-                                    <strong>C. Proceso de valuación simplificado y correcto:</strong><br>
-                                    • Paso 1: POST a /valuations con lite=true<br>
-                                    • Paso 2: Si suggestedOffer está en la respuesta → usar ese valor ✓<br>
-                                    • Paso 3: Si no, hacer polling con GET /valuations/:id<br>
-                                    • Paso 4: Cuando suggestedOffer > 0 → usar ese valor ✓<br>
-                                    • Paso 5: Si después de 6 intentos no hay suggestedOffer → ERROR (no inventar oferta)<br><br>
-
-                                    <strong>D. Validaciones mejoradas:</strong><br>
-                                    • El código ahora verifica explícitamente que suggestedOffer > 0<br>
-                                    • Si no se recibe suggestedOffer válido, se muestra mensaje al usuario sugiriendo versiones alternativas<br>
-                                    • Se loguea toda la respuesta de la API para debugging si hay problemas<br><br>
-
-                                    <strong>📊 IMPACTO:</strong><br>
-                                    • ✅ Todas las ofertas ahora provienen EXCLUSIVAMENTE de Intelimotor<br>
-                                    • ✅ Se eliminó el riesgo de hacer ofertas incorrectas que cuestan dinero real<br>
-                                    • ✅ Mayor precisión en valuaciones (datos de mercado reales)<br>
-                                    • ✅ Cumplimiento total con especificaciones de API de Intelimotor<br>
-                                    • ✅ Transparencia: El usuario sabe si su vehículo no puede ser valuado<br><br>
-
-                                    <strong>🔍 ARCHIVOS MODIFICADOS:</strong><br>
-                                    • src/Valuation/services/valuationService.ts (líneas 324, 336-352, 375-381, 394-412, 415)<br><br>
-
-                                    <strong>⚠️ ACCIÓN REQUERIDA:</strong><br>
-                                    Este fix debe desplegarse INMEDIATAMENTE a producción dado que afecta ofertas reales con dinero real.<br>
-                                    Después del despliegue, se recomienda revisar valuaciones recientes en Airtable para validar que las ofertas sean consistentes con el mercado.
-                                </p>
-                            </div>
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Sección de Sucursales en Homepage:</strong> Tarjetas expandibles con información de cada sucursal TREFA (dirección, horarios, contacto)
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Version 1.3.0 - Current -->
+            <!-- VERSIÓN 1.10.0 - Noviembre 22, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v1.3.0</span>
-                    <span class="version-date">25 de Octubre, 2025</span>
+                    <span class="version-number">v1.10.0</span>
+                    <span class="version-date">22 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Onboarding & UX</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-fix">Corrección</span>
-                        <span>Autenticación con Intelimotor</span>
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🔐</div>
-                            <div class="change-text">
-                                <strong>Corregido error 401 al obtener valuaciones de autos</strong>
-                                <span class="commit-hash">1b6bfbd</span>
-                                <p class="change-description">
-                                    Se solucionó el error "Error de autenticación con Intelimotor (401)" que impedía obtener valuaciones de vehículos. La API de Intelimotor requiere que las credenciales (API Key y API Secret) se envíen como parámetros en la URL, no como headers. El proxy ahora extrae las credenciales de los headers y las agrega correctamente a la URL como query parameters (?apiKey=...&apiSecret=...).
-                                </p>
-                            </div>
+                            <strong>Sistema de Onboarding Interactivo:</strong> Stepper progresivo con lógica condicional, mensajería personalizada y gamificación para nuevos usuarios
+                        </li>
+                        <li class="change-item">
+                            <strong>Indicadores Visuales Mejorados:</strong> Íconos animados, badges informativos y transiciones fluidas en el flujo de onboarding
+                        </li>
+                        <li class="change-item">
+                            <strong>Guardado de Teléfono desde Formulario:</strong> Captura automática del número telefónico durante el proceso de financiamiento
+                        </li>
+                        <li class="change-item">
+                            <strong>Sistema de Encuestas Completo:</strong> Mejoras integrales al sistema de encuestas con analytics mejorados
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-improvement">Mejora</span>
-                        <span>Estandarización de Filtros y Categorías</span>
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🏷️</div>
-                            <div class="change-text">
-                                <strong>Estandarizados nombres de campos de filtros</strong>
-                                <span class="commit-hash">221fdf6</span>
-                                <p class="change-description">
-                                    Se uniformaron los nombres de los campos de filtros para mejorar la consistencia: 'marcas' → 'marca', 'promotion' → 'promociones', 'ano' → 'autoano'. También se actualizaron las imágenes de categorías: 'sedán' → 'sedan' (sin acento), se agregó imagen de Ducati para motos, y se reemplazó motos-filter.png con motocicleta-filter.png.
-                                </p>
-                            </div>
+                            <strong>UX del Stepper de Onboarding:</strong> Correcciones exhaustivas en la experiencia del usuario, textos más claros y botones con mejor styling
                         </li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-improvement">Mejora</span>
-                        <span>Infraestructura y Rendimiento</span>
-                    </div>
-                    <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">⚡</div>
-                            <div class="change-text">
-                                <strong>Incrementados recursos de Cloud Run para mejor rendimiento</strong>
-                                <span class="commit-hash">37c9b65</span>
-                                <p class="change-description">
-                                    Se aumentaron los recursos del servidor en producción: memoria de 512Mi → 2Gi (4x más memoria) y CPU de 1 → 4 cores. Esto mejora significativamente la velocidad de carga de páginas, procesamiento de imágenes, y capacidad para manejar múltiples usuarios simultáneos.
-                                </p>
-                            </div>
+                            <strong>Dashboard y Menú Móvil:</strong> Mejoras en la navegación móvil y experiencia del dashboard
+                        </li>
+                        <li class="change-item">
+                            <strong>Flujo de Login Mejorado:</strong> Integración perfecta con el sistema de onboarding y mejoras en la página de perfil
+                        </li>
+                        <li class="change-item">
+                            <strong>Páginas de Perfil:</strong> Eliminación de cajas delimitadoras externas para mejor apariencia visual
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Version 1.2.0 -->
+            <!-- VERSIÓN 1.9.5 - Noviembre 21, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v1.2.0</span>
-                    <span class="version-date">24 de Octubre, 2025</span>
+                    <span class="version-number">v1.9.5</span>
+                    <span class="version-date">21 de Noviembre, 2024</span>
+                    <span class="badge badge-fix">Calculadora & UX</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Nueva Función</span>
-                        <span>Sistema de Notificaciones por Correo</span>
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">📧</div>
-                            <div class="change-text">
-                                <strong>Sistema de notificaciones automáticas por correo electrónico</strong>
-                                <p class="change-description">
-                                    Ahora los clientes reciben correos automáticos en momentos importantes:
-                                    <br>• Cuando envían una solicitud de crédito
-                                    <br>• Cuando cambia el estado de su solicitud (en revisión, aprobada, rechazada, etc.)
-                                    <br>• Cuando sus documentos son revisados (aprobados o rechazados)
-                                    <br><br>
-                                    Los correos tienen el diseño y colores de Autos TREFA, y incluyen un link directo para que el cliente entre a su portal y vea más detalles.
-                                </p>
-                            </div>
+                            <strong>Tasas de Interés Actualizadas:</strong> Corrección de las tasas de interés en la calculadora de financiamiento
+                        </li>
+                        <li class="change-item">
+                            <strong>Eliminación de Pago Total:</strong> Simplificación de la calculadora removiendo el campo de pago total confuso
+                        </li>
+                        <li class="change-item">
+                            <strong>Fórmulas de Financiamiento:</strong> Corrección de las fórmulas matemáticas en el cálculo de pagos mensuales
+                        </li>
+                        <li class="change-item">
+                            <strong>Componentes de Financiamiento:</strong> Actualización con nueva lógica de calculadora y UX mejorada
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-fix">Corrección</span>
-                        <span>Múltiples Correcciones Críticas</span>
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🔧</div>
-                            <div class="change-text">
-                                <strong>Corregida creación de solicitudes de financiamiento (Error 403)</strong>
-                                <p class="change-description">
-                                    Los usuarios recibían error "Forbidden" al crear solicitudes. Se corrigió el trigger de base de datos cambiando de SECURITY DEFINER a SECURITY INVOKER para preservar el contexto de autenticación.
-                                </p>
-                            </div>
-                        </li>
-                        <li class="change-item">
-                            <div class="change-icon">🔄</div>
-                            <div class="change-text">
-                                <strong>Solucionado bucle infinito de creación de perfiles</strong>
-                                <p class="change-description">
-                                    El sistema intentaba crear perfiles de usuario indefinidamente cuando los usuarios se registraban. Se removió la lógica de creación de perfil desde el navegador y se implementó una solución con triggers de base de datos que crean perfiles automáticamente cuando un usuario se registra.
-                                </p>
-                            </div>
-                        </li>
-                        <li class="change-item">
-                            <div class="change-icon">📱</div>
-                            <div class="change-text">
-                                <strong>Corregido componente "Mi Asesor" que desaparecía</strong>
-                                <p class="change-description">
-                                    El componente se cargaba brevemente y luego desaparecía. Se agregó manejo de errores apropiado para mostrar mensajes útiles en lugar de simplemente desaparecer. También se agregó el componente a la vista móvil (anteriormente solo estaba en desktop).
-                                </p>
-                            </div>
+                            <strong>Calculadora de Onboarding:</strong> Mejoras en la experiencia de usuario del stepper de onboarding con calculadora integrada
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Version 1.1.0 -->
+            <!-- VERSIÓN 1.9.4 - Noviembre 21, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v1.1.0</span>
-                    <span class="version-date">23 de Octubre, 2025</span>
+                    <span class="version-number">v1.9.4</span>
+                    <span class="version-date">21 de Noviembre, 2024</span>
+                    <span class="badge badge-perf">Rendimiento</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Nueva Función</span>
-                        <span>Panel de Ventas para Asesores</span>
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">📊</div>
-                            <div class="change-text">
-                                <strong>Dashboard completo para gestionar clientes asignados</strong>
-                                <p class="change-description">
-                                    Los asesores de ventas ahora tienen acceso a un panel personalizado en /escritorio/ventas/leads donde pueden ver todos sus clientes asignados. El panel muestra un resumen con estadísticas en tiempo real, incluyendo número de clientes, solicitudes pendientes y clientes contactados. Pueden buscar y filtrar clientes, ver sus perfiles completos (con autorización), gestionar tags y recordatorios, y sincronizar automáticamente con el CRM Kommo.<br><br>
-
-                                    <strong>Sistema de Autorización de Acceso:</strong><br>
-                                    Los clientes tienen control total sobre qué información comparten con su asesor asignado:<br><br>
-
-                                    • <strong>Activación por el cliente:</strong> En su perfil, los usuarios ven una opción "Autorizar Acceso al Asesor" que pueden activar/desactivar<br>
-                                    • <strong>Sin autorización:</strong> El asesor solo ve información básica (nombre, email, teléfono, auto de interés, estado de solicitud)<br>
-                                    • <strong>Con autorización:</strong> El asesor accede al perfil completo incluyendo documentos, historial de aplicaciones, datos personales completos<br>
-                                    • <strong>Indicador visual:</strong> La tabla muestra claramente "Acceso Autorizado: ✓ Sí" o "✗ No" para cada cliente<br>
-                                    • <strong>Protección de privacidad:</strong> Si intentan acceder sin autorización, ven un mensaje claro explicando que necesitan permiso del cliente<br><br>
-
-                                    El sistema está completamente protegido con permisos de seguridad - cada asesor solo ve sus propios clientes asignados.<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~60 horas en desarrollo, testing y documentación
-                                </p>
-                            </div>
+                            <strong>Rediseño de Página de Listados:</strong> Nueva experiencia visual con rendimiento mejorado y animaciones optimizadas
+                            <span class="branch-name">feature/redesign-listings</span>
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Nueva Función</span>
-                        <span>Asignación Round-Robin Automática</span>
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🎯</div>
-                            <div class="change-text">
-                                <strong>Sistema de distribución equitativa de leads entre asesores</strong>
-                                <p class="change-description">
-                                    <strong>¿Cómo funciona?</strong><br>
-                                    Cada nuevo usuario que se registra en la plataforma es asignado automáticamente a un asesor de ventas usando un algoritmo round-robin (distribución rotativa):<br><br>
-
-                                    1. <strong>Usuario se registra</strong> → Perfil creado con role = 'user'<br>
-                                    2. <strong>Sistema detecta</strong> que no tiene asesor asignado<br>
-                                    3. <strong>Función RPC</strong> get_next_sales_agent() selecciona el siguiente asesor en rotación<br>
-                                    4. <strong>Perfil actualizado</strong> con el ID del asesor asignado<br>
-                                    5. <strong>¡Listo!</strong> El usuario ahora tiene un asesor dedicado<br><br>
-
-                                    <strong>Ejemplo de rotación:</strong><br>
-                                    Si hay 4 asesores (A, B, C, D), los primeros 8 usuarios se asignan así:<br>
-                                    • Usuario 1 → Asesor A<br>
-                                    • Usuario 2 → Asesor B<br>
-                                    • Usuario 3 → Asesor C<br>
-                                    • Usuario 4 → Asesor D<br>
-                                    • Usuario 5 → Asesor A (reinicia el ciclo)<br>
-                                    • Usuario 6 → Asesor B<br>
-                                    • Usuario 7 → Asesor C<br>
-                                    • Usuario 8 → Asesor D<br><br>
-
-                                    <strong>Beneficios:</strong><br>
-                                    • Distribución justa y automática de leads<br>
-                                    • Carga de trabajo balanceada entre asesores<br>
-                                    • Sin intervención manual necesaria<br>
-                                    • Cada cliente tiene un asesor dedicado desde el primer día<br>
-                                    • Se aplicó también a usuarios existentes mediante migración SQL<br><br>
-
-                                    <strong>Monitoreo:</strong> Los administradores pueden verificar la distribución y rebalancear si es necesario usando queries SQL incluidas en la documentación.<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~25 horas en implementación, migración y testing
-                                </p>
-                            </div>
+                            <strong>Barra de Búsqueda del Header:</strong> Eliminación del fondo animado que obstruía la funcionalidad
+                        </li>
+                        <li class="change-item">
+                            <strong>Animaciones de Bordes:</strong> Mejoras en las animaciones de bordes de tarjetas y styling del header
+                        </li>
+                        <li class="change-item">
+                            <strong>UX de Tarjetas de Vehículos:</strong> Mejoras visuales y de interacción en las tarjetas de vehículos con bordes animados
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-fix">Corrección</span>
-                        <span>Correcciones de RLS y Recursión Infinita</span>
+                        <span class="badge badge-perf">⚡ RENDIMIENTO</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🔐</div>
-                            <div class="change-text">
-                                <strong>Solucionado error de "infinite recursion detected in policy"</strong>
-                                <p class="change-description">
-                                    Las políticas RLS (Row Level Security) causaban recursión infinita cuando intentaban verificar roles de usuario. El problema ocurría porque las políticas consultaban la tabla profiles para obtener el rol, pero al hacerlo activaban las mismas políticas, creando un bucle infinito.<br><br>
-
-                                    <strong>Solución implementada:</strong><br>
-                                    Se creó una función helper auth.user_role() con SECURITY DEFINER que:<br>
-                                    • Rompe el ciclo de recursión ejecutándose con permisos del dueño de la base de datos<br>
-                                    • Bypasa las políticas RLS al consultar el rol<br>
-                                    • Cachea el resultado para mejor rendimiento<br>
-                                    • Se usa en todas las políticas que necesitan verificar roles<br><br>
-
-                                    Esto eliminó completamente los crashes por "infinite recursion" y mejoró el rendimiento de las consultas.<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~15 horas en investigación, fix y testing exhaustivo
-                                </p>
-                            </div>
+                            <strong>Imports Dinámicos de AWS SDK:</strong> Prevención de errores de inicialización de módulos usando lazy loading
+                        </li>
+                        <li class="change-item">
+                            <strong>Chunking Manual Deshabilitado:</strong> Resolución de errores de inicialización de módulos en el build
+                        </li>
+                        <li class="change-item">
+                            <strong>Chunking de Vendor AWS SDK:</strong> Eliminación del chunking manual para prevenir errores
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Version 1.0.0 - Beta Launch -->
+            <!-- VERSIÓN 1.9.3 - Noviembre 20, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v1.0.0</span>
-                    <span class="version-date">15 de Octubre, 2025</span>
+                    <span class="version-number">v1.9.3</span>
+                    <span class="version-date">20 de Noviembre, 2024</span>
+                    <span class="badge badge-fix">UX & Perfilación</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Nueva Función</span>
-                        <span>Lanzamiento Beta del Portal Digital TREFA</span>
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🚀</div>
-                            <div class="change-text">
-                                <strong>Plataforma completa de compra-venta y financiamiento de autos</strong>
-                                <p class="change-description">
-                                    Se lanzó la versión beta del Portal Digital TREFA, una plataforma revolucionaria que permite a los clientes comprar, vender y financiar autos seminuevos 100% en línea. Características principales:<br><br>
-
-                                    • <strong>Catálogo interactivo:</strong> Más de 70 vehículos con filtros avanzados<br>
-                                    • <strong>Solicitud de crédito digital:</strong> Formulario multi-paso con validación en tiempo real<br>
-                                    • <strong>Valuación con IA:</strong> "Vende tu Auto" usando API de Intelimotor<br>
-                                    • <strong>Portal de usuario:</strong> Dashboard personalizado con favoritos y seguimiento<br>
-                                    • <strong>Sistema de documentos:</strong> Upload de INE, comprobantes, referencias<br>
-                                    • <strong>Perfilamiento bancario:</strong> Recomendaciones personalizadas de instituciones<br>
-                                    • <strong>Autenticación segura:</strong> OTP por email, Google y Facebook login<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~800 horas en desarrollo del MVP
-                                </p>
-                            </div>
+                            <strong>Página de Perfil Bancario:</strong> Mejoras en UX y flujo de aplicaciones bancarias
+                        </li>
+                        <li class="change-item">
+                            <strong>Configuración CORS:</strong> Actualización para permitir variaciones de URL de Cloud Run
+                        </li>
+                        <li class="change-item">
+                            <strong>Navegación Móvil Unificada:</strong> Consolidación del menú de navegación móvil con mejor UX
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Nueva Función</span>
-                        <span>Implementación de Microsoft Clarity</span>
+                        <span class="badge badge-perf">⚡ RENDIMIENTO</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">📊</div>
-                            <div class="change-text">
-                                <strong>Herramienta de análisis de comportamiento de usuarios</strong>
-                                <p class="change-description">
-                                    Se integró Microsoft Clarity (ID: t3kzkhn6m4) para monitorear cómo los usuarios realmente utilizan la plataforma:<br><br>
-
-                                    <strong>¿Qué es Clarity?</strong><br>
-                                    Clarity es una herramienta gratuita de Microsoft que graba sesiones de usuarios (sin identificar información personal) y genera heatmaps (mapas de calor) mostrando dónde hacen click, cómo se desplazan, y dónde tienen problemas.<br><br>
-
-                                    <strong>Capacidades implementadas:</strong><br>
-                                    • <strong>Grabación de sesiones:</strong> Videos de cómo los usuarios navegan el sitio<br>
-                                    • <strong>Heatmaps:</strong> Mapas visuales de clicks y movimientos del mouse<br>
-                                    • <strong>Scroll maps:</strong> Muestra hasta dónde los usuarios hacen scroll en cada página<br>
-                                    • <strong>Detección de rage clicks:</strong> Identifica cuando usuarios hacen click repetidamente (frustración)<br>
-                                    • <strong>Dead clicks:</strong> Detecta clicks en elementos que no responden<br>
-                                    • <strong>Quick backs:</strong> Usuarios que regresan inmediatamente (señal de confusión)<br>
-                                    • <strong>JavaScript errors:</strong> Rastrea errores que afectan la experiencia<br>
-                                    • <strong>Performance insights:</strong> Tiempo de carga de páginas<br><br>
-
-                                    <strong>Privacidad:</strong><br>
-                                    Clarity está configurado para respetar la privacidad:<br>
-                                    • Enmascara automáticamente datos sensibles (tarjetas, contraseñas)<br>
-                                    • No captura información de identificación personal<br>
-                                    • Cumple con GDPR y regulaciones de privacidad<br>
-                                    • Mencionado en la política de privacidad del sitio<br><br>
-
-                                    <strong>Casos de uso:</strong><br>
-                                    • Identificar dónde los usuarios abandonan el formulario de solicitud<br>
-                                    • Ver qué autos generan más interés (clicks en detalle)<br>
-                                    • Detectar problemas de usabilidad en móvil<br>
-                                    • Optimizar el flujo de navegación basado en datos reales<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~8 horas en setup, configuración e integración
-                                </p>
-                            </div>
+                            <strong>Optimizaciones de Build:</strong> Re-adición de optimizaciones con configuración apropiada
+                            <span class="branch-name">fix/build-blank-homepage</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Resolución de Páginas en Blanco:</strong> Corrección de issues de configuración de build
+                        </li>
+                        <li class="change-item">
+                            <strong>Configuraciones Avanzadas Vite y TypeScript:</strong> Optimización del proceso de compilación
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Nueva Función</span>
-                        <span>Sistema de Gestión de Leads</span>
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">👥</div>
-                            <div class="change-text">
-                                <strong>CRM completo para captura y seguimiento de leads</strong>
-                                <p class="change-description">
-                                    <strong>Captura desde múltiples fuentes:</strong><br>
-                                    • Landing pages y formularios de contacto<br>
-                                    • Solicitudes de valuación ("Vende tu Auto")<br>
-                                    • Formularios de financiamiento<br>
-                                    • Consultas sobre vehículos específicos<br><br>
-
-                                    <strong>Gestión y seguimiento:</strong><br>
-                                    • Sistema de tags para categorizar leads<br>
-                                    • Recordatorios programables para seguimiento<br>
-                                    • Historial completo de interacciones<br>
-                                    • Notas y comentarios internos<br>
-                                    • Estado de contacto (contactado/sin contactar)<br><br>
-
-                                    <strong>Integraciones:</strong><br>
-                                    • Sincronización bidireccional con Kommo CRM<br>
-                                    • Webhooks para notificaciones en tiempo real<br>
-                                    • Exportación de datos para análisis<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~120 horas en desarrollo del sistema completo
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-fix">Corrección</span>
-                        <span>Correcciones Iniciales del Lanzamiento Beta</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item">
-                            <div class="change-icon">🐛</div>
-                            <div class="change-text">
-                                <strong>Página de listado en blanco (FilterSidebar crash)</strong>
-                                <p class="change-description">
-                                    La página de vehículos se cargaba brevemente y luego quedaba completamente en blanco. El problema era que FilterSidebar.tsx tenía 7 variables indefinidas (sucursalCounts, yearCounts, etc.) causando un crash de React. Se agregaron hooks useMemo para calcular todos los conteos de filtros desde los datos de vehículos.
-                                </p>
-                            </div>
-                        </li>
-                        <li class="change-item">
-                            <div class="change-icon">🖼️</div>
-                            <div class="change-text">
-                                <strong>Normalización de imágenes de vehículos</strong>
-                                <p class="change-description">
-                                    Las fotos de autos no se mostraban correctamente en el carrusel y tarjetas. Se arregló el código que procesa las imágenes para manejar correctamente diferentes formatos (texto, arrays de URLs, objetos de attachment) que vienen de diferentes fuentes de datos (Airtable, smooth-handler, inventario_cache).
-                                </p>
-                            </div>
+                            <strong>CHANGELOG.md Actualizado:</strong> Documentación de funcionalidades recientes en español
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Version 0.9.5 - September 30 -->
+            <!-- VERSIÓN 1.9.2 - Noviembre 20, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v0.9.5</span>
-                    <span class="version-date">30 de Septiembre, 2024</span>
+                    <span class="version-number">v1.9.2</span>
+                    <span class="version-date">20 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Navegación & Vehículos</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Infraestructura</span>
-                        <span>Sincronización Automática Airtable → Supabase</span>
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🔄</div>
-                            <div class="change-text">
-                                <strong>Sistema de caché inteligente con sincronización en tiempo real</strong>
-                                <p class="change-description">
-                                    Implementación de sistema automatizado que sincroniza vehículos desde Airtable (source of truth) hacia Supabase PostgreSQL (caché de alta velocidad):<br><br>
-
-                                    • <strong>Webhooks de Airtable:</strong> Notifican cambios instantáneamente a la plataforma<br>
-                                    • <strong>Edge Function sync-inventory:</strong> Procesa webhooks y actualiza PostgreSQL<br>
-                                    • <strong>Consultas ultra rápidas:</strong> ~300ms vs ~3s consultando Airtable directamente<br>
-                                    • <strong>Sincronización horaria:</strong> Cron job cada hora como respaldo<br>
-                                    • <strong>Resilencia:</strong> Si Airtable está caído, el sitio continúa funcionando con datos en caché<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~45 horas en setup de webhooks y Edge Functions
-                                </p>
-                            </div>
+                            <strong>Botón de Vehículos Similares:</strong> Función para mostrar vehículos similares en autos separados
+                        </li>
+                        <li class="change-item">
+                            <strong>Mejoras en Tarjeta de Vehículo:</strong> Navegación mejorada y bordes visuales mejorados
+                        </li>
+                        <li class="change-item">
+                            <strong>Sistema Centralizado de Estados:</strong> Implementación de sistema unificado para estados de aplicaciones
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Infraestructura</span>
-                        <span>Almacenamiento en Cloudflare R2</span>
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">☁️</div>
-                            <div class="change-text">
-                                <strong>CDN global con cero costos de egreso</strong>
-                                <p class="change-description">
-                                    Migración de almacenamiento de imágenes y documentos a Cloudflare R2:<br><br>
-
-                                    • <strong>Distribución global vía CDN:</strong> Latencias <50ms desde cualquier ubicación<br>
-                                    • <strong>Cero costos de egreso:</strong> A diferencia de S3, R2 no cobra por transferencia de datos<br>
-                                    • <strong>URLs firmadas temporales:</strong> Documentos privados expiran en 1 hora<br>
-                                    • <strong>Procesamiento automático:</strong> Edge Function r2-upload maneja uploads con validación<br>
-                                    • <strong>Buckets organizados:</strong> trefa-images (públicas), trefa-documents (privadas)<br>
-                                    • <strong>Backup automático:</strong> Retiene versiones por 30 días<br>
-                                    • <strong>Reducción de costos:</strong> ~60% menos egreso vs Supabase Storage<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~35 horas en migración y optimización
-                                </p>
-                            </div>
+                            <strong>Guía de Customer Journeys:</strong> Documentación completa de implementación de flujos de usuario
+                        </li>
+                        <li class="change-item">
+                            <strong>Automatización de Estados:</strong> Documentación del sistema de automatización de estados de aplicaciones
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Automatización</span>
-                        <span>Sistema de Emails Automatizados (Brevo)</span>
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">📧</div>
-                            <div class="change-text">
-                                <strong>Flujos de comunicación automatizados</strong>
-                                <p class="change-description">
-                                    <strong>Emails Transaccionales:</strong><br>
-                                    • Confirmación de solicitud de crédito con resumen y próximos pasos<br>
-                                    • Actualización de estatus (En Revisión → Aprobada → Rechazada)<br>
-                                    • Códigos OTP de autenticación (6 dígitos)<br>
-                                    • Confirmación de valuación "Vende tu Auto"<br>
-                                    • Recordatorio de documentos faltantes<br><br>
-
-                                    <strong>Campañas de Marketing:</strong><br>
-                                    • Bienvenida: Serie de 3 emails educativos<br>
-                                    • Abandono de solicitud: Reminder a las 24h<br>
-                                    • Promociones personalizadas basadas en vehículos vistos<br>
-                                    • Newsletter mensual con nuevos vehículos y tips<br><br>
-
-                                    <strong>Capacidades:</strong><br>
-                                    • Templates HTML responsive con diseño TREFA<br>
-                                    • Variables dinámicas (nombre, vehículo, monto)<br>
-                                    • Tracking de opens, clicks y conversiones<br>
-                                    • A/B testing de subject lines<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~40 horas en templates, configuración y testing
-                                </p>
-                            </div>
+                            <strong>Fetch Directo por Ordencompra:</strong> Obtención directa de vehículos en página de aplicación
+                        </li>
+                        <li class="change-item">
+                            <strong>Problemas de Mega Menú:</strong> Correcciones en el menú de navegación principal
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Version 0.9.0 - September 18 -->
+            <!-- VERSIÓN 1.9.1 - Noviembre 20, 2024 -->
             <div class="version">
                 <div class="version-header">
-                    <span class="version-number">v0.9.0</span>
-                    <span class="version-date">18 de Septiembre, 2024</span>
+                    <span class="version-number">v1.9.1</span>
+                    <span class="version-date">20 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Bancos & Seguridad</span>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">DevOps</span>
-                        <span>Control de Versiones con GitHub</span>
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">🔧</div>
-                            <div class="change-text">
-                                <strong>Sistema profesional de gestión del código fuente</strong>
-                                <p class="change-description">
-                                    <strong>Implementación de Git y GitHub:</strong><br>
-                                    • <strong>Repositorio centralizado:</strong> Todo el código versionado y respaldado<br>
-                                    • <strong>Historial completo:</strong> Cada cambio registrado con autor, fecha y descripción<br>
-                                    • <strong>Estrategia de branching:</strong> main (producción), staging (pruebas), feature branches<br>
-                                    • <strong>CI/CD automatizado:</strong> GitHub Actions ejecuta pruebas y despliega automáticamente<br>
-                                    • <strong>Code reviews:</strong> Pull requests con revisión antes de mergear<br>
-                                    • <strong>Rollback rápido:</strong> Capacidad de revertir a versiones anteriores en segundos<br>
-                                    • <strong>Colaboración:</strong> Múltiples desarrolladores trabajando simultáneamente<br>
-                                    • <strong>Documentación:</strong> README.md con instrucciones de setup y arquitectura<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~40 horas en setup, CI/CD y documentación
-                                </p>
-                            </div>
+                            <strong>Opción Banco Renueva Car:</strong> Integración de nueva opción bancaria en el sistema de perfilación
+                            <span class="branch-name">feature/banking-profile-scoring-update</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Funciones Públicas de Catálogo Facebook:</strong> Acceso público a funciones del catálogo de productos
+                            <span class="branch-name">feature/google-sheets-sales-agent-email</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Email de Agente en Google Sheets:</strong> Sincronización automática del email del agente de ventas
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Automatización</span>
-                        <span>Crons y Webhooks Automáticos</span>
+                        <span class="badge badge-security">🔒 SEGURIDAD</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">⏰</div>
-                            <div class="change-text">
-                                <strong>Procesos automatizados que mantienen la plataforma funcionando</strong>
-                                <p class="change-description">
-                                    <strong>🔄 Webhooks de Airtable:</strong><br>
-                                    • Sincronización en tiempo real cuando se actualiza inventario<br>
-                                    • Notificación inmediata cuando un auto cambia de estado<br>
-                                    • Actualización automática de precios y promociones<br><br>
-
-                                    <strong>⏱️ Cron Jobs (Tareas Programadas):</strong><br>
-                                    • <strong>Cada hora:</strong> Sincronización completa Airtable → Supabase (respaldo)<br>
-                                    • <strong>Cada 6 horas:</strong> Limpieza de archivos temporales y logs antiguos en R2<br>
-                                    • <strong>Diariamente:</strong> Reportes de ventas y métricas al equipo<br>
-                                    • <strong>Diariamente:</strong> Verificación de solicitudes pendientes y recordatorios a asesores<br>
-                                    • <strong>Semanalmente:</strong> Backup completo de base de datos<br>
-                                    • <strong>Semanalmente:</strong> Análisis de analytics y generación de insights<br><br>
-
-                                    <strong>📧 Triggers de Email:</strong><br>
-                                    • Email automático al registrarse (serie de bienvenida)<br>
-                                    • Email cuando se envía solicitud de crédito<br>
-                                    • Email cuando cambia estatus de solicitud<br>
-                                    • Email de abandono de carrito (24h después)<br>
-                                    • Promociones personalizadas basadas en intereses<br><br>
-
-                                    <strong>🔔 Notificaciones Internas:</strong><br>
-                                    • Alerta a asesores cuando se asigna nuevo lead<br>
-                                    • Notificación cuando cliente sube documentos<br>
-                                    • Recordatorio de seguimiento para leads sin contactar en 48h<br>
-                                    • Alerta de inventario bajo (menos de 10 autos disponibles)<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~80 horas en webhooks, crons, Edge Functions y testing
-                                </p>
-                            </div>
+                            <strong>Eliminación de Credenciales Hardcodeadas:</strong> Migración completa a variables de entorno
+                            <span class="branch-name">security/remove-hardcoded-credentials-backup</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Validación de Variables de Entorno:</strong> Sistema robusto de validación para prevenir errores de configuración
+                        </li>
+                        <li class="change-item">
+                            <strong>Documentación de Migración de Seguridad:</strong> Guía completa del proceso de migración de seguridad
+                        </li>
+                        <li class="change-item">
+                            <strong>Variables de Entorno Opcionales:</strong> Soporte para env vars undefined en builds de producción
                         </li>
                     </ul>
                 </div>
 
                 <div class="change-category">
                     <div class="category-title">
-                        <span class="badge badge-feature">Infraestructura</span>
-                        <span>Supabase Edge Functions</span>
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
                     </div>
                     <ul class="change-list">
                         <li class="change-item">
-                            <div class="change-icon">⚡</div>
-                            <div class="change-text">
-                                <strong>Funciones serverless desplegadas globalmente</strong>
-                                <p class="change-description">
-                                    <strong>Edge Functions implementadas:</strong><br><br>
-
-                                    <strong>📦 sync-inventory:</strong> Sincroniza vehículos desde Airtable<br>
-                                    <strong>📤 r2-upload:</strong> Maneja uploads a Cloudflare R2<br>
-                                    <strong>🔧 carstudio-proxy:</strong> Proxy seguro para API de CarStudio<br>
-                                    <strong>🌉 intelimotor-proxy:</strong> Proxy para API de valuación<br>
-                                    <strong>📧 send-email:</strong> Envío de emails transaccionales<br>
-                                    <strong>🔄 smooth-handler:</strong> Procesamiento de inventario<br><br>
-
-                                    Cada función corre en el edge más cercano al usuario (latencias <50ms)<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~90 horas en desarrollo de todas las Edge Functions
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-feature">Tecnología</span>
-                        <span>Stack Tecnológico Moderno</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item">
-                            <div class="change-icon">⚙️</div>
-                            <div class="change-text">
-                                <strong>Arquitectura de vanguardia</strong>
-                                <p class="change-description">
-                                    <strong>Frontend:</strong> React 18 + TypeScript, Vite, TailwindCSS, Framer Motion<br>
-                                    <strong>Backend:</strong> Supabase (PostgreSQL + Auth + Storage + Edge Functions)<br>
-                                    <strong>CDN & Storage:</strong> Cloudflare R2 + CDN global<br>
-                                    <strong>DevOps:</strong> Google Cloud Run, Docker, GitHub Actions<br>
-                                    <strong>Integraciones:</strong> Brevo, Intelimotor, CarStudio AI, Kommo CRM, Clarity<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~200 horas en setup de infraestructura inicial
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-feature">Seguridad</span>
-                        <span>Protección Multi-Capa</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item">
-                            <div class="change-icon">🔒</div>
-                            <div class="change-text">
-                                <strong>Seguridad empresarial en todas las capas</strong>
-                                <p class="change-description">
-                                    • <strong>Autenticación OTP:</strong> Login sin contraseña con códigos de 6 dígitos<br>
-                                    • <strong>Row Level Security (RLS):</strong> Políticas de PostgreSQL garantizan aislamiento de datos<br>
-                                    • <strong>JWT tokens:</strong> Autenticación stateless con Supabase Auth<br>
-                                    • <strong>HTTPS everywhere:</strong> Todos los requests sobre TLS 1.3<br>
-                                    • <strong>CORS configurado:</strong> Solo dominios autorizados<br>
-                                    • <strong>Rate limiting:</strong> Protección contra ataques de fuerza bruta<br>
-                                    • <strong>SQL injection prevention:</strong> Prepared statements en todas las queries<br>
-                                    • <strong>XSS protection:</strong> Sanitización de inputs y Content Security Policy<br>
-                                    • <strong>Secrets management:</strong> Variables de entorno, nunca en código<br><br>
-
-                                    <strong>Horas invertidas:</strong> ~50 horas en configuración de seguridad
-                                </p>
-                            </div>
+                            <strong>Nombres de Columnas Google Sheets:</strong> Coincidencia exacta para prevenir problemas con AppSheet
                         </li>
                     </ul>
                 </div>
             </div>
+
+            <!-- VERSIÓN 1.9.0 - Noviembre 19-20, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.0</span>
+                    <span class="version-date">19-20 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Mobile UX & Encuestas</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Botón de Acción 3D en Navegación Móvil:</strong> Botón flotante con efecto 3D para acciones principales en mobile
+                        </li>
+                        <li class="change-item">
+                            <strong>Filtro de Rango de Precios en Mega Menú:</strong> Reemplazo del widget de valuación por filtro de precios más útil
+                        </li>
+                        <li class="change-item">
+                            <strong>Encuesta Anónima Revisada:</strong> Eliminación de preguntas redundantes y adición de insights de alto valor
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
 
         <div class="footer">
-            <p>Documentado por el equipo de Autos TREFA</p>
-            <p style="margin-top: 10px; font-size: 0.85em;">
-                Última actualización: 25 de Octubre, 2025
+            <p><strong>Autos TREFA</strong> - Sistema de Gestión Automotriz</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Este changelog se actualiza automáticamente con cada commit
             </p>
             <p style="margin-top: 5px; font-size: 0.85em; color: #999;">
-                Periodo de desarrollo: Septiembre 18, 2024 - Octubre 25, 2025 (5 semanas)
+                🤖 Generado automáticamente • Última actualización: 23 de Noviembre, 2024
             </p>
         </div>
     </div>

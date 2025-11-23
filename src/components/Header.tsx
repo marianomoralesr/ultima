@@ -36,7 +36,7 @@ const Header: React.FC = () => {
     return (
       <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
         <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-28 gap-x-2 lg:gap-x-4">
+          <div className="flex items-center h-16 lg:h-28 gap-x-2 lg:gap-x-4">
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -46,69 +46,62 @@ const Header: React.FC = () => {
                 <MenuIcon className="w-5 h-5" />
             </button>
 
-            {/* Left Section */}
-            <div className={`flex justify-start items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
-                <div className="flex items-center">
-                    <Link to="/" className="flex items-center">
-                      <img
-                        src={"/images/trefalogo.png"}
-                        alt="TREFA"
-                        className="w-auto object-contain transition-all h-5 sm:h-6 lg:h-9"
-                      />
-                    </Link>
-                </div>
+            {/* Logo */}
+            <div className="flex-shrink-0">
+                <Link to="/" className="flex items-center">
+                  <img
+                    src={"/images/trefalogo.png"}
+                    alt="TREFA"
+                    className="w-auto object-contain transition-all h-5 sm:h-6 lg:h-9"
+                  />
+                </Link>
             </div>
 
-            {/* Center Section (Search) */}
-            {/* Show on all pages, hide on listings page on desktop (desktop has filter search) */}
-            <div className={`flex-1 flex justify-center min-w-0 px-2 lg:px-2 ${isListPage ? 'lg:hidden' : ''}`}>
+            {/* Center Section (Search) - Show on all pages except /autos on desktop */}
+            <div className={`flex-1 min-w-0 mx-2 sm:mx-3 lg:mx-4 ${isListPage ? 'lg:hidden' : ''}`}>
                 <HeaderSearchBar />
             </div>
 
-            {/* Right Section */}
-            <div className={`flex justify-end items-center flex-shrink-0 ${!isListPage ? 'w-auto lg:w-1/3' : ''}`}>
-                <div className="flex items-center space-x-2 lg:space-x-4">
-                  <div className="hidden lg:block">
-                      <Button
-                          ref={menuButtonRef}
-                          onClick={() => setMegaMenuOpen(o => !o)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:bg-gray-100"
-                      >
-                          <span>Menú</span>
-                          <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} fill="currentColor"/>
+            {/* Right Section - Desktop Menu and Auth */}
+            <div className="hidden lg:flex items-center space-x-4 flex-shrink-0">
+                <Button
+                    ref={menuButtonRef}
+                    onClick={() => setMegaMenuOpen(o => !o)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:bg-gray-100"
+                >
+                    <span>Menú</span>
+                    <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} fill="currentColor"/>
+                </Button>
+
+                {session ? (
+                   <>
+                      {/* Dashboard Button */}
+                      <Button asChild size="sm">
+                          <Link to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"}>
+                              Dashboard
+                          </Link>
                       </Button>
-                  </div>
 
-                  {session ? (
-                     <>
-                        {/* Dashboard Button */}
-                        <Button asChild size="sm" className="hidden lg:flex">
-                            <Link to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"}>
-                                Dashboard
-                            </Link>
-                        </Button>
-
-                        {/* Sign Out Button */}
-                        <Button
-                            onClick={handleSignOut}
-                            variant="destructive"
-                            size="sm"
-                            className="hidden lg:flex items-center gap-1.5"
-                        >
-                            <LogOutIcon className="w-3.5 h-3.5" />
-                            Cerrar Sesión
-                        </Button>
-                     </>
-                  ) : (
-                    <Button asChild size="sm" className="hidden lg:flex bg-orange-600 hover:bg-orange-700">
-                        <Link to="/acceder" data-gtm-id="header-login-button">
-                            Iniciar Sesión
-                        </Link>
-                    </Button>
-                  )}
-                </div>
+                      {/* Sign Out Button */}
+                      <Button
+                          onClick={handleSignOut}
+                          variant="destructive"
+                          size="sm"
+                          className="items-center gap-1.5"
+                      >
+                          <LogOutIcon className="w-3.5 h-3.5" />
+                          Cerrar Sesión
+                      </Button>
+                   </>
+                ) : (
+                  <Button asChild size="sm" className="bg-orange-600 hover:bg-orange-700">
+                      <Link to="/acceder" data-gtm-id="header-login-button">
+                          Iniciar Sesión
+                      </Link>
+                  </Button>
+                )}
             </div>
           </div>
           <MegaMenu

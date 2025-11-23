@@ -14,7 +14,7 @@ public/changelog.html
 ## Responsabilidades del Asistente
 
 **CADA VEZ** que realices cambios significativos al código, debes actualizar el archivo `public/changelog.html` con:
-
+CADA VEZ que vayas a realizar cambios, lee y aplica el agent /agents/documentation-expert para acompañar cualquier actualización neecsaria o guías importantes para la administración del sitio.
 ### 1. Qué Documentar
 
 Documenta **TODOS** los siguientes tipos de cambios:

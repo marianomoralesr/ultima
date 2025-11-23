@@ -1,12 +1,17 @@
 import React from 'react';
 import { BookOpen, Rocket } from 'lucide-react';
 import useSEO from '../hooks/useSEO';
+import { useAuth } from '../context/AuthContext';
 import AdminRoadmapManager from '../components/AdminRoadmapManager';
 import DynamicRoadmapDisplay from '../components/DynamicRoadmapDisplay';
 import AdminChangelogManager from '../components/AdminChangelogManager';
 import DynamicChangelogDisplay from '../components/DynamicChangelogDisplay';
+import DownloadChangelogButton from '../components/DownloadChangelogButton';
 
 const ChangelogPage: React.FC = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   useSEO({
     title: 'Registro de Cambios y Roadmap - Autos TREFA',
     description: 'Historial de actualizaciones y plan de desarrollo de la plataforma TREFA',
@@ -30,6 +35,16 @@ const ChangelogPage: React.FC = () => {
                 ⏱️ Total de Horas de Desarrollo: <span className="text-2xl">568+</span> horas
               </p>
             </div>
+
+            {/* Admin Download Button */}
+            {isAdmin && (
+              <div className="mt-6">
+                <DownloadChangelogButton
+                  variant="secondary"
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                />
+              </div>
+            )}
           </div>
 
           {/* Content - Scrollable */}

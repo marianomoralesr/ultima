@@ -315,11 +315,12 @@ const ProfilePage: React.FC = () => {
         Volver al Dashboard
       </Link>
 
-      {/* Onboarding Stepper - Show for first-time users */}
+      {/* Onboarding Stepper - Show for first-time users (hidden on mobile to reduce friction) */}
       {showOnboardingStepper && (
-        <div className="mb-6 lg:mb-8">
+        <div className="hidden lg:block mb-6 lg:mb-8">
           <OnboardingStepper
             currentStep={onboardingStep}
+            isProfileComplete={isProfileComplete}
             className="bg-white rounded-xl shadow-sm p-4 lg:p-6"
           />
         </div>
@@ -328,12 +329,11 @@ const ProfilePage: React.FC = () => {
       {/* Welcome Message for First-Time Users */}
       {isFirstTimeUser && !isProfileComplete && (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 lg:p-5 mb-6 rounded-r-lg">
-          <h3 className="font-bold text-gray-900 flex items-center text-base lg:text-lg">
-            <Info className="w-5 h-5 mr-2 text-blue-600" />
-            Antes de comenzar tu solicitud
+          <h3 className="font-bold text-gray-900 text-base lg:text-lg">
+            ¡Te has registrado con éxito!
           </h3>
           <p className="text-sm lg:text-base text-gray-700 mt-2">
-            Necesitas completar tu información personal y perfil bancario. Este proceso es rápido y nos permitirá encontrar las mejores opciones de financiamiento para ti.
+            Casi estás listo para comenzar tu solicitud de crédito, pero antes es importante que completes la información de tu perfil. Por favor rellena los datos tal como aparecen en tu identificación oficial para agilizar el proceso.
           </p>
         </div>
       )}
@@ -342,21 +342,21 @@ const ProfilePage: React.FC = () => {
 
         {/* Profile Information */}
         <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="text-gray-900">
-          <div className="flex justify-between items-start mb-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
             <h2 className="text-xl font-bold text-gray-900 flex items-center">
               <User className="w-5 h-5 mr-3 text-primary-600" />
-              Información del Perfil
+              Resumen de tu perfil
             </h2>
-            <div className="text-center">
+            <div className="text-center lg:text-right">
               <label htmlFor="profile-picture-upload" className="cursor-pointer group">
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all">
+                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all mx-auto lg:mx-0">
                   {previewUrl ? (
                     <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-12 h-12 text-gray-400" />
                   )}
                 </div>
-                <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600">Cambiar foto</span>
+                <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600 block">Cambiar foto</span>
               </label>
               <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handlePictureChange} />
             </div>
@@ -563,7 +563,7 @@ const ProfilePage: React.FC = () => {
           </div>
 
           {/* Prior TREFA Advisor Section - Full width below the grid */}
-          <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200 mt-4 lg:mt-6">
+          <div className="bg-amber-50 p-4 lg:p-6 rounded-xl border-2 border-amber-200 mt-4 lg:mt-6">
             <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
               <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">5</span>
               Asignación de Asesor
@@ -628,12 +628,13 @@ const ProfilePage: React.FC = () => {
               className={`inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70
                 ${saveState === 'saved'
                   ? 'bg-green-500 hover:bg-green-600 focus:ring-green-500'
-                  : 'bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 focus:ring-primary-500'
+                  : 'hover:opacity-90 focus:ring-[#FF6801]'
                 }`}
+              style={saveState !== 'saved' ? { backgroundColor: '#FF6801' } : {}}
             >
               {saveState === 'saving' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {saveState === 'saved' && <CheckCircle className="w-4 h-4 mr-2" />}
-              {saveState === 'saving' ? 'Guardando...' : saveState === 'saved' ? '¡Guardado!' : 'Guardar Cambios'}
+              {saveState === 'saving' ? 'Guardando...' : saveState === 'saved' ? '¡Guardado!' : 'Guardar cambios y continuar'}
             </button>
           </div>
         </form>

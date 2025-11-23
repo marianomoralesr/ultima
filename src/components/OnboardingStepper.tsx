@@ -27,6 +27,10 @@ interface OnboardingStepperProps {
    * Optional className for custom styling
    */
   className?: string;
+  /**
+   * Whether the user's profile is complete (for conditional Step 2 logic)
+   */
+  isProfileComplete?: boolean;
 }
 
 /**
@@ -97,6 +101,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   currentStep = 1,
   onStepClick,
   className = '',
+  isProfileComplete = false,
 }) => {
   // Define the onboarding steps
   const steps = [
@@ -173,18 +178,36 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             )}
             {step === 2 && currentStep === 2 && (
               <>
-                <div className="flex items-start gap-2 mb-4">
-                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-gray-700 font-medium">
-                    Cumples con los requisitos para iniciar tu perfilamiento bancario
-                  </p>
-                </div>
-                <button
-                  onClick={() => window.location.href = '/escritorio/profile?tab=perfil-bancario'}
-                  className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
-                >
-                  Comenzar Perfilacion Bancaria
-                </button>
+                {isProfileComplete ? (
+                  // Profile is complete - show banking profile call to action
+                  <>
+                    <div className="flex items-start gap-2 mb-4">
+                      <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <p className="text-gray-700 font-medium">
+                        Cumples con los requisitos para iniciar tu perfilamiento bancario
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => window.location.href = '/escritorio/profile?tab=perfil-bancario'}
+                      className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+                    >
+                      Iniciar Perfilamiento Bancario
+                    </button>
+                  </>
+                ) : (
+                  // Profile is incomplete - redirect to complete profile first
+                  <>
+                    <p className="text-gray-700 mb-4">
+                      Por favor completa tu información personal para comenzar tu perfilamiento bancario
+                    </p>
+                    <button
+                      onClick={() => window.location.href = '/escritorio/profile'}
+                      className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+                    >
+                      Completar la información de mi perfil
+                    </button>
+                  </>
+                )}
               </>
             )}
             {step === 3 && currentStep === 3 && (

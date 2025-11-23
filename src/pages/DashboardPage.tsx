@@ -303,12 +303,13 @@ const Dashboard: React.FC = () => {
   const drafts = useMemo(() => applications.filter(app => app.status === 'draft'), [applications]);
   const submittedApps = useMemo(() => applications.filter(app => app.status !== 'draft'), [applications]);
 
+  // Required profile fields definition
+  const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
+
   // Effect for calculating onboarding step
   useEffect(() => {
     if (!profile || !user) return;
 
-    // Required profile fields
-    const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
     const isProfileComplete = requiredFields.every(field => profile?.[field] && String(profile[field]).trim() !== '');
 
     // Step 1: Personal Information (incomplete profile)
@@ -421,6 +422,7 @@ const Dashboard: React.FC = () => {
             {onboardingStep < 5 && (
               <OnboardingStepper
                 currentStep={onboardingStep}
+                isProfileComplete={!!profile && requiredFields.every(field => profile?.[field] && String(profile[field]).trim() !== '')}
                 onStepClick={(step) => {
                   // Handle step navigation
                   console.log('User clicked step:', step);

@@ -103,31 +103,35 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   className = '',
   isProfileComplete = false,
 }) => {
-  // Define the onboarding steps
+  // Define the onboarding steps with new descriptions
   const steps = [
     {
-      title: 'Información Personal',
-      description: 'Completa tu perfil personal',
+      title: 'Registro Completado',
+      description: 'Completado – excelente avance',
       icon: User,
       completed: currentStep > 1,
+      timeEstimate: '',
     },
     {
       title: 'Perfilamiento Bancario',
-      description: 'Completa tu perfil bancario para solicitudes de crédito',
+      description: '🟠 2 min – permite reservar tu vehículo',
       icon: FileText,
       completed: currentStep > 2,
+      timeEstimate: '2 min',
     },
     {
       title: 'Seleccionar Vehículo',
-      description: 'Explora nuestro inventario y selecciona tu vehículo ideal',
+      description: '⚪ ¡Personalizado para ti!',
       icon: Car,
       completed: currentStep > 3,
+      timeEstimate: '',
     },
     {
       title: 'Enviar Solicitud',
-      description: 'Completa y envía tu solicitud de financiamiento',
+      description: '⚪ Último Paso – te toma 1 minuto',
       icon: Send,
       completed: currentStep > 4,
+      timeEstimate: '1 min',
     },
   ];
 
@@ -188,10 +192,10 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
                       </p>
                     </div>
                     <button
-                      onClick={() => window.location.href = '/escritorio/profile?tab=perfil-bancario'}
+                      onClick={() => window.location.href = '/escritorio/perfilacion-bancaria'}
                       className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                     >
-                      Iniciar Perfilamiento Bancario
+                      Comenzar perfilamiento bancario ahora
                     </button>
                   </>
                 ) : (

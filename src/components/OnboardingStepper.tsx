@@ -369,38 +369,34 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             {index < steps.length - 1 && <InteractiveStepperSeparator />}
           </InteractiveStepperItem>
         ))}
+
+        {/* Progress Indicator - Moved between steps and content */}
+        <div className="mt-6 mb-6 bg-muted/50 rounded-lg p-4 border border-border">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              Progreso del proceso
+            </span>
+            <span className="text-xs font-bold text-primary">
+              {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '99'}% completado
+            </span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '99%'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Step Content - Always visible with information */}
+        {steps.map((_, index) => (
+          <InteractiveStepperContent key={index + 1} step={index + 1}>
+            <StepContent step={index + 1} />
+          </InteractiveStepperContent>
+        ))}
       </InteractiveStepper>
-
-      {/* Progress Indicator - Moved between steps and content */}
-      <div className="mt-6 mb-6 bg-muted/50 rounded-lg p-4 border border-border">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-medium text-muted-foreground">
-            Progreso del proceso
-          </span>
-          <span className="text-xs font-bold text-primary">
-            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '99'}% completado
-          </span>
-        </div>
-        <div className="w-full bg-secondary rounded-full h-2">
-          <div
-            className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
-            style={{
-              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '99%'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Step Content - Always visible with information */}
-      <div className="w-full">
-        <InteractiveStepper defaultValue={currentStep}>
-          {steps.map((_, index) => (
-            <InteractiveStepperContent key={index + 1} step={index + 1}>
-              <StepContent step={index + 1} />
-            </InteractiveStepperContent>
-          ))}
-        </InteractiveStepper>
-      </div>
     </div>
   );
 };

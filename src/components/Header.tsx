@@ -53,14 +53,14 @@ const Header: React.FC = () => {
                       <img
                         src={"/images/trefalogo.png"}
                         alt="TREFA"
-                        className="w-auto object-contain transition-all h-3.5 sm:h-4 lg:h-9"
+                        className="w-auto object-contain transition-all h-5 sm:h-6 lg:h-9"
                       />
                     </Link>
                 </div>
             </div>
 
             {/* Center Section (Search) */}
-            {/* Show on all pages on mobile, hide on listings page on desktop (desktop has filter search) */}
+            {/* Show on all pages, hide on listings page on desktop (desktop has filter search) */}
             <div className={`flex-1 flex justify-center min-w-0 px-2 lg:px-2 ${isListPage ? 'lg:hidden' : ''}`}>
                 <HeaderSearchBar />
             </div>

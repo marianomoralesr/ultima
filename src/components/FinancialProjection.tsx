@@ -10,10 +10,10 @@ const FinancialProjection: React.FC = () => {
   const [monthlyPayment, setMonthlyPayment] = useState(0);
 
   const loanAmount = vehiclePrice - downPayment;
-  const minDownPayment = vehiclePrice * 0.15;
+  const minDownPayment = vehiclePrice * 0.25;
 
   useEffect(() => {
-    // Ensure down payment is always at least 15% of the price
+    // Ensure down payment is always at least 25% of the price
     if (downPayment < minDownPayment) {
       setDownPayment(minDownPayment);
     }
@@ -54,7 +54,7 @@ const FinancialProjection: React.FC = () => {
 
         <div>
            <div className="flex justify-between items-baseline mb-2">
-            <label htmlFor="downPayment" className="text-sm font-medium text-gray-700">Enganche (mín. 15%)</label>
+            <label htmlFor="downPayment" className="text-sm font-medium text-gray-700">Enganche (mín. 25%)</label>
             <span className="font-semibold text-gray-900">{formatPrice(downPayment)}</span>
           </div>
           <input

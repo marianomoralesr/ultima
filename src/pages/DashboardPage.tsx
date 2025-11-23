@@ -443,6 +443,31 @@ const Dashboard: React.FC = () => {
                 {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
             </div>
 
+            {/* Borradores de Solicitud - Show on mobile at the top (after Mi Asesor) */}
+            {drafts.length > 0 && (
+                <div className="lg:hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-4">
+                        <FileEdit className="w-5 h-5 mr-3 text-primary-600" />
+                        Borradores de Solicitud
+                    </h3>
+                    <div className="space-y-4">
+                        {drafts.map(draft => (
+                            <ApplicationCard
+                                key={draft.id}
+                                application={{
+                                    id: draft.id,
+                                    bank: Array.isArray(draft.selected_banks) && draft.selected_banks.length > 0 ? draft.selected_banks.map((b: string) => b.charAt(0).toUpperCase() + b.slice(1)).join(', ') : 'Varios',
+                                    type: 'Financiamiento',
+                                    status: draft.status,
+                                    date: draft.created_at,
+                                    vehicle: draft.car_info?._vehicleTitle || 'Auto no especificado'
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+
              {submittedApps.length > 0 ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex justify-between items-center mb-4">

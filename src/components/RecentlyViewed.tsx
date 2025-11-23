@@ -57,15 +57,17 @@ const RecentlyViewed: React.FC<RecentlyViewedProps> = ({ currentVehicleId }) => 
       </div>
 
       {/* Desktop Grid */}
-      <div className="hidden lg:block mt-16">
-        <div className="flex items-center mb-8">
-          <EyeIcon className="w-6 h-6 text-gray-500 mr-3" />
-          <h2 className="text-2xl font-black text-gray-900">Vistos Recientemente</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {viewedVehicles.map(vehicle => (
-            <SimpleVehicleCard key={vehicle.id} vehicle={vehicle as WordPressVehicle} />
-          ))}
+      <div className="hidden lg:block py-12 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 mb-6">
+            <EyeIcon className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">Vistos Recientemente</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
+            {viewedVehicles.map(vehicle => (
+              <SimpleVehicleCard key={vehicle.id} vehicle={vehicle as WordPressVehicle} />
+            ))}
+          </div>
         </div>
       </div>
     </>

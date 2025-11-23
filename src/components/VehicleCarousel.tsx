@@ -26,30 +26,33 @@ const VehicleCarousel: React.FC<VehicleCarouselProps> = ({ vehicles, title }) =>
   }
 
   return (
-    <div className="py-8 sm:py-12 bg-gray-50 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
-          <h2 className="text-2xl font-black text-gray-900">{title}</h2>
+    <div className="py-6 sm:py-8 lg:py-12 bg-muted/30 relative">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+        {/* Header with shadcn design system styling */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">{title}</h2>
           <div className="hidden sm:flex gap-2">
             <button
               onClick={() => scroll('left')}
-              className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100 border relative z-20 transition-colors touch-manipulation"
+              className="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background border border-input shadow-sm"
               aria-label="Scroll left"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100 border relative z-20 transition-colors touch-manipulation"
+              className="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background border border-input shadow-sm"
               aria-label="Scroll right"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
+
+        {/* Scrollable container with improved mobile visibility */}
         <div
           ref={scrollRef}
-          className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden pb-4 scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 touch-pan-x"
+          className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto overflow-y-visible pb-4 scroll-smooth snap-x snap-mandatory -mx-3 px-3 sm:-mx-4 sm:px-4 lg:mx-0 lg:px-0 touch-pan-x"
           style={{
             scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
@@ -57,14 +60,19 @@ const VehicleCarousel: React.FC<VehicleCarouselProps> = ({ vehicles, title }) =>
           }}
         >
           {vehicles.map((vehicle) => (
-            <div key={vehicle.id} className="snap-start snap-always flex-shrink-0 w-[280px] sm:w-[300px] md:w-[280px] lg:w-[260px] first:ml-0">
+            <div
+              key={vehicle.id}
+              className="snap-start flex-shrink-0 w-[260px] sm:w-[280px] lg:w-[300px]"
+            >
               <SimpleVehicleCard vehicle={vehicle} />
             </div>
           ))}
         </div>
       </div>
+
+      {/* Hide scrollbar */}
       <style jsx>{`
-        div[ref]::-webkit-scrollbar {
+        div::-webkit-scrollbar {
           display: none;
         }
       `}</style>

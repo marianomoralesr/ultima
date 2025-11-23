@@ -405,14 +405,14 @@ const SimilarVehicles: React.FC<{ vehicle: WordPressVehicle; allVehicles: WordPr
         <>
             {/* Mobile Carousel */}
             <div className="lg:hidden">
-                <VehicleCarousel vehicles={similarVehicles} title="También te puede interesar..." />
+                <VehicleCarousel vehicles={similarVehicles} title="También te puede interesar" />
             </div>
 
             {/* Desktop Grid */}
-            <div className="hidden lg:block bg-gray-50 py-12">
+            <div className="hidden lg:block py-12 bg-muted/30">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-8">También te puede interesar...</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <h2 className="text-2xl font-bold text-foreground tracking-tight mb-6">También te puede interesar</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                         {similarVehicles.slice(0, 4).map(v => (
                             <SimpleVehicleCard key={v.id} vehicle={v} />
                         ))}

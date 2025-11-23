@@ -19,7 +19,14 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ isOpen, onClose, onSe
   const { vehicles: allVehicles, isLoading } = useVehicles();
 
   const availableVehicles = useMemo(() => {
-    return allVehicles.filter(v => !v.separado && !v.vendido);
+    // Filter vehicles that are:
+    // 1. NOT separado (separado === false)
+    // 2. ordenstatus === 'Comprado' (available for purchase)
+    // This ensures we only show vehicles that are truly available for selection
+    return allVehicles.filter(v =>
+      v.separado === false &&
+      v.ordenstatus?.toLowerCase() === 'comprado'
+    );
   }, [allVehicles]);
 
   const filteredVehicles = useMemo(() => {

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   InteractiveStepper,
   InteractiveStepperContent,
@@ -12,6 +13,7 @@ import {
   InteractiveStepperTrigger,
 } from '@/components/ui/interactive-stepper';
 import { CheckCircle, FileText, Car, Send, User } from 'lucide-react';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 interface OnboardingStepperProps {
   /**
@@ -109,6 +111,9 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   isProfileComplete = false,
   userName,
 }) => {
+  const navigate = useNavigate();
+  const scrollToTop = useScrollToTop();
+
   // Define the onboarding steps with new descriptions
   const steps = [
     {
@@ -226,14 +231,20 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
                 {/* Conditional CTA based on profile completion */}
                 {isProfileComplete ? (
                   <button
-                    onClick={() => window.location.href = '/escritorio/perfilacion-bancaria'}
+                    onClick={() => {
+                      scrollToTop();
+                      navigate('/escritorio/perfilacion-bancaria');
+                    }}
                     className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                   >
                     Comenzar perfilamiento bancario ahora
                   </button>
                 ) : (
                   <button
-                    onClick={() => window.location.href = '/escritorio/profile'}
+                    onClick={() => {
+                      scrollToTop();
+                      navigate('/escritorio/profile');
+                    }}
                     className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                   >
                     Completar la información de mi perfil
@@ -245,7 +256,10 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
               <div className="space-y-3">
                 <p className="text-gray-700">Ya puedes seleccionar tu vehículo.</p>
                 <button
-                  onClick={() => window.location.href = '/escritorio/aplicacion'}
+                  onClick={() => {
+                    scrollToTop();
+                    navigate('/escritorio/aplicacion');
+                  }}
                   className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                 >
                   Seleccionar Vehículo
@@ -256,7 +270,10 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
               <div className="space-y-3">
                 <p className="text-gray-700">Completa y envía tu solicitud.</p>
                 <button
-                  onClick={() => window.location.href = '/escritorio/aplicacion'}
+                  onClick={() => {
+                    scrollToTop();
+                    navigate('/escritorio/aplicacion');
+                  }}
                   className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                 >
                   Enviar Solicitud

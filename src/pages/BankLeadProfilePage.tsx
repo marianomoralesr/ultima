@@ -4,6 +4,7 @@ import { BankService } from '../services/BankService';
 import { BANKS, BANK_APPLICATION_STATUSES } from '../types/bank';
 import type { BankRepLeadDetails } from '../types/bank';
 import { formatPrice } from '../utils/formatters';
+import PrintableApplication from '../components/PrintableApplication';
 
 const BankLeadProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -304,6 +305,21 @@ const BankLeadProfilePage: React.FC = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Printable Application Preview */}
+            {application && (
+              <div className="bg-white rounded-lg shadow">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-900">Vista de Solicitud Completa</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Información completa de la solicitud de financiamiento
+                  </p>
+                </div>
+                <div className="p-6">
+                  <PrintableApplication application={application} />
                 </div>
               </div>
             )}

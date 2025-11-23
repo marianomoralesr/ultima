@@ -315,16 +315,6 @@ const ProfilePage: React.FC = () => {
         Volver al Dashboard
       </Link>
 
-      {/* Onboarding Stepper - Show for first-time users (hidden on mobile to reduce friction) */}
-      {showOnboardingStepper && (
-        <div className="hidden lg:block mb-6 lg:mb-8">
-          <OnboardingStepper
-            currentStep={onboardingStep}
-            isProfileComplete={isProfileComplete}
-            className="bg-white rounded-xl shadow-sm p-4 lg:p-6"
-          />
-        </div>
-      )}
 
       {/* Welcome Message for First-Time Users */}
       {isFirstTimeUser && !isProfileComplete && (
@@ -362,12 +352,6 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          {isFirstTimeUser && !isProfileComplete && (
-            <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-6 rounded-r-lg">
-                <h3 className="font-bold flex items-center"><Info className="w-5 h-5 mr-2" />¡Bienvenido!</h3>
-                <p className="text-sm mt-1">El primer paso para comenzar tu solicitud de financiamiento es que completes tu perfil. Ingresa tus datos tal como aparecen en tu identificación oficial.</p>
-            </div>
-          )}
 
           {isProfileComplete ? (
             <div className="mb-6 p-6 bg-green-50 border border-green-200 rounded-xl text-center">

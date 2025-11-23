@@ -7,6 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2025-11-23]
+
+### Corregido
+- **Sistema de seguimiento de conversiones**
+  - Corregido duplicación de eventos "ComienzaSolicitud" al revisitar borradores de solicitud
+  - Ahora solo rastrea el evento una vez cuando se crea el borrador inicial
+  - Previene el conteo de visitas regulares como nuevos inicios de solicitud
+  - Mejora en la precisión de métricas de conversión
+- **Error de InteractiveStepper**
+  - Corregido error "stepStates[i] is undefined" consolidando instancias del stepper
+  - Mejorada estabilidad del componente de onboarding
+- **Visibilidad en dispositivos móviles**
+  - Corregido problema de barra de búsqueda del header no visible en móviles
+  - Simplificada estructura de layout del header con espaciado adecuado
+  - Asegurado que la barra de búsqueda sea del tamaño apropiado con margenes correctos
+  - Corregida visibilidad de secciones "Vistos Recientemente" y "También te puede interesar" en móviles
+  - Actualizado overflow-y de hidden a visible en carruseles de vehículos
+  - Mejorado estilo con tokens de diseño shadcn consistentes
+
+### Agregado
+- **Sistema de estados de solicitud estandarizado con indicadores visuales**
+  - Propiedades dotColor y textColor añadidas a STATUS_CONFIG para puntos pulsantes
+  - Estado "En Revisión" ahora usa color púrpura (antes azul) para diferenciación
+  - Reemplazado dropdown de estado con punto pulsante y texto colorido en páginas CRM
+  - Agentes de ventas ya no pueden cambiar estados manualmente (solo lectura)
+  - Esquema de colores: Gris (Borrador), Ámbar (Faltan Docs), Verde (Completa/Aprobada), Púrpura (En Revisión), Rojo (Rechazada)
+- **Selector de vehículos mejorado**
+  - Nuevo método getAllAvailableVehiclesForSelection() en VehicleService
+  - Muestra TODOS los vehículos con OrdenStatus=Comprado y separado=false
+  - Ya no limitado a 21 vehículos por página
+  - Lista más compacta con espaciado reducido, imágenes más pequeñas y texto optimizado
+- **Visualización de borradores en dashboard móvil**
+  - Borradores de solicitud movidos a la parte superior en móvil (después de Mi Asesor)
+  - Usa componente ApplicationCard para consistencia con página de Solicitudes
+  - Muestra estados correctos que coinciden con la página de solicitudes
+
+### Mejorado
+- **OnboardingStepper rediseñado**
+  - Diseño personalizado con círculos de iconos y barra de progreso
+  - Barra de progreso abarca todo el ancho debajo de los pasos
+  - Estados codificados por color: verde (completado), primario (activo), atenuado (inactivo)
+  - Animaciones suaves (scale-110 en activo, transiciones de 700ms)
+  - Barra de progreso con gradiente y porcentajes apropiados
+  - Descripciones limpias sin paréntesis para mejor UI
+- **Foto de perfil del asesor asignado**
+  - Corregido para obtener foto de perfil real usando campo picture_url
+  - Recae a placeholder solo cuando está vacío
+- **Calculadora de proyección financiera**
+  - Actualizado enganche mínimo de 15% a 25%
+  - Actualizada etiqueta y lógica de validación
+- **Detección automática de estado de solicitud**
+  - updateApplication() ahora detecta automáticamente el estado basado en documentos
+  - "Completa" cuando se adjuntan documentos
+  - "Faltan Documentos" cuando no hay documentos adjuntos
+  - Solo auto-detecta cuando el estado actual es borrador o no se proporciona explícitamente
+  - Preserva cambios manuales de estado (En Revisión, Aprobada, Rechazada)
+- **Función getStatusColor() centralizada**
+  - Ahora usa STATUS_CONFIG centralizado desde constants
+  - Retorna todas las propiedades necesarias: bg, text, border, dot, label, dotColor, textColor
+  - Asegura consistencia en todas las páginas CRM
+
+### Revertido
+- **Sección hero de página /financiamientos**
+  - Restaurado hero original con gradiente animado
+  - Mensaje "Estrena un auto seminuevo en menos de 24h" restaurado
+  - Revertido commit c122362 mientras se mantienen otros cambios
+
+## [Anteriores]
+
 ### Corregido
 - **Email notification system updated with new status mappings**
   - Updated `send-brevo-email` Edge Function to support new centralized status names

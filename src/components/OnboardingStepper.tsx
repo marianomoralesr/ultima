@@ -173,17 +173,17 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             )}
             {step === 2 && currentStep === 2 && (
               <>
-                <div className="flex items-start gap-2 mb-3">
+                <div className="flex items-start gap-2 mb-4">
                   <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <p className="text-gray-700 font-medium">
-                    Cumples con todos los requisitos para crear tu perfilamiento bancario
+                    Cumples con los requisitos para iniciar tu perfilamiento bancario
                   </p>
                 </div>
                 <button
                   onClick={() => window.location.href = '/escritorio/profile?tab=perfil-bancario'}
-                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                 >
-                  Crear Perfilamiento Bancario
+                  Comenzar Perfilacion Bancaria
                 </button>
               </>
             )}

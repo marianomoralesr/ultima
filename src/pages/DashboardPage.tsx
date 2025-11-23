@@ -136,26 +136,32 @@ const OnboardingGuide: React.FC<{ profile: Profile | null, isBankProfileComplete
 
 const EbookCta: React.FC = () => (
     <div className="relative bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl p-6 overflow-hidden shadow-lg">
-        <div className="relative z-10">
-            <div className="flex-shrink-0">
-                <FileTextIcon className="w-12 h-12 text-white/80" />
+        <div className="relative z-10 flex flex-col gap-4">
+            <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                    <FileTextIcon className="w-10 h-10 text-white/90" />
+                </div>
+                <div className="flex-1">
+                    <h3 className="font-bold text-lg">¿Pensando en vender tu auto?</h3>
+                    <p className="text-sm mt-1 text-white/90">
+                        La información de calidad puede ahorrarte muchos dolores de cabeza, y queremos que la tengas.
+                    </p>
+                </div>
             </div>
-            <div className="flex-grow text-center md:text-left">
-                <h3 className="font-bold text-lg">¿Pensando en vender tu auto?</h3>
-                <p className="text-sm mt-1 text-white/90 max-w-2xl">
-                    La información de calidad puede ahorrarte muchos dolores de cabeza, y queremos que la tengas.
-                </p>
-            </div>
-            <div className="flex-shrink-0 mt-4 md:mt-0">
+            <div>
                 <a
                     href="/Manual-Venta-TREFA-2025.pdf"
                     download="Manual-Venta-TREFA-2025.pdf"
-                    className="inline-flex items-center px-5 py-2.5 bg-white text-green-700 font-bold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md"
+                    className="inline-flex items-center justify-center px-5 py-2.5 bg-white text-green-700 font-semibold rounded-lg text-sm hover:bg-gray-100 transition-colors shadow-md w-full sm:w-auto"
                 >
-                    Descargar Manual 2025 <DownloadIcon className="w-4 h-4 ml-2" />
+                    <DownloadIcon className="w-4 h-4 mr-2" />
+                    Descargar Manual 2025
                 </a>
             </div>
         </div>
+        {/* Decorative elements */}
+        <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/10 rounded-full opacity-50 z-0"></div>
+        <div className="absolute top-4 right-8 w-20 h-20 bg-white/5 rounded-full opacity-30 z-0"></div>
     </div>
 );
 

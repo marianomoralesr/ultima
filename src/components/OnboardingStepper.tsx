@@ -272,34 +272,34 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   return (
     <div className={`w-full ${className} hidden md:block`}>
       {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900">
           Proceso de Financiamiento
         </h2>
-        <p className="text-gray-600 mt-2">
+        <p className="text-sm text-gray-600 mt-1">
           Sigue estos pasos para completar tu solicitud de crédito automotriz
         </p>
       </div>
 
-      {/* Stepper Component with enhanced styling and animations */}
-      <InteractiveStepper defaultValue={currentStep} className="w-full">
+      {/* Stepper Component with shadcn styling */}
+      <InteractiveStepper defaultValue={currentStep} className="w-full mb-6">
         {steps.map((step, index) => (
-          <InteractiveStepperItem key={index + 1} completed={step.completed} className="flex-1">
+          <InteractiveStepperItem key={index + 1} completed={step.completed}>
             <InteractiveStepperTrigger
               onClick={() => onStepClick?.(index + 1)}
-              className="py-4 px-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 ease-in-out hover:scale-[1.02] w-full"
+              className="flex flex-col items-start gap-2 w-full"
             >
-              <InteractiveStepperIndicator className="transition-transform duration-300 ease-in-out group-hover:scale-110" />
-              <div className="space-y-1.5 flex-1">
-                <InteractiveStepperTitle className="text-base font-semibold text-gray-900">
+              <InteractiveStepperIndicator />
+              <div className="flex flex-col gap-1">
+                <InteractiveStepperTitle className="text-sm font-semibold text-left">
                   {step.title}
                 </InteractiveStepperTitle>
-                <InteractiveStepperDescription className="text-xs text-gray-600 font-medium">
+                <InteractiveStepperDescription className="text-xs text-muted-foreground text-left">
                   {step.description}
                 </InteractiveStepperDescription>
               </div>
             </InteractiveStepperTrigger>
-            {index < steps.length - 1 && <InteractiveStepperSeparator className="min-w-[60px] h-[2px] bg-gradient-to-r from-gray-300 to-gray-200" />}
+            {index < steps.length - 1 && <InteractiveStepperSeparator />}
           </InteractiveStepperItem>
         ))}
 
@@ -312,18 +312,18 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
       </InteractiveStepper>
 
       {/* Progress Indicator */}
-      <div className="mt-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-5 shadow-sm border border-gray-200">
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-sm font-semibold text-gray-700">
+      <div className="mt-6 bg-muted/50 rounded-lg p-4 border border-border">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs font-medium text-muted-foreground">
             Progreso del proceso
           </span>
-          <span className="text-sm font-bold text-orange-600">
+          <span className="text-xs font-bold text-primary">
             {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '100'}% completado
           </span>
         </div>
-        <div className="w-full bg-gray-300 rounded-full h-3 shadow-inner">
+        <div className="w-full bg-secondary rounded-full h-2">
           <div
-            className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
+            className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
             style={{
               width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '100%'
             }}

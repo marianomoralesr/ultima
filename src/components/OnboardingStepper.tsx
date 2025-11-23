@@ -281,25 +281,25 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
         </p>
       </div>
 
-      {/* Stepper Component with improved spacing */}
+      {/* Stepper Component with enhanced styling and animations */}
       <InteractiveStepper defaultValue={currentStep} className="w-full">
         {steps.map((step, index) => (
-          <InteractiveStepperItem key={index + 1} completed={step.completed}>
+          <InteractiveStepperItem key={index + 1} completed={step.completed} className="flex-1">
             <InteractiveStepperTrigger
               onClick={() => onStepClick?.(index + 1)}
-              className="py-3"
+              className="py-4 px-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 ease-in-out hover:scale-[1.02] w-full"
             >
-              <InteractiveStepperIndicator />
-              <div className="space-y-2">
-                <InteractiveStepperTitle className="text-lg font-semibold">
+              <InteractiveStepperIndicator className="transition-transform duration-300 ease-in-out group-hover:scale-110" />
+              <div className="space-y-1.5 flex-1">
+                <InteractiveStepperTitle className="text-base font-semibold text-gray-900">
                   {step.title}
                 </InteractiveStepperTitle>
-                <InteractiveStepperDescription className="text-sm text-gray-600">
+                <InteractiveStepperDescription className="text-xs text-gray-600 font-medium">
                   {step.description}
                 </InteractiveStepperDescription>
               </div>
             </InteractiveStepperTrigger>
-            {index < steps.length - 1 && <InteractiveStepperSeparator className="min-w-[80px] h-[2px]" />}
+            {index < steps.length - 1 && <InteractiveStepperSeparator className="min-w-[60px] h-[2px] bg-gradient-to-r from-gray-300 to-gray-200" />}
           </InteractiveStepperItem>
         ))}
 

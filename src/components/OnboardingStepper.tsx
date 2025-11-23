@@ -165,7 +165,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
                 </p>
                 <button
                   onClick={() => window.location.href = '/escritorio/profile'}
-                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                 >
                   Completar Perfil
                 </button>
@@ -189,10 +189,10 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             )}
             {step === 3 && currentStep === 3 && (
               <div className="space-y-3">
-                <p className="text-gray-700">Ya puedes seleccionar tu vehículo para continuar con tu solicitud.</p>
+                <p className="text-gray-700">Ya puedes seleccionar tu vehículo.</p>
                 <button
                   onClick={() => window.location.href = '/escritorio/aplicacion'}
-                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                 >
                   Seleccionar Vehículo
                 </button>
@@ -200,10 +200,10 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             )}
             {step === 4 && currentStep === 4 && (
               <div className="space-y-3">
-                <p className="text-gray-700">Completa y envía tu solicitud de financiamiento.</p>
+                <p className="text-gray-700">Completa y envía tu solicitud.</p>
                 <button
                   onClick={() => window.location.href = '/escritorio/aplicacion'}
-                  className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
                 >
                   Enviar Solicitud
                 </button>

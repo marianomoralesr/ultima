@@ -45,11 +45,33 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// Helper function to parse full name into first, last, and mother's last name
+// Returns: { firstName, lastName, motherLastName }
+const parseFullName = (fullName: string): { firstName: string; lastName: string; motherLastName: string } => {
+  const parts = fullName.trim().split(/\s+/); // Split by whitespace
+
+  if (parts.length === 0) {
+    return { firstName: '', lastName: '', motherLastName: '' };
+  } else if (parts.length === 1) {
+    return { firstName: parts[0], lastName: '', motherLastName: '' };
+  } else if (parts.length === 2) {
+    return { firstName: parts[0], lastName: parts[1], motherLastName: '' };
+  } else {
+    // 3 or more parts: first part is firstName, last two are lastNames
+    return {
+      firstName: parts.slice(0, -2).join(' '),
+      lastName: parts[parts.length - 2],
+      motherLastName: parts[parts.length - 1]
+    };
+  }
+};
+
 // Data type for profile - only fields to save
 type ProfileData = {
   nombre: string;
   email: string;
   telefono: string;
+  phone: string; // Add phone field to be saved
 };
 
 // Vehicle Card Component
@@ -464,7 +486,8 @@ const FinanciamientosPage: React.FC = () => {
       const profileData: ProfileData = {
         nombre: formDataCache.fullName,
         email: formDataCache.email,
-        telefono: formDataCache.phone
+        telefono: formDataCache.phone,
+        phone: formDataCache.phone // Save phone to the phone field as well
       };
 
       const { error: profileError } = await supabase

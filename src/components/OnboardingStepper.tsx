@@ -2,16 +2,6 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  InteractiveStepper,
-  InteractiveStepperContent,
-  InteractiveStepperDescription,
-  InteractiveStepperIndicator,
-  InteractiveStepperItem,
-  InteractiveStepperSeparator,
-  InteractiveStepperTitle,
-  InteractiveStepperTrigger,
-} from '@/components/ui/interactive-stepper';
 import { CheckCircle, FileText, Car, Send, User } from 'lucide-react';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 
@@ -125,7 +115,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
     },
     {
       title: 'Perfilamiento Bancario',
-      description: '(menos de un minuto)',
+      description: 'Menos de un minuto',
       icon: FileText,
       completed: currentStep > 2,
       timeEstimate: 'menos de un minuto',
@@ -139,7 +129,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
     },
     {
       title: 'Envía solicitud y documentos',
-      description: '(menos de 3 minutos) ¡Así de fácil!',
+      description: 'Menos de 3 minutos',
       icon: Send,
       completed: currentStep > 4,
       timeEstimate: 'menos de 3 minutos',
@@ -339,64 +329,84 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   return (
     <div className={`w-full ${className} hidden md:block`}>
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">
           Proceso de Financiamiento
         </h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-muted-foreground mt-2">
           Sigue estos pasos para completar tu solicitud de crédito automotriz
         </p>
       </div>
 
-      {/* Stepper Component with shadcn styling */}
-      <InteractiveStepper defaultValue={currentStep} className="w-full">
-        {steps.map((step, index) => (
-          <InteractiveStepperItem key={index + 1} completed={step.completed}>
-            <InteractiveStepperTrigger
-              onClick={() => onStepClick?.(index + 1)}
-              className="flex flex-col items-start gap-2 w-full"
-            >
-              <InteractiveStepperIndicator />
-              <div className="flex flex-col gap-1">
-                <InteractiveStepperTitle className="text-sm font-semibold text-left">
-                  {step.title}
-                </InteractiveStepperTitle>
-                <InteractiveStepperDescription className="text-xs text-muted-foreground text-left">
-                  {step.description}
-                </InteractiveStepperDescription>
-              </div>
-            </InteractiveStepperTrigger>
-            {index < steps.length - 1 && <InteractiveStepperSeparator />}
-          </InteractiveStepperItem>
-        ))}
+      {/* Custom Stepper with Icons and Progress Bar */}
+      <div className="relative">
+        {/* Step Items */}
+        <div className="flex items-start justify-between mb-3">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isActive = currentStep === index + 1;
+            const isCompleted = step.completed;
 
-        {/* Progress Indicator - Moved between steps and content */}
-        <div className="mt-6 mb-6 bg-muted/50 rounded-lg p-4 border border-border">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              Progreso del proceso
-            </span>
-            <span className="text-xs font-bold text-primary">
-              {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '99'}% completado
-            </span>
-          </div>
-          <div className="w-full bg-secondary rounded-full h-2">
-            <div
-              className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
-              style={{
-                width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '99%'
-              }}
-            />
-          </div>
+            return (
+              <div
+                key={index}
+                className="flex flex-col items-center flex-1 relative"
+                style={{ maxWidth: `${100 / steps.length}%` }}
+              >
+                {/* Icon Circle */}
+                <div
+                  className={`
+                    relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300
+                    ${isCompleted
+                      ? 'bg-green-500 border-green-500 scale-100'
+                      : isActive
+                        ? 'bg-primary border-primary scale-110 shadow-lg'
+                        : 'bg-muted border-border'
+                    }
+                  `}
+                >
+                  <Icon className={`w-5 h-5 transition-colors ${isCompleted || isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                </div>
+
+                {/* Step Info */}
+                <div className="mt-3 text-center w-full px-2">
+                  <h3 className={`text-sm font-semibold transition-colors ${isActive ? 'text-primary' : isCompleted ? 'text-green-600' : 'text-muted-foreground'}`}>
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Step Content - Always visible with information */}
-        {steps.map((_, index) => (
-          <InteractiveStepperContent key={index + 1} step={index + 1}>
-            <StepContent step={index + 1} />
-          </InteractiveStepperContent>
-        ))}
-      </InteractiveStepper>
+        {/* Progress Bar - Below steps, spanning full width */}
+        <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden mb-6">
+          <div
+            className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '99%'
+            }}
+          />
+        </div>
+
+        {/* Progress Text */}
+        <div className="flex justify-between items-center mb-6 text-xs">
+          <span className="font-medium text-muted-foreground">
+            Progreso del proceso
+          </span>
+          <span className="font-bold text-primary">
+            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '99'}% completado
+          </span>
+        </div>
+      </div>
+
+      {/* Step Content - Always visible with information */}
+      <div className="mt-8">
+        <StepContent step={currentStep} />
+      </div>
     </div>
   );
 };

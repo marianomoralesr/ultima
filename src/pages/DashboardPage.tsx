@@ -225,7 +225,7 @@ const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
     const asesorName = `${asesor.first_name || ''} ${asesor.last_name || ''}`.trim() || 'Tu Asesor';
     const asesorPhone = asesor.phone || '5218187049079';
     const whatsappLink = `https://wa.me/${asesorPhone.replace(/\D/g, '')}?text=Hola%20${encodeURIComponent(asesor.first_name || 'asesor')},%20tengo%20una%20pregunta%20sobre%20mi%20solicitud`;
-    const profilePicture = asesor.avatar_url || asesor.profile_picture_url;
+    const profilePicture = (asesor as any).picture_url || (asesor as any).avatar_url || (asesor as any).profile_picture_url;
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

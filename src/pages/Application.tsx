@@ -188,12 +188,8 @@ const Application: React.FC = () => {
                     reset(applicationData);
                     if (!carInfo._ordenCompra) setShowVehicleSelector(true);
 
-                    // Track ComienzaSolicitud - user arrived at application page
-                    conversionTracking.trackApplication.started({
-                        userId: user.id,
-                        applicationId: draft.id,
-                        vehicleId: carInfo?._ordenCompra || undefined
-                    });
+                    // DO NOT track ComienzaSolicitud for existing drafts - only track once on creation
+                    // This prevents duplicate tracking when users return to their draft
                 } else {
                     const pendingOrdenCompra = sessionStorage.getItem('pendingOrdenCompra');
                     const finalOrdenCompra = searchParams.get('ordencompra') || pendingOrdenCompra;

@@ -21,6 +21,7 @@ import LazyImage from '../components/LazyImage';
 import { proxyImage } from '../utils/proxyImage';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 import Sparkles from '../components/Sparkles';
+import BranchesSection from '../components/BranchesSection';
 // import { useConfig } from '../context/ConfigContext';
 
 
@@ -630,6 +631,7 @@ const HomePage: React.FC = () => {
       <CTACardsSection />
       <YouTubeVSLSection />
       <WhyChooseTrefaSection />
+      <BranchesSection />
       <TestimonioSeparator />
       <FeaturedInventorySection />
       <HowItWorksSection />

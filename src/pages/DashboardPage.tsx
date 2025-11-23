@@ -375,7 +375,8 @@ const Dashboard: React.FC = () => {
   };
 
 
-  const userName = profile?.first_name || 'Usuario';
+  // Get user's first name from nombre_completo (nombre field) if available, otherwise don't show personalized message
+  const userName = profile?.nombre ? (profile.nombre.split(' ')[0] || undefined) : (profile?.first_name || undefined);
 
   // Show document upload section for any non-draft application (most recent first)
   const activeApplicationForDocs = applications

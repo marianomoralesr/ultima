@@ -32,7 +32,8 @@ interface OnboardingStepperProps {
    */
   isProfileComplete?: boolean;
   /**
-   * User's first name for personalized messages
+   * User's first name for personalized messages (from nombre_completo field)
+   * If undefined, personalized message won't be shown
    */
   userName?: string;
 }
@@ -106,7 +107,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   onStepClick,
   className = '',
   isProfileComplete = false,
-  userName = 'Usuario',
+  userName,
 }) => {
   // Define the onboarding steps with new descriptions
   const steps = [
@@ -165,6 +166,23 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
       iconColor = 'text-green-600';
     }
 
+    // Step 1 - Remove double container/border
+    if (step === 1 && currentStep === 1) {
+      return (
+        <div className="w-full">
+          <p className="text-gray-700 mb-4">
+            Para continuar necesitas terminar de llenar tu información de perfil
+          </p>
+          <button
+            onClick={() => window.location.href = '/escritorio/profile'}
+            className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+          >
+            Completar Perfil
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className={`w-full rounded-lg border ${cardBorderColor} ${cardBgColor} p-6 shadow-sm`}>
         <div className="flex items-start gap-4">
@@ -172,33 +190,22 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             <Icon className={`h-6 w-6 ${iconColor}`} />
           </div>
           <div className="flex-1">
-            {step === 1 && currentStep === 1 && (
-              <>
-                <p className="text-gray-700 mb-4">
-                  Para continuar necesitas terminar de llenar tu información de perfil
-                </p>
-                <button
-                  onClick={() => window.location.href = '/escritorio/profile'}
-                  className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
-                >
-                  Completar Perfil
-                </button>
-              </>
-            )}
             {step === 2 && currentStep === 2 && (
               <>
-                {/* Always show positive personalized message */}
-                <div className="flex items-start gap-3 mb-4 bg-green-50 p-4 rounded-lg border-2 border-green-200">
-                  <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-gray-900 font-semibold text-base">
-                      {userName}, ¡tu registro fue exitoso y cumples con las condiciones para continuar!
-                    </p>
-                    <p className="text-gray-700 text-sm mt-1">
-                      Estás muy cerca de reservar tu vehículo ideal 🚗
-                    </p>
+                {/* Show positive personalized message only if userName exists */}
+                {userName && (
+                  <div className="flex items-start gap-3 mb-4 bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                    <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-gray-900 font-semibold text-base">
+                        {userName}, ¡tu registro fue exitoso y cumples con las condiciones para continuar!
+                      </p>
+                      <p className="text-gray-700 text-sm mt-1">
+                        Estás muy cerca de reservar tu vehículo ideal 🚗
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Conditional CTA based on profile completion */}
                 {isProfileComplete ? (
@@ -269,7 +276,7 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
               <div>
                 <InteractiveStepperTitle>{step.title}</InteractiveStepperTitle>
                 <InteractiveStepperDescription>
-                  {index === 0 ? 'Completado' : index < currentStep - 1 ? 'Completado' : index === currentStep - 1 ? 'Paso actual' : 'Pendiente'}
+                  {step.description}
                 </InteractiveStepperDescription>
               </div>
             </InteractiveStepperTrigger>
@@ -292,14 +299,14 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
             Progreso del proceso
           </span>
           <span className="text-sm font-medium text-orange-600">
-            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '100'}% completado
+            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '99' : '100'}% completado
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-orange-600 h-2 rounded-full transition-all duration-300"
             style={{
-              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '100%'
+              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '99%' : '100%'
             }}
           />
         </div>

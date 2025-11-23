@@ -3,7 +3,7 @@
  * This consolidates logic previously duplicated across SimpleCRMPage, AdminLeadsDashboardPage, and SalesLeadsDashboardPage
  */
 
-import { APPLICATION_STATUS } from '../constants/applicationStatus';
+import { APPLICATION_STATUS, getStatusConfig } from '../constants/applicationStatus';
 
 /**
  * Check if application has all required documents
@@ -90,88 +90,29 @@ export const getStatusLabel = (status: string): string => {
 
 /**
  * Get color classes for application status
+ * Now uses centralized STATUS_CONFIG from constants
  */
-export const getStatusColor = (status: string): { bg: string; text: string; border: string; dot: string } => {
-    const colors: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-        [APPLICATION_STATUS.COMPLETA]: {
-            bg: 'bg-green-100',
-            text: 'text-green-800',
-            border: 'border-green-300',
-            dot: 'bg-green-500'
-        },
-        [APPLICATION_STATUS.FALTAN_DOCUMENTOS]: {
-            bg: 'bg-amber-100',
-            text: 'text-amber-800',
-            border: 'border-amber-300',
-            dot: 'bg-amber-500'
-        },
-        [APPLICATION_STATUS.EN_REVISION]: {
-            bg: 'bg-purple-100',
-            text: 'text-purple-800',
-            border: 'border-purple-300',
-            dot: 'bg-purple-500'
-        },
-        [APPLICATION_STATUS.APROBADA]: {
-            bg: 'bg-green-100',
-            text: 'text-green-800',
-            border: 'border-green-300',
-            dot: 'bg-green-500'
-        },
-        [APPLICATION_STATUS.RECHAZADA]: {
-            bg: 'bg-red-100',
-            text: 'text-red-800',
-            border: 'border-red-300',
-            dot: 'bg-red-500'
-        },
-        [APPLICATION_STATUS.DRAFT]: {
-            bg: 'bg-gray-100',
-            text: 'text-gray-600',
-            border: 'border-gray-300',
-            dot: 'bg-gray-400'
-        },
-        // Legacy status mappings
-        [APPLICATION_STATUS.SUBMITTED]: {
-            bg: 'bg-blue-100',
-            text: 'text-blue-800',
-            border: 'border-blue-300',
-            dot: 'bg-blue-500'
-        },
-        [APPLICATION_STATUS.REVIEWING]: {
-            bg: 'bg-purple-100',
-            text: 'text-purple-800',
-            border: 'border-purple-300',
-            dot: 'bg-purple-500'
-        },
-        [APPLICATION_STATUS.PENDING_DOCS]: {
-            bg: 'bg-amber-100',
-            text: 'text-amber-800',
-            border: 'border-amber-300',
-            dot: 'bg-amber-500'
-        },
-        [APPLICATION_STATUS.APPROVED]: {
-            bg: 'bg-green-100',
-            text: 'text-green-800',
-            border: 'border-green-300',
-            dot: 'bg-green-500'
-        },
-        [APPLICATION_STATUS.IN_REVIEW]: {
-            bg: 'bg-purple-100',
-            text: 'text-purple-800',
-            border: 'border-purple-300',
-            dot: 'bg-purple-500'
-        },
-        'rejected': {
-            bg: 'bg-red-100',
-            text: 'text-red-800',
-            border: 'border-red-300',
-            dot: 'bg-red-500'
-        }
+export const getStatusColor = (status: string): { bg: string; text: string; border: string; dot: string; label: string; dotColor: string; textColor: string } => {
+    const config = getStatusConfig(status);
+
+    // Map color names to Tailwind classes for backward compatibility
+    const colorMap: Record<string, { bg: string; text: string; border: string }> = {
+        'gray': { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300' },
+        'green': { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300' },
+        'yellow': { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300' },
+        'purple': { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' },
+        'blue': { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
+        'red': { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-300' },
     };
-    return colors[status] || {
-        bg: 'bg-gray-100',
-        text: 'text-gray-600',
-        border: 'border-gray-300',
-        dot: 'bg-gray-400'
+
+    const colors = colorMap[config.color] || colorMap['gray'];
+
+    return {
+        ...colors,
+        dot: config.dotColor,
+        label: config.label,
+        dotColor: config.dotColor,
+        textColor: config.textColor,
     };
 };
 

@@ -63,15 +63,28 @@ export const ApplicationService = {
         return result ? { ...result, status: 'submitted', updated_at: new Date().toISOString() } : null;
     }
 
-    // Check if application has required documents
-    const hasAllDocuments = await this.checkApplicationDocuments(applicationId, applicationData);
+    // Get current application status
+    const { data: currentApp } = await supabase
+      .from('financing_applications')
+      .select('status')
+      .eq('id', applicationId)
+      .maybeSingle();
 
-    // Set status based on documents: "Completa" if has docs, "Faltan Documentos" if not
-    const newStatus = hasAllDocuments ? 'Completa' : 'Faltan Documentos';
+    const currentStatus = currentApp?.status || 'draft';
+
+    // Only automatically set status if current status is draft or if explicitly provided
+    let newStatus = applicationData.status || currentStatus;
+
+    // Auto-detect status based on documents only if status is draft or not in review/approved/rejected
+    if (currentStatus === APPLICATION_STATUS.DRAFT || !applicationData.status) {
+      const hasAllDocuments = await this.checkApplicationDocuments(applicationId, applicationData);
+      // Set status based on documents: "Completa" if has docs, "Faltan Documentos" if not
+      newStatus = hasAllDocuments ? APPLICATION_STATUS.COMPLETA : APPLICATION_STATUS.FALTAN_DOCUMENTOS;
+    }
 
     const patch: Record<string, any> = { status: newStatus };
     for (const [k, v] of Object.entries(applicationData)) {
-      if (v !== undefined && k !== 'documents_pending') patch[k] = v;
+      if (v !== undefined && k !== 'documents_pending' && k !== 'status') patch[k] = v;
     }
 
     const { data, error } = await supabase

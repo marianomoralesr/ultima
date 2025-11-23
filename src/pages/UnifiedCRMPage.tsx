@@ -649,26 +649,16 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         {lead.correctedStatus && lead.latest_app_id ? (
-                                                            <div className="flex flex-col gap-1.5">
-                                                                <select
-                                                                    value={lead.correctedStatus}
-                                                                    onChange={(e) => updateApplicationStatus(lead, e.target.value)}
-                                                                    disabled={isUpdating}
-                                                                    className={`text-xs font-semibold px-2 py-1 rounded border-2 cursor-pointer hover:opacity-80 transition-all disabled:opacity-50 ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
-                                                                >
-                                                                    <option value={APPLICATION_STATUS.DRAFT}>Borrador</option>
-                                                                    <option value={APPLICATION_STATUS.COMPLETA}>Completa</option>
-                                                                    <option value={APPLICATION_STATUS.FALTAN_DOCUMENTOS}>Faltan Docs</option>
-                                                                    <option value={APPLICATION_STATUS.EN_REVISION}>En Revisión</option>
-                                                                    <option value={APPLICATION_STATUS.APROBADA}>Aprobada</option>
-                                                                    <option value={APPLICATION_STATUS.RECHAZADA}>Rechazada</option>
-                                                                </select>
-                                                                {isUpdating && (
-                                                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                                                        Actualizando...
-                                                                    </div>
-                                                                )}
+                                                            <div className="flex items-center gap-2">
+                                                                {/* Pulsating dot */}
+                                                                <div className="relative flex h-3 w-3">
+                                                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${statusColor.dotColor} opacity-75`}></span>
+                                                                    <span className={`relative inline-flex rounded-full h-3 w-3 ${statusColor.dotColor}`}></span>
+                                                                </div>
+                                                                {/* Status text with color */}
+                                                                <span className={`text-xs font-semibold ${statusColor.textColor}`}>
+                                                                    {statusColor.label}
+                                                                </span>
                                                             </div>
                                                         ) : (
                                                             <span className="text-xs text-muted-foreground">Sin solicitud</span>

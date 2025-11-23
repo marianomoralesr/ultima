@@ -113,31 +113,31 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   const steps = [
     {
       title: 'Registro Completado',
-      description: 'Completado – excelente avance',
+      description: '¡Completado!',
       icon: User,
       completed: currentStep > 1,
       timeEstimate: '',
     },
     {
       title: 'Perfilamiento Bancario',
-      description: '🟠 2 min – permite reservar tu vehículo',
+      description: '(menos de un minuto)',
       icon: FileText,
       completed: currentStep > 2,
-      timeEstimate: '2 min',
+      timeEstimate: 'menos de un minuto',
     },
     {
-      title: 'Seleccionar Vehículo',
-      description: '⚪ ¡Personalizado para ti!',
+      title: 'Elige tu Auto',
+      description: 'Personalizado para ti',
       icon: Car,
       completed: currentStep > 3,
       timeEstimate: '',
     },
     {
-      title: 'Enviar Solicitud',
-      description: 'Complétala en 2 minutos',
+      title: 'Envía solicitud y documentos',
+      description: '(menos de 3 minutos) ¡Así de fácil!',
       icon: Send,
       completed: currentStep > 4,
-      timeEstimate: '2 min',
+      timeEstimate: 'menos de 3 minutos',
     },
   ];
 
@@ -166,19 +166,35 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
       iconColor = 'text-green-600';
     }
 
-    // Step 1 - Remove double container/border
+    // Step 1 - Conditional content based on profile completion
     if (step === 1 && currentStep === 1) {
       return (
-        <div className="w-full">
-          <p className="text-gray-700 mb-4">
-            Para continuar necesitas terminar de llenar tu información de perfil
-          </p>
-          <button
-            onClick={() => window.location.href = '/escritorio/profile'}
-            className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
-          >
-            Completar Perfil
-          </button>
+        <div className="w-full space-y-4">
+          {!isProfileComplete ? (
+            <>
+              <p className="text-gray-700">
+                Para continuar necesitas terminar de llenar tu información de perfil
+              </p>
+              <button
+                onClick={() => window.location.href = '/escritorio/profile'}
+                className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+              >
+                Completar Perfil
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-700 font-semibold">
+                ¡Todo listo para comenzar tu perfilamiento bancario!
+              </p>
+              <button
+                onClick={() => window.location.href = '/escritorio/perfilacion-bancaria'}
+                className="inline-flex items-center px-4 py-2 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition-colors shadow-sm"
+              >
+                Comenzar perfilamiento
+              </button>
+            </>
+          )}
         </div>
       );
     }
@@ -254,59 +270,62 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full ${className} hidden md:block`}>
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900">
           Proceso de Financiamiento
         </h2>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 mt-2">
           Sigue estos pasos para completar tu solicitud de crédito automotriz
         </p>
       </div>
 
-      {/* Stepper Component */}
+      {/* Stepper Component with improved spacing */}
       <InteractiveStepper defaultValue={currentStep} className="w-full">
         {steps.map((step, index) => (
           <InteractiveStepperItem key={index + 1} completed={step.completed}>
             <InteractiveStepperTrigger
               onClick={() => onStepClick?.(index + 1)}
+              className="py-3"
             >
               <InteractiveStepperIndicator />
-              <div>
-                <InteractiveStepperTitle>{step.title}</InteractiveStepperTitle>
-                <InteractiveStepperDescription>
+              <div className="space-y-2">
+                <InteractiveStepperTitle className="text-lg font-semibold">
+                  {step.title}
+                </InteractiveStepperTitle>
+                <InteractiveStepperDescription className="text-sm text-gray-600">
                   {step.description}
                 </InteractiveStepperDescription>
               </div>
             </InteractiveStepperTrigger>
-            {index < steps.length - 1 && <InteractiveStepperSeparator />}
+            {index < steps.length - 1 && <InteractiveStepperSeparator className="min-w-[80px] h-[2px]" />}
           </InteractiveStepperItem>
         ))}
 
         {/* Step Contents */}
         {steps.map((_, index) => (
-          <InteractiveStepperContent key={index + 1} step={index + 1}>
+          <InteractiveStepperContent key={index + 1} step={index + 1} className="mt-6">
             <StepContent step={index + 1} />
           </InteractiveStepperContent>
         ))}
       </InteractiveStepper>
 
       {/* Progress Indicator */}
-      <div className="mt-6 bg-gray-100 rounded-lg p-4">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
+      <div className="mt-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-5 shadow-sm border border-gray-200">
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-sm font-semibold text-gray-700">
             Progreso del proceso
           </span>
-          <span className="text-sm font-medium text-orange-600">
-            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '99' : '100'}% completado
+          <span className="text-sm font-bold text-orange-600">
+            {currentStep === 1 ? '25' : currentStep === 2 ? '50' : currentStep === 3 ? '75' : '100'}% completado
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-300 rounded-full h-3 shadow-inner">
           <div
-            className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-orange-500 to-orange-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
             style={{
-              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '99%' : '100%'
+              width: currentStep === 1 ? '25%' : currentStep === 2 ? '50%' : currentStep === 3 ? '75%' : '100%'
             }}
           />
         </div>

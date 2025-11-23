@@ -412,8 +412,8 @@ const Dashboard: React.FC = () => {
       {showOnboarding && <OnboardingModal onClose={handleCompleteOnboarding} />}
       <div className="space-y-8 lg:ml-6 lg:pl-6 text-neutral-800 max-w-full overflow-x-hidden bg-white">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-800 ">Bienvenido a tu Escritorio, {userName}</h1>
-          <p className="mt-1 text-neutral-600">Administra tus solicitudes y explora opciones de financiamiento.</p>
+          <h4 className="text-xl font-semibold text-neutral-800">Bienvenido a tu Escritorio, {userName}</h4>
+          <p className="mt-1 text-sm text-neutral-600">Administra tus solicitudes y explora opciones de financiamiento.</p>
         </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

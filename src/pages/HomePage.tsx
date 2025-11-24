@@ -23,6 +23,7 @@ import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 import BranchesSection from '../components/BranchesSection';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
+import { AppleCardsCarousel } from '../components/AppleCardsCarousel';
 
 /* ---------- Hero Vehicle Card ---------- */
 const HeroVehicleCard: React.FC<{ vehicle: Vehicle }> = React.memo(({ vehicle }) => {
@@ -138,7 +139,7 @@ const LandingPageHero: React.FC = () => {
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-gradient-to-t to-transparent blur-3xl rounded-t-full from-primary/20 translate-y-1/2 w-[80%] h-96" />
       </div>
 
-      <div className="container mx-auto px-4 lg:px-6 relative z-10 py-8 lg:py-20">
+      <div className="container mx-auto px-4 lg:px-6 relative z-10">
         <div ref={ref} className="flex flex-col items-center text-center space-y-4 lg:space-y-6 w-full">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -558,6 +559,64 @@ const TestimonioSeparator: React.FC = () => {
   );
 };
 
+/* ---------- Carroceria Carousel Section ---------- */
+const CarroceriaCarouselSection: React.FC = () => {
+  const carroceriaCards = [
+    {
+      title: "SUV",
+      category: "Sport Utility Vehicle",
+      src: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop",
+      description: "Espaciosos, versátiles y perfectos para la familia. Confort y seguridad en cada viaje.",
+      link: "/carroceria/suv"
+    },
+    {
+      title: "Sedan",
+      category: "Elegancia y Eficiencia",
+      src: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=2128&auto=format&fit=crop",
+      description: "Diseño sofisticado con excelente rendimiento de combustible. Ideal para el día a día.",
+      link: "/carroceria/sedan"
+    },
+    {
+      title: "Hatchback",
+      category: "Compacto y Práctico",
+      src: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop",
+      description: "Ágiles en la ciudad con amplio espacio de carga. El equilibrio perfecto.",
+      link: "/carroceria/hatchback"
+    },
+    {
+      title: "Pick Up",
+      category: "Fuerza y Capacidad",
+      src: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2070&auto=format&fit=crop",
+      description: "Robustas y capaces. Diseñadas para trabajo y aventura sin límites.",
+      link: "/carroceria/pick-up"
+    }
+  ];
+
+  const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+
+  return (
+    <Section className="bg-gradient-to-b from-white to-gray-50">
+      <div
+        ref={ref}
+        className={cn(
+          "transition-all duration-700",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}
+      >
+        <div className="text-center mb-12 lg:mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight mb-4">
+            Explora por Tipo de Carrocería
+          </h2>
+          <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
+            Encuentra el vehículo perfecto según tu estilo de vida. Desde SUVs familiares hasta Pick Ups robustas.
+          </p>
+        </div>
+        <AppleCardsCarousel items={carroceriaCards} />
+      </div>
+    </Section>
+  );
+};
+
 /* ---------- CTA Cards Section ---------- */
 const CTACardsSection: React.FC = () => {
   return (
@@ -690,6 +749,7 @@ const HomePage: React.FC = () => {
     <main className="relative z-10 scroll-smooth">
       <LandingPageHero />
       <NewHeroSection />
+      <CarroceriaCarouselSection />
       <CTACardsSection />
       <YouTubeVSLSection />
       <WhyChooseTrefaSection />

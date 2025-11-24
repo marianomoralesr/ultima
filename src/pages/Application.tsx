@@ -8,7 +8,7 @@ import { useVehicles } from '../context/VehicleContext';
 import { WordPressVehicle, Profile } from '../types/types';
 import {
   FileText, CheckCircle, Building2, User, AlertTriangle, Loader2, Users, PenSquare,
-  ArrowLeft, ArrowRight, Edit, Info, DollarSign
+  ArrowLeft, ArrowRight, Edit, Info, DollarSign, AlertCircle
 } from 'lucide-react';
 import StepIndicator from '../components/StepIndicator';
 import { ApplicationService } from '../services/ApplicationService';
@@ -1432,7 +1432,20 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
     const termOptions = allTermOptions.filter(term => term <= maxTerm);
 
     if (!vehiclePrice || vehiclePrice === 0) {
-        return null;
+        console.warn('[FinancingPreferencesSection] Vehicle price missing or zero:', { vehicleInfo, vehiclePrice });
+        return (
+            <div className="mb-8 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 text-yellow-600" />
+                    <div>
+                        <p className="font-semibold text-yellow-900">Información del Vehículo Faltante</p>
+                        <p className="text-sm text-yellow-800 mt-1">
+                            No pudimos cargar el precio del vehículo. Por favor, regresa al inicio y selecciona tu vehículo nuevamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

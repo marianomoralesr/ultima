@@ -223,7 +223,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
     const menuRef = useRef<HTMLDivElement>(null);
 
     // Fetch all brands and models for mega menu (independent of VehicleContext filters)
-    const { data: brandsAndModels } = useQuery({
+    const { data: brandsAndModels, isLoading: isBrandsLoading } = useQuery({
         queryKey: ['mega-menu-brands-models'],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -233,11 +233,16 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                 .not('automarca', 'is', null)
                 .not('automodelo', 'is', null);
 
-            if (error) throw error;
+            if (error) {
+                console.error('Error fetching brands/models for mega menu:', error);
+                throw error;
+            }
+            console.log('Mega menu brands/models loaded:', data?.length || 0, 'items');
             return data || [];
         },
         staleTime: 10 * 60 * 1000, // 10 minutes - brands/models don't change frequently
         gcTime: 30 * 60 * 1000, // 30 minutes
+        enabled: isOpen, // Only fetch when menu is open
     });
 
     // All carrocerias/body types
@@ -470,26 +475,38 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Marcas</h3>
                             <ScrollArea className="h-[320px] pr-2">
                                 <div className="space-y-0.5">
-                                    {marcas.map(marca => (
-                                        <Button
-                                            key={marca.id}
-                                            onClick={() => handleFilterClick('automarca', marca.slug)}
-                                            variant="ghost"
-                                            size="sm"
-                                            className="w-full justify-start gap-2 text-xs font-medium h-8"
-                                        >
-                                            <img src={marca.logoUrl} alt={`${marca.name} Logo`} className="w-5 h-5 object-contain" />
-                                            {marca.name}
-                                        </Button>
-                                    ))}
-                                    <Button
-                                        onClick={() => handleFilterClick('automarca', '')}
-                                        variant="ghost"
-                                        size="sm"
-                                        className="w-full justify-start text-xs font-semibold text-primary-600 hover:text-primary-700 h-8"
-                                    >
-                                        Ver todas las marcas →
-                                    </Button>
+                                    {isBrandsLoading ? (
+                                        <div className="flex items-center justify-center h-20">
+                                            <p className="text-xs text-gray-400">Cargando marcas...</p>
+                                        </div>
+                                    ) : marcas.length === 0 ? (
+                                        <div className="flex items-center justify-center h-20">
+                                            <p className="text-xs text-gray-400">No hay marcas disponibles</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {marcas.map(marca => (
+                                                <Button
+                                                    key={marca.id}
+                                                    onClick={() => handleFilterClick('automarca', marca.slug)}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                                >
+                                                    <img src={marca.logoUrl} alt={`${marca.name} Logo`} className="w-5 h-5 object-contain" />
+                                                    {marca.name}
+                                                </Button>
+                                            ))}
+                                            <Button
+                                                onClick={() => handleFilterClick('automarca', '')}
+                                                variant="ghost"
+                                                size="sm"
+                                                className="w-full justify-start text-xs font-semibold text-primary-600 hover:text-primary-700 h-8"
+                                            >
+                                                Ver todas las marcas →
+                                            </Button>
+                                        </>
+                                    )}
                                 </div>
                             </ScrollArea>
                         </div>
@@ -499,18 +516,30 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Modelos</h3>
                             <ScrollArea className="h-[320px] pr-2">
                                 <div className="space-y-0.5">
-                                    {models.map(model => (
-                                        <Button
-                                            key={model.id}
-                                            onClick={() => handleFilterClick('automodelo', model.slug)}
-                                            variant="ghost"
-                                            size="sm"
-                                            className="w-full justify-start gap-2 text-xs font-medium h-8"
-                                        >
-                                            <img src={model.logoUrl} alt={`${model.brand} Logo`} className="w-5 h-5 object-contain flex-shrink-0" />
-                                            <span className="truncate">{model.name}</span>
-                                        </Button>
-                                    ))}
+                                    {isBrandsLoading ? (
+                                        <div className="flex items-center justify-center h-20">
+                                            <p className="text-xs text-gray-400">Cargando modelos...</p>
+                                        </div>
+                                    ) : models.length === 0 ? (
+                                        <div className="flex items-center justify-center h-20">
+                                            <p className="text-xs text-gray-400">No hay modelos disponibles</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {models.map(model => (
+                                                <Button
+                                                    key={model.id}
+                                                    onClick={() => handleFilterClick('automodelo', model.slug)}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="w-full justify-start gap-2 text-xs font-medium h-8"
+                                                >
+                                                    <img src={model.logoUrl} alt={`${model.brand} Logo`} className="w-5 h-5 object-contain flex-shrink-0" />
+                                                    <span className="truncate">{model.name}</span>
+                                                </Button>
+                                            ))}
+                                        </>
+                                    )}
                                 </div>
                             </ScrollArea>
                         </div>

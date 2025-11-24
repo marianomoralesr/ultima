@@ -490,6 +490,7 @@ const Dashboard: React.FC = () => {
                                     date: app.created_at,
                                     vehicle: app.car_info?._vehicleTitle || 'Auto no especificado'
                                 }}
+                                fullApplication={app}
                             />
                         ))}
                     </div>

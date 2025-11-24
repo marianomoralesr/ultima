@@ -104,7 +104,7 @@ const AdminValuationPage: React.FC = () => {
               </li>
               <li className="flex items-start">
                 <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
-                <span>Incluye métricas reales del proyecto: 269 archivos, 50K+ líneas de código, 31 servicios</span>
+                <span className="font-semibold">Incluye métricas ACTUALIZADAS: 375 archivos, 58 páginas, 41 servicios, 24 Edge Functions</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
@@ -123,8 +123,16 @@ const AdminValuationPage: React.FC = () => {
                 <span className="font-semibold">Arquitectura backend completa con diagramas</span>
               </li>
               <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="font-semibold">Catálogo completo de 31 servicios especializados</span>
+                <Sparkles className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-amber-500" />
+                <span className="font-semibold">NUEVO: Catálogo completo de 41 servicios especializados (actualizado)</span>
+              </li>
+              <li className="flex items-start">
+                <Sparkles className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-amber-500" />
+                <span className="font-semibold">NUEVO: Sección detallada de 10 características únicas y patentables</span>
+              </li>
+              <li className="flex items-start">
+                <Sparkles className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0 text-amber-500" />
+                <span className="font-semibold">NUEVO: Valuación actualizada con metodología realista y verificable</span>
               </li>
               <li className="flex items-start">
                 <CheckCircle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
@@ -145,31 +153,43 @@ const AdminValuationPage: React.FC = () => {
           <div className="px-8 py-6 bg-gray-50 border-b border-gray-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Contenido del Reporte</h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-2">📊 Análisis Financiero</h4>
+              <div className="bg-white p-4 rounded-lg border border-amber-200 shadow-sm">
+                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  📊 Análisis Financiero MEJORADO
+                </h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Desglose detallado de valuación</li>
+                  <li className="font-semibold">• Desglose en 5 componentes detallados</li>
                   <li>• Proyecciones financieras a 3 años</li>
-                  <li>• ROI del 117%</li>
-                  <li>• Análisis de costos e ingresos</li>
+                  <li className="font-semibold text-green-700">• Valuación: $313K+ USD</li>
+                  <li className="font-semibold">• Ahorro SaaS: $134K-538K/año</li>
+                  <li>• Análisis costos e ingresos realistas</li>
                 </ul>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-2">💻 Métricas Técnicas</h4>
+              <div className="bg-white p-4 rounded-lg border border-green-200 shadow-sm">
+                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  💻 Métricas Técnicas ACTUALIZADAS
+                </h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• 269 archivos TypeScript/TSX</li>
+                  <li className="font-semibold">• 375 archivos TypeScript/TSX</li>
                   <li>• 50,000+ líneas de código</li>
-                  <li>• 19 Edge Functions desplegadas</li>
+                  <li className="font-semibold">• 24 Edge Functions desplegadas</li>
                   <li>• 13 integraciones de APIs</li>
+                  <li className="font-semibold text-green-700">• 3 algoritmos patentables</li>
                 </ul>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-2">🚀 Funcionalidades</h4>
+                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  🚀 Características Únicas
+                </h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Gestión completa de inventario</li>
-                  <li>• CRM integrado sin SaaS externos</li>
-                  <li>• Marketing Hub con IA</li>
-                  <li>• Sistema de financiamiento digital</li>
+                  <li className="font-semibold text-purple-700">• Algoritmo scoring bancario PATENTABLE</li>
+                  <li className="font-semibold text-purple-700">• Arquitectura multi-fuente PATENTABLE</li>
+                  <li>• CRM propietario ($50K-300K reemplazo)</li>
+                  <li>• Marketing automation ($60K-120K reemplazo)</li>
+                  <li>• 10 características diferenciadoras únicas</li>
                 </ul>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -197,7 +217,8 @@ const AdminValuationPage: React.FC = () => {
                   Metodología Internacional
                 </h4>
                 <p className="text-sm text-gray-700">
-                  Utiliza metodologías de valuación reconocidas: Costo de Desarrollo (35%), Valor de Mercado (40%), y Valor Estratégico (25%).
+                  <span className="font-semibold">ACTUALIZADO NOV 2025:</span> Metodología integral con 5 componentes:
+                  Desarrollo (49%), SaaS Reemplazo (19%), IP Patentable (14%), Integraciones (10%), Tech Stack (7%).
                 </p>
               </div>
               <div className="bg-white p-4 rounded-lg border border-blue-200 shadow-sm">
@@ -206,7 +227,8 @@ const AdminValuationPage: React.FC = () => {
                   Datos Verificables
                 </h4>
                 <p className="text-sm text-gray-700">
-                  Basada en métricas reales del código fuente: 269 archivos analizados, 50,000+ líneas, 31 servicios documentados.
+                  <span className="font-semibold">ACTUALIZADO NOV 2025:</span> Basada en análisis exhaustivo: 375 archivos TypeScript/TSX,
+                  50,000+ líneas, 41 servicios especializados, 24 Edge Functions, 3 algoritmos patentables identificados.
                 </p>
               </div>
               <div className="bg-white p-4 rounded-lg border border-amber-200 shadow-sm">
@@ -228,12 +250,16 @@ const AdminValuationPage: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">Importante:</span> Esta valuación es un documento oficial que puede ser utilizado para
-                presentaciones a inversores, instituciones financieras, o procesos de due diligence. El cálculo está respaldado por
-                análisis detallado de costos de desarrollo ($150/hora × 1,600 horas), valor estratégico de la propiedad intelectual,
-                y comparables de mercado para plataformas SaaS similares.
+            <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-green-50 rounded-lg border-2 border-amber-300 shadow-md">
+              <p className="text-sm text-gray-800 leading-relaxed">
+                <span className="font-bold text-amber-900">ACTUALIZADO NOVIEMBRE 2025 - Importante:</span> Esta valuación es un documento oficial actualizado con análisis exhaustivo
+                que puede ser utilizado para presentaciones a inversores, instituciones financieras, o procesos de due diligence. El cálculo está respaldado por:
+                <span className="block mt-2 ml-2"><strong>(1)</strong> Costos de desarrollo reales verificables: $85/hora senior × 1,800 horas</span>
+                <span className="block ml-2"><strong>(2)</strong> Propiedad intelectual patentable documentada: $45,000 USD</span>
+                <span className="block ml-2"><strong>(3)</strong> Valor de reemplazo SaaS cuantificado: $134K-538K anuales</span>
+                <span className="block ml-2"><strong>(4)</strong> Premium por stack tecnológico de vanguardia (React 18, TypeScript 5, Edge Functions)</span>
+                <span className="block ml-2 mb-2"><strong>(5)</strong> Comparables de mercado para plataformas SaaS con IP propietaria</span>
+                <span className="font-semibold text-green-800">Valuación resultante: $313,750 USD / $5,804,375 MXN</span>
               </p>
             </div>
           </div>

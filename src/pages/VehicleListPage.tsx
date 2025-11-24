@@ -418,7 +418,7 @@ const VehicleListPage: React.FC = () => {
     <>
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8">
-          <aside className="hidden lg:block" style={{ position: 'sticky', top: '200px', alignSelf: 'flex-start', maxHeight: 'calc(100vh - 200px - 16px)', overflowY: 'auto' }}>
+          <aside className="hidden lg:block" style={{ position: 'sticky', top: '150px', alignSelf: 'flex-start', maxHeight: 'calc(100vh - 150px - 16px)', overflowY: 'auto' }}>
             <FilterSidebar
               allVehicles={vehicles}
               onFiltersChange={handleFiltersChange}

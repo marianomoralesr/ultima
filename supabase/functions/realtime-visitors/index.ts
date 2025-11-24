@@ -71,10 +71,8 @@ serve(async (req) => {
         );
       }
 
-      // Add some randomness to make it feel more dynamic (±5)
-      const baseCount = (data as any)?.count || 0;
-      const randomVariation = Math.floor(Math.random() * 11) - 5; // -5 to +5
-      const activeCount = Math.max(200, Math.min(250, baseCount + randomVariation + 200));
+      // Return actual count of active sessions
+      const activeCount = (data as any)?.count || 0;
 
       return new Response(
         JSON.stringify({

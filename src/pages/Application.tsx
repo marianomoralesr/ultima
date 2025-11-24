@@ -234,9 +234,9 @@ const Application: React.FC = () => {
                             vehicleId: finalOrdenCompra || undefined
                         });
 
-                        // Set the application ID and data immediately before navigation
+                        // Set only the application ID - do NOT set applicationData
+                        // This allows the effect to load the full draft from database after navigation
                         setApplicationId(newDraft.id);
-                        setApplicationData(initialData.application_data || {});
 
                         // Navigate to the new URL (this will trigger the effect to reload the full draft)
                         navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });

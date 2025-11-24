@@ -12,7 +12,9 @@ import {
   Trash2,
   FileEdit,
   MessageCircle,
-  UserCircle
+  UserCircle,
+  Eye,
+  Edit as EditIcon
 } from 'lucide-react';
 // FIX: Changed single quotes to double quotes to address potential module resolution issues.
 import { Link } from "react-router-dom";
@@ -20,7 +22,6 @@ import { useAuth } from '../context/AuthContext';
 import { ApplicationService } from '../services/ApplicationService';
 import FinancialProjection from '../components/FinancialProjection';
 import VehicleCarousel from '../components/VehicleCarousel';
-import ApplicationCard from '../components/ApplicationCard';
 import DocumentUploadSection from '../components/DocumentUploadSection';
 import { BankProfilingService } from '../services/BankProfilingService';
 import { ProfileService } from '../services/profileService';
@@ -29,7 +30,23 @@ import { FileTextIcon, DownloadIcon } from '../components/icons';
 import OnboardingModal from '../components/OnboardingModal';
 import { proxyImage } from '../utils/proxyImage';
 import { OnboardingStepper } from '../components/OnboardingStepper';
+import PrintableApplication from '../components/PrintableApplication';
+import { APPLICATION_STATUS, type ApplicationStatus } from '../constants/applicationStatus';
+import { Clock, CheckCircle, FileText } from 'lucide-react';
 
+const statusMap: Record<string, { text: string; icon: any; color: string; bgColor: string }> = {
+    [APPLICATION_STATUS.DRAFT]: { text: "Borrador", icon: FileText, color: "text-gray-500", bgColor: "bg-gray-100" },
+    [APPLICATION_STATUS.COMPLETA]: { text: "Completa", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
+    [APPLICATION_STATUS.FALTAN_DOCUMENTOS]: { text: "Faltan Documentos", icon: FileText, color: "text-yellow-600", bgColor: "bg-yellow-100" },
+    [APPLICATION_STATUS.EN_REVISION]: { text: "En Revisión", icon: Clock, color: "text-indigo-600", bgColor: "bg-indigo-100" },
+    [APPLICATION_STATUS.APROBADA]: { text: "Aprobada", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
+    [APPLICATION_STATUS.RECHAZADA]: { text: "Rechazada", icon: AlertTriangle, color: "text-red-600", bgColor: "bg-red-100" },
+    [APPLICATION_STATUS.SUBMITTED]: { text: "Enviada", icon: Clock, color: "text-blue-600", bgColor: "bg-blue-100" },
+    [APPLICATION_STATUS.REVIEWING]: { text: "En Revisión", icon: Clock, color: "text-indigo-600", bgColor: "bg-indigo-100" },
+    [APPLICATION_STATUS.PENDING_DOCS]: { text: "Documentos Pendientes", icon: FileText, color: "text-yellow-600", bgColor: "bg-yellow-100" },
+    [APPLICATION_STATUS.APPROVED]: { text: "Aprobada", icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
+    'rejected': { text: "Rechazada", icon: AlertTriangle, color: "text-red-600", bgColor: "bg-red-100" },
+};
 
 // New Survey Component
 const SurveyInvitation: React.FC<{ onClose: () => void }> = ({ onClose }) => (
@@ -271,6 +288,8 @@ const Dashboard: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState<number>(1);
+  const [showPrintableModal, setShowPrintableModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user?.id) return;
@@ -479,20 +498,50 @@ const Dashboard: React.FC = () => {
                         </Link>
                     </div>
                     <div className="space-y-4">
-                        {submittedApps.map(app => (
-                            <ApplicationCard
-                                key={app.id}
-                                application={{
-                                    id: app.id,
-                                    bank: Array.isArray(app.selected_banks) && app.selected_banks.length > 0 ? app.selected_banks.map((b: string) => b.charAt(0).toUpperCase() + b.slice(1)).join(', ') : 'Varios',
-                                    type: 'Financiamiento',
-                                    status: app.status,
-                                    date: app.created_at,
-                                    vehicle: app.car_info?._vehicleTitle || 'Auto no especificado'
-                                }}
-                                fullApplication={app}
-                            />
-                        ))}
+                        {submittedApps.map(app => {
+                            const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.DRAFT];
+                            const canEdit = app.status !== APPLICATION_STATUS.EN_REVISION && app.status !== APPLICATION_STATUS.REVIEWING;
+                            return (
+                                <div key={app.id} className="p-4 border rounded-lg bg-white">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
+                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
+                                                <status.icon className="w-3 h-3" />
+                                                {status.text}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 mt-3">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedApplication(app);
+                                                setShowPrintableModal(true);
+                                            }}
+                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                                        >
+                                            <Eye className="w-4 h-4"/> Ver Solicitud
+                                        </button>
+                                        {canEdit ? (
+                                            <Link
+                                                to={`/escritorio/aplicacion/${app.id}`}
+                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                            >
+                                                <EditIcon className="w-4 h-4"/> Editar
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                disabled
+                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed opacity-60"
+                                            >
+                                                <EditIcon className="w-4 h-4"/> Editar
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             ) : (
@@ -573,6 +622,23 @@ const Dashboard: React.FC = () => {
         </aside>
       </div>
     </div>
+
+    {/* PrintableApplication Modal */}
+    {showPrintableModal && selectedApplication && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowPrintableModal(false)}>
+            <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <button
+                    onClick={() => setShowPrintableModal(false)}
+                    className="sticky top-4 right-4 float-right z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                >
+                    <X className="w-5 h-5 text-gray-600" />
+                </button>
+                <div className="p-6">
+                    <PrintableApplication application={selectedApplication} />
+                </div>
+            </div>
+        </div>
+    )}
     </>
   );
 };

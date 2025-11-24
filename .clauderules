@@ -1,0 +1,66 @@
+# Reglas del Proyecto TREFA
+
+## Commits en Español
+
+**CRÍTICO**: Todos los commits en este proyecto DEBEN escribirse en español claro, descriptivo e informativo.
+
+### Formato Obligatorio
+
+```
+tipo: Descripción clara en español de lo que hace el cambio
+```
+
+### Ejemplos Correctos ✅
+
+```bash
+feat: Agregar sistema de notificaciones push en tiempo real
+fix: Corregir cálculo de intereses en simulador de financiamiento
+perf: Optimizar carga de imágenes con lazy loading
+docs: Actualizar guía de integración con Airtable
+```
+
+### Ejemplos Incorrectos ❌
+
+```bash
+feat: Add notification system
+fix: fix bug
+update stuff
+cambios varios
+```
+
+### Por Qué Es Importante
+
+1. **El changelog es público** - Los usuarios finales lo leen
+2. **Sin traducción automática** - El script usa los mensajes tal cual
+3. **Profesionalismo** - Genera confianza en los clientes
+4. **Claridad** - El equipo entiende mejor los cambios
+
+### Guía Completa
+
+Ver `GUIA_COMMITS_ESPAÑOL.md` para ejemplos detallados, plantillas y mejores prácticas.
+
+### Recordatorio
+
+Antes de hacer commit, pregúntate:
+- ¿Está en español?
+- ¿Es descriptivo?
+- ¿Un usuario final lo entendería?
+
+---
+
+## Estructura del Proyecto
+
+- `/docs/guides/` - Documentación activa
+- `/docs/guides/spanish/` - Documentación en español
+- `/docs/archive/` - Documentación histórica
+- `scripts/actualizar-changelog.sh` - Script de changelog (usa commits tal cual, NO traduce)
+
+## Changelog
+
+El script de changelog (`scripts/actualizar-changelog.sh`):
+- NO traduce mensajes
+- Usa los commits exactamente como están escritos
+- Genera versiones automáticas
+- Crea backups automáticos
+
+**Ejecutar**: `./scripts/actualizar-changelog.sh [días]`

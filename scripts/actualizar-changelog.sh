@@ -7,6 +7,9 @@
 # commits de git de los últimos N días y los AÑADE al changelog.html existente
 # sin sobrescribir el contenido anterior.
 #
+# IMPORTANTE: Los commits deben estar escritos en ESPAÑOL desde el inicio.
+#             El script NO traduce, usa los mensajes tal como están.
+#
 # Uso:
 #   ./scripts/actualizar-changelog.sh [días]
 #
@@ -16,6 +19,29 @@
 ##############################################################################
 
 set -e  # Salir si hay algún error
+
+echo ""
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║              📋 ACTUALIZACIÓN DE CHANGELOG                     ║"
+echo "╚════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "⚠️  RECORDATORIO IMPORTANTE:"
+echo "   ✅ Los commits DEBEN escribirse en ESPAÑOL desde el inicio"
+echo "   ✅ Este script NO traduce, usa los mensajes tal cual están"
+echo "   ✅ El changelog es PÚBLICO - los usuarios lo leen"
+echo ""
+echo "📖 Formato correcto:"
+echo "   feat: Agregar sistema de notificaciones en tiempo real"
+echo "   fix: Corregir cálculo de intereses en simulador"
+echo ""
+echo "❌ Formato incorrecto:"
+echo "   feat: Add notification system"
+echo "   fix: fix bug"
+echo ""
+echo "📚 Ver GUIA_COMMITS_ESPAÑOL.md para más detalles"
+echo ""
+echo "────────────────────────────────────────────────────────────────"
+echo ""
 
 # Configuración
 DIAS=${1:-3}  # Por defecto 3 días
@@ -57,7 +83,13 @@ echo "-------------------"
 > "$TEMP_COMMITS.test"
 > "$TEMP_COMMITS.chore"
 
+# Variables para detectar commits en inglés
+commits_en_ingles=0
+total_commits=0
+
 while IFS='|' read -r hash mensaje ramas; do
+    total_commits=$((total_commits + 1))
+
     # Extraer tipo de commit (feat, fix, etc.)
     if echo "$mensaje" | grep -qE '^feat:'; then
         tipo="feat"
@@ -79,13 +111,23 @@ while IFS='|' read -r hash mensaje ramas; do
         tipo="chore"
     fi
 
-    # Limpiar mensaje
+    # Limpiar mensaje (quitar prefijo)
     mensaje_limpio=$(echo "$mensaje" | sed 's/^[a-z]*: //')
 
-    # Agregar a la categoría correspondiente
-    echo "                        <li class=\"change-item\"><strong>$mensaje_limpio</strong> <span class=\"commit-hash\">$hash</span></li>" >> "$TEMP_COMMITS.$tipo"
+    # Detectar si el mensaje está en inglés (simple heurística)
+    if echo "$mensaje_limpio" | grep -qiE '\b(add|remove|fix|update|improve|create|delete|implement|refactor|optimize|enhance|change)\b'; then
+        if ! echo "$mensaje_limpio" | grep -qiE '\b(agregar|eliminar|corregir|actualizar|mejorar|crear|implementar|refactorizar|optimizar|cambiar)\b'; then
+            commits_en_ingles=$((commits_en_ingles + 1))
+            echo "  ⚠️  [$tipo] $mensaje_limpio ($hash) [INGLÉS]"
+        else
+            echo "  [$tipo] $mensaje_limpio ($hash)"
+        fi
+    else
+        echo "  [$tipo] $mensaje_limpio ($hash)"
+    fi
 
-    echo "  [$tipo] $mensaje_limpio ($hash)"
+    # Agregar a la categoría correspondiente (SIN TRADUCIR - se usa tal cual)
+    echo "                        <li class=\"change-item\"><strong>$mensaje_limpio</strong> <span class=\"commit-hash\">$hash</span></li>" >> "$TEMP_COMMITS.$tipo"
 done < "$TEMP_FILE"
 
 # Verificar que hay commits para agregar
@@ -101,6 +143,23 @@ if [ "$tiene_commits" = false ]; then
     echo "⚠️  No se encontraron commits categorizados"
     rm -f "$TEMP_FILE" "$TEMP_COMMITS".*
     exit 0
+fi
+
+# Mostrar advertencia si hay commits en inglés
+if [ $commits_en_ingles -gt 0 ]; then
+    echo ""
+    echo "⚠️  ⚠️  ⚠️  ADVERTENCIA ⚠️  ⚠️  ⚠️"
+    echo ""
+    echo "   Se detectaron $commits_en_ingles commits en INGLÉS de $total_commits totales"
+    echo ""
+    echo "   Por favor, reescribe estos commits en ESPAÑOL antes de continuar."
+    echo "   El changelog es PÚBLICO y debe estar completamente en español."
+    echo ""
+    echo "   Usa: git rebase -i HEAD~$total_commits"
+    echo "   Luego cambia 'pick' por 'reword' en los commits en inglés"
+    echo ""
+    echo "   Ver GUIA_COMMITS_ESPAÑOL.md para ejemplos"
+    echo ""
 fi
 
 # Obtener versión incrementada
@@ -225,12 +284,13 @@ for tipo in feat fix security perf docs style refactor test chore; do
 done
 
 echo ""
-echo "💡 Recuerda:"
+echo "💡 Próximos pasos:"
 echo "   1. Revisar el archivo $CHANGELOG_HTML"
 echo "   2. Si hay algún error, restaurar desde ${CHANGELOG_HTML}.backup"
 echo "   3. Hacer commit de los cambios:"
-echo "      git add $CHANGELOG_HTML && git commit -m 'docs: Update changelog to $NUEVA_VERSION'"
+echo "      git add $CHANGELOG_HTML && git commit -m 'docs: Actualizar changelog a $NUEVA_VERSION'"
 echo "   4. Push al repositorio"
+echo ""
 
 # Limpiar
 rm -f "$TEMP_FILE" "$TEMP_HTML" "$TEMP_COMMITS".*

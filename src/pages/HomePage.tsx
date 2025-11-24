@@ -24,6 +24,14 @@ import BranchesSection from '../components/BranchesSection';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 import { AppleCardsCarousel } from '../components/AppleCardsCarousel';
+import HomePageContentService, {
+  HeroContent,
+  InventoryHeroContent,
+  CarroceriaCarouselContent,
+  CTACardsContent,
+  YouTubeVSLContent,
+  TestimonialContent
+} from '../services/HomePageContentService';
 
 /* ---------- Hero Vehicle Card ---------- */
 const HeroVehicleCard: React.FC<{ vehicle: Vehicle }> = React.memo(({ vehicle }) => {
@@ -105,8 +113,10 @@ const ScrollerRow: React.FC<{ vehicles: Vehicle[]; reverse?: boolean; speed?: nu
 };
 
 /* ---------- Landing Page Hero Section ---------- */
-const LandingPageHero: React.FC = () => {
+const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+
+  if (!content) return null;
 
   return (
     <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center -mt-[100px] pt-[100px]">
@@ -119,7 +129,7 @@ const LandingPageHero: React.FC = () => {
           transition={{ duration: 1, delay: 0.3 }}
         >
           <img
-            src="https://r2.trefa.mx/Frame%2040%20(1).png"
+            src={content.desktopImageRight}
             alt="TREFA Vehicle"
             className="w-[425px] xl:w-[510px] h-auto object-contain"
           />
@@ -131,7 +141,7 @@ const LandingPageHero: React.FC = () => {
           transition={{ duration: 1, delay: 0.3 }}
         >
           <img
-            src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
+            src={content.desktopImageLeft}
             alt="TREFA Vehicle"
             className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1]"
           />
@@ -148,7 +158,7 @@ const LandingPageHero: React.FC = () => {
             className="px-3 py-1 lg:px-4 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2 text-xs lg:text-sm"
           >
             <ShieldCheck className="w-3 h-3 text-primary" />
-            <span className="font-medium">Autos Seminuevos Certificados</span>
+            <span className="font-medium">{content.badgeText}</span>
           </motion.span>
 
           <motion.h1
@@ -157,7 +167,7 @@ const LandingPageHero: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-heading text-3xl md:text-5xl lg:text-7xl font-black tracking-tight max-w-5xl leading-tight"
           >
-            Tu próximo auto seminuevo te está esperando
+            {content.title}
           </motion.h1>
 
           <motion.p
@@ -166,9 +176,7 @@ const LandingPageHero: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-base md:text-lg lg:text-2xl text-muted-foreground max-w-3xl leading-relaxed"
           >
-            Encuentra el auto perfecto en nuestra selección de vehículos seminuevos 2019 en
-            adelante. SUVs, Sedanes, Hatchbacks y Pick Ups con garantía y financiamiento
-            disponible.
+            {content.description}
           </motion.p>
 
           {/* Mobile image - shown only on mobile */}
@@ -179,7 +187,7 @@ const LandingPageHero: React.FC = () => {
             className="lg:hidden w-full max-w-xs mx-auto my-6"
           >
             <img
-              src="https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp"
+              src={content.mobileImage}
               alt="TREFA Vehicle Showcase"
               className="w-full h-auto object-contain"
             />
@@ -192,14 +200,14 @@ const LandingPageHero: React.FC = () => {
             className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-2 lg:pt-4 w-full sm:w-auto"
           >
             <Button size="lg" variant="outline" asChild className="text-base lg:text-lg h-12 lg:h-14 px-6 lg:px-8">
-              <Link to="/autos">
-                Ver Inventario
+              <Link to={content.primaryButtonLink}>
+                {content.primaryButtonText}
                 <Car className="w-4 h-4 ml-2" />
               </Link>
             </Button>
             <Button size="lg" asChild className="text-base lg:text-lg h-12 lg:h-14 px-6 lg:px-8">
-              <Link to="/kit-trefa">
-                Conoce el Kit de Seguridad
+              <Link to={content.secondaryButtonLink}>
+                {content.secondaryButtonText}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
@@ -212,7 +220,7 @@ const LandingPageHero: React.FC = () => {
             className="flex flex-col items-center space-y-3 lg:space-y-4 mt-6 lg:mt-10"
           >
             <p className="text-xs lg:text-sm text-muted-foreground">
-              Más de 5,000 autos vendidos y clientes satisfechos
+              {content.statsText}
             </p>
             <div className="flex items-center space-x-4 lg:space-x-6 opacity-60 flex-wrap justify-center gap-y-3 gap-x-3 lg:gap-y-4 lg:gap-x-4">
               <div className="flex items-center space-x-2">
@@ -241,7 +249,7 @@ const LandingPageHero: React.FC = () => {
               </div>
             </div>
             <p className="text-xs lg:text-sm text-muted-foreground">
-              y 15 de las mejores marcas más...
+              {content.brandsText}
             </p>
           </motion.div>
         </div>
@@ -251,10 +259,12 @@ const LandingPageHero: React.FC = () => {
 };
 
 /* ---------- New Hero Section ---------- */
-const NewHeroSection: React.FC = () => {
+const NewHeroSection: React.FC<{ content: InventoryHeroContent | null }> = ({ content }) => {
   const { vehicles: allVehicles, isLoading } = useVehicles();
   const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+
+  if (!content) return null;
 
   useEffect(() => {
     if (allVehicles && allVehicles.length > 0) {
@@ -298,10 +308,10 @@ const NewHeroSection: React.FC = () => {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}>
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
-          Encuentra tu próximo auto
+          {content.title}
         </h2>
         <p className="mt-4 text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Explora nuestro inventario completo de seminuevos certificados
+          {content.subtitle}
         </p>
       </div>
 
@@ -324,8 +334,8 @@ const NewHeroSection: React.FC = () => {
 
       <div className="mt-12 sm:mt-14 text-center">
         <Button size="lg" asChild className="text-xl font-semibold h-14 px-10">
-          <Link to="/autos" data-gtm-id="cta-principal-inicio">
-            Ver el inventario completo
+          <Link to={content.buttonLink} data-gtm-id="cta-principal-inicio">
+            {content.buttonText}
           </Link>
         </Button>
       </div>
@@ -512,8 +522,10 @@ const AnimatedHeading: React.FC<{ children: React.ReactNode, as?: 'h2' | 'h3', c
 };
 
 /* ---------- YouTube VSL Section ---------- */
-const YouTubeVSLSection: React.FC = () => {
+const YouTubeVSLSection: React.FC<{ content: YouTubeVSLContent | null }> = ({ content }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+
+  if (!content) return null;
 
   return (
     <Section className="bg-white">
@@ -525,14 +537,14 @@ const YouTubeVSLSection: React.FC = () => {
         )}
       >
         <AnimatedHeader
-          title="Conoce nuestra historia"
-          subtitle="Descubre cómo TREFA se ha convertido en la agencia líder de autos seminuevos en el noreste de México"
+          title={content.title}
+          subtitle={content.subtitle}
           className="mb-12"
         />
         <div className="rounded-3xl overflow-hidden relative shadow-2xl" style={{ paddingBottom: '56.25%', height: 0 }}>
           <iframe
             className="absolute top-0 left-0 w-full h-full"
-            src="https://www.youtube.com/embed/p-nMlle-xfw?rel=0"
+            src={`https://www.youtube.com/embed/${content.videoId}?rel=0`}
             title="TREFA VSL"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -546,12 +558,14 @@ const YouTubeVSLSection: React.FC = () => {
 };
 
 /* ---------- Testimonio Separator ---------- */
-const TestimonioSeparator: React.FC = () => {
+const TestimonioSeparator: React.FC<{ content: TestimonialContent | null }> = ({ content }) => {
+  if (!content) return null;
+
   return (
     <div className="bg-white w-full">
       <LazyImage
-        src="/images/testimonio.png"
-        alt="Testimonio de cliente TREFA"
+        src={content.image}
+        alt={content.alt}
         className="w-full h-auto"
         objectFit="contain"
       />
@@ -560,39 +574,10 @@ const TestimonioSeparator: React.FC = () => {
 };
 
 /* ---------- Carroceria Carousel Section ---------- */
-const CarroceriaCarouselSection: React.FC = () => {
-  const carroceriaCards = [
-    {
-      title: "SUV",
-      category: "Sport Utility Vehicle",
-      src: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop",
-      description: "Espaciosos, versátiles y perfectos para la familia. Confort y seguridad en cada viaje.",
-      link: "/carroceria/suv"
-    },
-    {
-      title: "Sedan",
-      category: "Elegancia y Eficiencia",
-      src: "https://source.unsplash.com/Q63_3ioH2xg/2128x1600",
-      description: "Diseño sofisticado con excelente rendimiento de combustible. Ideal para el día a día.",
-      link: "/carroceria/sedan"
-    },
-    {
-      title: "Hatchback",
-      category: "Compacto y Práctico",
-      src: "https://m.atcdn.co.uk/vms/media/%7Bresize%7D/8b06e0fd21fc486389639a6084e1e3aa.jpg",
-      description: "Ágiles en la ciudad con amplio espacio de carga. El equilibrio perfecto.",
-      link: "/carroceria/hatchback"
-    },
-    {
-      title: "Pick Up",
-      category: "Fuerza y Capacidad",
-      src: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2070&auto=format&fit=crop",
-      description: "Robustas y capaces. Diseñadas para trabajo y aventura sin límites.",
-      link: "/carroceria/pick-up"
-    }
-  ];
-
+const CarroceriaCarouselSection: React.FC<{ content: CarroceriaCarouselContent | null }> = ({ content }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
+
+  if (!content) return null;
 
   return (
     <Section className="bg-gradient-to-b from-white to-gray-50">
@@ -605,131 +590,159 @@ const CarroceriaCarouselSection: React.FC = () => {
       >
         <div className="text-center mb-12 lg:mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight mb-4">
-            Explora por Tipo de Carrocería
+            {content.title}
           </h2>
           <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Encuentra el vehículo perfecto según tu estilo de vida. Desde SUVs familiares hasta Pick Ups robustas.
+            {content.subtitle}
           </p>
         </div>
-        <AppleCardsCarousel items={carroceriaCards} />
+        <AppleCardsCarousel items={content.items} />
       </div>
     </Section>
   );
 };
 
 /* ---------- CTA Cards Section ---------- */
-const CTACardsSection: React.FC = () => {
+const CTACardsSection: React.FC<{ content: CTACardsContent | null }> = ({ content }) => {
+  if (!content || !content.cards) return null;
+
+  const getGradientClass = (type: string) => {
+    switch (type) {
+      case 'inventory': return 'bg-trefa-bgradient-down';
+      case 'sell': return 'bg-trefa-bgradient-right';
+      case 'advisor': return 'bg-trefa-bgradient-left';
+      case 'financing': return 'bg-trefa-bgradient-up';
+      default: return 'bg-gradient-to-br from-primary-600 to-primary-800';
+    }
+  };
+
+  const inventoryCard = content.cards.find(c => c.type === 'inventory');
+  const sellCard = content.cards.find(c => c.type === 'sell');
+  const advisorCard = content.cards.find(c => c.type === 'advisor');
+  const financingCard = content.cards.find(c => c.type === 'financing');
+
   return (
     <Section className="bg-white" fullHeight>
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Top Card */}
-        <div className="bg-trefa-bgradient-down text-white rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-          <div className="p-6 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div className="relative z-10 text-center md:text-left flex-1">
-              <AnimatedHeading as="h2" className="text-white">
-                Conoce nuestro inventario
-              </AnimatedHeading>
-              <p className="mt-4 text-lg lg:text-xl text-gray-200">
-                Autos seminuevos seleccionados cuidadosamente para ti.
-              </p>
-              <Button variant="outline" size="lg" asChild className="mt-8 bg-white text-gray-900 hover:bg-gray-100 border-0">
-                <Link to="/autos">
-                  Ver inventario
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-            </div>
-            <div className="relative flex-1 h-48 md:h-64">
-              <img
-                src={proxyImage(
-                  'https://cufm.mx/wp-content/uploads/2025/01/autos-trefa-.png'
-                )}
-                alt="Inventario de autos TREFA"
-                className="absolute bottom-0 right-0 w-full h-auto max-h-full object-contain object-right-bottom transition-transform duration-300 group-hover:scale-105"
-              />
+        {/* Top Card - Inventory */}
+        {inventoryCard && (
+          <div className={`${getGradientClass(inventoryCard.type)} text-white rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2`}>
+            <div className="p-6 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="relative z-10 text-center md:text-left flex-1">
+                <AnimatedHeading as="h2" className="text-white">
+                  {inventoryCard.title}
+                </AnimatedHeading>
+                <p className="mt-4 text-lg lg:text-xl text-gray-200">
+                  {inventoryCard.description}
+                </p>
+                <Button variant="outline" size="lg" asChild className="mt-8 bg-white text-gray-900 hover:bg-gray-100 border-0">
+                  <Link to={inventoryCard.buttonLink}>
+                    {inventoryCard.buttonText}
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="relative flex-1 h-48 md:h-64">
+                <img
+                  src={proxyImage(inventoryCard.image)}
+                  alt={inventoryCard.title}
+                  className="absolute bottom-0 right-0 w-full h-auto max-h-full object-contain object-right-bottom transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Middle Cards */}
+        {/* Middle Cards - Sell & Advisor */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Sell Car Card */}
-          <div className="bg-trefa-bgradient-right text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[24rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-            <div className="relative z-10">
-              <AnimatedHeading as="h3" className="text-white">
-                ¿Quieres vender tu auto?
-              </AnimatedHeading>
-              <p className="mt-3 text-lg text-gray-200">
-                Recibe una oferta por tu auto en un proceso rápido y transparente.
-              </p>
-              <Button variant="outline" size="lg" asChild className="mt-6 bg-white text-gray-900 hover:bg-gray-100 border-0">
-                <Link to="/vender-mi-auto">
-                  Recibir una oferta
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-            </div>
-            <img
-              src="https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/klipartz.com.png"
-              alt="Vende tu auto"
-              className="absolute bottom-0 right-0 w-1/2 max-w-[200px] object-contain pointer-events-none opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
-            />
-          </div>
-
-          {/* Contact Advisor Card */}
-          <div className="bg-trefa-bgradient-left text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[24rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-            <div className="relative z-10">
-              <AnimatedHeading as="h3" className="text-white">
-                Hablar con un asesor
-              </AnimatedHeading>
-              <p className="mt-3 text-lg text-gray-200">
-                Obtén una asesoría personalizada de un experto de nuestro equipo.
-              </p>
-              <Button variant="outline" size="lg" asChild className="mt-6 bg-white text-gray-900 hover:bg-gray-100 border-0">
-                <a
-                  href="https://wa.me/5218187049079"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Iniciar Chat
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </a>
-              </Button>
-            </div>
-            <img
-              src="/images/fer-help.png"
-              alt="TREFA Fernando"
-              className="absolute bottom-0 right-0 w-1/2 max-w-[200px] object-contain pointer-events-none opacity-100 group-hover:opacity-90 transition-all duration-300 group-hover:scale-110"
-            />
-          </div>
-        </div>
-
-        {/* Bottom Card */}
-        <div className="bg-trefa-bgradient-up text-white rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-          <div className="p-6 md:p-14 flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div className="relative z-10 text-center md:text-left flex-1">
-              <AnimatedHeading as="h2" className="text-white">
-                Tramita tu crédito en línea
-              </AnimatedHeading>
-              <p className="mt-4 text-lg lg:text-xl text-gray-100">
-                Nuevo portal de financiamiento con respuesta en 24 horas o menos.
-              </p>
-              <Button variant="outline" size="lg" asChild className="mt-8 bg-white text-primary hover:bg-gray-100 border-0">
-                <Link to="/escritorio/aplicacion">
-                  Ver autos elegibles
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-            </div>
-            <div className="relative flex-1 h-48 md:h-64">
+          {sellCard && (
+            <div className={`${getGradientClass(sellCard.type)} text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[24rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2`}>
+              <div className="relative z-10">
+                <AnimatedHeading as="h3" className="text-white">
+                  {sellCard.title}
+                </AnimatedHeading>
+                <p className="mt-3 text-lg text-gray-200">
+                  {sellCard.description}
+                </p>
+                <Button variant="outline" size="lg" asChild className="mt-6 bg-white text-gray-900 hover:bg-gray-100 border-0">
+                  <Link to={sellCard.buttonLink}>
+                    {sellCard.buttonText}
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
+              </div>
               <img
-                src="https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/financiamiento.png"
-                alt="Financiamiento en línea"
-                className="absolute bottom-0 right-0 w-full h-auto max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                src={sellCard.image}
+                alt={sellCard.title}
+                className="absolute bottom-0 right-0 w-1/2 max-w-[200px] object-contain pointer-events-none opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
               />
             </div>
-          </div>
+          )}
+
+          {advisorCard && (
+            <div className={`${getGradientClass(advisorCard.type)} text-white rounded-3xl p-6 md:p-10 relative overflow-hidden min-h-[24rem] flex flex-col justify-between group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2`}>
+              <div className="relative z-10">
+                <AnimatedHeading as="h3" className="text-white">
+                  {advisorCard.title}
+                </AnimatedHeading>
+                <p className="mt-3 text-lg text-gray-200">
+                  {advisorCard.description}
+                </p>
+                <Button variant="outline" size="lg" asChild className="mt-6 bg-white text-gray-900 hover:bg-gray-100 border-0">
+                  {advisorCard.buttonLink.startsWith('http') ? (
+                    <a
+                      href={advisorCard.buttonLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {advisorCard.buttonText}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </a>
+                  ) : (
+                    <Link to={advisorCard.buttonLink}>
+                      {advisorCard.buttonText}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Link>
+                  )}
+                </Button>
+              </div>
+              <img
+                src={advisorCard.image}
+                alt={advisorCard.title}
+                className="absolute bottom-0 right-0 w-1/2 max-w-[200px] object-contain pointer-events-none opacity-100 group-hover:opacity-90 transition-all duration-300 group-hover:scale-110"
+              />
+            </div>
+          )}
         </div>
+
+        {/* Bottom Card - Financing */}
+        {financingCard && (
+          <div className={`${getGradientClass(financingCard.type)} text-white rounded-3xl relative overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2`}>
+            <div className="p-6 md:p-14 flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="relative z-10 text-center md:text-left flex-1">
+                <AnimatedHeading as="h2" className="text-white">
+                  {financingCard.title}
+                </AnimatedHeading>
+                <p className="mt-4 text-lg lg:text-xl text-gray-100">
+                  {financingCard.description}
+                </p>
+                <Button variant="outline" size="lg" asChild className="mt-8 bg-white text-primary hover:bg-gray-100 border-0">
+                  <Link to={financingCard.buttonLink}>
+                    {financingCard.buttonText}
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="relative flex-1 h-48 md:h-64">
+                <img
+                  src={financingCard.image}
+                  alt={financingCard.title}
+                  className="absolute bottom-0 right-0 w-full h-auto max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Section>
   );
@@ -737,6 +750,24 @@ const CTACardsSection: React.FC = () => {
 
 /* ---------- Home Page ---------- */
 const HomePage: React.FC = () => {
+  const [content, setContent] = useState<{
+    hero: HeroContent | null;
+    inventoryHero: InventoryHeroContent | null;
+    carroceriaCarousel: CarroceriaCarouselContent | null;
+    ctaCards: CTACardsContent | null;
+    youtubeVSL: YouTubeVSLContent | null;
+    testimonial: TestimonialContent | null;
+  }>({
+    hero: null,
+    inventoryHero: null,
+    carroceriaCarousel: null,
+    ctaCards: null,
+    youtubeVSL: null,
+    testimonial: null,
+  });
+
+  const [loading, setLoading] = useState(true);
+
   useSEO({
     title: 'Autos Seminuevos Certificados y con Financiamiento | TREFA',
     description:
@@ -745,16 +776,46 @@ const HomePage: React.FC = () => {
       'autos seminuevos, seminuevos monterrey, venta de autos, financiamiento automotriz, comprar auto, vender auto, agencia de seminuevos, trefa',
   });
 
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const sections = await HomePageContentService.getAllSections();
+        setContent({
+          hero: sections.hero as HeroContent || null,
+          inventoryHero: sections.inventory_hero as InventoryHeroContent || null,
+          carroceriaCarousel: sections.carroceria_carousel as CarroceriaCarouselContent || null,
+          ctaCards: sections.cta_cards as CTACardsContent || null,
+          youtubeVSL: sections.youtube_vsl as YouTubeVSLContent || null,
+          testimonial: sections.testimonial as TestimonialContent || null,
+        });
+      } catch (error) {
+        console.error('Error loading homepage content:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadContent();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
   return (
     <main className="relative z-10 scroll-smooth">
-      <LandingPageHero />
-      <NewHeroSection />
-      <CarroceriaCarouselSection />
-      <CTACardsSection />
-      <YouTubeVSLSection />
+      <LandingPageHero content={content.hero} />
+      <NewHeroSection content={content.inventoryHero} />
+      <CarroceriaCarouselSection content={content.carroceriaCarousel} />
+      <CTACardsSection content={content.ctaCards} />
+      <YouTubeVSLSection content={content.youtubeVSL} />
       <WhyChooseTrefaSection />
       <BranchesSection />
-      <TestimonioSeparator />
+      <TestimonioSeparator content={content.testimonial} />
       <FeaturedInventorySection />
       <WallOfLove />
     </main>

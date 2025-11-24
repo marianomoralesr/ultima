@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Clock, Loader2, AlertTriangle, FileText, Download, Trash2, Eye, ShieldAlert, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Clock, Loader2, AlertTriangle, FileText, Download, Trash2, Eye, ShieldAlert, CheckCircle, ArrowLeft, Edit, X } from 'lucide-react';
 import { ApplicationService } from '../services/ApplicationService';
 import { useAuth } from '../context/AuthContext';
 import PrintableApplication from '../components/PrintableApplication';
@@ -131,6 +131,8 @@ const SeguimientoPage: React.FC = () => {
   const [actionStatus, setActionStatus] = useState<'idle' | 'loading' | 'success'>('idle');
   const [actionError, setActionError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showPrintableModal, setShowPrintableModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<ApplicationData | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -203,22 +205,45 @@ const SeguimientoPage: React.FC = () => {
                       <div className="space-y-4">
                           {applications.length > 0 ? applications.map(app => {
                               const status = statusMap[app.status] || statusMap.draft;
+                              const canEdit = app.status !== APPLICATION_STATUS.EN_REVISION && app.status !== APPLICATION_STATUS.REVIEWING;
                               return (
-                                <div key={app.id} className="p-4 border rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                                        <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
-                                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
-                                            <status.icon className="w-3 h-3" />
-                                            {status.text}
-                                        </span>
+                                <div key={app.id} className="p-4 border rounded-lg">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
+                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
+                                                <status.icon className="w-3 h-3" />
+                                                {status.text}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <Link
-                                        to={app.status === APPLICATION_STATUS.DRAFT ? `/escritorio/aplicacion/${app.id}` : `/escritorio/seguimiento/${app.id}`}
-                                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                                    >
-                                        <Eye className="w-4 h-4"/> {app.status === APPLICATION_STATUS.DRAFT ? 'Continuar' : 'Ver Detalles'}
-                                    </Link>
+                                    <div className="flex gap-2 mt-3">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedApplication(app);
+                                                setShowPrintableModal(true);
+                                            }}
+                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                                        >
+                                            <Eye className="w-4 h-4"/> Ver Solicitud
+                                        </button>
+                                        {canEdit ? (
+                                            <Link
+                                                to={`/escritorio/aplicacion/${app.id}`}
+                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                            >
+                                                <Edit className="w-4 h-4"/> Editar
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                disabled
+                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed opacity-60"
+                                            >
+                                                <Edit className="w-4 h-4"/> Editar
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                               );
                           }) : <p className="text-sm text-gray-500 text-center py-8">Aún no has enviado ninguna solicitud.</p>}
@@ -260,6 +285,23 @@ const SeguimientoPage: React.FC = () => {
                                   <button onClick={handleDeleteData} disabled={actionStatus==='loading'} className="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-60">
                                       {actionStatus==='loading' ? <Loader2 className="w-5 h-5 animate-spin"/> : 'Sí, eliminar mis datos'}
                                   </button>
+                              </div>
+                          </div>
+                      </div>
+                  )}
+
+                  {/* PrintableApplication Modal */}
+                  {showPrintableModal && selectedApplication && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowPrintableModal(false)}>
+                          <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                  onClick={() => setShowPrintableModal(false)}
+                                  className="sticky top-4 right-4 float-right z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                              >
+                                  <X className="w-5 h-5 text-gray-600" />
+                              </button>
+                              <div className="p-6">
+                                  <PrintableApplication application={selectedApplication} />
                               </div>
                           </div>
                       </div>

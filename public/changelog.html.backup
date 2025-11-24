@@ -186,111 +186,11 @@
         <div class="header">
             <h1>📋 Registro de Cambios</h1>
             <p>Autos TREFA - Historial de Actualizaciones</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 24 de Noviembre, 2025</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 23 de Noviembre, 2024</p>
         </div>
 
         <div class="content">
 
-
-            <!-- VERSIÓN v1.11.1 - 24 de Noviembre, 2025 -->
-            <div class="version">
-                <div class="version-header">
-                    <span class="version-number">v1.11.1</span>
-                    <span class="version-date">24 de Noviembre, 2025</span>
-                    <span class="badge badge-feature">Actualización Automática</span>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item"><strong>Add view and edit buttons to submitted applications</strong> <span class="commit-hash">590e87c</span></li>
-                        <li class="change-item"><strong>Remove artificial caps and show real visitor count</strong> <span class="commit-hash">4adf1ca</span></li>
-                        <li class="change-item"><strong>Swap visitor counter with results count for better visibility</strong> <span class="commit-hash">e2c539c</span></li>
-                        <li class="change-item"><strong>Add real-time visitor tracking and UI improvements</strong> <span class="commit-hash">c73c377</span></li>
-                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">470dfd2</span></li>
-                        <li class="change-item"><strong>Electric shock border animation and button height fixes</strong> <span class="commit-hash">65ddfca</span></li>
-                        <li class="change-item"><strong>Add auto-compact sidebar behavior with Framer Motion animations</strong> <span class="commit-hash">8f616a9</span></li>
-                        <li class="change-item"><strong>Add Aceternity-style Apple Cards Carousel and fix hero margin</strong> <span class="commit-hash">ada7f19</span></li>
-                        <li class="change-item"><strong>Superior homepage refactor with modern UX improvements</strong> <span class="commit-hash">abd1057</span></li>
-                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">abb8c5b</span></li>
-                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">af17a4a</span></li>
-                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">29b3b12</span></li>
-                        <li class="change-item"><strong>Update valuation system with comprehensive analysis and realistic pricing</strong> <span class="commit-hash">6c375da</span></li>
-                        <li class="change-item"><strong>Implement automatic bank portal visibility based on selected_banks</strong> <span class="commit-hash">f4afd73</span></li>
-                        <li class="change-item"><strong>Standardize application status system with visual indicators</strong> <span class="commit-hash">172bd39</span></li>
-                        <li class="change-item"><strong>Show all available vehicles in application selector and make list more compact</strong> <span class="commit-hash">f1d13b8</span></li>
-                        <li class="change-item"><strong>Update downpayment to 25% and improve draft applications display</strong> <span class="commit-hash">5f9a237</span></li>
-                        <li class="change-item"><strong>Redesign OnboardingStepper with custom design and fix Asesor profile picture</strong> <span class="commit-hash">5187df3</span></li>
-                        <li class="change-item"><strong>Implementar scroll automático a la parte superior en toda la app</strong> <span class="commit-hash">023510b</span></li>
-                        <li class="change-item"><strong>Mejorar visibilidad del logo y barra de búsqueda en header</strong> <span class="commit-hash">12db3ca</span></li>
-                        <li class="change-item"><strong>Enhance stepper with animations, shadcn-style boxes, and wider layout</strong> <span class="commit-hash">c610737</span></li>
-                        <li class="change-item"><strong>Improve onboarding stepper with better UX and mobile responsiveness</strong> <span class="commit-hash">a7e6420</span></li>
-                        <li class="change-item"><strong>Agregar botón de descarga del changelog para admins y mejorar títulos del Marketing Hub</strong> <span class="commit-hash">bbcb10b</span></li>
-                        <li class="change-item"><strong>Redesign hero section on /financiamiento page based on Figma design</strong> <span class="commit-hash">c122362</span></li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item"><strong>Reposition recently viewed widget to avoid sidebar overlap</strong> <span class="commit-hash">c4fb5d1</span></li>
-                        <li class="change-item"><strong>Add authorization header to realtime visitors API calls</strong> <span class="commit-hash">a10f537</span></li>
-                        <li class="change-item"><strong>Adjust sticky sidebar top offset to 170px</strong> <span class="commit-hash">849fdb7</span></li>
-                        <li class="change-item"><strong>Restore missing supabaseClient.ts file</strong> <span class="commit-hash">1589d85</span></li>
-                        <li class="change-item"><strong>Prevent duplicate ComienzaSolicitud tracking when users return to existing draft</strong> <span class="commit-hash">c049009</span></li>
-                        <li class="change-item"><strong>Fix InteractiveStepper error - stepStates[i] is undefined</strong> <span class="commit-hash">bbd9571</span></li>
-                        <li class="change-item"><strong>Fix mobile visibility and styling for Vistos Recientemente and También te puede interesar sections</strong> <span class="commit-hash">f8c935b</span></li>
-                        <li class="change-item"><strong>Ensure header search bar is properly visible on mobile</strong> <span class="commit-hash">3504450</span></li>
-                        <li class="change-item"><strong>Improve OnboardingStepper layout and content visibility</strong> <span class="commit-hash">6ac299a</span></li>
-                        <li class="change-item"><strong>Corregir filtro crítico de vehículos disponibles en VehicleSelector</strong> <span class="commit-hash">b341bff</span></li>
-                        <li class="change-item"><strong>Remove stepper and banner from profile page</strong> <span class="commit-hash">e994364</span></li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item"><strong>Actualizar CHANGELOG.md con cambios de los últimos 7 días</strong> <span class="commit-hash">14c8753</span></li>
-                        <li class="change-item"><strong>Agregar documentación completa de sistemas de diseño y changelog</strong> <span class="commit-hash">081a634</span></li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-feature">💄 ESTILOS</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item"><strong>Cambiar fondo del dashboard a blanco y ajustar títulos</strong> <span class="commit-hash">2e3c33e</span></li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-feature">♻️ REFACTORIZACIÓN</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item"><strong>Use StickySidebar component for filter sidebar</strong> <span class="commit-hash">87b6e25</span></li>
-                        <li class="change-item"><strong>VehicleListPage and VehicleCard improvements</strong> <span class="commit-hash">9686b9a</span></li>
-                        <li class="change-item"><strong>Mejorar stepper de onboarding y componente de descarga de ebook</strong> <span class="commit-hash">32bd1a4</span></li>
-                    </ul>
-                </div>
-
-                <div class="change-category">
-                    <div class="category-title">
-                        <span class="badge badge-feature">🔨 MANTENIMIENTO</span>
-                    </div>
-                    <ul class="change-list">
-                        <li class="change-item"><strong>Merge branch 'homepage-refactor-superior'</strong> <span class="commit-hash">03d832a</span></li>
-                        <li class="change-item"><strong>Restore original hero section on /financiamientos page</strong> <span class="commit-hash">2d8c432</span></li>
-                    </ul>
-                </div>
-            </div>
             <!-- VERSIÓN 1.11.0 - Noviembre 23, 2024 -->
             <div class="version">
                 <div class="version-header">
@@ -672,7 +572,7 @@
                 Este changelog se actualiza automáticamente con cada commit
             </p>
             <p style="margin-top: 5px; font-size: 0.85em; color: #999;">
-                🤖 Generado automáticamente • Última actualización: 24 de Noviembre, 2025
+                🤖 Generado automáticamente • Última actualización: 23 de Noviembre, 2024
             </p>
         </div>
     </div>

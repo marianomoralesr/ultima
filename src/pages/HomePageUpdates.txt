@@ -1,0 +1,43 @@
+These are the updates needed for the remaining sections in HomePage.tsx:
+
+1. NewHeroSection - Update signature to:
+const NewHeroSection: React.FC<{ content: InventoryHeroContent | null }> = ({ content })
+Add after line 263:
+  if (!content) return null;
+Replace lines 300-306 (title, subtitle, button) with:
+  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
+    {content.title}
+  </h2>
+  <p className="mt-4 text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
+    {content.subtitle}
+  </p>
+And lines 326-330:
+  <Button size="lg" asChild className="text-xl font-semibold h-14 px-10">
+    <Link to={content.buttonLink} data-gtm-id="cta-principal-inicio">
+      {content.buttonText}
+    </Link>
+  </Button>
+
+2. CarroceriaCarouselSection - Update signature to:
+const CarroceriaCarouselSection: React.FC<{ content: CarroceriaCarouselContent | null }> = ({ content })
+Add after line 563:
+  if (!content) return null;
+Replace lines 607-613 (title, subtitle, items) with content props
+
+3. CTACardsSection - Update signature to:
+const CTACardsSection: React.FC<{ content: CTACardsContent | null }> = ({ content })
+Add after line 622:
+  if (!content) return null;
+Update all card content to use content.cards array
+
+4. YouTubeVSLSection - Update signature to:
+const YouTubeVSLSection: React.FC<{ content: YouTubeVSLContent | null }> = ({ content })
+Add after line 516:
+  if (!content) return null;
+Replace title, subtitle, and videoId with content props
+
+5. TestimonioSeparator - Update signature to:
+const TestimonioSeparator: React.FC<{ content: TestimonialContent | null }> = ({ content })
+Add after line 550:
+  if (!content) return null;
+Replace image src with content.image

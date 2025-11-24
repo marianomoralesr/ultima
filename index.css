@@ -584,44 +584,95 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
     100% { background-position: 0% 50%; }
   }
 
-  /* Rezago animated border - Enhanced */
+  /* Rezago animated border - Electric Shock Effect */
   .rezago-border {
     position: relative;
-    border: 4px solid transparent !important;
+    border: 3px solid transparent !important;
   }
 
   .rezago-border::before {
     content: '';
     position: absolute;
-    inset: -4px;
-    border-radius: calc(1.5rem + 4px); /* Match card roundness + border offset */
-    padding: 4px;
-    background: linear-gradient(90deg, #ea580c, #f97316, #fb923c, #f97316, #ea580c);
+    inset: -3px;
+    border-radius: calc(1.5rem + 3px); /* Match card roundness + border offset */
+    padding: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 10%,
+      #ea580c 20%,
+      #fb923c 25%,
+      #ffffff 30%,
+      #fb923c 35%,
+      #ea580c 40%,
+      transparent 50%,
+      transparent 100%
+    );
     background-size: 400% 100%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: rezago-gradient-move 4s linear infinite;
+    animation: rezago-electric-pulse 2.5s ease-in-out infinite;
     pointer-events: none;
     z-index: 50;
+    filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.8)) brightness(1.4);
   }
 
-  @keyframes rezago-gradient-move {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 400% 50%; }
+  @keyframes rezago-electric-pulse {
+    0% {
+      background-position: -100% 50%;
+      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6)) brightness(1.2);
+    }
+    15% {
+      background-position: 0% 50%;
+      filter: drop-shadow(0 0 12px rgba(251, 146, 60, 1)) brightness(1.8);
+    }
+    30% {
+      background-position: 100% 50%;
+      filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.8)) brightness(1.4);
+    }
+    45% {
+      background-position: 200% 50%;
+      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6)) brightness(1.2);
+    }
+    100% {
+      background-position: 400% 50%;
+      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6)) brightness(1.2);
+    }
   }
 
-  /* Popular Card - Enhanced Animated Gradient Border (1000+ views) */
+  /* Popular Card - Electric Pulse Effect (1000+ views) */
   .popular-card {
     position: relative;
-    border: 6px solid transparent !important;
-    border-radius: calc(1.5rem + 6px); /* Match card roundness + border width */
-    background:
-      linear-gradient(white, white) padding-box,
-      linear-gradient(135deg, #ea580c, #f97316, #fb923c, #f97316, #ea580c) border-box;
-    background-size: 100% 100%, 600% 600%;
-    animation: popular-gradient-move 5s ease-in-out infinite;
-    z-index: 0;
+    border: 3px solid transparent !important;
+  }
+
+  .popular-card::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: calc(1.5rem + 3px);
+    padding: 3px;
+    background: linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 8%,
+      #ea580c 18%,
+      #fb923c 22%,
+      #ffffff 26%,
+      #fb923c 30%,
+      #ea580c 38%,
+      transparent 48%,
+      transparent 100%
+    );
+    background-size: 600% 600%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: popular-electric-wave 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 50;
+    filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.9)) brightness(1.5);
   }
 
   .popular-card > a {
@@ -629,10 +680,27 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
     z-index: 10;
   }
 
-  @keyframes popular-gradient-move {
-    0% { background-position: 0% 0%, 0% 50%; }
-    50% { background-position: 0% 0%, 100% 50%; }
-    100% { background-position: 0% 0%, 0% 50%; }
+  @keyframes popular-electric-wave {
+    0% {
+      background-position: 0% 0%;
+      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.7)) brightness(1.3);
+    }
+    20% {
+      background-position: 50% 50%;
+      filter: drop-shadow(0 0 16px rgba(251, 146, 60, 1.2)) brightness(2);
+    }
+    40% {
+      background-position: 100% 100%;
+      filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.9)) brightness(1.5);
+    }
+    60% {
+      background-position: 150% 150%;
+      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.7)) brightness(1.3);
+    }
+    100% {
+      background-position: 300% 300%;
+      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.7)) brightness(1.3);
+    }
   }
 }
 /* ========================================

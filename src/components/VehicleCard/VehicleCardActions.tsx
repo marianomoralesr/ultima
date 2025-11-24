@@ -113,7 +113,7 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
           disabled={isSeparado}
           data-gtm-id="card-list-finance"
           size="default"
-          className="px-6 md:px-7 text-sm md:text-base h-[48px] md:h-[56px]"
+          className="px-6 md:px-7 text-sm md:text-base"
         >
           Financiar
         </Button>
@@ -121,7 +121,7 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
           asChild
           size="icon"
           data-gtm-id="card-list-whatsapp"
-          className="bg-green-500 hover:bg-green-600 text-white h-[48px] w-[48px] md:h-[56px] md:w-[56px]"
+          className="bg-green-500 hover:bg-green-600 text-white"
         >
           <a
             href={whatsappUrl}
@@ -129,7 +129,7 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
             rel="noopener noreferrer"
             aria-label="Contactar por WhatsApp"
           >
-            <WhatsAppIcon className="w-5 h-5 md:w-6 md:h-6" />
+            <WhatsAppIcon className="w-5 h-5" />
           </a>
         </Button>
         <Button
@@ -137,10 +137,10 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
           data-gtm-id="card-list-favorite"
           variant="outline"
           size="icon"
-          className="h-[48px] w-[48px] md:h-[56px] md:w-[56px] hover:bg-red-100 hover:text-red-500"
+          className="hover:bg-red-100 hover:text-red-500"
           aria-label="Añadir a favoritos"
         >
-          {isFavorite ? <SolidHeartIcon className="w-5 h-5 md:w-6 md:h-6 text-red-500" /> : <HeartIcon className="w-5 h-5 md:w-6 md:h-6" />}
+          {isFavorite ? <SolidHeartIcon className="w-5 h-5 text-red-500" /> : <HeartIcon className="w-5 h-5" />}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -148,14 +148,14 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
               data-gtm-id="card-list-share"
               variant="outline"
               size="icon"
-              className="h-[48px] w-[48px] md:h-[56px] md:w-[56px] hover:bg-blue-100 hover:text-blue-600"
+              className="hover:bg-blue-100 hover:text-blue-600"
               aria-label="Compartir"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
               }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
               </svg>
             </Button>

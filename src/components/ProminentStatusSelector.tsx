@@ -21,30 +21,31 @@ const ProminentStatusSelector: React.FC<ProminentStatusSelectorProps> = ({
     const [selectedStatus, setSelectedStatus] = useState(currentStatus);
 
     // Workflow statuses only (approval/rejection handled separately)
+    // Using Spanish status values to match database schema
     const statusOptions = [
         {
-            value: 'draft',
+            value: 'Borrador',
             label: 'Borrador',
             icon: FileWarning,
             description: 'La solicitud está en borrador',
             color: 'gray'
         },
         {
-            value: 'pending_docs',
+            value: 'Faltan Documentos',
             label: 'Faltan Documentos',
             icon: AlertCircle,
             description: 'Solicita los documentos faltantes al cliente',
             color: 'amber'
         },
         {
-            value: 'submitted',
+            value: 'Completa',
             label: 'Completa',
             icon: CheckCircle2,
             description: 'Todos los documentos están presentes',
             color: 'blue'
         },
         {
-            value: 'reviewing',
+            value: 'En Revisión',
             label: 'En Revisión',
             icon: Eye,
             description: 'La solicitud está siendo revisada',
@@ -61,8 +62,34 @@ const ProminentStatusSelector: React.FC<ProminentStatusSelectorProps> = ({
         try {
             await ApplicationService.updateApplicationStatus(applicationId, newStatus);
 
-            // Show feedback based on status
+            // Show feedback based on status (using Spanish status values)
             const feedbackMessages: Record<string, { title: string; description: string; type: 'success' | 'warning' | 'info' | 'error' }> = {
+                'Completa': {
+                    title: '✅ Solicitud marcada como Completa',
+                    description: 'Asegúrate de que todos los documentos estén presentes.',
+                    type: 'success'
+                },
+                'Faltan Documentos': {
+                    title: '⚠️ Faltan Documentos',
+                    description: 'Contacta al cliente para solicitar los documentos faltantes.',
+                    type: 'warning'
+                },
+                'En Revisión': {
+                    title: '📋 En Revisión',
+                    description: 'La solicitud está siendo revisada.',
+                    type: 'info'
+                },
+                'Aprobada': {
+                    title: '🎉 Solicitud Aprobada',
+                    description: 'Contacta al cliente para informarle de la aprobación.',
+                    type: 'success'
+                },
+                'Rechazada': {
+                    title: '❌ Solicitud Rechazada',
+                    description: 'Contacta al cliente para explicar la situación.',
+                    type: 'error'
+                },
+                // Keep English values for backward compatibility
                 'submitted': {
                     title: '✅ Solicitud marcada como Completa',
                     description: 'Asegúrate de que todos los documentos estén presentes.',
@@ -125,7 +152,7 @@ const ProminentStatusSelector: React.FC<ProminentStatusSelectorProps> = ({
             )}
 
             {/* Status Change Reminder */}
-            {showReminder && selectedStatus !== 'approved' && selectedStatus !== 'rejected' && (
+            {showReminder && selectedStatus !== 'Aprobada' && selectedStatus !== 'Rechazada' && selectedStatus !== 'approved' && selectedStatus !== 'rejected' && (
                 <div className="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-200 rounded-lg">
                     <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />

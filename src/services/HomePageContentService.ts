@@ -60,13 +60,30 @@ export interface TestimonialContent {
   alt: string;
 }
 
+export interface Branch {
+  city: string;
+  phone: string;
+  address: string;
+  imageUrl: string;
+  directionsUrl: string;
+  mapUrl: string;
+}
+
+export interface BranchesContent {
+  title: string;
+  subtitle: string;
+  bottomNote: string;
+  branches: Branch[];
+}
+
 export type SectionKey =
   | 'hero'
   | 'inventory_hero'
   | 'carroceria_carousel'
   | 'cta_cards'
   | 'youtube_vsl'
-  | 'testimonial';
+  | 'testimonial'
+  | 'branches';
 
 export type SectionContent =
   | HeroContent
@@ -74,7 +91,8 @@ export type SectionContent =
   | CarroceriaCarouselContent
   | CTACardsContent
   | YouTubeVSLContent
-  | TestimonialContent;
+  | TestimonialContent
+  | BranchesContent;
 
 export interface HomePageSection {
   id: string;

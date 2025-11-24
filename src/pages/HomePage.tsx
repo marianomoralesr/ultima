@@ -30,7 +30,8 @@ import HomePageContentService, {
   CarroceriaCarouselContent,
   CTACardsContent,
   YouTubeVSLContent,
-  TestimonialContent
+  TestimonialContent,
+  BranchesContent
 } from '../services/HomePageContentService';
 
 /* ---------- Hero Vehicle Card ---------- */
@@ -116,7 +117,23 @@ const ScrollerRow: React.FC<{ vehicles: Vehicle[]; reverse?: boolean; speed?: nu
 const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 
-  if (!content) return null;
+  // Default fallback content
+  const defaultContent: HeroContent = {
+    badgeText: "Autos Seminuevos Certificados",
+    title: "Tu próximo auto seminuevo te está esperando",
+    description: "Encuentra el auto perfecto en nuestra selección de vehículos seminuevos 2019 en adelante. SUVs, Sedanes, Hatchbacks y Pick Ups con garantía y financiamiento disponible.",
+    desktopImageLeft: "https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp",
+    desktopImageRight: "https://r2.trefa.mx/Frame%2040%20(1).png",
+    mobileImage: "https://r2.trefa.mx/r9GDYibmXVaw8Zv93n4Bfi9TIs.png.webp",
+    primaryButtonText: "Ver Inventario",
+    primaryButtonLink: "/autos",
+    secondaryButtonText: "Conoce el Kit de Seguridad",
+    secondaryButtonLink: "/kit-trefa",
+    statsText: "Más de 5,000 autos vendidos y clientes satisfechos",
+    brandsText: "y 15 de las mejores marcas más..."
+  };
+
+  const heroContent = content || defaultContent;
 
   return (
     <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center -mt-[100px] pt-[100px]">
@@ -129,7 +146,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
           transition={{ duration: 1, delay: 0.3 }}
         >
           <img
-            src={content.desktopImageRight}
+            src={heroContent.desktopImageRight}
             alt="TREFA Vehicle"
             className="w-[425px] xl:w-[510px] h-auto object-contain"
           />
@@ -141,7 +158,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
           transition={{ duration: 1, delay: 0.3 }}
         >
           <img
-            src={content.desktopImageLeft}
+            src={heroContent.desktopImageLeft}
             alt="TREFA Vehicle"
             className="w-[425px] xl:w-[510px] h-auto object-contain scale-x-[-1]"
           />
@@ -158,7 +175,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
             className="px-3 py-1 lg:px-4 bg-gradient-to-r from-primary/10 to-secondary/5 border border-primary/30 hover:from-primary/20 hover:to-secondary/10 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md rounded-full inline-flex items-center gap-2 text-xs lg:text-sm"
           >
             <ShieldCheck className="w-3 h-3 text-primary" />
-            <span className="font-medium">{content.badgeText}</span>
+            <span className="font-medium">{heroContent.badgeText}</span>
           </motion.span>
 
           <motion.h1
@@ -167,7 +184,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-heading text-3xl md:text-5xl lg:text-7xl font-black tracking-tight max-w-5xl leading-tight"
           >
-            {content.title}
+            {heroContent.title}
           </motion.h1>
 
           <motion.p
@@ -176,7 +193,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-base md:text-lg lg:text-2xl text-muted-foreground max-w-3xl leading-relaxed"
           >
-            {content.description}
+            {heroContent.description}
           </motion.p>
 
           {/* Mobile image - shown only on mobile */}
@@ -187,7 +204,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
             className="lg:hidden w-full max-w-xs mx-auto my-6"
           >
             <img
-              src={content.mobileImage}
+              src={heroContent.mobileImage}
               alt="TREFA Vehicle Showcase"
               className="w-full h-auto object-contain"
             />
@@ -200,14 +217,14 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
             className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-2 lg:pt-4 w-full sm:w-auto"
           >
             <Button size="lg" variant="outline" asChild className="text-base lg:text-lg h-12 lg:h-14 px-6 lg:px-8">
-              <Link to={content.primaryButtonLink}>
-                {content.primaryButtonText}
+              <Link to={heroContent.primaryButtonLink}>
+                {heroContent.primaryButtonText}
                 <Car className="w-4 h-4 ml-2" />
               </Link>
             </Button>
             <Button size="lg" asChild className="text-base lg:text-lg h-12 lg:h-14 px-6 lg:px-8">
-              <Link to={content.secondaryButtonLink}>
-                {content.secondaryButtonText}
+              <Link to={heroContent.secondaryButtonLink}>
+                {heroContent.secondaryButtonText}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
@@ -220,7 +237,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
             className="flex flex-col items-center space-y-3 lg:space-y-4 mt-6 lg:mt-10"
           >
             <p className="text-xs lg:text-sm text-muted-foreground">
-              {content.statsText}
+              {heroContent.statsText}
             </p>
             <div className="flex items-center space-x-4 lg:space-x-6 opacity-60 flex-wrap justify-center gap-y-3 gap-x-3 lg:gap-y-4 lg:gap-x-4">
               <div className="flex items-center space-x-2">
@@ -249,7 +266,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
               </div>
             </div>
             <p className="text-xs lg:text-sm text-muted-foreground">
-              {content.brandsText}
+              {heroContent.brandsText}
             </p>
           </motion.div>
         </div>
@@ -264,7 +281,15 @@ const NewHeroSection: React.FC<{ content: InventoryHeroContent | null }> = ({ co
   const [displayVehicles, setDisplayVehicles] = useState<Vehicle[]>([]);
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 
-  if (!content) return null;
+  // Default fallback content
+  const defaultContent: InventoryHeroContent = {
+    title: "Encuentra tu próximo auto",
+    subtitle: "Explora nuestro inventario completo de seminuevos certificados",
+    buttonText: "Ver el inventario completo",
+    buttonLink: "/autos"
+  };
+
+  const inventoryContent = content || defaultContent;
 
   useEffect(() => {
     if (allVehicles && allVehicles.length > 0) {
@@ -308,10 +333,10 @@ const NewHeroSection: React.FC<{ content: InventoryHeroContent | null }> = ({ co
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}>
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
-          {content.title}
+          {inventoryContent.title}
         </h2>
         <p className="mt-4 text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
-          {content.subtitle}
+          {inventoryContent.subtitle}
         </p>
       </div>
 
@@ -334,8 +359,8 @@ const NewHeroSection: React.FC<{ content: InventoryHeroContent | null }> = ({ co
 
       <div className="mt-12 sm:mt-14 text-center">
         <Button size="lg" asChild className="text-xl font-semibold h-14 px-10">
-          <Link to={content.buttonLink} data-gtm-id="cta-principal-inicio">
-            {content.buttonText}
+          <Link to={inventoryContent.buttonLink} data-gtm-id="cta-principal-inicio">
+            {inventoryContent.buttonText}
           </Link>
         </Button>
       </div>
@@ -525,7 +550,14 @@ const AnimatedHeading: React.FC<{ children: React.ReactNode, as?: 'h2' | 'h3', c
 const YouTubeVSLSection: React.FC<{ content: YouTubeVSLContent | null }> = ({ content }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 
-  if (!content) return null;
+  // Default fallback content
+  const defaultContent: YouTubeVSLContent = {
+    title: "Conoce nuestra historia",
+    subtitle: "Descubre cómo TREFA se ha convertido en la agencia líder de autos seminuevos en el noreste de México",
+    videoId: "p-nMlle-xfw"
+  };
+
+  const videoContent = content || defaultContent;
 
   return (
     <Section className="bg-white">
@@ -537,14 +569,14 @@ const YouTubeVSLSection: React.FC<{ content: YouTubeVSLContent | null }> = ({ co
         )}
       >
         <AnimatedHeader
-          title={content.title}
-          subtitle={content.subtitle}
+          title={videoContent.title}
+          subtitle={videoContent.subtitle}
           className="mb-12"
         />
         <div className="rounded-3xl overflow-hidden relative shadow-2xl" style={{ paddingBottom: '56.25%', height: 0 }}>
           <iframe
             className="absolute top-0 left-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${content.videoId}?rel=0`}
+            src={`https://www.youtube.com/embed/${videoContent.videoId}?rel=0`}
             title="TREFA VSL"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -559,13 +591,19 @@ const YouTubeVSLSection: React.FC<{ content: YouTubeVSLContent | null }> = ({ co
 
 /* ---------- Testimonio Separator ---------- */
 const TestimonioSeparator: React.FC<{ content: TestimonialContent | null }> = ({ content }) => {
-  if (!content) return null;
+  // Default fallback content
+  const defaultContent: TestimonialContent = {
+    image: "/images/testimonio.png",
+    alt: "Testimonio de cliente TREFA"
+  };
+
+  const testimonialContent = content || defaultContent;
 
   return (
     <div className="bg-white w-full">
       <LazyImage
-        src={content.image}
-        alt={content.alt}
+        src={testimonialContent.image}
+        alt={testimonialContent.alt}
         className="w-full h-auto"
         objectFit="contain"
       />
@@ -577,7 +615,43 @@ const TestimonioSeparator: React.FC<{ content: TestimonialContent | null }> = ({
 const CarroceriaCarouselSection: React.FC<{ content: CarroceriaCarouselContent | null }> = ({ content }) => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 
-  if (!content) return null;
+  // Default fallback content
+  const defaultContent: CarroceriaCarouselContent = {
+    title: "Explora por Tipo de Carrocería",
+    subtitle: "Encuentra el vehículo perfecto según tu estilo de vida. Desde SUVs familiares hasta Pick Ups robustas.",
+    items: [
+      {
+        title: "SUV",
+        category: "Sport Utility Vehicle",
+        src: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop",
+        description: "Espaciosos, versátiles y perfectos para la familia. Confort y seguridad en cada viaje.",
+        link: "/carroceria/suv"
+      },
+      {
+        title: "Sedan",
+        category: "Elegancia y Eficiencia",
+        src: "https://source.unsplash.com/Q63_3ioH2xg/2128x1600",
+        description: "Diseño sofisticado con excelente rendimiento de combustible. Ideal para el día a día.",
+        link: "/carroceria/sedan"
+      },
+      {
+        title: "Hatchback",
+        category: "Compacto y Práctico",
+        src: "https://m.atcdn.co.uk/vms/media/%7Bresize%7D/8b06e0fd21fc486389639a6084e1e3aa.jpg",
+        description: "Ágiles en la ciudad con amplio espacio de carga. El equilibrio perfecto.",
+        link: "/carroceria/hatchback"
+      },
+      {
+        title: "Pick Up",
+        category: "Fuerza y Capacidad",
+        src: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2070&auto=format&fit=crop",
+        description: "Robustas y capaces. Diseñadas para trabajo y aventura sin límites.",
+        link: "/carroceria/pick-up"
+      }
+    ]
+  };
+
+  const carouselContent = content || defaultContent;
 
   return (
     <Section className="bg-gradient-to-b from-white to-gray-50">
@@ -590,13 +664,13 @@ const CarroceriaCarouselSection: React.FC<{ content: CarroceriaCarouselContent |
       >
         <div className="text-center mb-12 lg:mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight mb-4">
-            {content.title}
+            {carouselContent.title}
           </h2>
           <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
-            {content.subtitle}
+            {carouselContent.subtitle}
           </p>
         </div>
-        <AppleCardsCarousel items={content.items} />
+        <AppleCardsCarousel items={carouselContent.items} />
       </div>
     </Section>
   );
@@ -604,7 +678,45 @@ const CarroceriaCarouselSection: React.FC<{ content: CarroceriaCarouselContent |
 
 /* ---------- CTA Cards Section ---------- */
 const CTACardsSection: React.FC<{ content: CTACardsContent | null }> = ({ content }) => {
-  if (!content || !content.cards) return null;
+  // Default fallback content
+  const defaultContent: CTACardsContent = {
+    cards: [
+      {
+        type: 'inventory',
+        title: "Conoce nuestro inventario",
+        description: "Autos seminuevos seleccionados cuidadosamente para ti.",
+        buttonText: "Ver inventario",
+        buttonLink: "/autos",
+        image: "https://cufm.mx/wp-content/uploads/2025/01/autos-trefa-.png"
+      },
+      {
+        type: 'sell',
+        title: "¿Quieres vender tu auto?",
+        description: "Recibe una oferta por tu auto en un proceso rápido y transparente.",
+        buttonText: "Recibir una oferta",
+        buttonLink: "/vender-mi-auto",
+        image: "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/klipartz.com.png"
+      },
+      {
+        type: 'advisor',
+        title: "Hablar con un asesor",
+        description: "Obtén una asesoría personalizada de un experto de nuestro equipo.",
+        buttonText: "Iniciar Chat",
+        buttonLink: "https://wa.me/5218187049079",
+        image: "/images/fer-help.png"
+      },
+      {
+        type: 'financing',
+        title: "Tramita tu crédito en línea",
+        description: "Nuevo portal de financiamiento con respuesta en 24 horas o menos.",
+        buttonText: "Ver autos elegibles",
+        buttonLink: "/escritorio/aplicacion",
+        image: "https://jjepfehmuybpctdzipnu.supabase.co/storage/v1/object/public/fotos_airtable/app/financiamiento.png"
+      }
+    ]
+  };
+
+  const ctaContent = content || defaultContent;
 
   const getGradientClass = (type: string) => {
     switch (type) {
@@ -616,10 +728,10 @@ const CTACardsSection: React.FC<{ content: CTACardsContent | null }> = ({ conten
     }
   };
 
-  const inventoryCard = content.cards.find(c => c.type === 'inventory');
-  const sellCard = content.cards.find(c => c.type === 'sell');
-  const advisorCard = content.cards.find(c => c.type === 'advisor');
-  const financingCard = content.cards.find(c => c.type === 'financing');
+  const inventoryCard = ctaContent.cards.find(c => c.type === 'inventory');
+  const sellCard = ctaContent.cards.find(c => c.type === 'sell');
+  const advisorCard = ctaContent.cards.find(c => c.type === 'advisor');
+  const financingCard = ctaContent.cards.find(c => c.type === 'financing');
 
   return (
     <Section className="bg-white" fullHeight>
@@ -757,6 +869,7 @@ const HomePage: React.FC = () => {
     ctaCards: CTACardsContent | null;
     youtubeVSL: YouTubeVSLContent | null;
     testimonial: TestimonialContent | null;
+    branches: BranchesContent | null;
   }>({
     hero: null,
     inventoryHero: null,
@@ -764,6 +877,7 @@ const HomePage: React.FC = () => {
     ctaCards: null,
     youtubeVSL: null,
     testimonial: null,
+    branches: null,
   });
 
   const [loading, setLoading] = useState(true);
@@ -787,6 +901,7 @@ const HomePage: React.FC = () => {
           ctaCards: sections.cta_cards as CTACardsContent || null,
           youtubeVSL: sections.youtube_vsl as YouTubeVSLContent || null,
           testimonial: sections.testimonial as TestimonialContent || null,
+          branches: sections.branches as BranchesContent || null,
         });
       } catch (error) {
         console.error('Error loading homepage content:', error);
@@ -814,7 +929,7 @@ const HomePage: React.FC = () => {
       <CTACardsSection content={content.ctaCards} />
       <YouTubeVSLSection content={content.youtubeVSL} />
       <WhyChooseTrefaSection />
-      <BranchesSection />
+      <BranchesSection content={content.branches} />
       <TestimonioSeparator content={content.testimonial} />
       <FeaturedInventorySection />
       <WallOfLove />

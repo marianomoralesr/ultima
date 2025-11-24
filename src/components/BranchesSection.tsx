@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 import { branchData } from "../utils/constants";
 import { MapPin, Phone } from "lucide-react";
+import type { BranchesContent } from "../services/HomePageContentService";
 
 interface BranchCard {
   title: string;
@@ -41,13 +42,27 @@ const CloseIcon = () => {
   );
 };
 
-const BranchesSection: React.FC = () => {
+interface BranchesSectionProps {
+  content?: BranchesContent | null;
+}
+
+const BranchesSection: React.FC<BranchesSectionProps> = ({ content }) => {
   const [active, setActive] = useState<BranchCard | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
 
+  // Default fallback content
+  const defaultContent: BranchesContent = {
+    title: "Nuestras Sucursales",
+    subtitle: "Con presencia en 3 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
+    bottomNote: "Ofrecemos reubicación sin costo entre sucursales el mismo día",
+    branches: branchData
+  };
+
+  const branchesContent = content || defaultContent;
+
   // Transform branch data into card format
-  const cards: BranchCard[] = branchData.map((branch) => ({
+  const cards: BranchCard[] = branchesContent.branches.map((branch) => ({
     title: `TREFA ${branch.city}`,
     description: branch.city,
     src: branch.imageUrl,
@@ -111,10 +126,10 @@ const BranchesSection: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12 lg:mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 mb-4">
-            Nuestras Sucursales
+            {branchesContent.title}
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Con presencia en 3 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.
+            {branchesContent.subtitle}
           </p>
         </div>
 
@@ -249,7 +264,7 @@ const BranchesSection: React.FC = () => {
         {/* Bottom Note */}
         <div className="text-center mt-12">
           <p className="text-sm text-gray-600 bg-white p-4 rounded-lg inline-block shadow-sm border border-gray-200">
-            Ofrecemos reubicación sin costo entre sucursales el mismo día
+            {branchesContent.bottomNote}
           </p>
         </div>
       </div>

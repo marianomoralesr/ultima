@@ -9,6 +9,8 @@ import HomePageContentService, {
   CTACardsContent,
   YouTubeVSLContent,
   TestimonialContent,
+  BranchesContent,
+  Branch,
   CarouselItem,
   CTACard
 } from '../services/HomePageContentService';
@@ -18,7 +20,7 @@ const HomePageEditorPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'hero' | 'inventory' | 'carousel' | 'cta' | 'video' | 'testimonial'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'inventory' | 'carousel' | 'cta' | 'video' | 'testimonial' | 'branches'>('hero');
 
   // State for all sections
   const [hero, setHero] = useState<HeroContent | null>(null);
@@ -27,6 +29,7 @@ const HomePageEditorPage: React.FC = () => {
   const [ctaCards, setCtaCards] = useState<CTACardsContent | null>(null);
   const [youtubeVSL, setYoutubeVSL] = useState<YouTubeVSLContent | null>(null);
   const [testimonial, setTestimonial] = useState<TestimonialContent | null>(null);
+  const [branches, setBranches] = useState<BranchesContent | null>(null);
 
   useEffect(() => {
     loadContent();
@@ -42,6 +45,7 @@ const HomePageEditorPage: React.FC = () => {
       setCtaCards(sections.cta_cards as CTACardsContent || getDefaultCTACards());
       setYoutubeVSL(sections.youtube_vsl as YouTubeVSLContent || getDefaultYoutubeVSL());
       setTestimonial(sections.testimonial as TestimonialContent || getDefaultTestimonial());
+      setBranches(sections.branches as BranchesContent || getDefaultBranches());
     } catch (error) {
       console.error('Error loading homepage content:', error);
       alert('Error al cargar el contenido');
@@ -59,6 +63,7 @@ const HomePageEditorPage: React.FC = () => {
       if (ctaCards) await HomePageContentService.upsertSection('cta_cards', ctaCards);
       if (youtubeVSL) await HomePageContentService.upsertSection('youtube_vsl', youtubeVSL);
       if (testimonial) await HomePageContentService.upsertSection('testimonial', testimonial);
+      if (branches) await HomePageContentService.upsertSection('branches', branches);
 
       alert('Contenido guardado exitosamente');
     } catch (error) {
@@ -127,6 +132,7 @@ const HomePageEditorPage: React.FC = () => {
               { id: 'carousel' as const, label: 'Carrocería' },
               { id: 'cta' as const, label: 'Tarjetas CTA' },
               { id: 'video' as const, label: 'Video YouTube' },
+              { id: 'branches' as const, label: 'Sucursales' },
               { id: 'testimonial' as const, label: 'Testimonial' },
             ].map((tab) => (
               <button
@@ -153,6 +159,7 @@ const HomePageEditorPage: React.FC = () => {
           {activeTab === 'carousel' && carroceriaCarousel && <CarouselEditor content={carroceriaCarousel} onChange={setCarroceriaCarousel} />}
           {activeTab === 'cta' && ctaCards && <CTACardsEditor content={ctaCards} onChange={setCtaCards} />}
           {activeTab === 'video' && youtubeVSL && <YouTubeVSLEditor content={youtubeVSL} onChange={setYoutubeVSL} />}
+          {activeTab === 'branches' && branches && <BranchesEditor content={branches} onChange={setBranches} />}
           {activeTab === 'testimonial' && testimonial && <TestimonialEditor content={testimonial} onChange={setTestimonial} />}
         </div>
       </div>
@@ -544,6 +551,116 @@ const YouTubeVSLEditor: React.FC<{ content: YouTubeVSLContent; onChange: (conten
   );
 };
 
+const BranchesEditor: React.FC<{ content: BranchesContent; onChange: (content: BranchesContent) => void }> = ({ content, onChange }) => {
+  const updateBranch = (index: number, branch: Branch) => {
+    const newBranches = [...content.branches];
+    newBranches[index] = branch;
+    onChange({ ...content, branches: newBranches });
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-slate-900 mb-4">Sucursales</h2>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Título</label>
+        <input
+          type="text"
+          value={content.title}
+          onChange={(e) => onChange({ ...content, title: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
+        <textarea
+          value={content.subtitle}
+          onChange={(e) => onChange({ ...content, subtitle: e.target.value })}
+          rows={2}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Nota Inferior</label>
+        <input
+          type="text"
+          value={content.bottomNote}
+          onChange={(e) => onChange({ ...content, bottomNote: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+      </div>
+
+      <div className="space-y-6 mt-6">
+        <h3 className="text-lg font-semibold text-slate-800">Sucursales</h3>
+        {content.branches.map((branch, index) => (
+          <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+            <h4 className="font-medium text-slate-900 mb-4">Sucursal {index + 1}: {branch.city}</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ciudad</label>
+                <input
+                  type="text"
+                  value={branch.city}
+                  onChange={(e) => updateBranch(index, { ...branch, city: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                <input
+                  type="text"
+                  value={branch.phone}
+                  onChange={(e) => updateBranch(index, { ...branch, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="8187049079"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+                <textarea
+                  value={branch.address}
+                  onChange={(e) => updateBranch(index, { ...branch, address: e.target.value })}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">URL de Direcciones (Google Maps)</label>
+                <input
+                  type="text"
+                  value={branch.directionsUrl}
+                  onChange={(e) => updateBranch(index, { ...branch, directionsUrl: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="https://www.google.com/maps/dir/?api=1&destination=..."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">URL de Embed del Mapa</label>
+                <input
+                  type="text"
+                  value={branch.mapUrl}
+                  onChange={(e) => updateBranch(index, { ...branch, mapUrl: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="https://www.google.com/maps/embed?pb=..."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <ImageUploadField
+                  label="Imagen de la Sucursal"
+                  value={branch.imageUrl}
+                  onChange={(url) => updateBranch(index, { ...branch, imageUrl: url })}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const TestimonialEditor: React.FC<{ content: TestimonialContent; onChange: (content: TestimonialContent) => void }> = ({ content, onChange }) => {
   return (
     <div className="space-y-6">
@@ -653,6 +770,38 @@ const getDefaultYoutubeVSL = (): YouTubeVSLContent => ({
 const getDefaultTestimonial = (): TestimonialContent => ({
   image: "/images/testimonio.png",
   alt: "Testimonio de cliente TREFA"
+});
+
+const getDefaultBranches = (): BranchesContent => ({
+  title: "Nuestras Sucursales",
+  subtitle: "Con presencia en 3 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
+  bottomNote: "Ofrecemos reubicación sin costo entre sucursales el mismo día",
+  branches: [
+    {
+      city: 'Monterrey',
+      phone: '8187049079',
+      address: 'Aaron Sáenz Garza #1902, Local 111 (Plaza Oasis), Col. Santa María | 64650 NL',
+      imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop',
+      directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Autos+TREFA+Suc.+Santa+Mar%C3%ADa,+Monterrey',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20266.68731001804!2d-100.39056183742488!3d25.678753949794295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86629701ae2b5ea9%3A0xdf7cc5199ffd3661!2sAutos+TREFA!5e0!3m2!1ses-419!2smx!4v1760614862872!5m2!1ses-419!2smx'
+    },
+    {
+      city: 'Reynosa',
+      phone: '8994602822',
+      address: 'Boulevard Beethoven #100, Col. Narciso Mendoza | 88700, TMPS',
+      imageUrl: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=2096&auto=format&fit=crop',
+      directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=TREFA+Boulevard+Beethoven+100+Col+Narciso+Mendoza+Reynosa+Tamps',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d919409.403042456!2d-100.0018594359385!3d25.821944527038745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86650559b25facc9%3A0x2309737f95449f22!2sAutos%20TREFA!5e0!3m2!1ses-419!2smx!4v1760615128648!5m2!1ses-419!2smx'
+    },
+    {
+      city: 'Guadalupe',
+      phone: '8187049079',
+      address: 'Hidalgo #918, Col. Paraíso | 67140 Centro de Guadalupe, NL',
+      imageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2070&auto=format&fit=crop',
+      directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=Autos+TREFA+Hidalgo+918+Guadalupe+NL',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d57685.25595563883!2d-100.31048168555626!3d25.677420950621905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8662959b9db0a3ef%3A0x4e5a6fd0c31a8f07!2sAutos%20TREFA!5e0!3m2!1ses-419!2smx!4v1760615291048!5m2!1ses-419!2smx'
+    }
+  ]
 });
 
 export default HomePageEditorPage;

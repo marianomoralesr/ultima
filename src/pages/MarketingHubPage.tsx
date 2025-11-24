@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users, TrendingUp, BookOpen, Settings, Briefcase,
-  BarChart3, FileText, Database, LayoutDashboard, Activity
+  BarChart3, FileText, Database, LayoutDashboard, Activity, Home, Camera, ClipboardCheck
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
@@ -114,6 +114,24 @@ const MarketingHubPage: React.FC = () => {
       description: 'Eventos de marketing, embudos y métricas de campañas',
       icon: Database,
       link: '/escritorio/admin/marketing-analytics',
+    },
+    {
+      title: 'Editor de Página de Inicio',
+      description: 'Edita imágenes y contenido de la homepage sin redeployar',
+      icon: Home,
+      link: '/escritorio/marketing/homepage-editor',
+    },
+    {
+      title: 'Car Studio - Procesamiento de Imágenes',
+      description: 'API de Car Studio para procesar y generar imágenes de vehículos',
+      icon: Camera,
+      link: '/escritorio/car-studio',
+    },
+    {
+      title: 'Inspecciones de Vehículos',
+      description: 'Gestión de reportes de inspección de 150 puntos',
+      icon: ClipboardCheck,
+      link: '/escritorio/admin/inspecciones',
     },
     {
       title: 'Dashboard Principal',

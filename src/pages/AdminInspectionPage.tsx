@@ -9,7 +9,7 @@ import { InspectionService } from '../services/InspectionService';
 import VehicleService from '../services/VehicleService';
 import type { Vehicle } from '../types/types';
 import type { InspectionReportData } from '../types/types';
-import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, ShieldCheck, CheckCircle, AlertTriangle, Home } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const inspectionPointSchema = z.object({
@@ -203,10 +203,19 @@ const AdminInspectionPage: React.FC = () => {
                 </span>
             )}
             
-             <h1 className="text-2xl font-bold text-gray-900 flex items-center mb-6">
-                <ShieldCheck className="w-6 h-6 mr-3 text-primary-600"/>
-                Editar Reporte de Inspección (ID: {vehicleId})
-            </h1>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                    <ShieldCheck className="w-6 h-6 mr-3 text-primary-600"/>
+                    Editar Reporte de Inspección (ID: {vehicleId})
+                </h1>
+                <Link
+                    to="/escritorio/marketing/homepage-editor"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+                >
+                    <Home className="w-4 h-4" />
+                    Editor Homepage
+                </Link>
+            </div>
             
             {message && (
                 <div className={`p-4 rounded-md flex items-center mb-6 ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

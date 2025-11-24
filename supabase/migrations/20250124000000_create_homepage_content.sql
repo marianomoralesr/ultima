@@ -144,6 +144,37 @@ INSERT INTO homepage_content (section_key, content) VALUES
 ('testimonial', '{
   "image": "/images/testimonio.png",
   "alt": "Testimonio de cliente TREFA"
+}'),
+('branches', '{
+  "title": "Nuestras Sucursales",
+  "subtitle": "Con presencia en 3 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
+  "bottomNote": "Ofrecemos reubicación sin costo entre sucursales el mismo día",
+  "branches": [
+    {
+      "city": "Monterrey",
+      "phone": "8187049079",
+      "address": "Aaron Sáenz Garza #1902, Local 111 (Plaza Oasis), Col. Santa María | 64650 NL",
+      "imageUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Autos+TREFA+Suc.+Santa+Mar%C3%ADa,+Monterrey",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20266.68731001804!2d-100.39056183742488!3d25.678753949794295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86629701ae2b5ea9%3A0xdf7cc5199ffd3661!2sAutos+TREFA!5e0!3m2!1ses-419!2smx!4v1760614862872!5m2!1ses-419!2smx"
+    },
+    {
+      "city": "Reynosa",
+      "phone": "8994602822",
+      "address": "Boulevard Beethoven #100, Col. Narciso Mendoza | 88700, TMPS",
+      "imageUrl": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=2096&auto=format&fit=crop",
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=TREFA+Boulevard+Beethoven+100+Col+Narciso+Mendoza+Reynosa+Tamps",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d919409.403042456!2d-100.0018594359385!3d25.821944527038745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86650559b25facc9%3A0x2309737f95449f22!2sAutos%20TREFA!5e0!3m2!1ses-419!2smx!4v1760615128648!5m2!1ses-419!2smx"
+    },
+    {
+      "city": "Guadalupe",
+      "phone": "8187049079",
+      "address": "Hidalgo #918, Col. Paraíso | 67140 Centro de Guadalupe, NL",
+      "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2070&auto=format&fit=crop",
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Autos+TREFA+Hidalgo+918+Guadalupe+NL",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d57685.25595563883!2d-100.31048168555626!3d25.677420950621905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8662959b9db0a3ef%3A0x4e5a6fd0c31a8f07!2sAutos%20TREFA!5e0!3m2!1ses-419!2smx!4v1760615291048!5m2!1ses-419!2smx"
+    }
+  ]
 }')
 ON CONFLICT (section_key) DO NOTHING;
 

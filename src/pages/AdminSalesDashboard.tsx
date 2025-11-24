@@ -416,46 +416,52 @@ export default function AdminSalesDashboard() {
                 </TabsList>
 
                 <TabsContent value="charts" className="space-y-4">
+                    {/* Top Row: Full-width Trend Chart */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Tendencia de 30 Días</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {timeSeriesData.length > 0 ? (
-                                <div style={{ height: '280px' }}>
+                                <div className="w-full min-h-[280px]">
                                     <TrendLineChart data={timeSeriesData} />
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-center h-64 text-muted-foreground">
+                                <div className="flex items-center justify-center min-h-[280px] text-muted-foreground">
                                     <p className="text-sm">Cargando datos de tendencias...</p>
                                 </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Distribución de Fuentes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <SourcePieChart data={metrics.sourceBreakdown} height={280} />
-                        </CardContent>
-                    </Card>
+                    {/* Bottom Row: Two-column Grid for Distribution and Funnel */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Distribución de Fuentes</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-center">
+                                <div className="w-full max-w-md aspect-square">
+                                    <SourcePieChart data={metrics.sourceBreakdown} />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Pipeline de Conversión</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ConversionFunnel metrics={{
-                                totalLeads: metrics.totalLeads,
-                                contactedLeads: metrics.contactedLeads,
-                                totalApplications: metrics.totalApplications,
-                                processedApplications: metrics.processedApplications,
-                                approvedApplications: metrics.approvedApplications
-                            }} />
-                        </CardContent>
-                    </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Pipeline de Conversión</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ConversionFunnel metrics={{
+                                    totalLeads: metrics.totalLeads,
+                                    contactedLeads: metrics.contactedLeads,
+                                    totalApplications: metrics.totalApplications,
+                                    processedApplications: metrics.processedApplications,
+                                    approvedApplications: metrics.approvedApplications
+                                }} />
+                            </CardContent>
+                        </Card>
+                    </div>
                 </TabsContent>
 
                 <TabsContent value="activity" className="space-y-4">

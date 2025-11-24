@@ -767,7 +767,7 @@ const FinanciamientosPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-5xl sm:text-6xl md:text-6xl lg:text-7xl font-black mb-3 sm:mb-4 px-4 tracking-tight leading-[0.95]"
+              className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4 px-4 tracking-tight leading-[0.95]"
               style={{ fontFamily: "'Be Vietnam Pro', sans-serif", fontWeight: 900, letterSpacing: '-0.02em' }}
             >
               <span className="inline text-gray-900">

@@ -279,10 +279,17 @@ const Application: React.FC = () => {
       if (steps[currentStep].fields.length === 0) {
         if (applicationId) {
           try {
-            await ApplicationService.saveApplicationDraft(applicationId, { application_data: getValues() });
+            // Get current form values and clean them (remove undefined values)
+            const formValues = getValues();
+            const cleanValues = Object.fromEntries(
+              Object.entries(formValues).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+            );
+
+            await ApplicationService.saveApplicationDraft(applicationId, { application_data: cleanValues });
             if(currentStep < steps.length - 1) setCurrentStep(s => s + 1);
-          } catch (e) {
+          } catch (e: any) {
             console.error("Error saving application draft:", e);
+            console.error("Error details:", e?.message, e?.code, e?.details);
             alert("Hubo un problema al guardar tu progreso. Por favor, intenta de nuevo.");
           }
         } else {
@@ -312,7 +319,13 @@ const Application: React.FC = () => {
 
       // Save and proceed
       try {
-        await ApplicationService.saveApplicationDraft(applicationId, { application_data: getValues() });
+        // Get current form values and clean them (remove undefined values)
+        const formValues = getValues();
+        const cleanValues = Object.fromEntries(
+          Object.entries(formValues).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+        );
+
+        await ApplicationService.saveApplicationDraft(applicationId, { application_data: cleanValues });
 
         // Track step completion
         conversionTracking.trackApplication.stepCompleted(currentStep + 1, steps[currentStep].title, {
@@ -321,8 +334,9 @@ const Application: React.FC = () => {
         });
 
         if(currentStep < steps.length - 1) setCurrentStep(s => s + 1);
-      } catch (e) {
+      } catch (e: any) {
         console.error("Error saving application draft:", e);
+        console.error("Error details:", e?.message, e?.code, e?.details);
         alert("Hubo un problema al guardar tu progreso. Por favor, intenta de nuevo.");
       }
     };

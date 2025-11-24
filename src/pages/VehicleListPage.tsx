@@ -139,10 +139,8 @@ const VehicleListPage: React.FC = () => {
     keywords: 'inventario, autos seminuevos, trefa, financiamiento, comprar auto'
   });
 
-  // Default to grid on mobile, list on desktop
-  const [view, setView] = useState<'list' | 'grid'>(() => {
-    return window.innerWidth < 1024 ? 'grid' : 'list';
-  });
+  // Default to grid view for all devices
+  const [view, setView] = useState<'list' | 'grid'>('grid');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [showGridTooltip, setShowGridTooltip] = useState(false);
 

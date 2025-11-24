@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Upload, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, FileText, X, Eye, Download } from 'lucide-react';
+import { useDropzone } from 'react-dropzone';
+import imageCompression from 'browser-image-compression';
 
 interface Document {
   id: string;
@@ -33,6 +35,8 @@ const PublicDocumentUploadPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [previewFile, setPreviewFile] = useState<{ url: string; type: string; name: string } | null>(null);
+  const [compressing, setCompressing] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   // Cargar información de la aplicación y documentos
@@ -71,9 +75,43 @@ const PublicDocumentUploadPage: React.FC = () => {
     }
   };
 
-  const handleFileSelect = async (documentType: string, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !token) return;
+  const compressImageIfNeeded = async (file: File): Promise<File> => {
+    // Solo comprimir imágenes
+    if (!file.type.startsWith('image/')) {
+      return file;
+    }
+
+    // Si es menor a 1MB, no comprimir
+    if (file.size < 1024 * 1024) {
+      return file;
+    }
+
+    setCompressing(true);
+    try {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+        fileType: file.type,
+      };
+
+      const compressedFile = await imageCompression(file, options);
+      console.log('Imagen comprimida:', {
+        original: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        compressed: `${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`,
+      });
+
+      return compressedFile;
+    } catch (error) {
+      console.error('Error al comprimir imagen:', error);
+      return file;
+    } finally {
+      setCompressing(false);
+    }
+  };
+
+  const handleFileUpload = async (documentType: string, file: File) => {
+    if (!token) return;
 
     // Validaciones
     const maxSize = 10 * 1024 * 1024; // 10MB
@@ -92,9 +130,23 @@ const PublicDocumentUploadPage: React.FC = () => {
     setUploadProgress({ ...uploadProgress, [documentType]: 0 });
 
     try {
+      // Comprimir imagen si es necesario
+      const processedFile = await compressImageIfNeeded(file);
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', processedFile);
       formData.append('document_type', documentType);
+
+      // Simular progreso
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          const current = prev[documentType] || 0;
+          if (current < 90) {
+            return { ...prev, [documentType]: current + 10 };
+          }
+          return prev;
+        });
+      }, 200);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/public-document-upload?token=${token}`,
@@ -106,6 +158,8 @@ const PublicDocumentUploadPage: React.FC = () => {
           body: formData,
         }
       );
+
+      clearInterval(progressInterval);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -144,9 +198,31 @@ const PublicDocumentUploadPage: React.FC = () => {
     }
   };
 
+  const handleFileSelect = async (documentType: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !token) return;
+    await handleFileUpload(documentType, file);
+  };
+
   const getDocumentStatus = (docType: string) => {
     const doc = documents.find(d => d.document_type === docType);
-    return doc ? { uploaded: true, fileName: doc.file_name } : { uploaded: false, fileName: null };
+    return doc ? { uploaded: true, fileName: doc.file_name, doc } : { uploaded: false, fileName: null, doc: null };
+  };
+
+  const handlePreview = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setPreviewFile({
+      url,
+      type: file.type,
+      name: file.name,
+    });
+  };
+
+  const closePreview = () => {
+    if (previewFile) {
+      URL.revokeObjectURL(previewFile.url);
+      setPreviewFile(null);
+    }
   };
 
   if (loading) {
@@ -231,6 +307,15 @@ const PublicDocumentUploadPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Mensaje de compresión */}
+        {compressing && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+            <p className="text-sm text-blue-700">
+              ⚙️ Comprimiendo imagen para optimizar la subida...
+            </p>
+          </div>
+        )}
+
         {/* Lista de documentos requeridos */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="p-6 bg-gradient-to-r from-primary-600 to-primary-700">
@@ -250,75 +335,16 @@ const PublicDocumentUploadPage: React.FC = () => {
               const currentProgress = uploadProgress[doc.id];
 
               return (
-                <div
+                <DocumentDropzone
                   key={doc.id}
-                  className={`border-2 rounded-xl p-5 transition-all ${
-                    status.uploaded
-                      ? 'border-green-400 bg-green-50'
-                      : 'border-gray-200 hover:border-primary-300 bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      {status.uploaded ? (
-                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircle className="w-6 h-6 text-white" />
-                        </div>
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-5 h-5 text-gray-600" />
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{doc.name}</h3>
-                        {status.uploaded && (
-                          <p className="text-sm text-green-700">✓ Subido correctamente</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {status.uploaded && status.fileName && (
-                    <div className="mb-3 p-3 bg-white rounded-lg border border-green-200">
-                      <p className="text-sm text-gray-700 truncate">{status.fileName}</p>
-                    </div>
-                  )}
-
-                  {!status.uploaded && (
-                    <>
-                      <input
-                        ref={el => fileInputRefs.current[doc.id] = el}
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) => handleFileSelect(doc.id, e)}
-                        className="hidden"
-                        id={`file-input-${doc.id}`}
-                        disabled={isUploading}
-                      />
-                      <label
-                        htmlFor={`file-input-${doc.id}`}
-                        className={`block w-full py-3 px-4 text-center rounded-lg font-semibold cursor-pointer transition-all ${
-                          isUploading
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-primary-600 hover:bg-primary-700 text-white hover:shadow-lg'
-                        }`}
-                      >
-                        {isUploading ? 'Subiendo...' : 'Seleccionar Archivo'}
-                      </label>
-
-                      {isUploading && currentProgress !== undefined && (
-                        <div className="mt-3">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-primary-600 h-2 rounded-full transition-all"
-                              style={{ width: `${currentProgress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                  doc={doc}
+                  status={status}
+                  isUploading={isUploading}
+                  currentProgress={currentProgress}
+                  onFileSelect={(file) => handleFileUpload(doc.id, file)}
+                  onPreview={handlePreview}
+                  fileInputRef={(el) => fileInputRefs.current[doc.id] = el}
+                />
               );
             })}
           </div>
@@ -338,6 +364,9 @@ const PublicDocumentUploadPage: React.FC = () => {
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
                   Formatos aceptados: PDF, JPG, PNG • Tamaño máximo: 10MB por archivo
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  ✨ Las imágenes grandes se comprimen automáticamente para una subida más rápida
                 </p>
               </div>
             </div>
@@ -362,6 +391,176 @@ const PublicDocumentUploadPage: React.FC = () => {
           <p>© 2025 Autos TREFA • Todos los derechos reservados</p>
         </div>
       </div>
+
+      {/* Modal de Preview */}
+      {previewFile && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={closePreview}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl max-w-4xl max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+              <h3 className="font-bold text-gray-900">{previewFile.name}</h3>
+              <button
+                onClick={closePreview}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              {previewFile.type === 'application/pdf' ? (
+                <iframe
+                  src={previewFile.url}
+                  className="w-full h-[70vh] border rounded-lg"
+                  title="PDF Preview"
+                />
+              ) : (
+                <img
+                  src={previewFile.url}
+                  alt="Preview"
+                  className="max-w-full h-auto rounded-lg"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Componente DocumentDropzone con drag & drop
+interface DocumentDropzoneProps {
+  doc: { id: string; name: string; required: boolean };
+  status: { uploaded: boolean; fileName: string | null; doc: Document | null };
+  isUploading: boolean;
+  currentProgress?: number;
+  onFileSelect: (file: File) => void;
+  onPreview: (file: File) => void;
+  fileInputRef: (el: HTMLInputElement | null) => void;
+}
+
+const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
+  doc,
+  status,
+  isUploading,
+  currentProgress,
+  onFileSelect,
+  onPreview,
+  fileInputRef,
+}) => {
+  const [dragPreview, setDragPreview] = useState<string | null>(null);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+
+      // Generar preview
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setDragPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      onFileSelect(file);
+    }
+  }, [onFileSelect]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+    },
+    maxFiles: 1,
+    disabled: status.uploaded || isUploading,
+  });
+
+  return (
+    <div
+      className={`border-2 rounded-xl p-5 transition-all ${
+        status.uploaded
+          ? 'border-green-400 bg-green-50'
+          : isDragActive
+          ? 'border-primary-500 bg-primary-50'
+          : 'border-gray-200 hover:border-primary-300 bg-gray-50'
+      }`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3">
+          {status.uploaded ? (
+            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+              <FileText className="w-5 h-5 text-gray-600" />
+            </div>
+          )}
+          <div>
+            <h3 className="font-semibold text-gray-900">{doc.name}</h3>
+            {status.uploaded && (
+              <p className="text-sm text-green-700">✓ Subido correctamente</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {status.uploaded && status.fileName && (
+        <div className="mb-3 p-3 bg-white rounded-lg border border-green-200">
+          <p className="text-sm text-gray-700 truncate">{status.fileName}</p>
+        </div>
+      )}
+
+      {!status.uploaded && (
+        <div {...getRootProps()}>
+          <input {...getInputProps()} ref={fileInputRef} />
+          <div
+            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+              isDragActive
+                ? 'border-primary-500 bg-primary-50'
+                : 'border-gray-300 hover:border-primary-400 hover:bg-gray-100'
+            } ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {dragPreview ? (
+              <img src={dragPreview} alt="Preview" className="max-h-32 mx-auto mb-3 rounded" />
+            ) : (
+              <Upload className={`w-12 h-12 mx-auto mb-3 ${isDragActive ? 'text-primary-600' : 'text-gray-400'}`} />
+            )}
+            {isDragActive ? (
+              <p className="text-sm font-semibold text-primary-600">Suelta el archivo aquí</p>
+            ) : isUploading ? (
+              <p className="text-sm text-gray-600">Subiendo archivo...</p>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-gray-700">
+                  Arrastra el archivo aquí o haz clic para seleccionar
+                </p>
+                <p className="text-xs text-gray-500 mt-1">PDF, JPG o PNG (máx. 10MB)</p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {isUploading && currentProgress !== undefined && (
+        <div className="mt-3">
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-primary-600 h-2 rounded-full transition-all"
+              style={{ width: `${currentProgress}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-gray-600 mt-1 text-center">{currentProgress}%</p>
+        </div>
+      )}
     </div>
   );
 };

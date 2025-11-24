@@ -34,11 +34,13 @@ import {
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
 import BottomNav from './BottomNav';
+import { motion } from 'framer-motion';
 
 const DashboardLayout: React.FC = () => {
     const { profile, isAdmin, isSales, signOut } = useAuth();
     const location = useLocation();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
     // Navigation items based on user role
     const navItems = [
@@ -106,35 +108,52 @@ const DashboardLayout: React.FC = () => {
     return (
         <div className="flex min-h-screen w-full flex-col bg-white">
             {/* Sidebar */}
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
+            <motion.aside
+                className="fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-background sm:flex"
+                initial={{ width: "60px" }}
+                animate={{ width: isSidebarExpanded ? "256px" : "60px" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                onMouseEnter={() => setIsSidebarExpanded(true)}
+                onMouseLeave={() => setIsSidebarExpanded(false)}
+            >
                 <nav className="flex flex-col gap-4 px-4 py-6">
                     {/* Logo */}
                     <Link
                         to="/"
-                        className="group flex h-12 items-center gap-2 rounded-lg px-3 text-lg font-semibold text-foreground hover:bg-accent"
+                        className="group flex h-12 items-center rounded-lg px-3 text-lg font-semibold text-foreground hover:bg-accent overflow-hidden"
                     >
                         <img
                             src="/images/trefalogo.png"
                             alt="TREFA"
-                            className="h-8 w-auto object-contain"
+                            className={cn(
+                                "h-8 w-auto object-contain transition-all",
+                                isSidebarExpanded ? "mr-2" : "mr-0"
+                            )}
                         />
                     </Link>
 
                     {/* User Profile Card */}
-                    <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-                        <Avatar className="h-10 w-10">
+                    <div className="flex items-center gap-3 rounded-lg border bg-card p-3 overflow-hidden">
+                        <Avatar className="h-10 w-10 shrink-0">
                             <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                                 {profile?.first_name?.[0]?.toUpperCase() || 'U'}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-medium leading-none truncate">
+                        <motion.div
+                            className="flex-1 overflow-hidden"
+                            animate={{
+                                opacity: isSidebarExpanded ? 1 : 0,
+                                width: isSidebarExpanded ? "auto" : 0
+                            }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <p className="text-sm font-medium leading-none truncate whitespace-nowrap">
                                 {profile?.first_name || 'Usuario'}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate">
+                            <p className="text-xs text-muted-foreground truncate whitespace-nowrap">
                                 {profile?.email}
                             </p>
-                        </div>
+                        </motion.div>
                     </div>
 
                     <Separator />
@@ -150,14 +169,24 @@ const DashboardLayout: React.FC = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent overflow-hidden",
                                         active
                                             ? "bg-accent text-accent-foreground"
                                             : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
-                                    <Icon className="h-4 w-4" />
-                                    {item.label}
+                                    <Icon className="h-4 w-4 shrink-0" />
+                                    <motion.span
+                                        animate={{
+                                            opacity: isSidebarExpanded ? 1 : 0,
+                                            width: isSidebarExpanded ? "auto" : 0,
+                                            marginLeft: isSidebarExpanded ? "12px" : "0px"
+                                        }}
+                                        transition={{ duration: 0.2 }}
+                                        className="whitespace-nowrap"
+                                    >
+                                        {item.label}
+                                    </motion.span>
                                 </Link>
                             );
                         })}
@@ -176,14 +205,24 @@ const DashboardLayout: React.FC = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent overflow-hidden",
                                         active
                                             ? "bg-accent text-accent-foreground"
                                             : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
-                                    <Icon className="h-4 w-4" />
-                                    {item.label}
+                                    <Icon className="h-4 w-4 shrink-0" />
+                                    <motion.span
+                                        animate={{
+                                            opacity: isSidebarExpanded ? 1 : 0,
+                                            width: isSidebarExpanded ? "auto" : 0,
+                                            marginLeft: isSidebarExpanded ? "12px" : "0px"
+                                        }}
+                                        transition={{ duration: 0.2 }}
+                                        className="whitespace-nowrap"
+                                    >
+                                        {item.label}
+                                    </motion.span>
                                 </Link>
                             );
                         })}
@@ -192,18 +231,33 @@ const DashboardLayout: React.FC = () => {
                         <button
                             onClick={() => signOut()}
                             className={cn(
-                                "w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground"
+                                "w-full flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground overflow-hidden"
                             )}
                         >
-                            <LogOut className="h-4 w-4" />
-                            Cerrar Sesión
+                            <LogOut className="h-4 w-4 shrink-0" />
+                            <motion.span
+                                animate={{
+                                    opacity: isSidebarExpanded ? 1 : 0,
+                                    width: isSidebarExpanded ? "auto" : 0,
+                                    marginLeft: isSidebarExpanded ? "12px" : "0px"
+                                }}
+                                transition={{ duration: 0.2 }}
+                                className="whitespace-nowrap"
+                            >
+                                Cerrar Sesión
+                            </motion.span>
                         </button>
                     </div>
                 </nav>
-            </aside>
+            </motion.aside>
 
             {/* Main Content */}
-            <div className="flex flex-col sm:gap-4 sm:pl-64">
+            <motion.div
+                className="flex flex-col sm:gap-4"
+                animate={{ paddingLeft: isSidebarExpanded ? "256px" : "60px" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                style={{ paddingLeft: "0px" }}  // Default for mobile
+            >
                 {/* Top Bar with Breadcrumbs */}
                 <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
                     <Breadcrumb className="hidden md:flex">
@@ -250,7 +304,7 @@ const DashboardLayout: React.FC = () => {
                 <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 pb-20 sm:pb-4">
                     <Outlet />
                 </main>
-            </div>
+            </motion.div>
 
             {/* Mobile Sidebar for Admins/Sales (triggered by hamburger) */}
             {(isAdmin || isSales) && (

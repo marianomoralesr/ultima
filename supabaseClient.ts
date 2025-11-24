@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
+// FIX: Corrected the import path for the config file.
+import { config } from '../../src/config';
 
 // IMPORTANT: Your Supabase project's URL and Anon Key should be stored in environment variables.
 // The execution environment should provide these variables via import.meta.env.
 // For example:
 // VITE_SUPABASE_URL="https://jjepfehmuybpctdzipnu.supabase.co"
-// ...
+// VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_PUBLIC_ANON_KEY"
+// You can find these in your Supabase project settings under API.
+
 const FALLBACK_URL = 'https://jjepfehmuybpctdzipnu.supabase.co';
 const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZXBmZWhtdXlicGN0ZHppcG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTk2MDMsImV4cCI6MjA1OTc3NTYwM30.yaMESZqaoLvkbVSgdHxpU-Vb7q-naxj95QxcpRYPrX4';
 

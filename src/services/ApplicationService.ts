@@ -16,7 +16,7 @@ export const ApplicationService = {
   async getUserApplications(userId: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('financing_applications')
-      .select('id, status, created_at, updated_at, car_info')
+      .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 

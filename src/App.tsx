@@ -74,6 +74,7 @@ const R2ImageManagerPage = lazy(() => import('./pages/R2ImageManagerPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ConstructorPage = lazy(() => import('./pages/ConstructorPage'));
+const HomePageEditorPage = lazy(() => import('./pages/HomePageEditorPage'));
 const DynamicLandingPage = lazy(() => import('./pages/DynamicLandingPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const FinanciamientosPage = lazy(() => import('./pages/FinanciamientosPage'));
@@ -215,6 +216,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/bancos" element={<AdminBankManagementPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />
                   <Route path="marketing/constructor" element={<ConstructorPage />} />
+                  <Route path="marketing/homepage-editor" element={<HomePageEditorPage />} />
                   <Route path="car-studio" element={<CarStudioPage />} />
                 </Route>
 

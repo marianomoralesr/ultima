@@ -98,38 +98,72 @@ app.use(
 app.use(compression());
 
 // ----- CORS -----
-// Dynamic CORS handler to support multiple domains and prevent credential issues
+// Permissive CORS that allows Supabase and external APIs
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // IMPORTANT: Allow requests with no origin (mobile apps, Postman, server-to-server)
     if (!origin) return callback(null, true);
 
-    // Allow same-origin requests (when the app loads its own assets)
-    // This handles cases where Cloud Run URLs change or have multiple formats
-    const requestHost = new URL(`${origin}/`).host;
-    const serverHost = new URL(`${FRONTEND_URL}/`).host;
-    const cloudRunHost = CLOUD_RUN_URL ? new URL(`${CLOUD_RUN_URL}/`).host : null;
-
-    if (requestHost === serverHost || (cloudRunHost && requestHost === cloudRunHost)) {
+    // Allow ALL requests from your own domains
+    if (origin.includes('trefa.mx') || origin.includes('.run.app')) {
       return callback(null, true);
     }
 
-    // Check if origin is in allowed list
+    // Check against explicit whitelist
     if (ALLOWED_ORIGINS.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.warn(`⚠️ Blocked CORS request from origin: ${origin}`);
-      console.warn(`   Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+
+    // For development/staging: be more permissive
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`⚠️  [DEV] Allowing CORS from: ${origin}`);
+      return callback(null, true);
+    }
+
+    // Log blocked requests for debugging
+    console.warn(`⚠️  Blocked CORS request from: ${origin}`);
+    console.warn(`   Allowed: ${ALLOWED_ORIGINS.join(', ')}`);
+    callback(new Error('Not allowed by CORS'));
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+    "apikey",  // Supabase uses this
+    "x-client-info",  // Supabase client info
+    "x-api-key",  // For Intelimotor
+    "x-api-secret"  // For Intelimotor
+  ],
+  exposedHeaders: [
+    "Content-Range",
+    "X-Content-Range",
+    "ETag"
+  ],
   credentials: true,
-  maxAge: 86400, // Cache preflight for 24 hours
+  maxAge: 86400,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
+
+// CRITICAL: Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
+// Additional CORS headers for Supabase compatibility
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && (origin.includes('trefa.mx') || origin.includes('.run.app'))) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,apikey,x-client-info,x-api-key,x-api-secret');
+  }
+  next();
+});
 
 // ----- Logging & Body Parsing -----
 app.use(morgan("combined"));

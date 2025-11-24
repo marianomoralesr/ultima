@@ -106,7 +106,7 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2 z-20 relative">
+    <div className="flex flex-col gap-2 relative z-30">
       <div className="flex items-center gap-2">
         <Button
           onClick={handleFinancingClick}
@@ -137,7 +137,7 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
           data-gtm-id="card-list-favorite"
           variant="outline"
           size="icon"
-          className="hover:bg-red-100 hover:text-red-500"
+          className="hover:bg-red-100 hover:text-red-500 relative z-10"
           aria-label="Añadir a favoritos"
         >
           {isFavorite ? <SolidHeartIcon className="w-5 h-5 text-red-500" /> : <HeartIcon className="w-5 h-5" />}

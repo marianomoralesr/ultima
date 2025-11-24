@@ -109,7 +109,7 @@ const LandingPageHero: React.FC = () => {
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1 });
 
   return (
-    <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center">
+    <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center -mt-[100px] pt-[100px]">
       {/* Desktop background vehicles */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -572,14 +572,14 @@ const CarroceriaCarouselSection: React.FC = () => {
     {
       title: "Sedan",
       category: "Elegancia y Eficiencia",
-      src: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=2128&auto=format&fit=crop",
+      src: "https://source.unsplash.com/Q63_3ioH2xg/2128x1600",
       description: "Diseño sofisticado con excelente rendimiento de combustible. Ideal para el día a día.",
       link: "/carroceria/sedan"
     },
     {
       title: "Hatchback",
       category: "Compacto y Práctico",
-      src: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2070&auto=format&fit=crop",
+      src: "https://m.atcdn.co.uk/vms/media/%7Bresize%7D/8b06e0fd21fc486389639a6084e1e3aa.jpg",
       description: "Ágiles en la ciudad con amplio espacio de carga. El equilibrio perfecto.",
       link: "/carroceria/hatchback"
     },
@@ -756,7 +756,6 @@ const HomePage: React.FC = () => {
       <BranchesSection />
       <TestimonioSeparator />
       <FeaturedInventorySection />
-      <HowItWorksSection />
       <WallOfLove />
     </main>
   );

@@ -40,23 +40,33 @@ export interface ImageOptions {
  * // Returns: 'https://images.trefa.mx/fotos_airtable/app/suv.png?w=800&q=85&f=webp'
  */
 export function getCdnUrl(url: string | null | undefined, options?: ImageOptions): string {
-  if (!url) return '';
+  // Defensive checks: handle null, undefined, non-string values
+  if (!url || typeof url !== 'string') {
+    console.warn('getCdnUrl: Invalid URL provided', { url, type: typeof url });
+    return '';
+  }
+
+  // Trim whitespace
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) {
+    return '';
+  }
 
   // If URL is already from R2, return as-is
-  if (R2_PUBLIC_URL && url.startsWith(R2_PUBLIC_URL)) {
-    return url;
+  if (R2_PUBLIC_URL && trimmedUrl.startsWith(R2_PUBLIC_URL)) {
+    return trimmedUrl;
   }
 
   // If CDN is not configured, return original URL
   if (!IMAGE_CDN_URL) {
-    return url;
+    return trimmedUrl;
   }
 
   // Extract the path after '/storage/v1/object/public/'
-  const pathMatch = url.match(/\/storage\/v1\/object\/public\/(.+)$/);
+  const pathMatch = trimmedUrl.match(/\/storage\/v1\/object\/public\/(.+)$/);
   if (!pathMatch) {
     // Not a Supabase storage URL, return as-is
-    return url;
+    return trimmedUrl;
   }
 
   const imagePath = pathMatch[1];
@@ -123,7 +133,7 @@ export function getResponsiveSrcSet(
  * Checks if an image URL is already optimized (from CDN or R2)
  */
 export function isOptimizedUrl(url: string | null | undefined): boolean {
-  if (!url) return false;
+  if (!url || typeof url !== 'string') return false;
 
   return (
     (IMAGE_CDN_URL && url.startsWith(IMAGE_CDN_URL)) ||

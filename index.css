@@ -587,119 +587,103 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
   /* Rezago animated border - Electric Shock Effect */
   .rezago-border {
     position: relative;
-    border: 3px solid transparent !important;
+    border: 1.5px solid transparent !important;
   }
 
   .rezago-border::before {
     content: '';
     position: absolute;
-    inset: -3px;
-    border-radius: calc(1.5rem + 3px); /* Match card roundness + border offset */
-    padding: 3px;
+    inset: -1.5px;
+    border-radius: calc(1.5rem + 1.5px); /* Match card roundness + border offset */
+    padding: 1.5px;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      transparent 10%,
-      #ea580c 20%,
-      #fb923c 25%,
-      #ffffff 30%,
-      #fb923c 35%,
-      #ea580c 40%,
-      transparent 50%,
+      transparent 20%,
+      #ea580c 35%,
+      #fb923c 42%,
+      #ffffff 48%,
+      #fb923c 54%,
+      #ea580c 60%,
+      transparent 75%,
       transparent 100%
     );
-    background-size: 400% 100%;
+    background-size: 300% 100%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: rezago-electric-pulse 2.5s ease-in-out infinite;
+    animation: rezago-electric-pulse 45s linear infinite;
     pointer-events: none;
-    z-index: 50;
-    filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.8)) brightness(1.4);
+    z-index: 1000;
+    filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.4)) brightness(1.2);
   }
 
   @keyframes rezago-electric-pulse {
     0% {
       background-position: -100% 50%;
-      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6)) brightness(1.2);
+      filter: drop-shadow(0 0 2px rgba(251, 146, 60, 0.3)) brightness(1.1);
     }
-    15% {
-      background-position: 0% 50%;
-      filter: drop-shadow(0 0 12px rgba(251, 146, 60, 1)) brightness(1.8);
-    }
-    30% {
-      background-position: 100% 50%;
-      filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.8)) brightness(1.4);
-    }
-    45% {
+    50% {
       background-position: 200% 50%;
-      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6)) brightness(1.2);
+      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.5)) brightness(1.3);
     }
     100% {
-      background-position: 400% 50%;
-      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6)) brightness(1.2);
+      background-position: 500% 50%;
+      filter: drop-shadow(0 0 2px rgba(251, 146, 60, 0.3)) brightness(1.1);
     }
   }
 
   /* Popular Card - Electric Pulse Effect (1000+ views) */
   .popular-card {
     position: relative;
-    border: 3px solid transparent !important;
+    border: 1.5px solid transparent !important;
   }
 
   .popular-card::before {
     content: '';
     position: absolute;
-    inset: -3px;
-    border-radius: calc(1.5rem + 3px);
-    padding: 3px;
+    inset: -1.5px;
+    border-radius: calc(1.5rem + 1.5px);
+    padding: 1.5px;
     background: linear-gradient(
       135deg,
       transparent 0%,
-      transparent 8%,
-      #ea580c 18%,
-      #fb923c 22%,
-      #ffffff 26%,
-      #fb923c 30%,
-      #ea580c 38%,
-      transparent 48%,
+      transparent 15%,
+      #ea580c 30%,
+      #fb923c 37%,
+      #ffffff 43%,
+      #fb923c 49%,
+      #ea580c 57%,
+      transparent 72%,
       transparent 100%
     );
-    background-size: 600% 600%;
+    background-size: 500% 500%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: popular-electric-wave 3s ease-in-out infinite;
+    animation: popular-electric-wave 52s linear infinite;
     pointer-events: none;
-    z-index: 50;
-    filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.9)) brightness(1.5);
+    z-index: 1000;
+    filter: drop-shadow(0 0 5px rgba(251, 146, 60, 0.5)) brightness(1.2);
   }
 
   .popular-card > a {
     position: absolute;
-    z-index: 10;
+    z-index: 100;
   }
 
   @keyframes popular-electric-wave {
     0% {
-      background-position: 0% 0%;
-      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.7)) brightness(1.3);
+      background-position: -100% -100%;
+      filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.4)) brightness(1.15);
     }
-    20% {
-      background-position: 50% 50%;
-      filter: drop-shadow(0 0 16px rgba(251, 146, 60, 1.2)) brightness(2);
-    }
-    40% {
-      background-position: 100% 100%;
-      filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.9)) brightness(1.5);
-    }
-    60% {
-      background-position: 150% 150%;
-      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.7)) brightness(1.3);
+    50% {
+      background-position: 300% 300%;
+      filter: drop-shadow(0 0 7px rgba(251, 146, 60, 0.6)) brightness(1.35);
     }
     100% {
-      background-position: 300% 300%;
-      filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.7)) brightness(1.3);
+      background-position: 700% 700%;
+      filter: drop-shadow(0 0 3px rgba(251, 146, 60, 0.4)) brightness(1.15);
     }
   }
 }

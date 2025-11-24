@@ -434,11 +434,17 @@ class VehicleService {
 
     public static async getFilterOptions(): Promise<any> {
         try {
+            console.log('[VehicleService] Calling get_filter_options RPC...');
             const { data, error } = await supabase.rpc('get_filter_options');
-            if (error) throw error;
+            if (error) {
+                console.error('[VehicleService] RPC error:', error);
+                throw error;
+            }
+            console.log('[VehicleService] RPC success, data keys:', Object.keys(data || {}));
+            console.log('[VehicleService] Full data:', data);
             return data;
         } catch (error) {
-            console.error('Error fetching filter options:', error);
+            console.error('[VehicleService] Error fetching filter options:', error);
             return {};
         }
     }

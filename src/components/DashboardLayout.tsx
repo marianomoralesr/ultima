@@ -18,7 +18,8 @@ import {
     Building2,
     LogOut,
     Menu,
-    X
+    X,
+    ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -116,7 +117,7 @@ const DashboardLayout: React.FC = () => {
                 onMouseEnter={() => setIsSidebarExpanded(true)}
                 onMouseLeave={() => setIsSidebarExpanded(false)}
             >
-                <nav className="flex flex-col gap-4 px-4 py-6">
+                <nav className="flex flex-col gap-4 px-4 py-6 h-full">
                     {/* Logo */}
                     <Link
                         to="/"
@@ -133,27 +134,31 @@ const DashboardLayout: React.FC = () => {
                     </Link>
 
                     {/* User Profile Card */}
-                    <div className="flex items-center gap-3 rounded-lg border bg-card p-3 overflow-hidden">
-                        <Avatar className="h-10 w-10 shrink-0">
+                    <div className={cn(
+                        "flex items-center rounded-lg border bg-card transition-all",
+                        isSidebarExpanded ? "gap-3 p-3" : "justify-center p-2"
+                    )}>
+                        <Avatar className="h-10 w-10 flex-shrink-0">
                             <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                                 {profile?.first_name?.[0]?.toUpperCase() || 'U'}
                             </AvatarFallback>
                         </Avatar>
-                        <motion.div
-                            className="flex-1 overflow-hidden"
-                            animate={{
-                                opacity: isSidebarExpanded ? 1 : 0,
-                                width: isSidebarExpanded ? "auto" : 0
-                            }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <p className="text-sm font-medium leading-none truncate whitespace-nowrap">
-                                {profile?.first_name || 'Usuario'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate whitespace-nowrap">
-                                {profile?.email}
-                            </p>
-                        </motion.div>
+                        {isSidebarExpanded && (
+                            <motion.div
+                                className="flex-1 min-w-0"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <p className="text-sm font-medium leading-none truncate">
+                                    {profile?.first_name || 'Usuario'}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                    {profile?.email}
+                                </p>
+                            </motion.div>
+                        )}
                     </div>
 
                     <Separator />
@@ -169,13 +174,14 @@ const DashboardLayout: React.FC = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={cn(
-                                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent overflow-hidden",
+                                        "flex items-center rounded-lg text-sm font-medium transition-all hover:bg-accent overflow-hidden",
+                                        isSidebarExpanded ? "px-3 py-2" : "justify-center py-2",
                                         active
                                             ? "bg-accent text-accent-foreground"
                                             : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
-                                    <Icon className="h-4 w-4 shrink-0" />
+                                    <Icon className="h-5 w-5 shrink-0" />
                                     <motion.span
                                         animate={{
                                             opacity: isSidebarExpanded ? 1 : 0,
@@ -205,13 +211,14 @@ const DashboardLayout: React.FC = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={cn(
-                                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent overflow-hidden",
+                                        "flex items-center rounded-lg text-sm font-medium transition-all hover:bg-accent overflow-hidden",
+                                        isSidebarExpanded ? "px-3 py-2" : "justify-center py-2",
                                         active
                                             ? "bg-accent text-accent-foreground"
                                             : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
-                                    <Icon className="h-4 w-4 shrink-0" />
+                                    <Icon className="h-5 w-5 shrink-0" />
                                     <motion.span
                                         animate={{
                                             opacity: isSidebarExpanded ? 1 : 0,
@@ -231,10 +238,11 @@ const DashboardLayout: React.FC = () => {
                         <button
                             onClick={() => signOut()}
                             className={cn(
-                                "w-full flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground overflow-hidden"
+                                "w-full flex items-center rounded-lg text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground overflow-hidden",
+                                isSidebarExpanded ? "px-3 py-2" : "justify-center py-2"
                             )}
                         >
-                            <LogOut className="h-4 w-4 shrink-0" />
+                            <LogOut className="h-5 w-5 shrink-0" />
                             <motion.span
                                 animate={{
                                     opacity: isSidebarExpanded ? 1 : 0,
@@ -250,6 +258,22 @@ const DashboardLayout: React.FC = () => {
                     </div>
                 </nav>
             </motion.aside>
+
+            {/* Subtle Handle Indicator - Outside Sidebar */}
+            <motion.div
+                className="fixed top-1/2 -translate-y-1/2 z-[5] hidden sm:flex items-center justify-center pointer-events-none"
+                animate={{
+                    left: isSidebarExpanded ? "256px" : "60px",
+                    opacity: isSidebarExpanded ? 0 : 1
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+                <div className="h-24 w-4 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-r-lg flex items-center justify-center">
+                    <div className="bg-background/80 backdrop-blur-sm rounded-full p-1 shadow-sm border border-border/50">
+                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                </div>
+            </motion.div>
 
             {/* Main Content */}
             <motion.div

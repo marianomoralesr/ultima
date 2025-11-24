@@ -29,13 +29,31 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [hasError, setHasError] = useState(false);
   const imgRef = React.useRef<HTMLImageElement>(null);
 
+  // Validate src prop type before processing
+  const validatedSrc = React.useMemo(() => {
+    if (!src) return '';
+
+    // Handle arrays (take first element)
+    if (Array.isArray(src)) {
+      console.warn('LazyImage: src prop is an array, using first element', { alt, src });
+      return src[0] || '';
+    }
+
+    // Handle non-string values
+    if (typeof src !== 'string') {
+      console.error('LazyImage: src prop must be a string', { alt, src, type: typeof src });
+      return '';
+    }
+
+    return src;
+  }, [src, alt]);
+
   // Convert URL to use CDN if configured
-  const cdnSrc = getCdnUrl(src, imageOptions);
-  const srcSet = responsive ? getResponsiveSrcSet(src) : undefined;
+  const cdnSrc = getCdnUrl(validatedSrc, imageOptions);
+  const srcSet = responsive ? getResponsiveSrcSet(validatedSrc) : undefined;
 
   useEffect(() => {
-    if (typeof src !== 'string' || src.trim() === '') {
-      console.error('❌ LazyImage: src prop is missing or invalid.', { alt, src });
+    if (!validatedSrc || validatedSrc.trim() === '') {
       setHasError(true);
       return;
     }
@@ -44,7 +62,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     if (imgRef.current?.complete) {
       setIsLoaded(true);
     }
-  }, [src, alt]);
+  }, [validatedSrc]);
 
   const handleError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('LazyImage: Failed to load image.', {

@@ -13,9 +13,12 @@ import Pagination from '../components/Pagination';
 import FilterSidebar from '../components/FilterSidebar';
 
 const RecentlyViewed = lazy(() => import('../components/RecentlyViewed'));
+import FavoritesQuickAccess from '../components/FavoritesQuickAccess';
+import StickySidebar from '../components/StickySidebar';
 import { ListIcon, LayoutGridIcon, SearchIcon, ChevronDownIcon, MapPinIcon } from '../components/icons';
 import useSEO from '../hooks/useSEO';
 import useDebounce from '../hooks/useDebounce';
+import { useRealtimeVisitors } from '../hooks/useRealtimeVisitors';
 import { proxyImage } from '../utils/proxyImage';
 import ExplorarTutorialOverlay from '../components/ExplorarTutorialOverlay';
 import { useDrag } from '@use-gesture/react';
@@ -27,6 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 
 const VehicleListPage: React.FC = () => {
+  const { activeUsers } = useRealtimeVisitors();
   const { marca, carroceria } = useParams<{ marca?: string; carroceria?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -56,6 +60,10 @@ const VehicleListPage: React.FC = () => {
     gcTime: 60 * 60 * 1000, // 1 hour garbage collection
     retry: 2,
   });
+
+  console.log('[VehicleListPage] filterOptions:', filterOptions);
+  console.log('[VehicleListPage] filterOptionsLoading:', filterOptionsLoading);
+  console.log('[VehicleListPage] filterOptions keys:', Object.keys(filterOptions || {}));
 
   const dynamicTitle = useMemo(() => {
     if (totalCount === 0) return 'No se encontraron autos | TREFA';
@@ -409,9 +417,10 @@ const VehicleListPage: React.FC = () => {
   return (
     <>
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start">
-          <div className="hidden lg:block">
-            <FilterSidebar
+        <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8">
+          <aside className="hidden lg:block">
+            <StickySidebar topOffset={16}>
+              <FilterSidebar
               allVehicles={vehicles}
               onFiltersChange={handleFiltersChange}
               onClearFilters={handleClearFilters}
@@ -420,16 +429,31 @@ const VehicleListPage: React.FC = () => {
               onRemoveFilter={onRemoveFilter}
               activeFiltersList={activeFiltersList}
             />
-          </div>
+            </StickySidebar>
+          </aside>
           <div>
-            <Card className="hidden lg:block mb-6">
-              <CardContent className="pt-4 pb-4">
-                {/* Search and Sort Row - Logo on left, controls on right */}
+            <Card className="hidden lg:block mb-6 overflow-visible">
+              <CardContent className="pt-4 pb-4 overflow-visible">
+                {/* Search and Sort Row - Live counter on left, controls on right */}
                 <div className="flex items-center justify-between gap-3 mb-3">
-                  {/* Logo on the left */}
-                  <Link to="/" className="flex items-center">
-                    <img src="/images/trefalogo.png" alt="TREFA" className="h-8 w-auto object-contain" />
-                  </Link>
+                  {/* Live browsing counter with avatars */}
+                  <div className="flex items-center gap-2">
+                    {/* Stacked mini avatars */}
+                    <div className="flex -space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
+                    </div>
+
+                    {/* Counter text with animated dots */}
+                    <div className="flex items-center gap-1 text-sm">
+                      <span className="text-orange-600 font-bold transition-all duration-300">
+                        {activeUsers}
+                      </span>
+                      <span className="text-gray-600">personas explorando</span>
+                      <span className="text-orange-600 font-bold animate-pulse">...</span>
+                    </div>
+                  </div>
 
                   {/* Controls on the right */}
                   <div className="flex items-center gap-3">
@@ -482,7 +506,7 @@ const VehicleListPage: React.FC = () => {
                           <LayoutGridIcon className="w-4 h-4" />
                         </Button>
                         {showGridTooltip && (
-                          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-50 animate-fade-in shadow-lg">
+                          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-[9999] animate-fade-in shadow-lg">
                             Ver en cuadrícula
                             <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                           </div>
@@ -580,6 +604,11 @@ const VehicleListPage: React.FC = () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Mobile Favorites Slider */}
+            <div className="lg:hidden mb-6">
+              <FavoritesQuickAccess variant="mobile" />
+            </div>
 
             {vehiclesError ? (
               <p className="text-red-500 text-center py-10">Error al cargar los autos. Por favor, inténtelo de nuevo más tarde.</p>

@@ -85,7 +85,18 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ isOpen, onClose, onSe
           ) : (
             <div className="space-y-2">
             {filteredVehicles.map(vehicle => {
-              const imageSrc = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
+              // Handle array image properties safely
+              const getFirstImageOrDefault = (value: string | string[] | undefined): string => {
+                if (!value) return '';
+                if (Array.isArray(value)) return value[0] || '';
+                return value;
+              };
+
+              const imageSrc = getFirstImageOrDefault(vehicle.thumbnail_webp) ||
+                               getFirstImageOrDefault(vehicle.thumbnail) ||
+                               getFirstImageOrDefault(vehicle.feature_image_webp) ||
+                               getFirstImageOrDefault(vehicle.feature_image) ||
+                               DEFAULT_PLACEHOLDER_IMAGE;
               return (
                 <div
                   key={vehicle.slug}

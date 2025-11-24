@@ -147,7 +147,7 @@ INSERT INTO homepage_content (section_key, content) VALUES
 }'),
 ('branches', '{
   "title": "Nuestras Sucursales",
-  "subtitle": "Con presencia en 3 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
+  "subtitle": "Con presencia en 4 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
   "bottomNote": "Ofrecemos reubicación sin costo entre sucursales el mismo día",
   "branches": [
     {
@@ -170,9 +170,17 @@ INSERT INTO homepage_content (section_key, content) VALUES
       "city": "Guadalupe",
       "phone": "8187049079",
       "address": "Hidalgo #918, Col. Paraíso | 67140 Centro de Guadalupe, NL",
-      "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2070&auto=format&fit=crop",
-      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Autos+TREFA+Hidalgo+918+Guadalupe+NL",
-      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d57685.25595563883!2d-100.31048168555626!3d25.677420950621905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8662959b9db0a3ef%3A0x4e5a6fd0c31a8f07!2sAutos%20TREFA!5e0!3m2!1ses-419!2smx!4v1760615291048!5m2!1ses-419!2smx"
+      "imageUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop",
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Autos+TREFA,+Hidalgo+918+Col+Paraiso+Centro+de+Guadalupe",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3595.8161808056575!2d-100.27112402363022!3d25.67738751208222!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8662bdeb19eb72eb%3A0x65eb12ea70bc37cb!2sAutos+TREFA!5e0!3m2!1ses-419!2smx!4v1760615208138!5m2!1ses-419!2smx"
+    },
+    {
+      "city": "Saltillo",
+      "phone": "8442123399",
+      "address": "Blvd. Nazario Ortiz #2060, Local 132, Col 16 | Saltillo, COAH 25253",
+      "imageUrl": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=2069&auto=format&fit=crop",
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=TREFA+Saltillo+Blvd+Nazario+Ortiz+2060+Local+132+Col+16+Saltillo+Coah",
+      "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3602.810577905786!2d-100.99913802595996!3d25.44458312076059!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!0x86880d60393303c9%3A0x33b5413345239534!2sTrefa%20Saltillo!5e0!3m2!1ses-419!2smx!4v1709660339301!5m2!1ses-419!2smx"
     }
   ]
 }')

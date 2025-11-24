@@ -54,7 +54,7 @@ const BranchesSection: React.FC<BranchesSectionProps> = ({ content }) => {
   // Default fallback content
   const defaultContent: BranchesContent = {
     title: "Nuestras Sucursales",
-    subtitle: "Con presencia en 3 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
+    subtitle: "Con presencia en 4 estados, nuestras sucursales ofrecen todos los servicios de compra, venta y financiamiento.",
     bottomNote: "Ofrecemos reubicación sin costo entre sucursales el mismo día",
     branches: branchData
   };

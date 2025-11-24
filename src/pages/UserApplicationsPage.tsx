@@ -6,6 +6,7 @@ import { UserDataService } from '../services/UserDataService';
 // FIX: Import the X icon from lucide-react.
 import { Loader2, AlertTriangle, FileText, Download, Trash2, Eye, ShieldAlert, CheckCircle, X, Clock } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
+import PublicUploadLinkCard from '../components/PublicUploadLinkCard';
 
 const statusMap = {
     draft: { text: "Borrador", icon: FileText, color: "text-gray-500", bgColor: "bg-gray-100" },
@@ -104,31 +105,36 @@ const UserApplicationsPage: React.FC = () => {
                     {applications.length > 0 ? applications.map(app => {
                         const status = statusMap[app.status as keyof typeof statusMap] || statusMap.draft;
                         return (
-                            <div key={app.id} className="p-4 border rounded-lg flex justify-between items-center">
-                                <div>
-                                    <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                                    <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
-                                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
-                                        <status.icon className="w-3 h-3" />
-                                        {status.text}
-                                    </span>
+                            <div key={app.id} className="p-4 border rounded-lg space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                        <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
+                                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
+                                            <status.icon className="w-3 h-3" />
+                                            {status.text}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => setViewingApp(app)} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                                            <Eye className="w-4 h-4"/> Ver Detalles
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setDeletingApp(app);
+                                                setDeleteConfirmText('');
+                                                setActionError('');
+                                            }}
+                                            className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                            title="Eliminar solicitud"
+                                        >
+                                            <Trash2 className="w-4 h-4"/>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => setViewingApp(app)} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700">
-                                        <Eye className="w-4 h-4"/> Ver Detalles
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setDeletingApp(app);
-                                            setDeleteConfirmText('');
-                                            setActionError('');
-                                        }}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                                        title="Eliminar solicitud"
-                                    >
-                                        <Trash2 className="w-4 h-4"/>
-                                    </button>
-                                </div>
+                                {app.public_upload_token && (
+                                    <PublicUploadLinkCard token={app.public_upload_token} compact />
+                                )}
                             </div>
                         );
                     }) : <p className="text-sm text-gray-500 text-center py-8">Aún no has enviado ninguna solicitud.</p>}

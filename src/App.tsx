@@ -90,6 +90,7 @@ const BankDashboardPage = lazy(() => import('./pages/BankDashboardPage'));
 const BankLeadProfilePage = lazy(() => import('./pages/BankLeadProfilePage'));
 const AdminBankManagementPage = lazy(() => import('./pages/AdminBankManagementPage'));
 const DashboardExample = lazy(() => import('./pages/DashboardExample'));
+const PublicDocumentUploadPage = lazy(() => import('./pages/PublicDocumentUploadPage'));
 
 import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
@@ -243,6 +244,9 @@ function App(): React.JSX.Element {
 
           {/* Bank Portal Login (public) */}
           <Route path="/bancos" element={<BankLoginPage />} />
+
+          {/* Public Document Upload Dropzone */}
+          <Route path="/documentos/:token" element={<PublicDocumentUploadPage />} />
 
           {/* Bank Portal Dashboard (protected) - Separate routing for bank representatives */}
           <Route element={<BankRoute />}>

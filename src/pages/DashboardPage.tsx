@@ -579,12 +579,7 @@ const Dashboard: React.FC = () => {
                 )
             )}
             
-            {activeApplicationForDocs && (
-                <DocumentUploadSection 
-                    applicationId={activeApplicationForDocs.id}
-                    applicationStatus={activeApplicationForDocs.status}
-                />
-            )}
+            {/* DocumentUploadSection removido - ahora se usa el dropzone público accesible desde UserApplicationsPage */}
             
             <FinancialProjection />
             

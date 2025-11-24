@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BankProfilingService } from '../services/BankProfilingService';
 import type { BankProfileData } from '../types/types';
+import PublicUploadLinkCard from './PublicUploadLinkCard';
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-sm font-bold uppercase tracking-wider text-white bg-trefa-blue p-2 rounded-t-md mt-3">{title}</h3>
@@ -241,6 +242,13 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                                 : 'Esta solicitud no tiene documentos cargados. Se requiere solicitar documentos al cliente.'}
                         </p>
                     </div>
+                </div>
+            )}
+
+            {/* Public Upload Link */}
+            {application.public_upload_token && (
+                <div className="mt-4 no-print">
+                    <PublicUploadLinkCard token={application.public_upload_token} />
                 </div>
             )}
 

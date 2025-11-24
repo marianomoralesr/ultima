@@ -216,11 +216,16 @@ export const ApplicationService = {
       .update(draftData)
       .eq('id', applicationId)
       .select('id, status, updated_at')
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error saving application draft:', error.message, { code: error.code, details: error.details });
       throw new Error('No se pudo guardar el borrador de la solicitud.');
+    }
+
+    if (!data) {
+      console.error('No application found with ID:', applicationId);
+      throw new Error('No se encontró la solicitud. Por favor, recarga la página.');
     }
 
     return data;

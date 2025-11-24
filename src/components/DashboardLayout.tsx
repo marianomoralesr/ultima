@@ -275,13 +275,14 @@ const DashboardLayout: React.FC = () => {
                 </div>
             </motion.div>
 
-            {/* Main Content */}
-            <motion.div
-                className="flex flex-col sm:gap-4"
-                animate={{ paddingLeft: isSidebarExpanded ? "256px" : "60px" }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                style={{ paddingLeft: "0px" }}  // Default for mobile
-            >
+            {/* Main Content - Mobile-first responsive layout */}
+            <div className="flex flex-col sm:gap-4 sm:pl-[60px]">
+                <motion.div
+                    className="hidden sm:block"
+                    animate={{ paddingLeft: isSidebarExpanded ? "196px" : "0px" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+                />
                 {/* Top Bar with Breadcrumbs */}
                 <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
                     <Breadcrumb className="hidden md:flex">
@@ -325,10 +326,10 @@ const DashboardLayout: React.FC = () => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 pb-20 sm:pb-4">
+                <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 pb-20 sm:pb-4 w-full max-w-full overflow-x-hidden">
                     <Outlet />
                 </main>
-            </motion.div>
+            </div>
 
             {/* Mobile Sidebar for Admins/Sales (triggered by hamburger) */}
             {(isAdmin || isSales) && (

@@ -36,8 +36,11 @@ const BottomNav: React.FC = () => {
     const { session, signOut } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const [isHidden, setIsHidden] = useState(false);
+    const [showUpdateBanner, setShowUpdateBanner] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
+    const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
     const isListPage = useMemo(() => {
@@ -59,12 +62,43 @@ const BottomNav: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Auto-hide on idle (3 seconds of no interaction)
+    useEffect(() => {
+        const resetIdleTimer = () => {
+            setIsHidden(false);
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+            idleTimerRef.current = setTimeout(() => {
+                setIsHidden(true);
+            }, 3000);
+        };
+
+        const events = ['touchstart', 'touchmove', 'scroll', 'click'];
+        events.forEach(event => document.addEventListener(event, resetIdleTimer));
+        resetIdleTimer();
+
+        return () => {
+            events.forEach(event => document.removeEventListener(event, resetIdleTimer));
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+        };
+    }, []);
+
+    // Check for app updates and show banner
+    useEffect(() => {
+        const currentVersion = import.meta.env.VITE_APP_VERSION || '';
+        const lastSeenVersion = localStorage.getItem('lastSeenVersion');
+
+        if (lastSeenVersion && currentVersion && lastSeenVersion !== currentVersion) {
+            setShowUpdateBanner(true);
+        }
+    }, []);
+
     // Hide bottom nav when keyboard is visible (input/textarea focused)
     useEffect(() => {
         const handleFocusIn = (e: FocusEvent) => {
             const target = e.target as HTMLElement;
             if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
                 setIsKeyboardVisible(true);
+                setIsHidden(false); // Show nav when keyboard appears
                 // Scroll the focused element into view with some offset
                 setTimeout(() => {
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -132,9 +166,45 @@ const BottomNav: React.FC = () => {
 
     const visibleMenuLinks = menuLinks.filter(link => !link.authRequired || session);
 
+    const handleUpdateRefresh = () => {
+        localStorage.setItem('lastSeenVersion', import.meta.env.VITE_APP_VERSION || '');
+        window.location.reload();
+    };
+
+    const dismissUpdateBanner = () => {
+        localStorage.setItem('lastSeenVersion', import.meta.env.VITE_APP_VERSION || '');
+        setShowUpdateBanner(false);
+    };
+
     return (
         <>
-            <nav className={`fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-gray-200 lg:hidden transition-transform duration-300 ${isKeyboardVisible ? 'translate-y-full' : 'translate-y-0'}`}>
+            {/* Update Banner */}
+            {showUpdateBanner && (
+                <div className="fixed bottom-16 left-0 right-0 z-[85] lg:hidden">
+                    <div className="mx-4 mb-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg shadow-lg p-3 flex items-center justify-between gap-3">
+                        <div className="flex-1">
+                            <p className="font-semibold text-sm">Nueva versión disponible</p>
+                            <p className="text-xs text-orange-100">Actualiza para ver lo más reciente</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={dismissUpdateBanner}
+                                className="px-3 py-1 text-xs font-medium text-white/80 hover:text-white"
+                            >
+                                Después
+                            </button>
+                            <button
+                                onClick={handleUpdateRefresh}
+                                className="px-3 py-1 text-xs font-medium bg-white text-orange-600 rounded hover:bg-orange-50"
+                            >
+                                Actualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <nav className={`fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-gray-200 lg:hidden transition-transform duration-300 ${isKeyboardVisible || isHidden ? 'translate-y-full' : 'translate-y-0'}`}>
                 <div className="max-w-md mx-auto grid grid-cols-5 justify-around items-center h-16">
                     <NavItem to="/" icon={HomeIcon} label="Inicio" end={true} />
                     <NavItem to="/autos" icon={BuyCarIcon} label="Buscar" />

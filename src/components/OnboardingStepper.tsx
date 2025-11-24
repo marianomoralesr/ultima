@@ -327,13 +327,13 @@ export const OnboardingStepper: React.FC<OnboardingStepperProps> = ({
   };
 
   return (
-    <div className={`w-full ${className} hidden md:block`}>
+    <div className={`w-full ${className}`}>
       {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-foreground tracking-tight">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
           Proceso de Financiamiento
         </h2>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-xs sm:text-sm text-muted-foreground mt-2">
           Sigue estos pasos para completar tu solicitud de crédito automotriz
         </p>
       </div>

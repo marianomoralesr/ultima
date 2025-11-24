@@ -37,34 +37,34 @@ const baseApplicationObject = z.object({
   current_city: z.string().optional(),
   current_state: z.string().optional(),
   current_zip_code: z.string().optional(),
-  time_at_address: z.string().min(1, 'El tiempo en el domicilio es obligatorio'),
-  housing_type: z.string().min(1, 'El tipo de vivienda es obligatorio'),
-  grado_de_estudios: z.string().min(1, 'El grado de estudios es obligatorio'),
-  dependents: z.string().min(1, 'El número de dependientes es obligatorio'),
+  time_at_address: z.string().min(1, 'Por favor, indica cuánto tiempo llevas viviendo en tu domicilio actual'),
+  housing_type: z.string().min(1, 'Por favor, selecciona el tipo de vivienda donde resides'),
+  grado_de_estudios: z.string().min(1, 'Por favor, selecciona tu grado de estudios'),
+  dependents: z.string().min(1, 'Por favor, indica el número de dependientes económicos que tienes'),
   // spouse_full_name removed - this data is collected in Profile page as spouse_name
 
   // Step 2: Employment Info
-  fiscal_classification: z.string().min(1, "La clasificación fiscal es obligatoria"),
-  company_name: z.string().min(2, "El nombre de la empresa es obligatorio"),
-  company_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de la empresa debe tener 10 dígitos")),
-  supervisor_name: z.string().min(2, "El nombre del jefe inmediato es obligatorio"),
+  fiscal_classification: z.string().min(1, "Por favor, selecciona tu clasificación fiscal (Persona Física o Moral)"),
+  company_name: z.string().min(2, "Por favor, ingresa el nombre completo de tu empresa o empleador"),
+  company_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "Por favor, ingresa un teléfono de empresa válido de 10 dígitos")),
+  supervisor_name: z.string().min(2, "Por favor, ingresa el nombre completo de tu jefe o supervisor inmediato"),
   company_website: z.string().optional().or(z.literal('')).refine(val => {
     if (!val) return true; // Optional field is valid if empty
     return val.includes('.') && !val.includes(' ');
-  }, { message: 'Formato de URL inválido. Debe incluir un punto y no tener espacios.' }),
-  company_address: z.string().min(5, "La dirección de la empresa es obligatoria"),
-  company_industry: z.string().min(2, "La industria es obligatoria"),
-  job_title: z.string().min(2, "El puesto es obligatorio"),
-  job_seniority: z.string().min(1, "La antigüedad es obligatoria"),
-  net_monthly_income: z.string().min(1, "El salario neto es obligatorio"),
+  }, { message: 'Por favor, ingresa una URL válida (debe incluir un punto y no tener espacios). Ejemplo: www.empresa.com' }),
+  company_address: z.string().min(5, "Por favor, ingresa la dirección completa de tu empresa o lugar de trabajo"),
+  company_industry: z.string().min(2, "Por favor, indica a qué industria o sector pertenece tu empresa"),
+  job_title: z.string().min(2, "Por favor, ingresa tu puesto o cargo en la empresa"),
+  job_seniority: z.string().min(1, "Por favor, indica cuánto tiempo llevas trabajando en tu puesto actual"),
+  net_monthly_income: z.string().min(1, "Por favor, ingresa tu ingreso mensual neto (después de impuestos)"),
 
   // Step 3: References
-  parentesco: z.string().min(3, "El parentesco es obligatorio"),
-  friend_reference_name: z.string().min(2, "El nombre de referencia de amistad es obligatorio"),
-  friend_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de referencia de amistad debe tener 10 dígitos")),
-  friend_reference_relationship: z.string().min(2, "La relación de referencia de amistad es obligatoria"),
-  family_reference_name: z.string().min(2, "El nombre de referencia familiar es obligatorio"),
-  family_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "El teléfono de referencia familiar debe tener 10 dígitos")),
+  parentesco: z.string().min(3, "Por favor, especifica tu parentesco o relación con la referencia familiar"),
+  friend_reference_name: z.string().min(2, "Por favor, proporciona el nombre completo de una referencia personal (amigo o conocido)"),
+  friend_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "Por favor, ingresa un teléfono válido de 10 dígitos para tu referencia personal")),
+  friend_reference_relationship: z.string().min(2, "Por favor, indica tu relación con esta referencia personal (ej: amigo, compañero de trabajo)"),
+  family_reference_name: z.string().min(2, "Por favor, proporciona el nombre completo de una referencia familiar"),
+  family_reference_phone: z.string().default('').transform(val => val.replace(/\D/g, '')).pipe(z.string().length(10, "Por favor, ingresa un teléfono válido de 10 dígitos para tu referencia familiar")),
 
   // Financing Preferences (optional fields, calculated dynamically)
   loan_term_months: z.number().optional(),
@@ -159,7 +159,7 @@ const Application: React.FC = () => {
                 setPageStatus('ready');
             } catch (error: any) {
                 console.error("Error during application pre-flight checks:", error);
-                setPageError(error.message || 'Ocurrió un error al verificar los requisitos de la solicitud.');
+                setPageError(error.message || 'No pudimos verificar los requisitos de tu solicitud. Por favor, asegúrate de que tu perfil esté completo e intenta nuevamente. Si el problema persiste, contacta con soporte.');
                 setPageStatus('error');
             }
         };
@@ -176,7 +176,7 @@ const Application: React.FC = () => {
             try {
                 if (applicationIdFromUrl) {
                     const draft = await ApplicationService.getApplicationById(user.id, applicationIdFromUrl);
-                    if (!draft) throw new Error('No se encontró el borrador de la solicitud.');
+                    if (!draft) throw new Error('No encontramos el borrador de tu solicitud. Es posible que haya sido eliminado o que el enlace sea incorrecto. Por favor, inicia una nueva solicitud.');
 
                     setApplicationId(draft.id);
                     setApplicationData(draft.application_data || {});
@@ -232,11 +232,11 @@ const Application: React.FC = () => {
                         });
                         navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });
                     } else {
-                        throw new Error('No se pudo crear el borrador de la solicitud.');
+                        throw new Error('No pudimos crear el borrador de tu solicitud. Por favor, intenta nuevamente. Si el problema persiste, contacta con soporte.');
                     }
                 }
             } catch (error: any) {
-                setPageError(error.message || 'No se pudo cargar o crear la solicitud.');
+                setPageError(error.message || 'No pudimos cargar o crear tu solicitud de financiamiento. Por favor, verifica tu conexión a internet e intenta nuevamente.');
                 setPageStatus('error');
             }
         };
@@ -341,12 +341,12 @@ const Application: React.FC = () => {
         setSubmissionError(null);
 
         if (!applicationId || !user || !profile || !recommendedBank) {
-            setSubmissionError("Faltan datos esenciales de la aplicación. Por favor, recarga la página o contacta a soporte.");
+            setSubmissionError("Faltan datos esenciales para completar tu solicitud. Por favor, recarga la página. Si el problema persiste, contacta con nuestro equipo de soporte.");
             return;
         }
 
         if (!vehicleInfo?._ordenCompra) {
-            setSubmissionError("No has seleccionado un auto para tu solicitud.");
+            setSubmissionError("Aún no has seleccionado un vehículo para tu solicitud de financiamiento. Por favor, selecciona el auto que te interesa para continuar.");
             setShowVehicleSelector(true);
             return;
         }
@@ -363,7 +363,7 @@ const Application: React.FC = () => {
             const normalizedFamily = normalizeName(data.family_reference_name || '');
 
             if (normalizedSpouse && (normalizedSpouse === normalizedFriend || normalizedSpouse === normalizedFamily)) {
-                setSubmissionError("Tu cónyuge no puede ser usado como referencia. Por favor, corrige la información en el paso de Referencias.");
+                setSubmissionError("Tu cónyuge no puede ser utilizado como referencia personal. Por favor, proporciona referencias diferentes en el paso de Referencias Personales.");
                 setCurrentStep(2); // Go back to references step
                 return;
             }
@@ -384,7 +384,7 @@ const Application: React.FC = () => {
                 // If this application is no longer a draft, check if there's another active application
                 const hasActiveApp = await ApplicationService.hasActiveApplication(user.id);
                 if (hasActiveApp) {
-                    setSubmissionError('Ya tienes una solicitud activa. Solo puedes tener una solicitud a la vez.');
+                    setSubmissionError('Ya cuentas con una solicitud activa en proceso. Por el momento, solo puedes tener una solicitud a la vez. Puedes revisar el estado de tu solicitud actual desde tu panel de control.');
                     setPageStatus('active_application_exists');
                     return;
                 }
@@ -489,7 +489,7 @@ const Application: React.FC = () => {
             if (e.message?.includes('Ya tienes una solicitud activa')) {
                 setPageStatus('active_application_exists');
             }
-            setSubmissionError(e.message || "No se pudo enviar la solicitud. Por favor, revisa que todos los campos estén completos y vuelve a intentarlo.");
+            setSubmissionError(e.message || "No pudimos enviar tu solicitud de financiamiento. Por favor, verifica que todos los campos estén completos correctamente y vuelve a intentarlo. Si el problema persiste, contacta con nuestro equipo de soporte.");
         }
     };
 

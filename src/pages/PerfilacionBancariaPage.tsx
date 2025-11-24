@@ -11,14 +11,14 @@ import Confetti from '../components/Confetti';
 import { conversionTracking } from '../services/ConversionTrackingService';
 
 const bankProfileSchema = z.object({
-  trabajo_tiempo: z.string().min(1, 'La antigüedad es requerida'),
-  cuenta_bancaria: z.string().min(1, 'La cuenta bancaria es requerida'),
-  historial_crediticio: z.string().min(1, 'El historial es requerido'),
-  creditos_vigentes: z.string().min(1, 'Este campo es requerido'),
-  atrasos_12_meses: z.string().min(1, 'Este campo es requerido'),
-  enganche: z.string().min(1, 'El enganche es requerido'),
-  prioridad_financiamiento: z.string().min(1, 'La prioridad es requerida'),
-  ingreso_mensual: z.string().min(1, 'Los ingresos son requeridos'),
+  trabajo_tiempo: z.string().min(1, 'Por favor, selecciona cuánto tiempo llevas en tu empleo actual'),
+  cuenta_bancaria: z.string().min(1, 'Por favor, indica qué banco utilizas o si no tienes cuenta bancaria'),
+  historial_crediticio: z.string().min(1, 'Por favor, selecciona cómo describirías tu historial crediticio'),
+  creditos_vigentes: z.string().min(1, 'Por favor, indica si tienes otros créditos activos actualmente'),
+  atrasos_12_meses: z.string().min(1, 'Por favor, indícanos si has tenido atrasos en pagos recientemente'),
+  enganche: z.string().min(1, 'Por favor, selecciona qué porcentaje de enganche planeas dar'),
+  prioridad_financiamiento: z.string().min(1, 'Por favor, indícanos cuál es tu prioridad al solicitar financiamiento'),
+  ingreso_mensual: z.string().min(1, 'Por favor, selecciona el rango de tus ingresos mensuales comprobables'),
 });
 
 type BankProfileFormData = z.infer<typeof bankProfileSchema>;

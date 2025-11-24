@@ -868,13 +868,16 @@ const VehicleDetailPage: React.FC = () => {
             </div>
           </aside>
         </div>
+
+        {/* Recently Viewed - Inside main for proper layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-12 mt-8">
+          <div className="lg:col-span-3">
+            <RecentlyViewed currentVehicleId={vehicle.id} />
+          </div>
+        </div>
       </main>
 
       <SimilarVehicles vehicle={vehicle} allVehicles={allVehicles} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <RecentlyViewed currentVehicleId={vehicle.id} />
-      </div>
 
       {/* Lightbox for inspection or media */}
       {isLightboxOpen && inspectionData && activeTab === 'inspection' && (

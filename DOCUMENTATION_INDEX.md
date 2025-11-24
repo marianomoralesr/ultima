@@ -1,291 +1,176 @@
-# Codebase Documentation Index
+# Documentation Index
 
-This folder now contains comprehensive documentation of the Trefa CRM system. Below is a guide to what you'll find in each file.
+> Last Updated: November 23, 2025
+> This index provides a comprehensive guide to all project documentation.
 
-## Files Created
+## 🚀 Quick Start
 
-### 1. **CODEBASE_ANALYSIS.md** (Main Document - 776 lines)
-The most comprehensive guide covering:
+- **[README.md](./readme.md)** - Project overview and getting started
+- **[CHANGELOG.md](./CHANGELOG.md)** - Project changelog
+- **[QUICK_REFERENCE.md](./docs/QUICK_REFERENCE.md)** - Quick reference guide
 
-- **Section 1-3**: Authentication system, role assignment, round-robin algorithm
-- **Section 4-6**: Sales role capabilities, admin interfaces, lead management
-- **Section 7-9**: Tagging system, financing applications, database schema
-- **Section 10-15**: File paths, implementation details, architecture diagram
+## 📚 Main Documentation
 
-**When to read**: First time understanding the system, when you need deep knowledge
+### Setup & Configuration
 
----
+#### Infrastructure & Deployment
+- **[Staging Domain Setup](./docs/guides/STAGING_DOMAIN_SETUP.md)** - Configure staging environment
+- **[Supabase SMTP Setup](./docs/guides/SUPABASE_SMTP_SETUP.md)** - Email service configuration
+- **[Cloudflare Tag Gateway Setup](./docs/guides/CLOUDFLARE_TAG_GATEWAY_SETUP.md)** - CDN and analytics
+- **[GTM Setup Guide](./docs/guides/GTM_SETUP_GUIDE.md)** - Google Tag Manager configuration
 
-### 2. **QUICK_REFERENCE.md** (Fast Lookup Guide)
-Quick answers to common questions:
+#### Marketing & Analytics
+- **[Marketing Setup](./docs/guides/MARKETING_SETUP_README.md)** - Complete marketing tools setup
+- **[Marketing Tracking Setup](./docs/guides/MARKETING_TRACKING_SETUP.md)** - Analytics and tracking
+- **[Marketing Tools Feature](./docs/guides/MARKETING_TOOLS_FEATURE.md)** - Marketing features overview
+- **[Quick Start Marketing](./docs/guides/QUICK_START_MARKETING.md)** - Fast marketing setup
+- **[Customer Journeys Setup](./docs/guides/CUSTOMER_JOURNEYS_SETUP.md)** - User journey tracking
 
-- Most important files (11 key files explained)
-- Role assignment flow (visual diagram)
-- Round-robin algorithm (5-step explanation)
-- Sales rep access control
-- Testing scenarios (create test users, verify round-robin)
-- RPC functions (what each one does)
-- Common Q&A
+#### Integrations
+- **[Airtable R2 Migration](./docs/guides/AIRTABLE_R2_MIGRATION.md)** - Migrate from Airtable to R2
+- **[Airtable Webhook Setup](./docs/guides/AIRTABLE_WEBHOOK_SETUP.md)** - Configure Airtable webhooks
+- **[Webhook Sync Summary](./docs/guides/WEBHOOK_SYNC_SUMMARY.md)** - Webhook synchronization
+- **[Sitemap Improvements](./docs/guides/SITEMAP_IMPROVEMENTS.md)** - SEO sitemap configuration
 
-**When to read**: You need quick answers, explaining to someone else, troubleshooting
+### Features & Components
 
----
+#### User Interface
+- **[Shadcn Design System](./docs/guides/SHADCN_DESIGN_SYSTEM.md)** - UI component library
+- **[Figma Design Rules](./docs/guides/FIGMA_DESIGN_RULES.md)** - Design system guidelines
+- **[Onboarding Stepper Integration](./docs/guides/ONBOARDING_STEPPER_INTEGRATION.md)** - User onboarding flow
 
-### 3. **CODE_SNIPPETS.md** (Copy-Paste Reference)
-Ready-to-use code examples for:
+#### Application Features
+- **[Bank Portal](./docs/guides/BANK_PORTAL_README.md)** - Bank representative portal
+- **[Bank Portal Automatic Visibility](./docs/guides/BANK_PORTAL_AUTOMATIC_VISIBILITY.md)** - Portal permissions
+- **[Sales User Guide](./docs/guides/SALES_USER_GUIDE.md)** - Sales team documentation
+- **[Valuation PDF Generator](./docs/guides/VALUATION_PDF_GENERATOR.md)** - PDF generation system
+- **[Tus Pasos Setup](./docs/guides/TUS_PASOS_SETUP.md)** - User journey tracker
+- **[Round Robin Assignment](./docs/guides/ROUND_ROBIN_ASSIGNMENT.md)** - Lead assignment system
 
-1. Admin email list (how to add admins)
-2. Round-robin function (the actual SQL)
-3. AuthContext role detection
-4. Route guards (AdminRoute, SalesRoute)
-5. Get all leads (admin)
-6. Get assigned leads (sales)
-7. Get client profile (both)
-8. Dashboard stats
-9. Tag management
-10. Reminder management
-11. Profile type definition
-12. SQL queries (verify round-robin, reassign leads)
-13. Routing structure
+#### Automation & Workflows
+- **[Changelog Roadmap Implementation](./docs/guides/CHANGELOG_ROADMAP_IMPLEMENTATION_GUIDE.md)** - Changelog automation
+- **[Dynamic Changelog Roadmap](./docs/guides/DYNAMIC_CHANGELOG_ROADMAP_README.md)** - Dynamic changelog features
 
-**When to read**: You need to implement something, copy code examples, modify functionality
+### Security & Performance
+- **[Security Audit Report](./docs/guides/SECURITY_AUDIT_REPORT.md)** - Security assessment and recommendations
 
----
+### Development
 
-## Quick Facts About the System
+#### Workflow & Git
+- **[Worktree Workflow Guide](./docs/WORKTREE_WORKFLOW.md)** - Comprehensive git worktrees guide
+- **[Worktree Cheatsheet](./docs/WORKTREE_CHEATSHEET.md)** - Quick worktree reference
+- **[Git Safety Workflow](./docs/GIT_SAFETY_WORKFLOW.md)** - Safe git practices
 
-### Key Numbers
-- **3 User Roles**: user, admin, sales
-- **7 Core Tables**: profiles, financing_applications, uploaded_documents, lead_tags, lead_tag_associations, lead_reminders, auth.users
-- **4+ Admin Pages**: Leads, Client, Compras, Config, etc.
-- **2 Sales Pages**: Leads, Client
-- **5+ RPC Functions**: For secure data access
+#### Database & Migrations
+- **[Migration Scripts Documentation](./docs/scripts/)** - Database migration guides
+  - Manual Database Migration
+  - Migration Quickstart
+  - Phase 2 Migration Guide
+  - Reduce Egress Plan
+  - Survey Revision Plan
 
-### Critical Components
-- **AuthContext.tsx**: Where role detection happens (lines 120-125 = admin email list)
-- **SalesService.ts**: How sales reps get only their leads
-- **AdminService.ts**: How admins get all leads
-- **assign_advisor()**: The round-robin function (perfect distribution!)
-- **RLS Policies**: Database-level security (most important!)
+#### Architecture & Code
+- **[Changelog Automation](./docs/CHANGELOG_AUTOMATION.md)** - Automated changelog system
+- **[Dashboard Implementation Summary](./docs/DASHBOARD_IMPLEMENTATION_SUMMARY.md)** - Dashboard architecture
+- **[Dashboard Enhancement Plan](./docs/DASHBOARD_ENHANCEMENT_PLAN.md)** - Future improvements
+- **[Sales Dashboard](./docs/SALES_DASHBOARD.md)** - Sales dashboard features
+- **[Sales Dashboard Architecture](./docs/SALES_DASHBOARD_ARCHITECTURE.md)** - Technical architecture
+- **[Kommo Integration](./docs/KOMMO_INTEGRATION.md)** - CRM integration
+- **[Kommo Policy](./docs/KOMMO_POLICY.md)** - Kommo access policies
+- **[Kommo Webhook Integration](./docs/KOMMO_WEBHOOK_INTEGRATION.md)** - Webhook setup
 
-### How It All Works (30-Second Version)
+#### Performance & Optimization
+- **[Image Optimization Guide](./docs/IMAGE_OPTIMIZATION_GUIDE.md)** - Image optimization strategies
+- **[Quick Start Image Optimization](./docs/QUICK_START_IMAGE_OPTIMIZATION.md)** - Fast image setup
+- **[Performance Optimization Report](./docs/PERFORMANCE_OPTIMIZATION_REPORT.md)** - Performance analysis
+- **[Edge Functions Review](./docs/EDGE_FUNCTIONS_REVIEW.md)** - Serverless functions audit
 
-1. **User signs up** → Supabase creates auth.users
-2. **Trigger fires** → Creates profiles record
-3. **Email check** → If in admin list → role='admin', else role='user'
-4. **If user** → assign_advisor() finds least-recently-assigned sales rep
-5. **Frontend loads** → AuthContext reads role, sets isAdmin/isSales flags
-6. **Routes chosen** → /admin/* or /ventas/* based on role
-7. **Data loading** → RPC functions check role again (double security!)
-8. **Sales sees only** → Their assigned leads (asesor_asignado_id = their ID)
+#### Email & Notifications
+- **[Email Notifications Setup](./docs/EMAIL_NOTIFICATIONS_SETUP.md)** - Configure email system
 
----
+## 🇪🇸 Documentación en Español
 
-## Finding Information
+### Guías de Configuración
+- **[Guía de Configuración - Sincronización](./docs/guides/spanish/Guia_Configuracion_Sincronizacion.md)** - Configuración de sincronización
+- **[Guía Customer Journeys Implementación](./docs/guides/spanish/GUIA_CUSTOMER_JOURNEYS_IMPLEMENTACION.md)** - Implementación de journeys
 
-### "How do I..."
+### Estrategias y Planes
+- **[Estrategia de Respaldos](./docs/guides/spanish/ESTRATEGIA_RESPALDOS.md)** - Estrategia de backup
+- **[Guía de Respaldos de BD](./docs/guides/spanish/GUIA_RESPALDOS_BD.md)** - Guía de respaldos de base de datos
 
-**...add a new admin?**
-- Quick Reference: "Common Questions" section
-- Code Snippets: Section 1
+### Reportes y Análisis
+- **[Reporte de Valuación TREFA MX](./docs/guides/spanish/REPORTE_VALUACION_TREFA_MX.md)** - Reporte de valuación
+- **[Resumen Ejecutivo de Valuación](./docs/guides/spanish/RESUMEN_EJECUTIVO_VALUACION.md)** - Resumen de valuación
+- **[Resumen de Perfilamiento Bancario](./docs/guides/spanish/RESUMEN_PERFILAMIENTO_BANCARIO.md)** - Análisis bancario
 
-**...understand round-robin?**
-- Quick Reference: "Round-Robin Algorithm" section
-- Code Snippets: Section 2
-- Main Analysis: Section 2
+## 🗄️ Archive
 
-**...restrict sales access?**
-- Quick Reference: "Sales Rep Access Control" section
-- Main Analysis: Section 4
+Historical documentation and old fixes are archived in:
+- **[docs/archive/](./docs/archive/)** - General archives
+- **[docs/archive/old-fixes/](./docs/archive/old-fixes/)** - Historical bug fixes and patches
+- **[docs/archive/old-scripts/](./docs/archive/old-scripts/)** - Deprecated scripts
 
-**...modify the database schema?**
-- Main Analysis: Section 9
-- Code Snippets: Section 14-15
+## 📜 Scripts
 
-**...add new functionality?**
-- Code Snippets: All sections
-- Main Analysis: Section 11
+Active deployment and utility scripts:
+- **[deploy.sh](./deploy.sh)** - Main deployment script
+- **[create-worktrees.sh](./create-worktrees.sh)** - Git worktree automation
+- **[scripts/](./scripts/)** - Utility scripts
+  - Cleanup scripts
+  - Worktree management
+  - Database utilities
 
-**...debug a permission issue?**
-- Quick Reference: Common Q&A
-- Main Analysis: Section 12 (Limitations)
+## 🗂️ Migrations
 
----
+Database migrations are organized by date in `supabase/migrations/`:
+- **Active migrations**: Latest stable versions (88 migrations)
+- **Archived migrations**: Historical versions in `supabase/migrations/archive/`
+  - v1 migrations (10 migrations)
+  - Old fixes (48 migrations)
+  - Debug migrations
 
-## System Architecture at a Glance
+## 📝 Notes
 
-```
-User Login
-    ↓
-AuthContext checks auth.users
-    ↓
-Loads profiles record
-    ↓
-Reads role field
-    ↓
-Sets isAdmin/isSales flags
-    ↓
-Frontend routing
-    ├── Admin? → /escritorio/admin/*
-    ├── Sales? → /escritorio/ventas/*
-    └── User?  → /escritorio/
+### Documentation Organization
 
-RPC Functions (secure server-side)
-    ├── Admin: get_leads_for_dashboard()
-    ├── Sales: get_sales_assigned_leads()
-    └── Both: get_*_client_profile()
+The documentation has been reorganized as follows:
+- **Root directory**: Only essential files (README, CHANGELOG, config files)
+- **docs/guides/**: Active guides and documentation
+- **docs/guides/spanish/**: Spanish language documentation
+- **docs/scripts/**: Script-related documentation
+- **docs/archive/**: Historical documentation
+- **supabase/migrations/archive/**: Old database migrations
 
-RLS Policies (database security)
-    ├── Admin: full access
-    ├── Sales: only asesor_asignado_id = auth.uid()
-    └── User: only own data
-```
+### Finding Documentation
 
----
+1. **New features**: Check `docs/guides/`
+2. **Development workflow**: Check root documentation (WORKTREE_WORKFLOW.md, etc.)
+3. **Spanish content**: Check `docs/guides/spanish/`
+4. **Historical context**: Check `docs/archive/`
+5. **Database changes**: Check `supabase/migrations/`
 
-## File Organization in Code
+### Contributing
 
-### Frontend (React/TypeScript)
-```
-/src/
-├── context/
-│   └── AuthContext.tsx ..................... Role detection, session management
-├── components/
-│   ├── AdminRoute.tsx ..................... Protect /admin/* routes
-│   └── SalesRoute.tsx ..................... Protect /ventas/* routes
-├── services/
-│   ├── AdminService.ts .................... API calls for admin features
-│   └── SalesService.ts .................... API calls for sales features
-└── pages/
-    ├── AdminLeadsDashboardPage.tsx ........ Dashboard: all leads
-    ├── AdminClientProfilePage.tsx ........ Detail page: edit client
-    ├── SalesLeadsDashboardPage.tsx ........ Dashboard: assigned leads
-    └── SalesClientProfilePage.tsx ........ Detail page: assigned client
-```
+When adding new documentation:
+1. Place guides in `docs/guides/`
+2. Place Spanish content in `docs/guides/spanish/`
+3. Update this index
+4. Use clear, descriptive filenames
+5. Include date in filename if time-sensitive
 
-### Backend (Database/SQL)
-```
-/supabase/migrations/
-├── 20251020121153_remote_schema.sql ...... Main schema + assign_advisor()
-├── 20251023200000_*_advisor_assignment.sql  Round-robin implementation
-├── sales_dashboard_functions.sql ......... Sales RPC functions
-└── 20251104000007_fix_sales_access_complete.sql  Complete access control
-```
+### Getting Help
+
+If you can't find what you're looking for:
+1. Check this index first
+2. Search the `docs/guides/` directory
+3. Check the archive for historical context
+4. Review the CHANGELOG.md for recent changes
 
 ---
 
-## What's NOT Documented (Yet)
-
-Features that exist but need UI/documentation:
-- User management interface (create/edit/delete users)
-- Bulk lead reassignment
-- Sales rep performance metrics
-- User activity audit logs
-- The `autorizar_asesor_acceso` field (partially implemented)
-
----
-
-## Testing Checklist
-
-Use this to verify everything works:
-
-### Round-Robin Assignment
-- [ ] Create 3 sales users
-- [ ] Sign up 6 regular users
-- [ ] Verify each got assigned round-robin
-- [ ] Run SQL query in QUICK_REFERENCE.md to confirm
-
-### Admin Access
-- [ ] Login as admin
-- [ ] See all leads at /escritorio/admin/leads
-- [ ] Click a lead to see full profile
-- [ ] Can edit tags, reminders, status
-
-### Sales Access
-- [ ] Login as sales user
-- [ ] See only assigned leads at /escritorio/ventas/leads
-- [ ] Can't access other sales rep's leads
-- [ ] Can edit tags/reminders on own leads
-- [ ] Verify RLS blocks unauthorized access
-
-### Regular User
-- [ ] Login as regular user
-- [ ] Can see own profile at /escritorio/profile
-- [ ] Can start applications
-- [ ] Can't access /admin/* or /ventas/*
-
----
-
-## Troubleshooting Guide
-
-### Problem: Sales user can see all leads
-- Check RLS policies in Supabase
-- Check AuthContext detects role correctly
-- Run: `SELECT role FROM profiles WHERE id = auth.uid();`
-
-### Problem: Leads not assigned to anyone
-- Check if sales users exist
-- Check admin email list (might assign as admin instead)
-- Run assign_advisor() manually
-
-### Problem: Round-robin uneven
-- Check last_assigned_at timestamps
-- Some sales reps might have NULL values
-- Run the verification query from CODE_SNIPPETS.md
-
-### Problem: Route guards not working
-- Check profile is loading (look at loading state)
-- Clear sessionStorage and refresh
-- Check browser console for errors
-
----
-
-## Who Should Read What
-
-### New Developer
-1. Start: **QUICK_REFERENCE.md** (10 min)
-2. Deep dive: **CODEBASE_ANALYSIS.md** sections 1-6 (30 min)
-3. Code: **CODE_SNIPPETS.md** sections 3-7 (15 min)
-
-### Product Manager
-1. **QUICK_REFERENCE.md** (5 min)
-2. **CODEBASE_ANALYSIS.md** section 1-3 only (15 min)
-
-### DevOps / Database Admin
-1. **CODEBASE_ANALYSIS.md** section 9 (10 min)
-2. **CODE_SNIPPETS.md** sections 14-15 (10 min)
-
-### QA / Tester
-1. **QUICK_REFERENCE.md** "Testing Scenarios" (5 min)
-2. **CODE_SNIPPETS.md** section 14 (5 min)
-
----
-
-## Summary Statistics
-
-- **Total Documentation**: 1800+ lines
-- **Main Document (CODEBASE_ANALYSIS.md)**: 776 lines, 15 sections
-- **Quick Reference**: 270+ lines, 11 files explained
-- **Code Snippets**: 750+ lines, 16 complete examples
-- **Code Files Analyzed**: 50+ files examined
-- **Database Migrations Reviewed**: 70+ migration files
-- **Key Functions Documented**: 10+ RPC functions
-- **Pages Documented**: 8 admin/sales pages
-
----
-
-## Questions?
-
-All the answers are in these three documents. Use the file organization and troubleshooting sections above to find what you need quickly.
-
-**Best workflow:**
-1. Quick question? → QUICK_REFERENCE.md
-2. Implementation needed? → CODE_SNIPPETS.md
-3. Deep understanding? → CODEBASE_ANALYSIS.md
-4. Still stuck? → Use troubleshooting guide above
-
----
-
-**Last Updated**: November 4, 2025
-**Scope**: Complete user/auth system, sales role, round-robin assignment, admin interfaces
-**Completeness**: ~95% (all core systems documented, edge cases documented)
+**Last Cleanup**: November 23, 2025
+- Moved 150+ files to organized locations
+- Archived 58 old migrations
+- Created Spanish documentation section
+- Cleaned up root directory
+- Updated .gitignore

@@ -48,5 +48,31 @@ coverage/
 
 # Database backups (sensitive data, large files)
 backups/
-*.sql
 supabase/.temp/
+
+# Archive directories (old files, not needed in version control)
+docs/archive/
+supabase/migrations/archive/
+
+# Cleanup scripts (temporary, can be regenerated)
+cleanup-project.sh
+cleanup-migrations.sh
+
+# Worktree directories
+tree/
+
+# Generated files
+generate-sitemap.js
+generate-sitemap.cjs
+generate-version.sh
+sw.js
+
+# Config examples (keep only .example versions)
+cloud-build-vars.yaml
+
+# Test and debug files
+test-*.html
+test-*.js
+test-*.ts
+test-*.sh
+debug-*.sql

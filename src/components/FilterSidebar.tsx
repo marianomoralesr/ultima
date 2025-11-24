@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import FavoritesQuickAccess from './FavoritesQuickAccess';
 
 // --- TYPES AND INTERFACES ---
 
@@ -92,6 +93,9 @@ ToggleSwitch.displayName = 'ToggleSwitch';
 
 const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
     const { onFiltersChange, onClearFilters, filterOptions, currentFilters, onRemoveFilter, activeFiltersList, isMobileSheet = false, onCloseSheet, resultsCount = 0 } = props;
+
+    console.log('[FilterSidebar] Received filterOptions:', filterOptions);
+    console.log('[FilterSidebar] filterOptions keys:', Object.keys(filterOptions || {}));
 
     const handleCheckboxChange = useCallback((filterKey: keyof VehicleFilters, value: string | number) => {
         const currentValues = (currentFilters[filterKey] as (string | number)[]) || [];
@@ -243,7 +247,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
             </AccordionItem>
 
             <AccordionItem title="Promociones">
-                <CheckboxFilterGroup options={(filterOptions?.promotions || []).map(p => p.name)} selected={currentFilters.promotion || []} onChange={(v) => handleCheckboxChange('promotion', v)} counts={counts.promotions} labelFormatter={formatPromotion} />
+                <CheckboxFilterGroup options={(filterOptions?.promociones || []).map(p => p.name)} selected={currentFilters.promotion || []} onChange={(v) => handleCheckboxChange('promotion', v)} counts={counts.promociones} labelFormatter={formatPromotion} />
             </AccordionItem>
 
             <div className="mt-4 pt-4 border-t border-gray-200">
@@ -259,6 +263,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
                     Limpiar Filtros
                 </Button>
             </div>
+
+            {/* Favorites Quick Access */}
+            {!isMobileSheet && <FavoritesQuickAccess variant="sidebar" />}
         </>
     );
 
@@ -284,20 +291,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = (props) => {
     }
 
     return (
-        <div className="w-full lg:w-96 sticky top-4 self-start">
-            <div className="max-h-[calc(100vh-2rem)] overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                <Card className="w-full">
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-xl">Filtrar por</CardTitle>
-                            <FilterIcon className="w-6 h-6 text-muted-foreground" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {FilterBody}
-                    </CardContent>
-                </Card>
-            </div>
+        <div className="w-full lg:w-96">
+            <Card className="w-full">
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-xl">Filtrar por</CardTitle>
+                        <FilterIcon className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {FilterBody}
+                </CardContent>
+            </Card>
         </div>
     );
 };

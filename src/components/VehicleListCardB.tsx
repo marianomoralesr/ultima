@@ -12,7 +12,16 @@ interface VehicleListCardBProps {
 }
 
 const VehicleListCardB: React.FC<VehicleListCardBProps> = ({ vehicle }) => {
-  const imageSrc = vehicle.thumbnail || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
+  // Handle array image properties safely
+  const getFirstImageOrDefault = (value: string | string[] | undefined): string => {
+    if (!value) return '';
+    if (Array.isArray(value)) return value[0] || '';
+    return value;
+  };
+
+  const imageSrc = getFirstImageOrDefault(vehicle.thumbnail) ||
+                   getFirstImageOrDefault(vehicle.feature_image) ||
+                   DEFAULT_PLACEHOLDER_IMAGE;
 
   const Feature: React.FC<{ icon: React.ElementType, text: string }> = ({ icon: Icon, text }) => (
     <div className="flex items-center gap-2 text-gray-600">

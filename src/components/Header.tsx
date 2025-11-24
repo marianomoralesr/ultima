@@ -63,7 +63,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* Right Section - Desktop Menu and Auth */}
-            <div className="hidden lg:flex items-center space-x-4 flex-shrink-0">
+            <div className={`hidden lg:flex items-center space-x-4 flex-shrink-0 ${isListPage ? 'ml-auto' : ''}`}>
                 <Button
                     ref={menuButtonRef}
                     onClick={() => setMegaMenuOpen(o => !o)}

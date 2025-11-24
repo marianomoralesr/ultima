@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import type { VehicleFilters } from '../types/types';
 import { useVehicles } from '../context/VehicleContext';
@@ -13,9 +13,12 @@ import Pagination from '../components/Pagination';
 import FilterSidebar from '../components/FilterSidebar';
 
 const RecentlyViewed = lazy(() => import('../components/RecentlyViewed'));
+import FavoritesQuickAccess from '../components/FavoritesQuickAccess';
+import StickySidebar from '../components/StickySidebar';
 import { ListIcon, LayoutGridIcon, SearchIcon, ChevronDownIcon, MapPinIcon } from '../components/icons';
 import useSEO from '../hooks/useSEO';
 import useDebounce from '../hooks/useDebounce';
+import { useRealtimeVisitors } from '../hooks/useRealtimeVisitors';
 import { proxyImage } from '../utils/proxyImage';
 import ExplorarTutorialOverlay from '../components/ExplorarTutorialOverlay';
 import { useDrag } from '@use-gesture/react';
@@ -27,6 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 
 const VehicleListPage: React.FC = () => {
+  const { activeUsers } = useRealtimeVisitors();
   const { marca, carroceria } = useParams<{ marca?: string; carroceria?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -56,6 +60,10 @@ const VehicleListPage: React.FC = () => {
     gcTime: 60 * 60 * 1000, // 1 hour garbage collection
     retry: 2,
   });
+
+  console.log('[VehicleListPage] filterOptions:', filterOptions);
+  console.log('[VehicleListPage] filterOptionsLoading:', filterOptionsLoading);
+  console.log('[VehicleListPage] filterOptions keys:', Object.keys(filterOptions || {}));
 
   const dynamicTitle = useMemo(() => {
     if (totalCount === 0) return 'No se encontraron autos | TREFA';
@@ -409,77 +417,87 @@ const VehicleListPage: React.FC = () => {
   return (
     <>
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start">
-          <div className="hidden lg:block">
-            <FilterSidebar
-              allVehicles={vehicles}
-              onFiltersChange={handleFiltersChange}
-              onClearFilters={handleClearFilters}
-              filterOptions={filterOptions}
-              currentFilters={filters}
-              onRemoveFilter={onRemoveFilter}
-              activeFiltersList={activeFiltersList}
-            />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8">
+          <aside className="hidden lg:block">
+            <StickySidebar topOffset={150}>
+              <FilterSidebar
+                allVehicles={vehicles}
+                onFiltersChange={handleFiltersChange}
+                onClearFilters={handleClearFilters}
+                filterOptions={filterOptions}
+                currentFilters={filters}
+                onRemoveFilter={onRemoveFilter}
+                activeFiltersList={activeFiltersList}
+              />
+            </StickySidebar>
+          </aside>
           <div>
-            <Card className="hidden lg:block mb-6">
-              <CardContent className="pt-4 pb-4">
-                {/* Search and Sort Row */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="relative flex-1">
-                    <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                    <Input
-                      id="search-vehicle"
-                      type="search"
-                      placeholder="Buscar por marca, modelo o año..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 h-9"
-                    />
-                  </div>
-                  <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
-                    <SelectTrigger className="w-[180px] h-9">
-                      <SelectValue placeholder="Ordenar por" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="default">Más Recientes</SelectItem>
-                      <SelectItem value="relevance">Más Populares</SelectItem>
-                      <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
-                      <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
-                      <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
-                      <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex gap-2 relative">
-                    <Button
-                      variant={view === 'list' ? 'default' : 'outline'}
-                      size="icon"
-                      onClick={() => setView('list')}
-                      aria-label="Vista de lista"
-                      className="h-9 w-9 transition-all"
-                    >
-                      <ListIcon className="w-4 h-4" />
-                    </Button>
-                    <div className="relative">
+            <Card className="hidden lg:block mb-6 overflow-visible">
+              <CardContent className="pt-4 pb-4 overflow-visible">
+                {/* Search and Sort Row - Results count on left, controls on right */}
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  {/* Results count on the left */}
+                  <h1 className="text-sm font-semibold whitespace-nowrap">
+                    {resultsDisplay}
+                  </h1>
+
+                  {/* Controls on the right */}
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-[300px]">
+                      <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
+                      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <Input
+                        id="search-vehicle"
+                        type="search"
+                        placeholder="Buscar por marca, modelo o año..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 h-9"
+                      />
+                    </div>
+                    <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
+                      <SelectTrigger className="w-[180px] h-9">
+                        <SelectValue placeholder="Ordenar por" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Más Recientes</SelectItem>
+                        <SelectItem value="relevance">Más Populares</SelectItem>
+                        <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
+                        <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                        <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
+                        <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-2 relative">
                       <Button
-                        variant={view === 'grid' ? 'default' : 'outline'}
+                        variant={view === 'list' ? 'default' : 'outline'}
                         size="icon"
-                        onClick={() => {
-                          setView('grid');
-                          setShowGridTooltip(false);
-                        }}
-                        aria-label="Vista de cuadrícula"
+                        onClick={() => setView('list')}
+                        aria-label="Vista de lista"
                         className="h-9 w-9 transition-all"
                       >
-                        <LayoutGridIcon className="w-4 h-4" />
+                        <ListIcon className="w-4 h-4" />
                       </Button>
-                      {showGridTooltip && (
-                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-50 animate-fade-in shadow-lg">
-                          Ver en cuadrícula
-                          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-                        </div>
-                      )}
+                      <div className="relative">
+                        <Button
+                          variant={view === 'grid' ? 'default' : 'outline'}
+                          size="icon"
+                          onClick={() => {
+                            setView('grid');
+                            setShowGridTooltip(false);
+                          }}
+                          aria-label="Vista de cuadrícula"
+                          className="h-9 w-9 transition-all"
+                        >
+                          <LayoutGridIcon className="w-4 h-4" />
+                        </Button>
+                        {showGridTooltip && (
+                          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-[9999] animate-fade-in shadow-lg">
+                            Ver en cuadrícula
+                            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -549,9 +567,24 @@ const VehicleListPage: React.FC = () => {
                       {filters.promotion?.some(p => p.toLowerCase().includes('descuento')) && <span className="ml-2">✓</span>}
                     </Button>
                   </div>
-                  <h1 className="text-sm font-semibold whitespace-nowrap">
-                    {resultsDisplay}
-                  </h1>
+                  {/* Live browsing counter with avatars */}
+                  <div className="flex items-center gap-2">
+                    {/* Stacked mini avatars */}
+                    <div className="flex -space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
+                    </div>
+
+                    {/* Counter text with animated dots */}
+                    <div className="flex items-center gap-1 text-sm">
+                      <span className="text-orange-600 font-bold transition-all duration-300">
+                        {activeUsers}
+                      </span>
+                      <span className="text-gray-600">personas explorando</span>
+                      <span className="text-orange-600 font-bold animate-pulse">...</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -572,6 +605,11 @@ const VehicleListPage: React.FC = () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Mobile Favorites Slider */}
+            <div className="lg:hidden mb-6">
+              <FavoritesQuickAccess variant="mobile" />
+            </div>
 
             {vehiclesError ? (
               <p className="text-red-500 text-center py-10">Error al cargar los autos. Por favor, inténtelo de nuevo más tarde.</p>

@@ -35,7 +35,7 @@ import { OnboardingStepper } from '../components/OnboardingStepper';
 const SurveyInvitation: React.FC<{ onClose: () => void }> = ({ onClose }) => (
     <div className="relative bg-gradient-to-r from-trefa-blue to-indigo-600 text-white rounded-xl p-6 overflow-hidden shadow-lg">
         <div className="relative z-10">
-            <h3 className="font-bold text-lg">Ayúdanos a mejorar y obtén beneficios</h3>
+            <h3 className="font-bold text-lg">Valoramos y premiamos tu opinión</h3>
             <p className="text-sm mt-1 text-white/80 max-w-2xl">
                 Responde una breve encuesta sobre tu experiencia y recibe un bono especial para tu próxima compra o financiamiento. ¡Solo te tomará 3 minutos!
             </p>
@@ -137,16 +137,11 @@ const OnboardingGuide: React.FC<{ profile: Profile | null, isBankProfileComplete
 const EbookCta: React.FC = () => (
     <div className="relative bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl p-6 overflow-hidden shadow-lg">
         <div className="relative z-10 flex flex-col gap-4">
-            <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                    <FileTextIcon className="w-10 h-10 text-white/90" />
-                </div>
-                <div className="flex-1">
-                    <h3 className="font-bold text-lg">¿Pensando en vender tu auto?</h3>
-                    <p className="text-sm mt-1 text-white/90">
-                        La información de calidad puede ahorrarte muchos dolores de cabeza, y queremos que la tengas.
-                    </p>
-                </div>
+            <div>
+                <h3 className="font-bold text-lg">¿Pensando en vender tu auto?</h3>
+                <p className="text-sm mt-1 text-white/90">
+                    La información de calidad puede ahorrarte muchos dolores de cabeza, y queremos que la tengas.
+                </p>
             </div>
             <div>
                 <a

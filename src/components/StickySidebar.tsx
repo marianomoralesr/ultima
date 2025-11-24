@@ -40,6 +40,8 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ children, topOffset = 16 
         position: isSticky ? 'fixed' : 'relative',
         top: isSticky ? `${topOffset}px` : 'auto',
         width: isSticky ? '384px' : 'auto',
+        maxHeight: isSticky ? `calc(100vh - ${topOffset}px - 16px)` : 'none',
+        overflowY: isSticky ? 'auto' : 'visible',
         zIndex: 10,
       }}
     >

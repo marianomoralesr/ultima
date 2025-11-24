@@ -418,9 +418,8 @@ const VehicleListPage: React.FC = () => {
     <>
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8">
-          <aside className="hidden lg:block">
-            <StickySidebar topOffset={16}>
-              <FilterSidebar
+          <aside className="hidden lg:block" style={{ position: 'sticky', top: '200px', alignSelf: 'flex-start', maxHeight: 'calc(100vh - 200px - 16px)', overflowY: 'auto' }}>
+            <FilterSidebar
               allVehicles={vehicles}
               onFiltersChange={handleFiltersChange}
               onClearFilters={handleClearFilters}
@@ -429,31 +428,16 @@ const VehicleListPage: React.FC = () => {
               onRemoveFilter={onRemoveFilter}
               activeFiltersList={activeFiltersList}
             />
-            </StickySidebar>
           </aside>
           <div>
             <Card className="hidden lg:block mb-6 overflow-visible">
               <CardContent className="pt-4 pb-4 overflow-visible">
-                {/* Search and Sort Row - Live counter on left, controls on right */}
+                {/* Search and Sort Row - Results count on left, controls on right */}
                 <div className="flex items-center justify-between gap-3 mb-3">
-                  {/* Live browsing counter with avatars */}
-                  <div className="flex items-center gap-2">
-                    {/* Stacked mini avatars */}
-                    <div className="flex -space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
-                    </div>
-
-                    {/* Counter text with animated dots */}
-                    <div className="flex items-center gap-1 text-sm">
-                      <span className="text-orange-600 font-bold transition-all duration-300">
-                        {activeUsers}
-                      </span>
-                      <span className="text-gray-600">personas explorando</span>
-                      <span className="text-orange-600 font-bold animate-pulse">...</span>
-                    </div>
-                  </div>
+                  {/* Results count on the left */}
+                  <h1 className="text-sm font-semibold whitespace-nowrap">
+                    {resultsDisplay}
+                  </h1>
 
                   {/* Controls on the right */}
                   <div className="flex items-center gap-3">
@@ -581,9 +565,24 @@ const VehicleListPage: React.FC = () => {
                       {filters.promotion?.some(p => p.toLowerCase().includes('descuento')) && <span className="ml-2">✓</span>}
                     </Button>
                   </div>
-                  <h1 className="text-sm font-semibold whitespace-nowrap">
-                    {resultsDisplay}
-                  </h1>
+                  {/* Live browsing counter with avatars */}
+                  <div className="flex items-center gap-2">
+                    {/* Stacked mini avatars */}
+                    <div className="flex -space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
+                    </div>
+
+                    {/* Counter text with animated dots */}
+                    <div className="flex items-center gap-1 text-sm">
+                      <span className="text-orange-600 font-bold transition-all duration-300">
+                        {activeUsers}
+                      </span>
+                      <span className="text-gray-600">personas explorando</span>
+                      <span className="text-orange-600 font-bold animate-pulse">...</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

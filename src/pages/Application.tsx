@@ -234,11 +234,11 @@ const Application: React.FC = () => {
                             vehicleId: finalOrdenCompra || undefined
                         });
 
-                        // Set ONLY the application ID before navigation
-                        // Do NOT set applicationData here - let the effect load it from database
+                        // Set the application ID and data immediately before navigation
                         setApplicationId(newDraft.id);
+                        setApplicationData(initialData.application_data || {});
 
-                        // Navigate to the new URL (this will trigger the effect to reload the full draft from DB)
+                        // Navigate to the new URL (this will trigger the effect to reload the full draft)
                         navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });
                     } else {
                         throw new Error('No pudimos crear el borrador de tu solicitud. Por favor, intenta nuevamente. Si el problema persiste, contacta con soporte.');

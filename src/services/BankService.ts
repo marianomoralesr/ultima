@@ -254,35 +254,47 @@ export const BankService = {
 
   /**
    * Download all documents for a lead as a zip
+   * Documents are stored directly in financing_applications table as URL fields
    */
   async downloadAllDocuments(leadId: string, applicationId: string | null): Promise<void> {
     try {
-      // Get all documents for the application
-      const { data: documents, error } = await supabase
-        .from('application_documents')
-        .select('*')
-        .eq('lead_id', leadId);
-
-      if (error) {
-        throw new Error('Could not fetch documents');
+      if (!applicationId) {
+        throw new Error('Application ID is required');
       }
 
-      if (!documents || documents.length === 0) {
+      // Get document URLs from the financing_applications table
+      const { data: application, error } = await supabase
+        .from('financing_applications')
+        .select('ine_url, comprobante_domicilio_url, comprobante_ingresos_url, comprobante_ingresos_url_2, comprobante_ingresos_url_3, estados_cuenta_url, rfc_constancia_url')
+        .eq('id', applicationId)
+        .eq('user_id', leadId)
+        .single();
+
+      if (error) {
+        throw new Error('Could not fetch application documents');
+      }
+
+      // Collect all non-empty document URLs
+      const documentUrls = [
+        application.ine_url,
+        application.comprobante_domicilio_url,
+        application.comprobante_ingresos_url,
+        application.comprobante_ingresos_url_2,
+        application.comprobante_ingresos_url_3,
+        application.estados_cuenta_url,
+        application.rfc_constancia_url
+      ].filter(url => url && url.trim() !== '');
+
+      if (documentUrls.length === 0) {
         throw new Error('No documents found for this application');
       }
 
-      // For now, download documents individually
-      // In production, you would use a backend function to create a ZIP
-      for (const doc of documents) {
-        if (doc.file_path) {
-          const signedUrl = await this.getDocumentSignedUrl(doc.file_path);
-          // Open each document in a new window/tab
-          window.open(signedUrl, '_blank');
-        }
+      // Open each document in a new window/tab
+      for (const url of documentUrls) {
+        window.open(url, '_blank');
       }
 
-      // TODO: Implement proper ZIP download using Edge Function
-      console.log('Downloaded', documents.length, 'documents for lead', leadId);
+      console.log('Downloaded', documentUrls.length, 'documents for application', applicationId);
     } catch (error) {
       console.error('Error downloading documents:', error);
       throw error;

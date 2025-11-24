@@ -1,0 +1,141 @@
+#!/usr/bin/env node
+
+/**
+ * Migration runner - Fixes the get_filter_options function
+ * Run with: node run-migration.js
+ */
+
+import { createClient } from '@supabase/supabase-js';
+import { readFileSync } from 'fs';
+
+// Read environment variables
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://jjepfehmuybpctdzipnu.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.VITE_SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_SERVICE_KEY) {
+  console.error('Error: VITE_SUPABASE_SERVICE_KEY or VITE_SUPABASE_ANON_KEY must be set');
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+const migrationSQL = `
+-- Migration: Fix get_filter_options to return field names matching FilterSidebar expectations
+CREATE OR REPLACE FUNCTION "public"."get_filter_options"() RETURNS "jsonb"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    result jsonb;
+BEGIN
+    WITH vehicle_base AS (
+        SELECT marca, autoano, clasificacionid, transmision, combustible, sucursal, autogarantia, promociones, precio, enganche_minimo
+        FROM inventario_cache
+        WHERE ordenstatus = 'Comprado'
+    ),
+    marcas_agg AS (
+        SELECT marca AS name, COUNT(*) AS count FROM vehicle_base WHERE marca IS NOT NULL AND marca != '' GROUP BY marca
+    ),
+    years_agg AS (
+        SELECT autoano AS name, COUNT(*) AS count FROM vehicle_base WHERE autoano IS NOT NULL GROUP BY autoano
+    ),
+    classifications_agg AS (
+        SELECT name, COUNT(*) AS count FROM (SELECT unnest(string_to_array(clasificacionid, ',')) AS name FROM vehicle_base) s WHERE name IS NOT NULL AND name != '' GROUP BY name
+    ),
+    transmissions_agg AS (
+        SELECT transmision AS name, COUNT(*) AS count FROM vehicle_base WHERE transmision IS NOT NULL AND transmision != '' GROUP BY transmision
+    ),
+    combustibles_agg AS (
+        SELECT combustible AS name, COUNT(*) AS count FROM vehicle_base WHERE combustible IS NOT NULL AND combustible != '' GROUP BY combustible
+    ),
+    sucursales_agg AS (
+        SELECT name, COUNT(*) AS count FROM (SELECT unnest(string_to_array(sucursal, ',')) AS name FROM vehicle_base) s WHERE name IS NOT NULL AND name != '' GROUP BY name
+    ),
+    warranties_agg AS (
+        SELECT autogarantia AS name, COUNT(*) AS count FROM vehicle_base WHERE autogarantia IS NOT NULL AND autogarantia != '' GROUP BY autogarantia
+    ),
+    promotions_agg AS (
+        SELECT value AS name, COUNT(*) AS count
+        FROM vehicle_base, jsonb_array_elements_text(promociones)
+        WHERE value IS NOT NULL AND value != ''
+        GROUP BY name
+    ),
+    price_range AS (
+        SELECT min(precio) AS minprice, max(precio) AS maxprice, min(enganche_minimo) AS minenganche, max(enganche_minimo) AS maxenganche FROM vehicle_base
+    )
+    SELECT jsonb_build_object(
+        'marcas', (SELECT jsonb_agg(t) FROM marcas_agg t),
+        'autoano', (SELECT jsonb_agg(t) FROM years_agg t ORDER BY name DESC),
+        'carroceria', (SELECT jsonb_agg(t) FROM classifications_agg t),
+        'transmision', (SELECT jsonb_agg(t) FROM transmissions_agg t),
+        'combustible', (SELECT jsonb_agg(t) FROM combustibles_agg t),
+        'ubicacion', (SELECT jsonb_agg(t) FROM sucursales_agg t),
+        'garantia', (SELECT jsonb_agg(t) FROM warranties_agg t),
+        'promociones', (SELECT jsonb_agg(t) FROM promotions_agg t),
+        'minPrice', (SELECT minprice FROM price_range),
+        'maxPrice', (SELECT maxprice FROM price_range),
+        'enganchemin', (SELECT minenganche FROM price_range),
+        'maxEnganche', (SELECT maxenganche FROM price_range)
+    ) INTO result;
+
+    RETURN result;
+END;
+$$;
+`;
+
+async function runMigration() {
+  console.log('🔄 Running migration to fix get_filter_options...');
+
+  try {
+    const { data, error } = await supabase.rpc('exec_sql', { sql: migrationSQL });
+
+    if (error) {
+      console.error('❌ Migration failed:', error);
+
+      // If exec_sql doesn't exist, try using the REST API directly
+      console.log('⚠️  Attempting alternative method...');
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/exec_sql`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
+        },
+        body: JSON.stringify({ sql: migrationSQL })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+
+      console.log('✅ Migration completed successfully using alternative method!');
+    } else {
+      console.log('✅ Migration completed successfully!');
+    }
+
+    // Test the function
+    console.log('🧪 Testing get_filter_options function...');
+    const { data: testData, error: testError } = await supabase.rpc('get_filter_options');
+
+    if (testError) {
+      console.error('❌ Test failed:', testError);
+    } else {
+      console.log('✅ Function test passed!');
+      console.log('📊 Returned fields:', Object.keys(testData || {}));
+
+      // Verify the expected fields exist
+      const expectedFields = ['marcas', 'autoano', 'carroceria', 'transmision', 'combustible', 'ubicacion', 'garantia', 'promociones'];
+      const missingFields = expectedFields.filter(field => !(field in (testData || {})));
+
+      if (missingFields.length > 0) {
+        console.warn('⚠️  Warning: Missing expected fields:', missingFields);
+      } else {
+        console.log('✅ All expected fields are present!');
+      }
+    }
+  } catch (error) {
+    console.error('❌ Unexpected error:', error);
+    process.exit(1);
+  }
+}
+
+runMigration();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import type { VehicleFilters } from '../types/types';
 import { useVehicles } from '../context/VehicleContext';
@@ -424,62 +424,70 @@ const VehicleListPage: React.FC = () => {
           <div>
             <Card className="hidden lg:block mb-6">
               <CardContent className="pt-4 pb-4">
-                {/* Search and Sort Row */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="relative flex-1">
-                    <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                    <Input
-                      id="search-vehicle"
-                      type="search"
-                      placeholder="Buscar por marca, modelo o año..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 h-9"
-                    />
-                  </div>
-                  <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
-                    <SelectTrigger className="w-[180px] h-9">
-                      <SelectValue placeholder="Ordenar por" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="default">Más Recientes</SelectItem>
-                      <SelectItem value="relevance">Más Populares</SelectItem>
-                      <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
-                      <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
-                      <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
-                      <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex gap-2 relative">
-                    <Button
-                      variant={view === 'list' ? 'default' : 'outline'}
-                      size="icon"
-                      onClick={() => setView('list')}
-                      aria-label="Vista de lista"
-                      className="h-9 w-9 transition-all"
-                    >
-                      <ListIcon className="w-4 h-4" />
-                    </Button>
-                    <div className="relative">
+                {/* Search and Sort Row - Logo on left, controls on right */}
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  {/* Logo on the left */}
+                  <Link to="/" className="flex items-center">
+                    <img src="/images/trefalogo.png" alt="TREFA" className="h-8 w-auto object-contain" />
+                  </Link>
+
+                  {/* Controls on the right */}
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-[300px]">
+                      <label htmlFor="search-vehicle" className="sr-only">Buscar vehículo</label>
+                      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <Input
+                        id="search-vehicle"
+                        type="search"
+                        placeholder="Buscar por marca, modelo o año..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 h-9"
+                      />
+                    </div>
+                    <Select value={filters.orderby || 'default'} onValueChange={(value) => handleFiltersChange({ orderby: value })}>
+                      <SelectTrigger className="w-[180px] h-9">
+                        <SelectValue placeholder="Ordenar por" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Más Recientes</SelectItem>
+                        <SelectItem value="relevance">Más Populares</SelectItem>
+                        <SelectItem value="price-asc">Precio: Menor a Mayor</SelectItem>
+                        <SelectItem value="price-desc">Precio: Mayor a Menor</SelectItem>
+                        <SelectItem value="year-desc">Año: Más Recientes</SelectItem>
+                        <SelectItem value="mileage-asc">Kilometraje: Menor a Mayor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-2 relative">
                       <Button
-                        variant={view === 'grid' ? 'default' : 'outline'}
+                        variant={view === 'list' ? 'default' : 'outline'}
                         size="icon"
-                        onClick={() => {
-                          setView('grid');
-                          setShowGridTooltip(false);
-                        }}
-                        aria-label="Vista de cuadrícula"
+                        onClick={() => setView('list')}
+                        aria-label="Vista de lista"
                         className="h-9 w-9 transition-all"
                       >
-                        <LayoutGridIcon className="w-4 h-4" />
+                        <ListIcon className="w-4 h-4" />
                       </Button>
-                      {showGridTooltip && (
-                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-50 animate-fade-in shadow-lg">
-                          Ver en cuadrícula
-                          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-                        </div>
-                      )}
+                      <div className="relative">
+                        <Button
+                          variant={view === 'grid' ? 'default' : 'outline'}
+                          size="icon"
+                          onClick={() => {
+                            setView('grid');
+                            setShowGridTooltip(false);
+                          }}
+                          aria-label="Vista de cuadrícula"
+                          className="h-9 w-9 transition-all"
+                        >
+                          <LayoutGridIcon className="w-4 h-4" />
+                        </Button>
+                        {showGridTooltip && (
+                          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-md whitespace-nowrap z-50 animate-fade-in shadow-lg">
+                            Ver en cuadrícula
+                            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

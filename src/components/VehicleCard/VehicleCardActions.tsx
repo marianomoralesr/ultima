@@ -108,37 +108,47 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
   return (
     <div className="flex flex-col gap-2 z-20 relative">
       <div className="flex items-center gap-2">
-        <button
+        <Button
           onClick={handleFinancingClick}
-          aria-disabled={isSeparado}
+          disabled={isSeparado}
           data-gtm-id="card-list-finance"
-          className={`inline-block text-center font-semibold px-6 md:px-7 py-3 md:py-3.5 rounded-lg transition-colors text-sm md:text-base ${isSeparado ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-primary-600 text-white hover:bg-primary-700'}`}
+          size="default"
+          className="px-6 md:px-7 text-sm md:text-base h-[48px] md:h-[56px]"
         >
           Financiar
-        </button>
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        </Button>
+        <Button
+          asChild
+          size="icon"
           data-gtm-id="card-list-whatsapp"
-          className="p-3 md:p-3.5 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-          aria-label="Contactar por WhatsApp"
+          className="bg-green-500 hover:bg-green-600 text-white h-[48px] w-[48px] md:h-[56px] md:w-[56px]"
         >
-          <WhatsAppIcon className="w-5 h-5 md:w-6 md:h-6" />
-        </a>
-        <button
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contactar por WhatsApp"
+          >
+            <WhatsAppIcon className="w-5 h-5 md:w-6 md:h-6" />
+          </a>
+        </Button>
+        <Button
           onClick={onToggleFavorite}
           data-gtm-id="card-list-favorite"
-          className="p-3 md:p-3.5 rounded-lg bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          variant="outline"
+          size="icon"
+          className="h-[48px] w-[48px] md:h-[56px] md:w-[56px] hover:bg-red-100 hover:text-red-500"
           aria-label="Añadir a favoritos"
         >
           {isFavorite ? <SolidHeartIcon className="w-5 h-5 md:w-6 md:h-6 text-red-500" /> : <HeartIcon className="w-5 h-5 md:w-6 md:h-6" />}
-        </button>
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
+            <Button
               data-gtm-id="card-list-share"
-              className="p-3 md:p-3.5 rounded-lg bg-gray-100 text-gray-500 hover:bg-blue-100 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              variant="outline"
+              size="icon"
+              className="h-[48px] w-[48px] md:h-[56px] md:w-[56px] hover:bg-blue-100 hover:text-blue-600"
               aria-label="Compartir"
               onClick={(e) => {
                 e.preventDefault();
@@ -148,7 +158,7 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
               </svg>
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="z-50">
             <DropdownMenuItem onClick={handleShareWhatsApp}>
@@ -172,19 +182,17 @@ const VehicleCardActions: React.FC<VehicleCardActionsProps> = ({
       </div>
 
       {isSeparado && (
-        <button
+        <Button
           onClick={handleSimilarVehiclesClick}
           data-gtm-id="card-list-similar-vehicles"
-          className="w-full text-center font-semibold px-6 py-3 md:py-3.5 rounded-lg text-white transition-colors text-sm md:text-base inline-flex items-center justify-center gap-2"
-          style={{ backgroundColor: '#FF6801' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E55E01'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FF6801'}
+          className="w-full bg-[#FF6801] hover:bg-[#E55E01] text-white"
+          size="default"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
           </svg>
           Ver autos similares
-        </button>
+        </Button>
       )}
     </div>
   );

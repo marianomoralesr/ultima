@@ -102,7 +102,13 @@ const VehicleSelector: React.FC<VehicleSelectorProps> = ({ isOpen, onClose, onSe
                   key={vehicle.slug}
                   className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
                 >
-                  <button onClick={() => onSelect(vehicle)} className="flex-grow flex items-center gap-3 text-left">
+                  <button
+                    onClick={() => {
+                      onSelect(vehicle);
+                      onClose();
+                    }}
+                    className="flex-grow flex items-center gap-3 text-left"
+                  >
                     <LazyImage src={imageSrc} alt={vehicle.titulo} className="w-16 h-12 rounded-md flex-shrink-0 border border-gray-200 object-cover" />
                     <div className="flex-grow min-w-0">
                       <p className="text-sm font-semibold text-gray-800 truncate" title={vehicle.titulo}>{vehicle.titulo}</p>

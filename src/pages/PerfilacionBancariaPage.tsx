@@ -153,16 +153,16 @@ const BankCard: React.FC<{ bankName: string, title: string, description: string 
     const isUrl = logoContent.startsWith('http');
 
     return (
-        <div className={`p-6 rounded-xl shadow-lg border relative overflow-hidden ${bgColor}`}>
+        <div className={`p-4 sm:p-6 rounded-xl shadow-lg border relative overflow-hidden ${bgColor}`}>
             <div className="relative z-10">
-                <h3 className={`font-semibold ${textColor}`}>{title}</h3>
-                <div className="flex items-center gap-4 my-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold ${textColor} ${bgColor === 'bg-white' ? 'bg-gray-100' : ''}`}>
-                       {isUrl ? <img src={logoContent} alt={`${bankName} Logo`} className="w-8 h-8 object-contain" /> : logoContent}
+                <h3 className={`text-sm sm:text-base font-semibold ${textColor} mb-2`}>{title}</h3>
+                <div className="flex items-center gap-3 my-2">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold ${textColor} ${bgColor === 'bg-white' ? 'bg-gray-100' : ''}`}>
+                       {isUrl ? <img src={logoContent} alt={`${bankName} Logo`} className="w-6 h-6 sm:w-8 sm:h-8 object-contain" /> : logoContent}
                     </div>
-                    <p className={`text-4xl font-extrabold ${textColor}`}>{bankName}</p>
+                    <p className={`text-2xl sm:text-4xl font-extrabold ${textColor}`}>{bankName}</p>
                 </div>
-                <p className={`text-sm ${textColor} opacity-90`}>{description}</p>
+                <p className={`text-xs sm:text-sm ${textColor} opacity-90`}>{description}</p>
             </div>
         </div>
     );
@@ -297,28 +297,28 @@ const PerfilacionBancariaPage: React.FC = () => {
     
     if (status === 'success') {
         return (
-            <div className="max-w-4xl mx-auto p-8 text-center relative">
+            <div className="max-w-4xl mx-auto p-4 sm:p-8 text-center relative">
                 {showConfetti && <Confetti />}
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h1 className="text-3xl font-bold text-gray-900">¡Perfil Bancario Completo!</h1>
-                <p className="text-gray-600 mt-2 max-w-lg mx-auto">
+                <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 mx-auto mb-3 sm:mb-4" />
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">¡Perfil Bancario Completo!</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-2 max-w-lg mx-auto px-4">
                    Hemos analizado tu perfil y encontrado las mejores opciones para ti.
                 </p>
 
-                <div className="mt-8 space-y-6 max-w-md mx-auto">
+                <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6 max-w-md mx-auto px-4">
                     {recommendedBank && <BankCard bankName={recommendedBank} title="Mejor Opción para ti" description="Basado en tus respuestas, este banco tiene la mayor probabilidad de aprobar tu crédito con excelentes condiciones." />}
                     {secondRecommendedBank && <BankCard bankName={secondRecommendedBank} title="Segunda Opción" description="Una excelente alternativa con alta probabilidad de aprobación para tu perfil." />}
                 </div>
 
                 {isLowScore && (
-                     <div className="mt-8 bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-yellow-800 text-sm max-w-md mx-auto">
+                     <div className="mt-6 sm:mt-8 bg-yellow-50 border border-yellow-200 p-3 sm:p-4 rounded-lg text-yellow-800 text-xs sm:text-sm max-w-md mx-auto mx-4">
                         <p><strong>Nota:</strong> Tu perfil no coincide con los requisitos de nuestros bancos principales. Te recomendamos <strong>contactar a un asesor</strong> para explorar alternativas especializadas. Aún puedes continuar tu solicitud con el banco recomendado.</p>
                     </div>
                 )}
 
-                <div className="mt-10 bg-gray-50 p-8 rounded-2xl border border-gray-200">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">¿Qué Sigue Ahora?</h2>
-                    <p className="text-gray-600 text-center mb-6 max-w-xl mx-auto">
+                <div className="mt-6 sm:mt-10 bg-gray-50 p-4 sm:p-8 rounded-2xl border border-gray-200 mx-4">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 text-center mb-3 sm:mb-4">¿Qué Sigue Ahora?</h2>
+                    <p className="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-xl mx-auto">
                         ¡Felicidades! Has completado el paso más importante. Ahora te llevaremos a la solicitud de financiamiento.
                         <br/><br/>
                         <strong className="text-gray-800">Recuerda:</strong> Esto no es un compromiso. Si tu crédito es aprobado, puedes usarlo para cualquier auto de nuestro inventario.

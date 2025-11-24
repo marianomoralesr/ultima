@@ -264,7 +264,7 @@ const Application: React.FC = () => {
     };
 
     const steps = [
-        { title: 'Personal', icon: User, fields: ['current_address', 'current_colony', 'current_city', 'current_state', 'current_zip_code', 'time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
+        { title: 'Personal', icon: User, fields: ['time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
         { title: 'Documentos', icon: FileText, fields: [] },

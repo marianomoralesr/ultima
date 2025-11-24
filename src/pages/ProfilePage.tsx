@@ -288,7 +288,10 @@ const ProfilePage: React.FC = () => {
       toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');
 
       setTimeout(() => {
-        navigate('/escritorio/perfilacion-bancaria');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          navigate('/escritorio/perfilacion-bancaria');
+        }, 300);
       }, 4000);
 
     } catch (error) {

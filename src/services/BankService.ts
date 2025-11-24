@@ -253,8 +253,8 @@ export const BankService = {
   },
 
   /**
-   * Download all documents for a lead as a zip
-   * Documents are stored directly in financing_applications table as URL fields
+   * Download all documents for a lead
+   * Documents are stored in uploaded_documents table with files in application-documents bucket
    */
   async downloadAllDocuments(leadId: string, applicationId: string | null): Promise<void> {
     try {
@@ -262,39 +262,43 @@ export const BankService = {
         throw new Error('Application ID is required');
       }
 
-      // Get document URLs from the financing_applications table
-      const { data: application, error } = await supabase
-        .from('financing_applications')
-        .select('ine_url, comprobante_domicilio_url, comprobante_ingresos_url, comprobante_ingresos_url_2, comprobante_ingresos_url_3, estados_cuenta_url, rfc_constancia_url')
-        .eq('id', applicationId)
-        .eq('user_id', leadId)
-        .single();
+      // Query uploaded_documents table to get all documents for this application
+      const { data: documents, error } = await supabase
+        .from('uploaded_documents')
+        .select('id, file_name, file_path, document_type')
+        .eq('application_id', applicationId)
+        .eq('user_id', leadId);
 
       if (error) {
-        throw new Error('Could not fetch application documents');
+        console.error('Error fetching documents:', error);
+        throw new Error('No se pudieron obtener los documentos de la solicitud');
       }
 
-      // Collect all non-empty document URLs
-      const documentUrls = [
-        application.ine_url,
-        application.comprobante_domicilio_url,
-        application.comprobante_ingresos_url,
-        application.comprobante_ingresos_url_2,
-        application.comprobante_ingresos_url_3,
-        application.estados_cuenta_url,
-        application.rfc_constancia_url
-      ].filter(url => url && url.trim() !== '');
-
-      if (documentUrls.length === 0) {
-        throw new Error('No documents found for this application');
+      if (!documents || documents.length === 0) {
+        throw new Error('No se encontraron documentos para esta solicitud');
       }
 
-      // Open each document in a new window/tab
-      for (const url of documentUrls) {
-        window.open(url, '_blank');
+      // Generate signed URLs and open each document
+      for (const doc of documents) {
+        try {
+          const { data: signedUrl, error: urlError } = await supabase.storage
+            .from('application-documents')
+            .createSignedUrl(doc.file_path, 3600); // Valid for 1 hour
+
+          if (urlError || !signedUrl) {
+            console.error(`Error creating signed URL for ${doc.file_name}:`, urlError);
+            continue;
+          }
+
+          // Open document in new tab
+          window.open(signedUrl.signedUrl, '_blank');
+        } catch (docError) {
+          console.error(`Error processing document ${doc.file_name}:`, docError);
+          // Continue with next document
+        }
       }
 
-      console.log('Downloaded', documentUrls.length, 'documents for application', applicationId);
+      console.log('Opened', documents.length, 'documents for application', applicationId);
     } catch (error) {
       console.error('Error downloading documents:', error);
       throw error;

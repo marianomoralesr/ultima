@@ -141,7 +141,13 @@ const Application: React.FC = () => {
                 }
                 
                 const bankProfile = await BankProfilingService.getUserBankProfile(user.id);
+                console.log('[Application] Bank profile check:', {
+                    bankProfile,
+                    is_complete: bankProfile?.is_complete,
+                    banco_recomendado: bankProfile?.banco_recomendado
+                });
                 if (!bankProfile?.is_complete || !bankProfile.banco_recomendado) {
+                    console.log('[Application] Bank profile incomplete or missing recommended bank');
                     setPageStatus('bank_profile_incomplete');
                     return;
                 }

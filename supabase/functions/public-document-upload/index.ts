@@ -173,6 +173,62 @@ serve(async (req) => {
         );
       }
 
+      // Enviar notificación por email (no bloqueante)
+      try {
+        // Obtener información del usuario y aplicación
+        const { data: userProfile } = await supabaseClient
+          .from('profiles')
+          .select('email, first_name, last_name')
+          .eq('id', application.user_id)
+          .single();
+
+        if (userProfile?.email) {
+          // Obtener información completa de la aplicación
+          const { data: fullApplication } = await supabaseClient
+            .from('financing_applications')
+            .select('car_info, application_data')
+            .eq('id', application.id)
+            .single();
+
+          const documentTypeLabels: Record<string, string> = {
+            'ine_front': 'INE (Frente)',
+            'ine_back': 'INE (Reverso)',
+            'proof_address': 'Comprobante de Domicilio',
+            'proof_income': 'Comprobante de Ingresos',
+            'constancia_fiscal': 'Constancia de Situación Fiscal',
+          };
+
+          // Enviar email al usuario
+          await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-brevo-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            },
+            body: JSON.stringify({
+              to: userProfile.email,
+              toName: `${userProfile.first_name} ${userProfile.last_name}`,
+              subject: `Documento Recibido - ${documentTypeLabels[documentType] || documentType}`,
+              templateType: 'document_uploaded',
+              templateData: {
+                clientName: `${userProfile.first_name} ${userProfile.last_name}`,
+                documentName: file.name,
+                documentType: documentTypeLabels[documentType] || documentType,
+                vehicleTitle: fullApplication?.car_info?._vehicleTitle || 'Tu vehículo',
+                applicationId: application.id.slice(0, 8),
+                uploadedAt: new Date().toISOString(),
+                statusUrl: `${Deno.env.get('SUPABASE_URL').replace('//', '//trefa.mx')}/escritorio/mis-aplicaciones`,
+              },
+            }),
+          });
+
+          console.log('Notificación de documento enviada exitosamente');
+        }
+      } catch (emailError) {
+        // Log error pero no fallar la request
+        console.error('Error enviando notificación de documento:', emailError);
+      }
+
       return new Response(
         JSON.stringify({
           success: true,

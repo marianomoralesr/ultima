@@ -10,7 +10,7 @@ interface EmailRequest {
   to: string;
   toName: string;
   subject: string;
-  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'admin_notification' | 'valuation_notification' | 'verification_code' | 'survey_invitation';
+  templateType: 'application_submitted' | 'status_changed' | 'document_status_changed' | 'document_uploaded' | 'admin_notification' | 'valuation_notification' | 'verification_code' | 'survey_invitation';
   templateData: Record<string, any>;
 }
 
@@ -289,6 +289,65 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               <div style="text-align: center; margin: 40px 0;">
                 <a href="${data.documentsUrl}" class="button">Ver Mis Documentos</a>
               </div>
+            </div>
+            <div class="footer">
+              <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>
+              <p class="footer-text">Financiamiento de vehículos confiable y transparente</p>
+              <p class="footer-text" style="margin-top: 20px;">© ${new Date().getFullYear()} TREFA. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+    case 'document_uploaded':
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8">${baseStyles}</head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${logoUrl}" alt="TREFA" class="logo" />
+            </div>
+            <div class="content">
+              <h1 class="title">✅ Documento Recibido con Éxito</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, hemos recibido tu documento correctamente a través del dropzone público.</p>
+
+              <div class="card">
+                <div class="card-title">Detalles del Documento</div>
+                <div class="card-content">
+                  <p><strong>Tipo de Documento:</strong> ${data.documentType}</p>
+                  <p><strong>Nombre del Archivo:</strong> ${data.documentName}</p>
+                  ${data.vehicleTitle ? `<p><strong>Vehículo:</strong> ${data.vehicleTitle}</p>` : ''}
+                  <p><strong>ID de Solicitud:</strong> ${data.applicationId}</p>
+                  <p><strong>Fecha de Subida:</strong> ${new Date(data.uploadedAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  <p><strong>Estado:</strong> <span class="status-badge status-reviewing">En Revisión</span></p>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">¿Qué sigue?</h2>
+              <ul>
+                <li><strong>Verificación:</strong> Nuestro equipo revisará el documento subido</li>
+                <li><strong>Validación:</strong> Verificaremos que cumpla con los requisitos</li>
+                <li><strong>Notificación:</strong> Te avisaremos del resultado de la revisión</li>
+              </ul>
+
+              <div style="background: #F0F9FF; border-left: 4px solid #0369A1; padding: 16px; border-radius: 8px; margin: 24px 0;">
+                <p style="margin: 0; color: #0C4A6E; font-size: 14px; line-height: 1.6;">
+                  <strong>💡 Tip:</strong> Puedes seguir subiendo los demás documentos requeridos desde el mismo enlace que recibiste. Cada documento que subas te acerca más a completar tu solicitud.
+                </p>
+              </div>
+
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${data.statusUrl}" class="button">Ver Estado de mi Solicitud</a>
+              </div>
+
+              <p style="font-size: 14px; color: #556675; text-align: center; margin-top: 32px;">
+                Si tienes alguna pregunta, no dudes en contactarnos respondiendo a este correo.
+              </p>
             </div>
             <div class="footer">
               <p class="footer-text" style="font-weight: 600; font-size: 16px; color: #FFFFFF;">Autos TREFA</p>

@@ -47,6 +47,9 @@ export default defineConfig({
         inlineDynamicImports: false,
         // Manual chunking for better code splitting
         manualChunks: (id) => {
+          // CRITICAL: AWS SDK must NOT be in manualChunks to allow dynamic imports
+          // It will be loaded on-demand when R2StorageService is used
+
           // Split vendor chunks for better caching
           if (id.includes('node_modules')) {
             // React ecosystem
@@ -69,10 +72,6 @@ export default defineConfig({
             if (id.includes('react-hook-form') || id.includes('zod')) {
               return 'form-vendor';
             }
-            // AWS SDK - keep separate and preserve structure
-            if (id.includes('@aws-sdk')) {
-              return 'aws-vendor';
-            }
             // Tanstack
             if (id.includes('@tanstack')) {
               return 'tanstack-vendor';
@@ -81,7 +80,7 @@ export default defineConfig({
             if (id.includes('date-fns')) {
               return 'date-vendor';
             }
-            // All other vendor dependencies
+            // All other vendor dependencies (AWS SDK excluded - will be dynamic)
             return 'vendor';
           }
           // Keep shared components in a separate chunk

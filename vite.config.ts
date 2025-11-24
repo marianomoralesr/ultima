@@ -41,57 +41,10 @@ export default defineConfig({
     // Optimize chunking strategy
     rollupOptions: {
       output: {
-        // Preserve variable declarations for AWS SDK to prevent initialization errors
+        // Preserve variable declarations to prevent initialization errors
         format: 'es',
-        // Disable code splitting completely to prevent variable initialization issues
-        inlineDynamicImports: false,
-        // Manual chunking for better code splitting
-        manualChunks: (id) => {
-          // CRITICAL: AWS SDK must NOT be in manualChunks to allow dynamic imports
-          // It will be loaded on-demand when R2StorageService is used
-
-          // Split vendor chunks for better caching
-          if (id.includes('node_modules')) {
-            // React ecosystem
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
-            // Supabase and auth related
-            if (id.includes('@supabase')) {
-              return 'supabase-vendor';
-            }
-            // UI components and animations
-            if (id.includes('@radix-ui') || id.includes('framer-motion') || id.includes('react-spring')) {
-              return 'ui-vendor';
-            }
-            // Data visualization
-            if (id.includes('recharts') || id.includes('html2canvas') || id.includes('jspdf')) {
-              return 'visualization-vendor';
-            }
-            // Form handling
-            if (id.includes('react-hook-form') || id.includes('zod')) {
-              return 'form-vendor';
-            }
-            // Tanstack
-            if (id.includes('@tanstack')) {
-              return 'tanstack-vendor';
-            }
-            // Date utilities
-            if (id.includes('date-fns')) {
-              return 'date-vendor';
-            }
-            // All other vendor dependencies (AWS SDK excluded - will be dynamic)
-            return 'vendor';
-          }
-          // Keep shared components in a separate chunk
-          if (id.includes('src/components/') && !id.includes('src/components/Admin')) {
-            return 'shared-components';
-          }
-          // Admin components in separate chunk
-          if (id.includes('src/components/Admin')) {
-            return 'admin-components';
-          }
-        },
+        // DISABLE manual chunking completely - let Rollup handle it automatically
+        // This prevents circular dependency and initialization issues
         // Configure asset file names for better caching
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name?.split('.');
@@ -107,13 +60,13 @@ export default defineConfig({
         entryFileNames: 'assets/js/[name]-[hash].js',
         // Preserve module structure to prevent variable hoisting issues
         preserveModules: false,
-        // Ensure strict ordering
+        // Ensure strict ordering - CRITICAL for preventing initialization errors
         hoistTransitiveImports: false,
       },
     },
-    // Increase chunk size warning limit to 750kB (we'll handle large libs separately)
-    chunkSizeWarningLimit: 1500,
-    // CRITICAL: Keep minification disabled - esbuild transforms break AWS SDK
+    // Increase chunk size warning limit
+    chunkSizeWarningLimit: 2000,
+    // CRITICAL: Keep minification disabled - ANY code transformation breaks variable initialization
     minify: false,
     // Enable CSS code splitting
     cssCodeSplit: true,
@@ -126,7 +79,7 @@ export default defineConfig({
       polyfill: true,
     },
     // Report compressed size
-    reportCompressedSize: true,
+    reportCompressedSize: false, // Disable to speed up build
     // Completely disable tree-shaking for problematic dependencies
     commonjsOptions: {
       transformMixedEsModules: true,

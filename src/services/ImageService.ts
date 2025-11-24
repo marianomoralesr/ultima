@@ -120,12 +120,15 @@ export const ImageService = {
     // Step 2: Asynchronously back up all images to Supabase Storage.
     // We don't wait for this to finish to give the user a faster response.
     // The Promise.all is for running backups in parallel.
-    Promise.all(
-        processedImages.map(url => this.backupImageToSupabase(url, vehicleId))
-    ).then(paths => {
-        console.log('Successfully backed up images to Supabase Storage:', paths.filter(p => p));
-    }).catch(err => {
-        console.error("An error occurred during the background image backup process:", err);
-    });
+    const numericVehicleId = typeof vehicleId === 'number' ? vehicleId : parseInt(vehicleId, 10);
+    if (!isNaN(numericVehicleId)) {
+      Promise.all(
+          processedImages.map(url => this.backupImageToSupabase(url, numericVehicleId))
+      ).then(paths => {
+          console.log('Successfully backed up images to Supabase Storage:', paths.filter(p => p));
+      }).catch(err => {
+          console.error("An error occurred during the background image backup process:", err);
+      });
+    }
   }
 };

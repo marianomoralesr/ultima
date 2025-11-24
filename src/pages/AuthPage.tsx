@@ -148,7 +148,7 @@ const AuthPage: React.FC = () => {
                 if (vehicle) setVehicleToFinance(vehicle);
             }).catch(err => {
                 console.error("Error fetching vehicle for AuthPage:", err);
-                setError("Error al cargar la información del auto.");
+                setError("No pudimos cargar la información del vehículo. Por favor, intenta nuevamente o continúa sin esta información.");
             }).finally(() => setIsLoadingVehicle(false));
         }
     }, [searchParams]);
@@ -195,7 +195,7 @@ const AuthPage: React.FC = () => {
             setView('verifyOtp');
         } catch (error: any) {
             console.error('Full Email Submit Error:', error);
-            setError(`No se pudo enviar el código. ${error.message || 'Revisa el correo o inténtalo de nuevo.'}`);
+            setError(`No pudimos enviar el código de verificación. Por favor, verifica que tu correo electrónico esté escrito correctamente e inténtalo nuevamente. Si el problema persiste, contacta con soporte.`);
         } finally {
             setLoading(false);
         }
@@ -254,7 +254,7 @@ const AuthPage: React.FC = () => {
 
         } catch (error: any) {
              console.error('Full OTP Error:', error);
-             setError(`Código inválido o expirado. ${error.message || 'Por favor, inténtalo de nuevo.'}`);
+             setError(`El código que ingresaste es inválido o ha expirado. Por favor, solicita un nuevo código o verifica que lo hayas ingresado correctamente.`);
         } finally {
             setLoading(false);
         }
@@ -277,7 +277,7 @@ const AuthPage: React.FC = () => {
             },
         });
         if (error) {
-            setError('No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
+            setError('No pudimos completar el inicio de sesión con Google. Por favor, verifica que hayas autorizado el acceso y intenta nuevamente. Si el problema persiste, prueba iniciar sesión con tu correo electrónico.');
             setLoading(false);
         }
         // The AuthHandler component will handle the redirect after successful login.

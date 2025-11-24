@@ -70,15 +70,15 @@ const normalizeNameToTitleCase = (name: string): string => {
 
 // Schemas
 const profileSchema = z.object({
-  first_name: z.string().min(2, 'Nombre es requerido'),
-  last_name: z.string().min(2, 'Apellido paterno es requerido'),
-  mother_last_name: z.string().min(2, 'Apellido materno es requerido'),
-  phone: z.string().min(10, 'Teléfono debe tener 10 dígitos'),
+  first_name: z.string().min(2, 'Por favor, ingresa tu nombre (mínimo 2 caracteres)'),
+  last_name: z.string().min(2, 'Por favor, ingresa tu apellido paterno (mínimo 2 caracteres)'),
+  mother_last_name: z.string().min(2, 'Por favor, ingresa tu apellido materno (mínimo 2 caracteres)'),
+  phone: z.string().min(10, 'Por favor, ingresa un número de teléfono válido de 10 dígitos'),
   cellphone_company: z.string().optional().or(z.literal('')),
-  birth_date: z.string().min(1, 'Fecha de nacimiento es requerida'),
-  homoclave: z.string().length(3, 'Homoclave debe tener 3 caracteres'),
-  fiscal_situation: z.string().min(1, 'Situación fiscal es requerida'),
-  civil_status: z.string().min(1, 'Estado civil es requerido'),
+  birth_date: z.string().min(1, 'Por favor, selecciona tu fecha de nacimiento'),
+  homoclave: z.string().length(3, 'La homoclave debe tener exactamente 3 caracteres'),
+  fiscal_situation: z.string().min(1, 'Por favor, selecciona tu situación fiscal'),
+  civil_status: z.string().min(1, 'Por favor, selecciona tu estado civil'),
   spouse_name: z.string().optional().or(z.literal('')),
   gender: z.string().optional().or(z.literal('')),
   how_did_you_know: z.string().optional().or(z.literal('')),
@@ -88,7 +88,7 @@ const profileSchema = z.object({
   }
   return true;
 }, {
-  message: 'El nombre del cónyuge es obligatorio para personas casadas.',
+  message: 'Por favor, ingresa el nombre completo de tu cónyuge (este campo es obligatorio para personas casadas)',
   path: ['spouse_name'],
 });
 
@@ -292,7 +292,7 @@ const ProfilePage: React.FC = () => {
       }, 4000);
 
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Ocurrió un error desconocido');
+      toast.error(error instanceof Error ? error.message : 'No pudimos guardar tu perfil. Por favor, verifica que toda la información esté correcta e intenta nuevamente. Si el problema persiste, contacta con soporte.');
       setSaveState('idle');
     }
   };

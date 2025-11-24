@@ -83,7 +83,7 @@ app.use(
           PROXY_URL,
           CLOUD_RUN_URL,
         ],
-        "frame-src": ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://player.vimeo.com", "https://www.google.com", "https://www.googletagmanager.com"],
+        "frame-src": ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com", "https://player.vimeo.com", "https://www.google.com", "https://www.googletagmanager.com", "https://panel.trefa.mx"],
         "font-src": ["'self'", "https:", "data:"],
         "object-src": ["'none'"],
         "base-uri": ["'self'"],

@@ -106,8 +106,8 @@ export default defineConfig({
     },
     // Increase chunk size warning limit to 750kB (we'll handle large libs separately)
     chunkSizeWarningLimit: 750,
-    // Use esbuild minifier (faster and safer than terser)
-    minify: 'esbuild',
+    // Disable minification to avoid variable hoisting issues
+    minify: false,
     // Enable CSS code splitting
     cssCodeSplit: true,
     // Asset inlining threshold (4kb)

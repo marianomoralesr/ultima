@@ -5,26 +5,39 @@ import App from './App';
 import '../index.css';
 import { AuthProvider } from './context/AuthContext';
 import { FilterProvider } from './context/FilterContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ConfigProvider } from './context/ConfigContext';
 import { conversionTracking } from './services/ConversionTrackingService';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-      refetchOnWindowFocus: true,
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      networkMode: 'online',
-    },
-  },
-});
+import serviceWorkerRegistration from './utils/serviceWorkerRegistration';
+import { queryClient } from './utils/queryClientConfig';
+import performanceMonitor from './utils/performanceMonitoring';
 
 // Initialize conversion tracking on app startup
 conversionTracking.initialize();
+
+// Register service worker for caching and offline functionality
+if (import.meta.env.PROD) {
+  serviceWorkerRegistration.register({
+    onSuccess: () => console.log('Service Worker registered successfully'),
+    onUpdate: () => console.log('New content available, refresh to update'),
+    onError: (error) => console.error('Service Worker registration failed:', error),
+  });
+}
+
+// Setup performance monitoring
+if (typeof window !== 'undefined') {
+  performanceMonitor.onReport((metrics) => {
+    // Log metrics to console in development
+    if (import.meta.env.DEV) {
+      console.log('Performance Metrics:', performanceMonitor.formatMetrics());
+    }
+    // In production, you could send these to an analytics service
+  });
+
+  // Track app initialization time
+  performanceMonitor.mark('app-init-start');
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

@@ -106,24 +106,8 @@ export default defineConfig({
     },
     // Increase chunk size warning limit to 750kB (we'll handle large libs separately)
     chunkSizeWarningLimit: 750,
-    // Minification options
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
-        passes: 2,
-      },
-      mangle: {
-        safari10: true,
-      },
-      format: {
-        comments: false,
-        // Preserve some comments for licenses
-        preserve_annotations: true,
-      },
-    },
+    // Use esbuild minifier (faster and safer than terser)
+    minify: 'esbuild',
     // Enable CSS code splitting
     cssCodeSplit: true,
     // Asset inlining threshold (4kb)
@@ -153,11 +137,11 @@ export default defineConfig({
   cacheDir: 'node_modules/.vite',
   // Performance optimizations
   esbuild: {
-    // Remove console logs in production
-    drop: ['console', 'debugger'],
     // Legal comments for licenses
     legalComments: 'none',
     // Target for syntax transformation
     target: 'es2020',
+    // Keep console.error for debugging production issues
+    // drop: ['debugger'], // Only drop debugger statements
   },
 });

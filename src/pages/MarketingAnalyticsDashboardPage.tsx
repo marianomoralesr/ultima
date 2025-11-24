@@ -5,6 +5,7 @@ import {
   FileText, Eye, TrendingDown, CheckCircle, Clock
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
+import { MetricsService } from '../services/MetricsService';
 
 interface TrackingEvent {
   id?: string;
@@ -61,10 +62,15 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     endDate?: string;
     eventType?: string;
     utmSource?: string;
+    utmCampaign?: string;
   }>({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
   });
+
+  // Estados para dropdowns
+  const [availableSources, setAvailableSources] = useState<string[]>([]);
+  const [availableCampaigns, setAvailableCampaigns] = useState<string[]>([]);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns' | 'pages' | 'facebook' | 'funnel' | 'funnel-24h' | 'funnel-historic' | 'meta-funnel'>('overview');
 
@@ -95,6 +101,9 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
       }
       if (filters.utmSource) {
         query = query.eq('utm_source', filters.utmSource);
+      }
+      if (filters.utmCampaign) {
+        query = query.eq('utm_campaign', filters.utmCampaign);
       }
 
       const { data, error: queryError, count } = await query;
@@ -427,7 +436,18 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [filters.startDate, filters.endDate, filters.eventType, filters.utmSource]);
+  }, [filters.startDate, filters.endDate, filters.eventType, filters.utmSource, filters.utmCampaign]);
+
+  // Cargar opciones de dropdowns al montar el componente
+  useEffect(() => {
+    const loadDropdownOptions = async () => {
+      const sources = await MetricsService.getAvailableUTMSources();
+      const campaigns = await MetricsService.getAvailableUTMCampaigns();
+      setAvailableSources(sources);
+      setAvailableCampaigns(campaigns);
+    };
+    loadDropdownOptions();
+  }, []);
 
   const exportToCSV = () => {
     if (!events.length) return;
@@ -535,13 +555,29 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">UTM Source</label>
-            <input
-              type="text"
+            <select
               value={filters.utmSource || ''}
               onChange={(e) => setFilters({ ...filters, utmSource: e.target.value || undefined })}
-              placeholder="Ej: google, facebook"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-            />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white"
+            >
+              <option value="">Todas las fuentes</option>
+              {availableSources.map(source => (
+                <option key={source} value={source}>{source}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">UTM Campaign</label>
+            <select
+              value={filters.utmCampaign || ''}
+              onChange={(e) => setFilters({ ...filters, utmCampaign: e.target.value || undefined })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white"
+            >
+              <option value="">Todas las campañas</option>
+              {availableCampaigns.map(campaign => (
+                <option key={campaign} value={campaign}>{campaign}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

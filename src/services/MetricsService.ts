@@ -275,6 +275,117 @@ class MetricsServiceClass {
   }
 
   /**
+   * Obtiene el total de visitas al sitio (PageView events)
+   * Cuenta TODAS las vistas de página, no solo /financiamientos
+   */
+  async getTotalSiteVisits(startDate?: string, endDate?: string): Promise<number> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: false })
+        .eq('event_type', 'PageView');
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        console.error('[MetricsService] Error fetching site visits:', error);
+        return 0;
+      }
+
+      return count || 0;
+    } catch (error) {
+      console.error('[MetricsService] Error in getTotalSiteVisits:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Obtiene visitantes únicos del sitio
+   */
+  async getUniqueSiteVisitors(startDate?: string, endDate?: string): Promise<number> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('user_id, session_id')
+        .eq('event_type', 'PageView');
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+
+      const { data, error } = await query;
+
+      if (error || !data) {
+        console.error('[MetricsService] Error fetching unique visitors:', error);
+        return 0;
+      }
+
+      // Usar session_id para contar visitantes únicos (más preciso que user_id)
+      const uniqueSessions = new Set(data.map(e => e.session_id).filter(Boolean));
+      return uniqueSessions.size;
+    } catch (error) {
+      console.error('[MetricsService] Error in getUniqueSiteVisitors:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Obtiene todas las fuentes UTM disponibles en los datos
+   */
+  async getAvailableUTMSources(): Promise<string[]> {
+    try {
+      const { data, error } = await supabase
+        .from('tracking_events')
+        .select('utm_source')
+        .not('utm_source', 'is', null)
+        .order('utm_source');
+
+      if (error || !data) {
+        return [];
+      }
+
+      const uniqueSources = [...new Set(data.map(e => e.utm_source).filter(Boolean))] as string[];
+      return uniqueSources.sort();
+    } catch (error) {
+      console.error('[MetricsService] Error in getAvailableUTMSources:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtiene todas las campañas UTM disponibles en los datos
+   */
+  async getAvailableUTMCampaigns(): Promise<string[]> {
+    try {
+      const { data, error } = await supabase
+        .from('tracking_events')
+        .select('utm_campaign')
+        .not('utm_campaign', 'is', null)
+        .order('utm_campaign');
+
+      if (error || !data) {
+        return [];
+      }
+
+      const uniqueCampaigns = [...new Set(data.map(e => e.utm_campaign).filter(Boolean))] as string[];
+      return uniqueCampaigns.sort();
+    } catch (error) {
+      console.error('[MetricsService] Error in getAvailableUTMCampaigns:', error);
+      return [];
+    }
+  }
+
+  /**
    * Calcula tasas de conversión entre etapas del embudo
    */
   calculateConversionRates(metrics: FunnelMetrics) {

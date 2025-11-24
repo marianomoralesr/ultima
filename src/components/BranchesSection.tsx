@@ -148,22 +148,23 @@ const BranchesSection: React.FC<BranchesSectionProps> = ({ content }) => {
         {/* Expanded Card */}
         <AnimatePresence>
           {active ? (
-            <div className="fixed inset-0 grid place-items-center z-[100] p-4">
+            <div className="fixed inset-0 grid place-items-center z-[100] p-4 sm:p-6 lg:p-8">
               <motion.button
                 key={`button-${active.title}-${id}`}
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.05 } }}
-                className="flex absolute top-4 right-4 lg:hidden items-center justify-center bg-white rounded-full h-8 w-8 shadow-lg"
+                className="flex absolute top-6 right-6 sm:top-8 sm:right-8 items-center justify-center bg-white rounded-full h-10 w-10 shadow-lg z-10 hover:bg-gray-100 transition-colors"
                 onClick={() => setActive(null)}
+                aria-label="Cerrar"
               >
                 <CloseIcon />
               </motion.button>
               <motion.div
                 layoutId={`card-${active.title}-${id}`}
                 ref={ref}
-                className="w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl overflow-hidden shadow-2xl"
+                className="w-full max-w-[500px] max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] lg:max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl"
               >
                 <motion.div layoutId={`image-${active.title}-${id}`}>
                   <img

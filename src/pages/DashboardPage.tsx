@@ -465,19 +465,29 @@ const Dashboard: React.FC = () => {
                         Borradores de Solicitud
                     </h3>
                     <div className="space-y-4">
-                        {drafts.map(draft => (
-                            <ApplicationCard
-                                key={draft.id}
-                                application={{
-                                    id: draft.id,
-                                    bank: Array.isArray(draft.selected_banks) && draft.selected_banks.length > 0 ? draft.selected_banks.map((b: string) => b.charAt(0).toUpperCase() + b.slice(1)).join(', ') : 'Varios',
-                                    type: 'Financiamiento',
-                                    status: draft.status,
-                                    date: draft.created_at,
-                                    vehicle: draft.car_info?._vehicleTitle || 'Auto no especificado'
-                                }}
-                            />
-                        ))}
+                        {drafts.map(draft => {
+                            const status = statusMap[draft.status] || statusMap[APPLICATION_STATUS.DRAFT];
+                            return (
+                                <div key={draft.id} className="p-4 border rounded-lg bg-white">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <p className="font-semibold text-gray-800">{draft.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="text-xs text-gray-500">Creado: {new Date(draft.created_at).toLocaleDateString()}</p>
+                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
+                                                <status.icon className="w-3 h-3" />
+                                                {status.text}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        to={`/escritorio/aplicacion/${draft.id}`}
+                                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                                    >
+                                        <EditIcon className="w-4 h-4"/> Continuar Editando
+                                    </Link>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             )}

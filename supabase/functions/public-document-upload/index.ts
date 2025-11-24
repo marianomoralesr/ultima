@@ -39,7 +39,7 @@ serve(async (req) => {
       // Verificar que el token exista y obtener información de la aplicación
       const { data: application, error: appError } = await supabaseClient
         .from('financing_applications')
-        .select('id, user_id, status, created_at, car_info')
+        .select('id, user_id, status, created_at, car_info, token_expires_at')
         .eq('public_upload_token', token)
         .single();
 
@@ -48,6 +48,24 @@ serve(async (req) => {
           JSON.stringify({ error: 'Token inválido' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      // Verificar si el token ha expirado
+      if (application.token_expires_at) {
+        const expiresAt = new Date(application.token_expires_at);
+        const now = new Date();
+
+        if (now > expiresAt) {
+          return new Response(
+            JSON.stringify({
+              error: 'Token expirado',
+              message: 'Este enlace ha expirado. Por favor, contacta a tu asesor para obtener un nuevo enlace.',
+              expired: true,
+              expired_at: application.token_expires_at
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
 
       // Obtener documentos ya subidos
@@ -83,7 +101,7 @@ serve(async (req) => {
       // Verificar token y obtener aplicación
       const { data: application, error: appError } = await supabaseClient
         .from('financing_applications')
-        .select('id, user_id')
+        .select('id, user_id, token_expires_at')
         .eq('public_upload_token', token)
         .single();
 
@@ -92,6 +110,23 @@ serve(async (req) => {
           JSON.stringify({ error: 'Token inválido' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      // Verificar si el token ha expirado
+      if (application.token_expires_at) {
+        const expiresAt = new Date(application.token_expires_at);
+        const now = new Date();
+
+        if (now > expiresAt) {
+          return new Response(
+            JSON.stringify({
+              error: 'Token expirado',
+              message: 'Este enlace ha expirado. Por favor, contacta a tu asesor para obtener un nuevo enlace.',
+              expired: true
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
 
       // Parsear el form data

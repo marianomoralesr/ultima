@@ -35,8 +35,9 @@ const PublicDocumentUploadPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
-  const [previewFile, setPreviewFile] = useState<{ url: string; type: string; name: string } | null>(null);
   const [compressing, setCompressing] = useState(false);
+  const [tokenExpired, setTokenExpired] = useState(false);
+  const [expirationMessage, setExpirationMessage] = useState<string>('');
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   // Cargar información de la aplicación y documentos
@@ -62,7 +63,12 @@ const PublicDocumentUploadPage: React.FC = () => {
       );
 
       if (!response.ok) {
-        throw new Error('Token inválido o expirado');
+        const errorData = await response.json();
+        if (errorData.expired) {
+          setTokenExpired(true);
+          setExpirationMessage(errorData.message || 'Este enlace ha expirado');
+        }
+        throw new Error(errorData.message || 'Token inválido o expirado');
       }
 
       const data = await response.json();
@@ -163,7 +169,11 @@ const PublicDocumentUploadPage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al subir archivo');
+        if (errorData.expired) {
+          setTokenExpired(true);
+          setExpirationMessage(errorData.message || 'Este enlace ha expirado');
+        }
+        throw new Error(errorData.error || errorData.message || 'Error al subir archivo');
       }
 
       const result = await response.json();
@@ -206,23 +216,7 @@ const PublicDocumentUploadPage: React.FC = () => {
 
   const getDocumentStatus = (docType: string) => {
     const doc = documents.find(d => d.document_type === docType);
-    return doc ? { uploaded: true, fileName: doc.file_name, doc } : { uploaded: false, fileName: null, doc: null };
-  };
-
-  const handlePreview = (file: File) => {
-    const url = URL.createObjectURL(file);
-    setPreviewFile({
-      url,
-      type: file.type,
-      name: file.name,
-    });
-  };
-
-  const closePreview = () => {
-    if (previewFile) {
-      URL.revokeObjectURL(previewFile.url);
-      setPreviewFile(null);
-    }
+    return doc ? { uploaded: true, fileName: doc.file_name, uploadedAt: doc.created_at, doc } : { uploaded: false, fileName: null, uploadedAt: null, doc: null };
   };
 
   if (loading) {
@@ -248,11 +242,24 @@ const PublicDocumentUploadPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-10 h-10 text-red-600" />
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            tokenExpired ? 'bg-yellow-100' : 'bg-red-100'
+          }`}>
+            <AlertCircle className={`w-10 h-10 ${tokenExpired ? 'text-yellow-600' : 'text-red-600'}`} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
-          <p className="text-gray-600">{error}</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {tokenExpired ? '⏰ Enlace Expirado' : 'Acceso Denegado'}
+          </h1>
+          <p className="text-gray-600 mb-4">{error}</p>
+
+          {tokenExpired && (
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>¿Qué hacer?</strong><br/>
+                Contacta a tu asesor de TREFA para que reactive el enlace y puedas continuar subiendo tus documentos.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -342,8 +349,8 @@ const PublicDocumentUploadPage: React.FC = () => {
                   isUploading={isUploading}
                   currentProgress={currentProgress}
                   onFileSelect={(file) => handleFileUpload(doc.id, file)}
-                  onPreview={handlePreview}
                   fileInputRef={(el) => fileInputRefs.current[doc.id] = el}
+                  tokenExpired={tokenExpired}
                 />
               );
             })}
@@ -391,44 +398,6 @@ const PublicDocumentUploadPage: React.FC = () => {
           <p>© 2025 Autos TREFA • Todos los derechos reservados</p>
         </div>
       </div>
-
-      {/* Modal de Preview */}
-      {previewFile && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-          onClick={closePreview}
-        >
-          <div
-            className="relative bg-white rounded-2xl shadow-2xl max-w-4xl max-h-[90vh] overflow-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-              <h3 className="font-bold text-gray-900">{previewFile.name}</h3>
-              <button
-                onClick={closePreview}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6">
-              {previewFile.type === 'application/pdf' ? (
-                <iframe
-                  src={previewFile.url}
-                  className="w-full h-[70vh] border rounded-lg"
-                  title="PDF Preview"
-                />
-              ) : (
-                <img
-                  src={previewFile.url}
-                  alt="Preview"
-                  className="max-w-full h-auto rounded-lg"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -436,12 +405,12 @@ const PublicDocumentUploadPage: React.FC = () => {
 // Componente DocumentDropzone con drag & drop
 interface DocumentDropzoneProps {
   doc: { id: string; name: string; required: boolean };
-  status: { uploaded: boolean; fileName: string | null; doc: Document | null };
+  status: { uploaded: boolean; fileName: string | null; uploadedAt: string | null; doc: Document | null };
   isUploading: boolean;
   currentProgress?: number;
   onFileSelect: (file: File) => void;
-  onPreview: (file: File) => void;
   fileInputRef: (el: HTMLInputElement | null) => void;
+  tokenExpired: boolean;
 }
 
 const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
@@ -450,25 +419,12 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
   isUploading,
   currentProgress,
   onFileSelect,
-  onPreview,
   fileInputRef,
+  tokenExpired,
 }) => {
-  const [dragPreview, setDragPreview] = useState<string | null>(null);
-
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-
-      // Generar preview
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setDragPreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-
-      onFileSelect(file);
+      onFileSelect(acceptedFiles[0]);
     }
   }, [onFileSelect]);
 
@@ -480,7 +436,7 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
       'image/png': ['.png'],
     },
     maxFiles: 1,
-    disabled: status.uploaded || isUploading,
+    disabled: status.uploaded || isUploading || tokenExpired,
   });
 
   return (
@@ -514,8 +470,24 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
       </div>
 
       {status.uploaded && status.fileName && (
-        <div className="mb-3 p-3 bg-white rounded-lg border border-green-200">
-          <p className="text-sm text-gray-700 truncate">{status.fileName}</p>
+        <div className="mb-3 p-3 bg-white rounded-lg border border-green-200 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-700 truncate flex-1">{status.fileName}</p>
+          </div>
+          {status.uploadedAt && (
+            <div className="flex items-center text-xs text-gray-500">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Subido el {new Date(status.uploadedAt).toLocaleDateString('es-MX', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -527,17 +499,15 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
               isDragActive
                 ? 'border-primary-500 bg-primary-50'
                 : 'border-gray-300 hover:border-primary-400 hover:bg-gray-100'
-            } ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            } ${isUploading || tokenExpired ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {dragPreview ? (
-              <img src={dragPreview} alt="Preview" className="max-h-32 mx-auto mb-3 rounded" />
-            ) : (
-              <Upload className={`w-12 h-12 mx-auto mb-3 ${isDragActive ? 'text-primary-600' : 'text-gray-400'}`} />
-            )}
+            <Upload className={`w-12 h-12 mx-auto mb-3 ${isDragActive ? 'text-primary-600' : 'text-gray-400'}`} />
             {isDragActive ? (
               <p className="text-sm font-semibold text-primary-600">Suelta el archivo aquí</p>
             ) : isUploading ? (
               <p className="text-sm text-gray-600">Subiendo archivo...</p>
+            ) : tokenExpired ? (
+              <p className="text-sm text-gray-500">Enlace expirado - Contacta a tu asesor</p>
             ) : (
               <>
                 <p className="text-sm font-semibold text-gray-700">

@@ -211,6 +211,36 @@ export const ApplicationService = {
   },
 
   async saveApplicationDraft(applicationId: string, draftData: Record<string, any>): Promise<UpdatedApplicationData | null> {
+    console.log('[ApplicationService] Attempting to save draft:', { applicationId, draftDataKeys: Object.keys(draftData) });
+
+    // First, verify the application exists and we can read it
+    const { data: existingApp, error: readError } = await supabase
+      .from('financing_applications')
+      .select('id, user_id, status')
+      .eq('id', applicationId)
+      .maybeSingle();
+
+    console.log('[ApplicationService] Read check result:', { existingApp, readError });
+
+    if (readError) {
+      console.error('Error reading application before save:', readError.message, { code: readError.code, details: readError.details });
+      throw new Error('No se pudo verificar la solicitud. Por favor, recarga la página.');
+    }
+
+    if (!existingApp) {
+      console.error('No application found with ID:', applicationId);
+      // Try to query without RLS to see if it exists at all
+      const { data: anyApp, error: anyError } = await supabase
+        .from('financing_applications')
+        .select('id, user_id')
+        .eq('id', applicationId)
+        .maybeSingle();
+
+      console.error('Raw query result (bypassing some checks):', { anyApp, anyError });
+      throw new Error('No se encontró la solicitud. Por favor, recarga la página.');
+    }
+
+    // Now attempt the update
     const { data, error } = await supabase
       .from('financing_applications')
       .update(draftData)
@@ -224,10 +254,11 @@ export const ApplicationService = {
     }
 
     if (!data) {
-      console.error('No application found with ID:', applicationId);
-      throw new Error('No se encontró la solicitud. Por favor, recarga la página.');
+      console.error('Update returned no data for ID:', applicationId);
+      throw new Error('No se pudo actualizar la solicitud. Por favor, recarga la página.');
     }
 
+    console.log('[ApplicationService] Draft saved successfully:', data);
     return data;
   },
 

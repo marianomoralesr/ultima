@@ -101,7 +101,7 @@ const HeaderSearchBar: React.FC = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Busca por marca, modelo o año..."
-              className="block w-full rounded-full border-0 bg-transparent py-1.5 sm:py-2 lg:py-2.5 pl-8 sm:pl-9 lg:pl-11 pr-2.5 sm:pr-3 lg:pr-4 text-xs sm:text-sm leading-tight text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-primary-500 focus:bg-white"
+              className="block w-full rounded-full border-0 bg-transparent py-1 sm:py-2 lg:py-2.5 pl-7 sm:pl-9 lg:pl-11 pr-2 sm:pr-3 lg:pr-4 text-xs sm:text-sm leading-tight text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-primary-500 focus:bg-white"
               autoComplete="off"
             />
           </div>

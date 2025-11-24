@@ -36,7 +36,7 @@ const Header: React.FC = () => {
     return (
       <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
         <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-          <div className="flex items-center h-16 lg:h-28 gap-x-2 lg:gap-x-4">
+          <div className="flex items-center h-14 sm:h-16 lg:h-28 gap-x-2 lg:gap-x-4">
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -52,7 +52,7 @@ const Header: React.FC = () => {
                   <img
                     src={"/images/trefalogo.png"}
                     alt="TREFA"
-                    className="w-auto object-contain transition-all h-5 sm:h-6 lg:h-9"
+                    className="w-auto object-contain transition-all h-4 sm:h-6 lg:h-9"
                   />
                 </Link>
             </div>
@@ -113,7 +113,7 @@ const Header: React.FC = () => {
 
         {/* Mobile Sidebar Menu */}
         {mobileMenuOpen && (
-            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '64px' }}>
+            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '56px' }}>
                 <div
                     className="absolute inset-0 bg-black/60"
                     onClick={() => setMobileMenuOpen(false)}

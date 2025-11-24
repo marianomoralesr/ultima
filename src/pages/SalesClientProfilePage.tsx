@@ -10,6 +10,7 @@ import PrintableApplication from '../components/PrintableApplication';
 import { ApplicationService } from '../services/ApplicationService';
 import { supabase } from '../../supabaseClient';
 import BankingProfileSummary from '../components/BankingProfileSummary';
+import RefreshPublicUploadToken from '../components/RefreshPublicUploadToken';
 import { toast } from 'sonner';
 import { BankService } from '../services/BankService';
 import type { BankName, BankRepresentativeProfile } from '../types/bank';
@@ -931,6 +932,32 @@ const SalesClientProfilePage: React.FC = () => {
                             {syncMessage && <p className="text-xs text-center mt-2 text-gray-700">{syncMessage}</p>}
                         </div>
                     </div>
+
+                    {/* Public Upload Token Manager */}
+                    {applications.length > 0 && applications[0] && (
+                        <div className="bg-white p-6 rounded-xl shadow-sm border">
+                            <h2 className="text-lg font-semibold text-gray-800 mb-4">Dropzone Público de Documentos</h2>
+                            <RefreshPublicUploadToken
+                                applicationId={applications[0].id}
+                                currentToken={applications[0].public_upload_token}
+                                tokenExpiresAt={applications[0].token_expires_at}
+                                onTokenRefreshed={(newToken, expiresAt) => {
+                                    // Actualizar el estado local
+                                    setClientData(prev => {
+                                        if (!prev) return prev;
+                                        return {
+                                            ...prev,
+                                            applications: prev.applications.map(app =>
+                                                app.id === applications[0].id
+                                                    ? { ...app, public_upload_token: newToken, token_expires_at: expiresAt }
+                                                    : app
+                                            )
+                                        };
+                                    });
+                                }}
+                            />
+                        </div>
+                    )}
 
                     <BankingProfileSummary bankProfile={bank_profile} />
                     <LeadSourceInfo metadata={profile.metadata} source={profile.source} />

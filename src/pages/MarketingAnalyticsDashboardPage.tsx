@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   BarChart3, TrendingUp, Users, MousePointerClick,
   Calendar, Filter, Download, RefreshCw, ExternalLink, AlertCircle,
-  FileText, Eye, TrendingDown, CheckCircle
+  FileText, Eye, TrendingDown, CheckCircle, Clock
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 
@@ -66,7 +66,11 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     endDate: new Date().toISOString().split('T')[0],
   });
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns' | 'pages' | 'facebook' | 'funnel' | 'meta-funnel'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns' | 'pages' | 'facebook' | 'funnel' | 'funnel-24h' | 'funnel-historic' | 'meta-funnel'>('overview');
+
+  // Estado para embudos adicionales
+  const [historicFunnel, setHistoricFunnel] = useState<any>(null);
+  const [funnel24h, setFunnel24h] = useState<any>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -311,11 +315,113 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         conversion_funnel: conversionFunnel,
         meta_funnel: metaFunnel,
       });
+
+      // Cargar embudo histórico completo (sin filtros de fecha)
+      await loadHistoricFunnel();
+
+      // Cargar embudo de últimas 24 horas
+      await loadLast24hFunnel();
+
     } catch (err: any) {
       console.error('Failed to load marketing data:', err);
       setError(`Failed to load data: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadHistoricFunnel = async () => {
+    try {
+      // Query SIN filtros de fecha para obtener TODOS los eventos históricos
+      const { data: allEvents, error } = await supabase
+        .from('tracking_events')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error || !allEvents) {
+        console.error('Error loading historic funnel:', error);
+        return;
+      }
+
+      // Calcular embudo histórico completo
+      const landingPageUserIds = new Set(
+        allEvents
+          .filter(e => e.event_type === 'ConversionLandingPage' || e.event_name === 'ConversionLandingPage')
+          .map(e => e.user_id)
+          .filter(Boolean)
+      );
+
+      setHistoricFunnel({
+        landing: allEvents.filter(e =>
+          (e.event_type === 'PageView' && (
+            e.metadata?.page === '/financiamientos' ||
+            e.page_url?.includes('/financiamientos')
+          ))
+        ).length,
+        registration: landingPageUserIds.size,
+        profile_complete: allEvents.filter(e =>
+          (e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+        application_started: allEvents.filter(e =>
+          (e.event_type === 'ComienzaSolicitud' || e.event_name === 'ComienzaSolicitud') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+        application_submitted: allEvents.filter(e =>
+          (e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+      });
+    } catch (error) {
+      console.error('Error in loadHistoricFunnel:', error);
+    }
+  };
+
+  const loadLast24hFunnel = async () => {
+    try {
+      const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      const { data: recentEvents, error } = await supabase
+        .from('tracking_events')
+        .select('*')
+        .gte('created_at', last24h)
+        .order('created_at', { ascending: true });
+
+      if (error || !recentEvents) {
+        console.error('Error loading 24h funnel:', error);
+        return;
+      }
+
+      const landingPageUserIds = new Set(
+        recentEvents
+          .filter(e => e.event_type === 'ConversionLandingPage' || e.event_name === 'ConversionLandingPage')
+          .map(e => e.user_id)
+          .filter(Boolean)
+      );
+
+      setFunnel24h({
+        landing: recentEvents.filter(e =>
+          (e.event_type === 'PageView' && (
+            e.metadata?.page === '/financiamientos' ||
+            e.page_url?.includes('/financiamientos')
+          ))
+        ).length,
+        registration: landingPageUserIds.size,
+        profile_complete: recentEvents.filter(e =>
+          (e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+        application_started: recentEvents.filter(e =>
+          (e.event_type === 'ComienzaSolicitud' || e.event_name === 'ComienzaSolicitud') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+        application_submitted: recentEvents.filter(e =>
+          (e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete') &&
+          e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+      });
+    } catch (error) {
+      console.error('Error in loadLast24hFunnel:', error);
     }
   };
 
@@ -561,7 +667,9 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {[
             { id: 'overview', label: 'Resumen', icon: BarChart3 },
-            { id: 'funnel', label: 'Embudo', icon: TrendingDown },
+            { id: 'funnel', label: 'Embudo (Filtrado)', icon: TrendingDown },
+            { id: 'funnel-historic', label: 'Embudo Histórico', icon: Calendar },
+            { id: 'funnel-24h', label: 'Últimas 24h', icon: Clock },
             { id: 'meta-funnel', label: 'Embudo Meta', icon: ExternalLink },
             { id: 'pages', label: 'Páginas', icon: FileText },
             { id: 'facebook', label: 'FB Pixel', icon: ExternalLink },
@@ -1066,6 +1174,242 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                     </p>
                     <p className="text-xs text-indigo-600 mt-1">
                       {stats.meta_funnel.registration} de {stats.meta_funnel.landing} visitantes se registraron
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'funnel-historic' && historicFunnel && (
+              <div className="space-y-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+                  <Calendar className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-green-900">Embudo Histórico Completo</p>
+                    <p className="text-sm text-green-700 mt-1">
+                      Este embudo muestra TODOS los eventos históricos desde el inicio del tracking (sin filtros de fecha).
+                      Visualiza el rendimiento total acumulado del embudo de financiamientos.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {(() => {
+                    const steps = [
+                      {
+                        label: '1. Visitas Landing (Histórico)',
+                        description: 'Total de PageViews a /financiamientos desde siempre',
+                        count: historicFunnel.landing,
+                        color: 'bg-blue-500',
+                      },
+                      {
+                        label: '2. Registros (Histórico)',
+                        description: 'Total de usuarios registrados desde siempre',
+                        count: historicFunnel.registration,
+                        color: 'bg-indigo-500',
+                      },
+                      {
+                        label: '3. Perfiles Completos (Histórico)',
+                        description: 'Total de perfiles completados desde siempre',
+                        count: historicFunnel.profile_complete,
+                        color: 'bg-purple-500',
+                      },
+                      {
+                        label: '4. Aplicaciones Iniciadas (Histórico)',
+                        description: 'Total de aplicaciones iniciadas desde siempre',
+                        count: historicFunnel.application_started,
+                        color: 'bg-pink-500',
+                      },
+                      {
+                        label: '5. Leads Completados (Histórico)',
+                        description: 'Total de conversiones completas desde siempre',
+                        count: historicFunnel.application_submitted,
+                        color: 'bg-green-500',
+                      },
+                    ];
+
+                    const maxCount = Math.max(...steps.map(s => s.count), 1);
+
+                    return steps.map((step, idx) => {
+                      const barWidth = (step.count / maxCount) * 100;
+                      const conversionPercentage = historicFunnel.landing > 0
+                        ? (step.count / historicFunnel.landing) * 100
+                        : 0;
+
+                      return (
+                        <div key={idx} className="relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-900">{step.label}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                            </div>
+                            <div className="flex items-center gap-3 ml-4">
+                              <span className="text-sm text-gray-600 whitespace-nowrap">{conversionPercentage.toFixed(1)}%</span>
+                              <span className="text-lg font-bold text-gray-900 whitespace-nowrap">{step.count.toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-10 mt-2 relative overflow-visible">
+                            <div
+                              className={`${step.color} h-10 rounded-full transition-all duration-300 relative`}
+                              style={{ width: `${Math.max(barWidth, step.count > 0 ? 5 : 0)}%` }}
+                            >
+                              {step.count > 0 && (
+                                <div className="absolute inset-0 flex items-center justify-start pl-3">
+                                  <span className="text-white font-bold text-sm whitespace-nowrap">
+                                    {step.count} ({conversionPercentage.toFixed(0)}%)
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {idx < 4 && (
+                            <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 text-gray-400">
+                              <TrendingDown className="w-4 h-4" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-green-800">Conversión Global (Todo el Tiempo)</p>
+                    <p className="text-3xl font-bold text-green-900 mt-2">
+                      {historicFunnel.landing > 0
+                        ? ((historicFunnel.application_submitted / historicFunnel.landing) * 100).toFixed(1)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      {historicFunnel.application_submitted} leads de {historicFunnel.landing} visitas totales
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-indigo-800">Total Registros Históricos</p>
+                    <p className="text-3xl font-bold text-indigo-900 mt-2">
+                      {historicFunnel.registration.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-indigo-600 mt-1">
+                      Usuarios únicos registrados desde siempre
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'funnel-24h' && funnel24h && (
+              <div className="space-y-6">
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3">
+                  <Clock className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-orange-900">Embudo Últimas 24 Horas</p>
+                    <p className="text-sm text-orange-700 mt-1">
+                      Este embudo muestra SOLO los eventos de las últimas 24 horas.
+                      Útil para monitorear el rendimiento actual y detectar problemas en tiempo real.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {(() => {
+                    const steps = [
+                      {
+                        label: '1. Visitas Landing (24h)',
+                        description: 'PageViews a /financiamientos en las últimas 24 horas',
+                        count: funnel24h.landing,
+                        color: 'bg-blue-500',
+                      },
+                      {
+                        label: '2. Registros (24h)',
+                        description: 'Nuevos registros en las últimas 24 horas',
+                        count: funnel24h.registration,
+                        color: 'bg-indigo-500',
+                      },
+                      {
+                        label: '3. Perfiles Completos (24h)',
+                        description: 'Perfiles completados en las últimas 24 horas',
+                        count: funnel24h.profile_complete,
+                        color: 'bg-purple-500',
+                      },
+                      {
+                        label: '4. Aplicaciones Iniciadas (24h)',
+                        description: 'Aplicaciones iniciadas en las últimas 24 horas',
+                        count: funnel24h.application_started,
+                        color: 'bg-pink-500',
+                      },
+                      {
+                        label: '5. Leads Completados (24h)',
+                        description: 'Conversiones completas en las últimas 24 horas',
+                        count: funnel24h.application_submitted,
+                        color: 'bg-green-500',
+                      },
+                    ];
+
+                    const maxCount = Math.max(...steps.map(s => s.count), 1);
+
+                    return steps.map((step, idx) => {
+                      const barWidth = (step.count / maxCount) * 100;
+                      const conversionPercentage = funnel24h.landing > 0
+                        ? (step.count / funnel24h.landing) * 100
+                        : 0;
+
+                      return (
+                        <div key={idx} className="relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-900">{step.label}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                            </div>
+                            <div className="flex items-center gap-3 ml-4">
+                              <span className="text-sm text-gray-600 whitespace-nowrap">{conversionPercentage.toFixed(1)}%</span>
+                              <span className="text-lg font-bold text-gray-900 whitespace-nowrap">{step.count.toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-10 mt-2 relative overflow-visible">
+                            <div
+                              className={`${step.color} h-10 rounded-full transition-all duration-300 relative`}
+                              style={{ width: `${Math.max(barWidth, step.count > 0 ? 5 : 0)}%` }}
+                            >
+                              {step.count > 0 && (
+                                <div className="absolute inset-0 flex items-center justify-start pl-3">
+                                  <span className="text-white font-bold text-sm whitespace-nowrap">
+                                    {step.count} ({conversionPercentage.toFixed(0)}%)
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {idx < 4 && (
+                            <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 text-gray-400">
+                              <TrendingDown className="w-4 h-4" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-orange-800">Conversión Últimas 24h</p>
+                    <p className="text-3xl font-bold text-orange-900 mt-2">
+                      {funnel24h.landing > 0
+                        ? ((funnel24h.application_submitted / funnel24h.landing) * 100).toFixed(1)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-orange-600 mt-1">
+                      {funnel24h.application_submitted} leads de {funnel24h.landing} visitas recientes
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-blue-800">Registros Últimas 24h</p>
+                    <p className="text-3xl font-bold text-blue-900 mt-2">
+                      {funnel24h.registration.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Nuevos usuarios en el último día
                     </p>
                   </div>
                 </div>

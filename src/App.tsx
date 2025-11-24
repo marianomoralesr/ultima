@@ -13,6 +13,7 @@ import RedirectManager from './components/RedirectManager';
 import LeadSourceHandler from './components/LeadSourceHandler';
 import { VehicleProvider } from './context/VehicleContext';
 import InventoryLayout from './components/InventoryLayout';
+import ResourceHints from './components/ResourceHints';
 // VehicleProvider moved to main.tsx to avoid duplication
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -110,6 +111,7 @@ function App(): React.JSX.Element {
   return (
     <>
       <Toaster position="top-right" richColors closeButton />
+      <ResourceHints />
       <PageViewTracker />
       <LeadSourceHandler />
       <AuthHandler />

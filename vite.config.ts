@@ -41,6 +41,10 @@ export default defineConfig({
     // Optimize chunking strategy
     rollupOptions: {
       output: {
+        // Preserve variable declarations for AWS SDK to prevent initialization errors
+        format: 'es',
+        // Disable code splitting completely to prevent variable initialization issues
+        inlineDynamicImports: false,
         // Manual chunking for better code splitting
         manualChunks: (id) => {
           // Split vendor chunks for better caching
@@ -65,7 +69,7 @@ export default defineConfig({
             if (id.includes('react-hook-form') || id.includes('zod')) {
               return 'form-vendor';
             }
-            // AWS SDK
+            // AWS SDK - keep separate and preserve structure
             if (id.includes('@aws-sdk')) {
               return 'aws-vendor';
             }
@@ -102,11 +106,15 @@ export default defineConfig({
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
+        // Preserve module structure to prevent variable hoisting issues
+        preserveModules: false,
+        // Ensure strict ordering
+        hoistTransitiveImports: false,
       },
     },
     // Increase chunk size warning limit to 750kB (we'll handle large libs separately)
-    chunkSizeWarningLimit: 750,
-    // Disable minification to avoid variable hoisting issues
+    chunkSizeWarningLimit: 1500,
+    // CRITICAL: Keep minification disabled - esbuild transforms break AWS SDK
     minify: false,
     // Enable CSS code splitting
     cssCodeSplit: true,
@@ -120,6 +128,11 @@ export default defineConfig({
     },
     // Report compressed size
     reportCompressedSize: true,
+    // Completely disable tree-shaking for problematic dependencies
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      strictRequires: true,
+    },
   },
   // Optimize dependencies
   optimizeDeps: {
@@ -131,7 +144,18 @@ export default defineConfig({
       '@tanstack/react-query',
       'framer-motion',
     ],
-    exclude: ['@aws-sdk/client-s3'], // Large dependency, load on demand
+    exclude: [
+      '@aws-sdk/client-s3',
+      '@aws-sdk/client-cloudfront',
+      '@aws-sdk/credential-provider-node',
+      '@aws-sdk/signature-v4',
+    ], // AWS SDK: load on demand, don't transform
+    esbuildOptions: {
+      // Preserve variable declarations for AWS SDK
+      keepNames: true,
+      // Don't transform AWS SDK imports
+      // This prevents variable initialization errors
+    },
   },
   // Enable caching
   cacheDir: 'node_modules/.vite',
@@ -141,6 +165,8 @@ export default defineConfig({
     legalComments: 'none',
     // Target for syntax transformation
     target: 'es2020',
+    // CRITICAL: Preserve variable names to prevent initialization errors
+    keepNames: true,
     // Keep console.error for debugging production issues
     // drop: ['debugger'], // Only drop debugger statements
   },

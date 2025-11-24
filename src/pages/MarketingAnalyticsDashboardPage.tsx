@@ -42,6 +42,13 @@ interface EventStats {
     application_started: number;
     application_submitted: number;
   };
+  meta_funnel: {
+    landing: number;
+    registration: number;
+    profile_complete: number;
+    application_started: number;
+    application_submitted: number;
+  };
 }
 
 const MarketingAnalyticsDashboardPage: React.FC = () => {
@@ -59,7 +66,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     endDate: new Date().toISOString().split('T')[0],
   });
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns' | 'pages' | 'facebook' | 'funnel'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'sources' | 'campaigns' | 'pages' | 'facebook' | 'funnel' | 'meta-funnel'>('overview');
 
   const loadData = async () => {
     setLoading(true);
@@ -153,6 +160,36 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
           .filter(Boolean)
       );
 
+      // Get users who came from Meta (Facebook/Instagram)
+      // Check for fbclid in metadata or utm_source containing 'facebook' or 'instagram'
+      const metaUserIds = new Set(
+        eventsData
+          .filter(e => {
+            const hasFbclid = e.metadata?.fbclid || e.referrer?.includes('facebook.com') || e.referrer?.includes('instagram.com');
+            const isMetaSource = e.utm_source?.toLowerCase().includes('facebook') ||
+                                e.utm_source?.toLowerCase().includes('instagram') ||
+                                e.utm_source?.toLowerCase().includes('meta');
+            return (hasFbclid || isMetaSource) && e.user_id;
+          })
+          .map(e => e.user_id)
+          .filter(Boolean)
+      );
+
+      // Get landing page users who came specifically from Meta
+      const metaLandingPageUserIds = new Set(
+        eventsData
+          .filter(e => {
+            const isLandingPage = e.event_type === 'ConversionLandingPage' || e.event_name === 'ConversionLandingPage';
+            const hasFbclid = e.metadata?.fbclid || e.referrer?.includes('facebook.com') || e.referrer?.includes('instagram.com');
+            const isMetaSource = e.utm_source?.toLowerCase().includes('facebook') ||
+                                e.utm_source?.toLowerCase().includes('instagram') ||
+                                e.utm_source?.toLowerCase().includes('meta');
+            return isLandingPage && (hasFbclid || isMetaSource) && e.user_id;
+          })
+          .map(e => e.user_id)
+          .filter(Boolean)
+      );
+
       const conversionFunnel = {
         // Step 1: Page views to /financiamientos landing page
         landing: eventsData.filter(e =>
@@ -169,18 +206,48 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
           (e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete') &&
           e.user_id && landingPageUserIds.has(e.user_id)
         ).length,
-        // Step 4: Application started (only from landing page users viewing application page)
+        // Step 4: Application started (only from landing page users - ComienzaSolicitud event)
         application_started: eventsData.filter(e =>
-          (e.event_type === 'PageView' && (
-            e.metadata?.page?.includes('/aplicacion') ||
-            e.page_url?.includes('/aplicacion')
-          )) &&
+          (e.event_type === 'ComienzaSolicitud' || e.event_name === 'ComienzaSolicitud') &&
           e.user_id && landingPageUserIds.has(e.user_id)
         ).length,
         // Step 5: LeadComplete - application submitted (ONLY from landing page users)
         application_submitted: eventsData.filter(e =>
           (e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete') &&
           e.user_id && landingPageUserIds.has(e.user_id)
+        ).length,
+      };
+
+      // Meta-specific funnel (Facebook/Instagram traffic only)
+      const metaFunnel = {
+        // Step 1: Page views to /financiamientos from Meta
+        landing: eventsData.filter(e => {
+          const isLandingPage = e.event_type === 'PageView' && (
+            e.metadata?.page === '/financiamientos' ||
+            e.page_url?.includes('/financiamientos')
+          );
+          const hasFbclid = e.metadata?.fbclid || e.referrer?.includes('facebook.com') || e.referrer?.includes('instagram.com');
+          const isMetaSource = e.utm_source?.toLowerCase().includes('facebook') ||
+                              e.utm_source?.toLowerCase().includes('instagram') ||
+                              e.utm_source?.toLowerCase().includes('meta');
+          return isLandingPage && (hasFbclid || isMetaSource);
+        }).length,
+        // Step 2: Registration from Meta
+        registration: metaLandingPageUserIds.size,
+        // Step 3: Profile complete from Meta users
+        profile_complete: eventsData.filter(e =>
+          (e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete') &&
+          e.user_id && metaLandingPageUserIds.has(e.user_id)
+        ).length,
+        // Step 4: Application started from Meta users
+        application_started: eventsData.filter(e =>
+          (e.event_type === 'ComienzaSolicitud' || e.event_name === 'ComienzaSolicitud') &&
+          e.user_id && metaLandingPageUserIds.has(e.user_id)
+        ).length,
+        // Step 5: Lead complete from Meta users
+        application_submitted: eventsData.filter(e =>
+          (e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete') &&
+          e.user_id && metaLandingPageUserIds.has(e.user_id)
         ).length,
       };
 
@@ -242,6 +309,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         events_by_page: eventsByPage,
         facebook_pixel_events: facebookPixelEvents,
         conversion_funnel: conversionFunnel,
+        meta_funnel: metaFunnel,
       });
     } catch (err: any) {
       console.error('Failed to load marketing data:', err);
@@ -425,7 +493,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -467,6 +535,23 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border-2 border-blue-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-blue-700">Usuarios desde Meta</p>
+                  <p className="text-3xl font-bold text-blue-900 mt-2">
+                    {stats.meta_funnel.registration}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    {stats.meta_funnel.application_submitted} conversiones
+                  </p>
+                </div>
+                <div className="p-3 bg-blue-200 rounded-lg">
+                  <ExternalLink className="w-6 h-6 text-blue-700" />
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}
@@ -477,6 +562,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
           {[
             { id: 'overview', label: 'Resumen', icon: BarChart3 },
             { id: 'funnel', label: 'Embudo', icon: TrendingDown },
+            { id: 'meta-funnel', label: 'Embudo Meta', icon: ExternalLink },
             { id: 'pages', label: 'Páginas', icon: FileText },
             { id: 'facebook', label: 'FB Pixel', icon: ExternalLink },
             { id: 'events', label: 'Eventos', icon: Calendar },
@@ -783,7 +869,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                       },
                       {
                         label: '4. Aplicación Iniciada (ComienzaSolicitud)',
-                        description: 'Usuario llegó a /escritorio/aplicacion',
+                        description: 'Usuario completó perfilación bancaria y fue redirigido a aplicación',
                         count: stats.conversion_funnel.application_started,
                         color: 'bg-pink-500',
                       },
@@ -861,6 +947,126 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                         : 0}%
                     </p>
                     <p className="text-xs text-blue-700 mt-1">Registro → Solicitud Enviada</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'meta-funnel' && stats && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                  <ExternalLink className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Embudo de Conversión - Tráfico Meta (Facebook/Instagram)</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      Este embudo muestra ÚNICAMENTE usuarios que llegaron desde Facebook o Instagram (detectados por fbclid o utm_source).
+                      Visualiza el recorrido completo desde el primer clic en Meta hasta la conversión final.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {(() => {
+                    const steps = [
+                      {
+                        label: '1. Visitas Landing desde Meta',
+                        description: 'Usuarios que llegaron a /financiamientos desde Facebook/Instagram',
+                        count: stats.meta_funnel.landing,
+                        color: 'bg-blue-500',
+                      },
+                      {
+                        label: '2. Registro desde Meta',
+                        description: 'Usuarios de Meta que completaron el registro',
+                        count: stats.meta_funnel.registration,
+                        color: 'bg-indigo-500',
+                      },
+                      {
+                        label: '3. Perfil Completo (Meta)',
+                        description: 'Usuarios de Meta que guardaron su perfil personal',
+                        count: stats.meta_funnel.profile_complete,
+                        color: 'bg-purple-500',
+                      },
+                      {
+                        label: '4. Aplicación Iniciada (Meta)',
+                        description: 'Usuarios de Meta que completaron perfilación bancaria',
+                        count: stats.meta_funnel.application_started,
+                        color: 'bg-pink-500',
+                      },
+                      {
+                        label: '5. Solicitud Enviada (Meta)',
+                        description: 'Usuarios de Meta que enviaron solicitud completa',
+                        count: stats.meta_funnel.application_submitted,
+                        color: 'bg-green-500',
+                      },
+                    ];
+
+                    const maxCount = Math.max(...steps.map(s => s.count), 1);
+
+                    return steps.map((step, idx) => {
+                      const barWidth = (step.count / maxCount) * 100;
+                      const conversionPercentage = stats.meta_funnel.landing > 0
+                        ? (step.count / stats.meta_funnel.landing) * 100
+                        : 0;
+
+                      return (
+                        <div key={idx} className="relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-900">{step.label}</span>
+                              <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                            </div>
+                            <div className="flex items-center gap-3 ml-4">
+                              <span className="text-sm text-gray-600 whitespace-nowrap">{conversionPercentage.toFixed(1)}%</span>
+                              <span className="text-lg font-bold text-gray-900 whitespace-nowrap">{step.count.toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-10 mt-2 relative overflow-visible">
+                            <div
+                              className={`${step.color} h-10 rounded-full transition-all duration-300 relative`}
+                              style={{ width: `${Math.max(barWidth, step.count > 0 ? 5 : 0)}%` }}
+                            >
+                              {step.count > 0 && (
+                                <div className="absolute inset-0 flex items-center justify-start pl-3">
+                                  <span className="text-white font-bold text-sm whitespace-nowrap">
+                                    {step.count} ({conversionPercentage.toFixed(0)}%)
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {idx < 4 && (
+                            <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 text-gray-400">
+                              <TrendingDown className="w-4 h-4" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-blue-800">Tasa de Conversión Meta</p>
+                    <p className="text-3xl font-bold text-blue-900 mt-2">
+                      {stats.meta_funnel.landing > 0
+                        ? ((stats.meta_funnel.application_submitted / stats.meta_funnel.landing) * 100).toFixed(1)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      De {stats.meta_funnel.landing} visitas desde Meta, {stats.meta_funnel.application_submitted} completaron solicitud
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-lg p-4">
+                    <p className="text-sm font-medium text-indigo-800">Tasa Visita → Registro (Meta)</p>
+                    <p className="text-3xl font-bold text-indigo-900 mt-2">
+                      {stats.meta_funnel.landing > 0
+                        ? ((stats.meta_funnel.registration / stats.meta_funnel.landing) * 100).toFixed(1)
+                        : 0}%
+                    </p>
+                    <p className="text-xs text-indigo-600 mt-1">
+                      {stats.meta_funnel.registration} de {stats.meta_funnel.landing} visitantes se registraron
+                    </p>
                   </div>
                 </div>
               </div>

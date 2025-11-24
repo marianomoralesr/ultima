@@ -223,6 +223,46 @@ const ProfilePage: React.FC = () => {
     }
   }, [selectedSalesAgentId]);
 
+  // Auto-save form data when user changes fields (debounced)
+  useEffect(() => {
+    const subscription = watchProfileFields((formData) => {
+      // Only auto-save if user is not currently saving and has made changes
+      if (saveState === 'idle' && user && profile) {
+        // Debounce auto-save by 2 seconds
+        const timer = setTimeout(async () => {
+          try {
+            const payload: Partial<Profile> = {
+              id: user.id,
+              email: user.email,
+              first_name: formData.first_name,
+              last_name: formData.last_name,
+              mother_last_name: formData.mother_last_name,
+              phone: formData.phone,
+              cellphone_company: formData.cellphone_company,
+              birth_date: formData.birth_date,
+              homoclave: formData.homoclave,
+              fiscal_situation: formData.fiscal_situation,
+              civil_status: formData.civil_status,
+              spouse_name: formData.spouse_name,
+              gender: formData.gender,
+              how_did_you_know: formData.how_did_you_know,
+            };
+
+            // Silent save without showing toast
+            await ProfileService.updateProfile(payload);
+            console.log('Auto-saved profile');
+          } catch (error) {
+            console.error('Auto-save error:', error);
+          }
+        }, 2000);
+
+        return () => clearTimeout(timer);
+      }
+    });
+
+    return subscription.unsubscribe;
+  }, [watchProfileFields, saveState, user, profile]);
+
   const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -275,24 +315,34 @@ const ProfilePage: React.FC = () => {
       await ProfileService.updateProfile(payload);
       await reloadProfile();
 
-      // Track profile update conversion
-      conversionTracking.trackProfile.updated({
-        userId: user.id,
-        email: user.email,
-        profileComplete: checkProfileCompleteness(payload as Profile),
-        hasProfilePicture: !!pictureUrl,
-        asesorAutorizado: !!payload.asesor_autorizado_acceso
-      });
+      // Check if profile is complete
+      const isComplete = checkProfileCompleteness(payload as Profile);
+
+      // Track profile update conversion ONLY if profile is complete
+      if (isComplete) {
+        conversionTracking.trackProfile.updated({
+          userId: user.id,
+          email: user.email,
+          profileComplete: true,
+          hasProfilePicture: !!pictureUrl,
+          asesorAutorizado: !!payload.asesor_autorizado_acceso
+        });
+      }
 
       setSaveState('saved');
-      toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');
 
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Only redirect if profile is complete
+      if (isComplete) {
+        toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');
         setTimeout(() => {
-          navigate('/escritorio/perfilacion-bancaria');
-        }, 300);
-      }, 4000);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(() => {
+            navigate('/escritorio/perfilacion-bancaria');
+          }, 300);
+        }, 4000);
+      } else {
+        toast.success('Perfil guardado. Completa todos los campos para continuar.');
+      }
 
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No pudimos guardar tu perfil. Por favor, verifica que toda la información esté correcta e intenta nuevamente. Si el problema persiste, contacta con soporte.');

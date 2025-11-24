@@ -233,12 +233,8 @@ const Application: React.FC = () => {
 
                     const newDraft = await ApplicationService.createDraftApplication(user.id, initialData);
                     if (newDraft && newDraft.id) {
-                        // Track ComienzaSolicitud - user started new application
-                        conversionTracking.trackApplication.started({
-                            userId: user.id,
-                            applicationId: newDraft.id,
-                            vehicleId: finalOrdenCompra || undefined
-                        });
+                        // DO NOT track ComienzaSolicitud here - it's already tracked in PerfilacionBancariaPage
+                        // when user completes bank profiling and sees results
 
                         // Set only the application ID - do NOT set applicationData
                         // This allows the effect to load the full draft from database after navigation

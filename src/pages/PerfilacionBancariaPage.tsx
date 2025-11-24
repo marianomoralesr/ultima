@@ -232,13 +232,26 @@ const PerfilacionBancariaPage: React.FC = () => {
 
             localStorage.removeItem('loginRedirect');
 
+            // Track ComienzaSolicitud event - user completed bank profiling and is being redirected to application
+            if (user) {
+                try {
+                    conversionTracking.trackApplication.started({
+                        userId: user.id,
+                        recommendedBank: recommendedBank || undefined,
+                        secondOption: secondRecommendedBank || undefined
+                    });
+                } catch (trackingError) {
+                    console.error('Error tracking ComienzaSolicitud:', trackingError);
+                }
+            }
+
             const timer = setTimeout(() => {
                 navigate(path);
             }, 7000); // Redirect after 7 seconds
 
             return () => clearTimeout(timer);
         }
-    }, [status, navigate, isAdmin]);
+    }, [status, navigate, isAdmin, user, recommendedBank, secondRecommendedBank]);
 
 
     const onSubmit = async (data: BankProfileFormData) => {

@@ -483,8 +483,14 @@ const FinanciamientosPage: React.FC = () => {
       console.log('✅ OTP verified successfully, user authenticated');
 
       // Now update/create the user's profile
-      const profileData: ProfileData = {
-        nombre: formDataCache.fullName,
+      // Parse full name into first_name, last_name, mother_last_name
+      const { firstName, lastName, motherLastName } = parseFullName(formDataCache.fullName);
+
+      const profileData = {
+        nombre: formDataCache.fullName, // Keep full name for reference
+        first_name: firstName,
+        last_name: lastName,
+        mother_last_name: motherLastName,
         email: formDataCache.email,
         telefono: formDataCache.phone,
         phone: formDataCache.phone // Save phone to the phone field as well

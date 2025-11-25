@@ -58,6 +58,7 @@ const PublicDocumentUploadPage: React.FC = () => {
         {
           headers: {
             'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
         }
       );
@@ -160,6 +161,7 @@ const PublicDocumentUploadPage: React.FC = () => {
           method: 'POST',
           headers: {
             'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
           body: formData,
         }
@@ -229,18 +231,17 @@ const PublicDocumentUploadPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          {/* Animación de ondas pulsantes */}
-          <div className="relative w-32 h-32 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full bg-primary-400 opacity-75 animate-ping"></div>
-            <div className="absolute inset-0 rounded-full bg-primary-500 opacity-50 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute inset-4 rounded-full bg-primary-600 opacity-75 animate-ping" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute inset-8 rounded-full bg-white flex items-center justify-center">
-              <Upload className="w-10 h-10 text-primary-600" />
+          {/* Animación sutil de carga */}
+          <div className="relative w-20 h-20 mx-auto mb-4">
+            <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Upload className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <p className="text-lg text-gray-600">Conectando...</p>
+          <p className="text-sm text-muted-foreground">Cargando...</p>
         </div>
       </div>
     );
@@ -277,45 +278,40 @@ const PublicDocumentUploadPage: React.FC = () => {
   const progress = (uploadedCount / REQUIRED_DOCUMENTS.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50">
+    <div className="min-h-screen bg-background">
       {/* Header con logo TREFA */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
-          <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-10" />
+      <div className="border-b bg-card">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-8" />
           <div className="text-right">
-            <p className="text-xs text-gray-500 font-mono">ID: {application?.id.slice(0, 8)}</p>
-            <p className="text-sm font-semibold text-primary-600">{application?.vehicle}</p>
+            <p className="text-xs text-muted-foreground font-mono">ID: {application?.id.slice(0, 8)}</p>
+            <p className="text-sm font-semibold text-primary">{application?.vehicle}</p>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Icono animado principal */}
+        {/* Header sutil */}
         <div className="text-center mb-8">
-          <div className="relative w-40 h-40 mx-auto mb-6">
-            {/* Ondas pulsantes de fondo */}
-            <div className="absolute inset-0 rounded-full bg-primary-400 opacity-20 animate-ping"></div>
-            <div className="absolute inset-0 rounded-full bg-primary-500 opacity-15 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute inset-4 rounded-full bg-primary-400 opacity-20 animate-ping" style={{ animationDelay: '1s' }}></div>
-
-            {/* Círculo central */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center shadow-2xl">
-              <Upload className="w-16 h-16 text-white" />
+          <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full bg-primary flex items-center justify-center">
+              <Upload className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Carga de Documentos</h1>
-          <p className="text-lg text-gray-600 mb-4">Sube tus documentos de manera fácil y segura</p>
+          <h1 className="text-2xl font-bold tracking-tight mb-2">Carga de Documentos</h1>
+          <p className="text-muted-foreground">Sube tus documentos de manera fácil y segura</p>
 
           {/* Barra de progreso */}
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+          <div className="max-w-md mx-auto mt-6">
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
               <span>Progreso</span>
-              <span className="font-semibold">{uploadedCount} de {REQUIRED_DOCUMENTS.length}</span>
+              <span className="font-medium">{uploadedCount} de {REQUIRED_DOCUMENTS.length}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-primary-600 to-primary-500 h-3 rounded-full transition-all duration-500 ease-out"
+                className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
@@ -324,21 +320,21 @@ const PublicDocumentUploadPage: React.FC = () => {
 
         {/* Mensaje de compresión */}
         {compressing && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
-            <p className="text-sm text-blue-700">
-              ⚙️ Comprimiendo imagen para optimizar la subida...
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-center">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Comprimiendo imagen...
             </p>
           </div>
         )}
 
         {/* Lista de documentos requeridos */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-6 bg-gradient-to-r from-primary-600 to-primary-700">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              <FileText className="w-6 h-6 mr-2" />
+        <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+          <div className="p-6 border-b bg-muted/50">
+            <h2 className="text-lg font-semibold flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
               Documentos Requeridos
             </h2>
-            <p className="text-primary-100 text-sm mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Todos los documentos son obligatorios para procesar tu solicitud
             </p>
           </div>
@@ -365,23 +361,23 @@ const PublicDocumentUploadPage: React.FC = () => {
           </div>
 
           {/* Información de seguridad */}
-          <div className="p-6 bg-gray-50 border-t border-gray-200">
+          <div className="p-6 bg-muted/30 border-t">
             <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-1">🔒 Información Segura</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold mb-1">Información Segura</h3>
+                <p className="text-sm text-muted-foreground">
                   Todos tus documentos se almacenan de forma segura y encriptada. Solo el personal autorizado de TREFA podrá acceder a ellos.
                 </p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                   Formatos aceptados: PDF, JPG, PNG • Tamaño máximo: 10MB por archivo
                 </p>
-                <p className="text-xs text-green-600 mt-1">
-                  ✨ Las imágenes grandes se comprimen automáticamente para una subida más rápida
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                  Las imágenes grandes se comprimen automáticamente
                 </p>
               </div>
             </div>
@@ -390,19 +386,19 @@ const PublicDocumentUploadPage: React.FC = () => {
 
         {/* Mensaje de completado */}
         {uploadedCount === REQUIRED_DOCUMENTS.length && (
-          <div className="mt-6 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl shadow-xl p-6 text-white text-center">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-10 h-10 text-green-600" />
+          <div className="mt-6 bg-green-500 dark:bg-green-600 rounded-lg border shadow-sm p-6 text-white text-center">
+            <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+              <CheckCircle className="w-8 h-8" />
             </div>
-            <h3 className="text-2xl font-bold mb-2">¡Documentos Completos!</h3>
-            <p className="text-green-100">
+            <h3 className="text-xl font-bold mb-2">¡Documentos Completos!</h3>
+            <p className="text-white/90 text-sm">
               Todos los documentos han sido recibidos correctamente. Nos pondremos en contacto contigo pronto.
             </p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-8 text-center text-sm text-gray-500">
+        <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>© 2025 Autos TREFA • Todos los derechos reservados</p>
         </div>
       </div>
@@ -449,47 +445,47 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
 
   return (
     <div
-      className={`border-2 rounded-xl p-5 transition-all ${
+      className={`border-2 rounded-lg p-4 transition-all ${
         status.uploaded
-          ? 'border-green-400 bg-green-50'
+          ? 'border-green-500/50 bg-green-50 dark:bg-green-950/20'
           : isDragActive
-          ? 'border-primary-500 bg-primary-50'
-          : 'border-gray-200 hover:border-primary-300 bg-gray-50'
+          ? 'border-primary bg-primary/5'
+          : 'border-border hover:border-primary/50 bg-card'
       }`}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-3">
           {status.uploaded ? (
-            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-              <CheckCircle className="w-6 h-6 text-white" />
+            <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-5 h-5 text-white" />
             </div>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-              <FileText className="w-5 h-5 text-gray-600" />
+            <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+              <FileText className="w-5 h-5 text-muted-foreground" />
             </div>
           )}
           <div>
-            <h3 className="font-semibold text-gray-900">{doc.name}</h3>
+            <h3 className="font-semibold text-sm">{doc.name}</h3>
             {status.uploaded && (
-              <p className="text-sm text-green-700">✓ Subido correctamente</p>
+              <p className="text-xs text-green-600 dark:text-green-400">Subido correctamente</p>
             )}
           </div>
         </div>
       </div>
 
       {status.uploaded && status.fileName && (
-        <div className="mb-3 p-3 bg-white rounded-lg border border-green-200 space-y-2">
+        <div className="mb-3 p-3 bg-background rounded-lg border space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-700 truncate flex-1">{status.fileName}</p>
+            <p className="text-sm text-foreground truncate flex-1">{status.fileName}</p>
           </div>
           {status.uploadedAt && (
-            <div className="flex items-center text-xs text-gray-500">
+            <div className="flex items-center text-xs text-muted-foreground">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Subido el {new Date(status.uploadedAt).toLocaleDateString('es-MX', {
+              {new Date(status.uploadedAt).toLocaleDateString('es-MX', {
                 day: 'numeric',
-                month: 'long',
+                month: 'short',
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
@@ -503,25 +499,25 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
         <div {...getRootProps()}>
           <input {...getInputProps()} ref={fileInputRef} />
           <div
-            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+            className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition-all ${
               isDragActive
-                ? 'border-primary-500 bg-primary-50'
-                : 'border-gray-300 hover:border-primary-400 hover:bg-gray-100'
+                ? 'border-primary bg-primary/5'
+                : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-accent/50'
             } ${isUploading || tokenExpired ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <Upload className={`w-12 h-12 mx-auto mb-3 ${isDragActive ? 'text-primary-600' : 'text-gray-400'}`} />
+            <Upload className={`w-10 h-10 mx-auto mb-2 ${isDragActive ? 'text-primary' : 'text-muted-foreground'}`} />
             {isDragActive ? (
-              <p className="text-sm font-semibold text-primary-600">Suelta el archivo aquí</p>
+              <p className="text-sm font-medium text-primary">Suelta el archivo aquí</p>
             ) : isUploading ? (
-              <p className="text-sm text-gray-600">Subiendo archivo...</p>
+              <p className="text-sm text-muted-foreground">Subiendo...</p>
             ) : tokenExpired ? (
-              <p className="text-sm text-gray-500">Enlace expirado - Contacta a tu asesor</p>
+              <p className="text-sm text-muted-foreground">Enlace expirado</p>
             ) : (
               <>
-                <p className="text-sm font-semibold text-gray-700">
-                  Arrastra el archivo aquí o haz clic para seleccionar
+                <p className="text-sm font-medium">
+                  Arrastra el archivo o haz clic
                 </p>
-                <p className="text-xs text-gray-500 mt-1">PDF, JPG o PNG (máx. 10MB)</p>
+                <p className="text-xs text-muted-foreground mt-1">PDF, JPG o PNG (máx. 10MB)</p>
               </>
             )}
           </div>
@@ -530,13 +526,13 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
 
       {isUploading && currentProgress !== undefined && (
         <div className="mt-3">
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-secondary rounded-full h-1.5">
             <div
-              className="bg-primary-600 h-2 rounded-full transition-all"
+              className="bg-primary h-1.5 rounded-full transition-all"
               style={{ width: `${currentProgress}%` }}
             ></div>
           </div>
-          <p className="text-xs text-gray-600 mt-1 text-center">{currentProgress}%</p>
+          <p className="text-xs text-muted-foreground mt-1 text-center">{currentProgress}%</p>
         </div>
       )}
     </div>

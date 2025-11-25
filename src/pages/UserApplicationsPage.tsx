@@ -93,31 +93,31 @@ const UserApplicationsPage: React.FC = () => {
     if (error) return <div className="p-4 bg-red-100 text-red-800 rounded-md"><AlertTriangle className="inline w-5 h-5 mr-2"/>{error}</div>;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8">
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">Mis Aplicaciones y Datos</h1>
-                <p className="mt-1 text-gray-600">Revisa tus solicitudes pasadas y gestiona tu información personal.</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Mis Aplicaciones y Datos</h1>
+                <p className="mt-1 text-sm sm:text-base text-gray-600">Revisa tus solicitudes pasadas y gestiona tu información personal.</p>
             </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">Historial de Aplicaciones</h2>
-                <div className="space-y-4">
+
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Historial de Aplicaciones</h2>
+                <div className="space-y-3 sm:space-y-4">
                     {applications.length > 0 ? applications.map(app => {
                         const status = statusMap[app.status as keyof typeof statusMap] || statusMap.draft;
                         return (
-                            <div key={app.id} className="p-4 border rounded-lg space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                                        <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
+                            <div key={app.id} className="p-3 sm:p-4 border rounded-lg space-y-3">
+                                <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-gray-800 text-sm sm:text-base break-words">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                        <p className="text-xs text-gray-500 mt-1">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
                                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
                                             <status.icon className="w-3 h-3" />
                                             {status.text}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => setViewingApp(app)} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700">
-                                            <Eye className="w-4 h-4"/> Ver Detalles
+                                    <div className="flex flex-row sm:flex-col gap-2 sm:gap-2 justify-between sm:justify-start">
+                                        <button onClick={() => setViewingApp(app)} className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-primary-600 text-white rounded-md hover:bg-primary-700 touch-manipulation min-h-[44px]">
+                                            <Eye className="w-4 h-4"/> Ver
                                         </button>
                                         <button
                                             onClick={() => {
@@ -125,10 +125,10 @@ const UserApplicationsPage: React.FC = () => {
                                                 setDeleteConfirmText('');
                                                 setActionError('');
                                             }}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                            className="sm:flex-initial p-2.5 text-red-600 hover:bg-red-50 rounded-md transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                                             title="Eliminar solicitud"
                                         >
-                                            <Trash2 className="w-4 h-4"/>
+                                            <Trash2 className="w-5 h-5"/>
                                         </button>
                                     </div>
                                 </div>
@@ -142,21 +142,21 @@ const UserApplicationsPage: React.FC = () => {
                 </div>
             </div>
             
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">Gestión de Datos Personales</h2>
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-4">Gestión de Datos Personales</h2>
                 <p className="text-sm text-gray-600 mb-6">En cumplimiento con la Ley Federal de Protección de Datos, tienes control total sobre tu información.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-gray-50 p-4 rounded-lg border">
-                        <h3 className="font-semibold text-gray-800 flex items-center gap-2"><Download className="w-5 h-5"/>Descargar mis datos</h3>
+                        <h3 className="text-sm sm:text-base font-semibold text-gray-800 flex items-center gap-2"><Download className="w-5 h-5"/>Descargar mis datos</h3>
                         <p className="text-xs text-gray-500 mt-1 mb-3">Obtén una copia de toda tu información de perfil y solicitudes en formato JSON.</p>
-                        <button onClick={handleDownloadData} disabled={actionStatus==='loading'} className="w-full text-sm font-semibold py-2 px-4 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60">
+                        <button onClick={handleDownloadData} disabled={actionStatus==='loading'} className="w-full text-sm font-semibold py-2.5 px-4 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 touch-manipulation min-h-[44px]">
                             {actionStatus === 'loading' ? 'Preparando...' : 'Descargar Información'}
                         </button>
                     </div>
                     <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                        <h3 className="font-semibold text-red-800 flex items-center gap-2"><Trash2 className="w-5 h-5"/>Eliminar datos sensibles</h3>
+                        <h3 className="text-sm sm:text-base font-semibold text-red-800 flex items-center gap-2"><Trash2 className="w-5 h-5"/>Eliminar datos sensibles</h3>
                         <p className="text-xs text-red-700 mt-1 mb-3">Elimina permanentemente tus documentos e información personal identificable.</p>
-                        <button onClick={() => setIsModalOpen(true)} className="w-full text-sm font-semibold py-2 px-4 rounded-md bg-red-600 text-white hover:bg-red-700">
+                        <button onClick={() => setIsModalOpen(true)} className="w-full text-sm font-semibold py-2.5 px-4 rounded-md bg-red-600 text-white hover:bg-red-700 touch-manipulation min-h-[44px]">
                             Eliminar Datos
                         </button>
                     </div>

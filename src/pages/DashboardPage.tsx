@@ -431,15 +431,15 @@ const Dashboard: React.FC = () => {
   return (
     <>
       {showOnboarding && <OnboardingModal onClose={handleCompleteOnboarding} />}
-      <div className="space-y-8 lg:ml-6 lg:pl-6 text-neutral-800 max-w-full overflow-x-hidden bg-white">
+      <div className="space-y-6 lg:space-y-8 px-4 sm:px-6 lg:ml-6 lg:pl-6 text-neutral-800 max-w-full overflow-x-hidden bg-white">
         <div>
-          <h4 className="text-xl font-semibold text-neutral-800">Bienvenido a tu Escritorio, {userName}</h4>
+          <h4 className="text-lg sm:text-xl font-semibold text-neutral-800">Bienvenido a tu Escritorio, {userName}</h4>
           <p className="mt-1 text-sm text-neutral-600">Administra tus solicitudes y explora opciones de financiamiento.</p>
         </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Main Content Column */}
-        <div className="lg:col-span-2 space-y-8 lg:pl-5">
+        <div className="lg:col-span-2 space-y-6 lg:space-y-8 lg:pl-5">
             {/* Show OnboardingStepper only if not on step 5 (which means they've submitted apps) */}
             {onboardingStep < 5 && (
               <OnboardingStepper
@@ -460,20 +460,20 @@ const Dashboard: React.FC = () => {
 
             {/* Borradores de Solicitud - Show on mobile at the top (after Mi Asesor) */}
             {drafts.length > 0 && (
-                <div className="lg:hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-4">
-                        <FileEdit className="w-5 h-5 mr-3 text-primary-600" />
+                <div className="lg:hidden bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center mb-4">
+                        <FileEdit className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
                         Borradores de Solicitud
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                         {drafts.map(draft => {
                             const status = statusMap[draft.status] || statusMap[APPLICATION_STATUS.DRAFT];
                             return (
-                                <div key={draft.id} className="p-4 border rounded-lg bg-white">
-                                    <div className="flex justify-between items-start mb-3">
+                                <div key={draft.id} className="p-3 sm:p-4 border rounded-lg bg-white">
+                                    <div className="flex flex-col gap-3 mb-3">
                                         <div>
-                                            <p className="font-semibold text-gray-800">{draft.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                                            <p className="text-xs text-gray-500">Creado: {new Date(draft.created_at).toLocaleDateString()}</p>
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base">{draft.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Creado: {new Date(draft.created_at).toLocaleDateString()}</p>
                                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
                                                 <status.icon className="w-3 h-3" />
                                                 {status.text}
@@ -482,7 +482,7 @@ const Dashboard: React.FC = () => {
                                     </div>
                                     <Link
                                         to={`/escritorio/aplicacion/${draft.id}`}
-                                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors touch-manipulation min-h-[44px]"
                                     >
                                         <EditIcon className="w-4 h-4"/> Continuar Editando
                                     </Link>
@@ -494,30 +494,30 @@ const Dashboard: React.FC = () => {
             )}
 
              {submittedApps.length > 0 ? (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                            <History className="w-5 h-5 mr-3 text-primary-600" />
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                            <History className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
                             Mis Solicitudes Enviadas
                         </h3>
                          <Link
                             to="/escritorio/aplicacion"
-                            className="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-medium hover:bg-primary-700 transition-colors"
+                            className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors touch-manipulation min-h-[44px] w-full sm:w-auto"
                          >
-                            <Plus className="w-4 h-4 mr-1" />
+                            <Plus className="w-4 h-4 mr-2" />
                             Nueva Solicitud
                         </Link>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                         {submittedApps.map(app => {
                             const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.DRAFT];
                             const canEdit = app.status !== APPLICATION_STATUS.EN_REVISION && app.status !== APPLICATION_STATUS.REVIEWING;
                             return (
-                                <div key={app.id} className="p-4 border rounded-lg bg-white">
-                                    <div className="flex justify-between items-start mb-3">
+                                <div key={app.id} className="p-3 sm:p-4 border rounded-lg bg-white">
+                                    <div className="flex flex-col gap-2 mb-3">
                                         <div>
-                                            <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                                            <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base break-words">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
                                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
                                                 <status.icon className="w-3 h-3" />
                                                 {status.text}
@@ -530,27 +530,27 @@ const Dashboard: React.FC = () => {
                                             <PublicUploadLinkCard token={app.public_upload_token} />
                                         </div>
                                     )}
-                                    <div className="flex gap-2 mt-3">
+                                    <div className="flex flex-col sm:flex-row gap-2 mt-3">
                                         <button
                                             onClick={() => {
                                                 setSelectedApplication(app);
                                                 setShowPrintableModal(true);
                                             }}
-                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors touch-manipulation min-h-[44px]"
                                         >
                                             <Eye className="w-4 h-4"/> Ver Solicitud
                                         </button>
                                         {canEdit ? (
                                             <Link
                                                 to={`/escritorio/aplicacion/${app.id}`}
-                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors touch-manipulation min-h-[44px]"
                                             >
                                                 <EditIcon className="w-4 h-4"/> Editar
                                             </Link>
                                         ) : (
                                             <button
                                                 disabled
-                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed opacity-60"
+                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed opacity-60"
                                             >
                                                 <EditIcon className="w-4 h-4"/> Editar
                                             </button>
@@ -589,9 +589,9 @@ const Dashboard: React.FC = () => {
             {/* DocumentUploadSection removido - ahora se usa el dropzone público accesible desde UserApplicationsPage */}
             
             <FinancialProjection />
-            
+
             {/* Surveys and Ebook on Mobile */}
-            <div className="lg:hidden space-y-8">
+            <div className="lg:hidden space-y-6">
                 {isSurveyVisible && <SurveyInvitation onClose={() => setIsSurveyVisible(false)} />}
                 <EbookCta />
             </div>
@@ -601,7 +601,7 @@ const Dashboard: React.FC = () => {
 
 
         {/* Sidebar Column (Desktop) */}
-        <aside className="hidden lg:block lg:col-span-1 space-y-8">
+        <aside className="hidden lg:block lg:col-span-1 space-y-6 lg:space-y-8">
             {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
             {drafts.length > 0 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

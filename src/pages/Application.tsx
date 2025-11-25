@@ -609,42 +609,44 @@ const Application: React.FC = () => {
                         <Suspense fallback={<div className="fixed inset-0 bg-black/50 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-white" /></div>}>
                             <VehicleSelector isOpen={showVehicleSelector} onClose={() => setShowVehicleSelector(false)} onSelect={handleVehicleSelect} />
                         </Suspense>
-                        <div className="max-w-4xl mx-auto p-4 sm:p-0 text-gray-900">
+                        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 text-gray-900">
 
                             {vehicleInfo?._vehicleTitle ? (
-                                <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border flex items-center justify-between flex-wrap gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-24 h-16 object-cover rounded-md flex-shrink-0" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">Solicitud de financiamiento para:</p>
-                                            <h1 className="text-lg font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h1>
+                                <div className="mb-6 lg:mb-8 bg-white p-4 lg:p-6 rounded-xl shadow-sm border">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                        <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
+                                            <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-20 h-14 lg:w-24 lg:h-16 object-cover rounded-md flex-shrink-0" />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs lg:text-sm text-gray-500">Solicitud de financiamiento para:</p>
+                                                <h1 className="text-base lg:text-lg font-bold text-gray-900 truncate">{vehicleInfo._vehicleTitle}</h1>
+                                            </div>
                                         </div>
+                                        <button onClick={() => setShowVehicleSelector(true)} className="flex items-center justify-center gap-2 text-sm font-semibold text-primary-600 bg-primary-50 px-4 py-2 rounded-md hover:bg-primary-100 flex-shrink-0 w-full sm:w-auto">
+                                            <Edit className="w-4 h-4" />
+                                            Cambiar Auto
+                                        </button>
                                     </div>
-                                    <button onClick={() => setShowVehicleSelector(true)} className="flex items-center gap-2 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-md hover:bg-primary-100">
-                                        <Edit className="w-4 h-4" />
-                                        Cambiar Auto
-                                    </button>
                                 </div>
                             ) : (
                                 !showVehicleSelector && (
-                                    <div className="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
-                                        <h1 className="text-lg font-bold text-yellow-800">No has seleccionado un auto</h1>
+                                    <div className="mb-6 lg:mb-8 p-4 lg:p-6 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
+                                        <h1 className="text-base lg:text-lg font-bold text-yellow-800">No has seleccionado un auto</h1>
                                         <p className="text-sm text-yellow-700 mt-1 mb-4">Tu solicitud se guardará como un borrador general.</p>
-                                        <button onClick={() => setShowVehicleSelector(true)} className="text-sm font-semibold text-white bg-primary-600 px-4 py-2 rounded-lg hover:bg-primary-700">
+                                        <button onClick={() => setShowVehicleSelector(true)} className="text-sm font-semibold text-white bg-primary-600 px-5 py-2.5 rounded-lg hover:bg-primary-700 w-full sm:w-auto">
                                             Seleccionar Auto
                                         </button>
                                     </div>
                                 )
                             )}
                             
-                            <div className="mb-10">
+                            <div className="mb-6 lg:mb-10">
                                 <StepIndicator steps={steps} currentStep={currentStep} />
                             </div>
 
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <input type="hidden" {...form.register('ordencompra')} />
                                 <Card className="shadow-lg">
-                                    <CardContent className="p-8">
+                                    <CardContent className="p-4 sm:p-6 lg:p-8">
                                         {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
                                         {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
                                         {currentStep === 2 && <ReferencesStep control={control} errors={errors} profile={profile} getValues={getValues} />}
@@ -677,11 +679,19 @@ const Application: React.FC = () => {
                                     <MissingFields errors={form.formState.errors} />
                                 )}
                                 
-                                <div className="mt-8 flex flex-col sm:flex-row justify-between gap-4">
+                                {/* Mobile: Go back button at top */}
+                                <div className="lg:hidden mb-6">
+                                    <Button type="button" onClick={handlePrev} disabled={currentStep === 0} variant="secondary" size="sm" className="w-full">
+                                        <ArrowLeft className="w-4 h-4 mr-2" /> Anterior
+                                    </Button>
+                                </div>
+
+                                {/* Desktop navigation */}
+                                <div className="hidden lg:flex justify-between items-center gap-4 mt-8">
                                     <Button type="button" onClick={handlePrev} disabled={currentStep === 0} variant="secondary" size="lg">
                                         <ArrowLeft className="w-4 h-4" /> Anterior
                                     </Button>
-                                    <div className="flex flex-col sm:flex-row gap-3">
+                                    <div className="flex gap-3">
                                         <Button
                                             type="button"
                                             onClick={() => navigate('/escritorio')}
@@ -701,6 +711,29 @@ const Application: React.FC = () => {
                                             </Button>
                                         )}
                                     </div>
+                                </div>
+
+                                {/* Mobile: Action buttons at bottom */}
+                                <div className="lg:hidden mt-6 space-y-3">
+                                    <Button
+                                        type="button"
+                                        onClick={() => navigate('/escritorio')}
+                                        variant="outline"
+                                        size="lg"
+                                        className="w-full"
+                                    >
+                                        Guardar y continuar después
+                                    </Button>
+                                    {currentStep < steps.length - 1 ? (
+                                        <Button type="button" onClick={handleNext} size="lg" className="w-full">
+                                            Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Button>
+                                    ) : (
+                                        <Button type="submit" disabled={isSubmitDisabled} size="lg" className="w-full bg-green-600 hover:bg-green-700">
+                                            {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                                            {form.formState.isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
+                                        </Button>
+                                    )}
                                 </div>
                             </form>
                         </div>
@@ -1239,9 +1272,9 @@ const FormRadio: React.FC<{control: any, name: any, label: string, options: stri
     <Controller name={name} control={control} render={({ field }) => (
         <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 lg:gap-3">
                 {options.map(opt => (
-                    <button type="button" key={opt} onClick={() => field.onChange(opt)} className={`px-4 py-2 text-sm font-semibold rounded-full border-2 ${field.value === opt ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'}`}>{opt}</button>
+                    <button type="button" key={opt} onClick={() => field.onChange(opt)} className={`px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm font-semibold rounded-full border-2 transition-colors ${field.value === opt ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'}`}>{opt}</button>
                 ))}
             </div>
             {error && <p className="text-red-600 text-sm mt-1">{error}</p>}

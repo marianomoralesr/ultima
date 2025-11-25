@@ -359,10 +359,10 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-3 sm:p-4 lg:p-8">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
       <Link
         to="/escritorio"
-        className="flex items-center text-gray-600 hover:text-gray-900 mb-4 lg:mb-6 transition-colors"
+        className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 lg:mb-6 transition-colors touch-manipulation min-h-[44px] -ml-2 pl-2 pr-3 py-2 rounded-lg hover:bg-gray-100"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Volver al Dashboard
@@ -371,32 +371,32 @@ const ProfilePage: React.FC = () => {
 
       {/* Welcome Message for First-Time Users */}
       {isFirstTimeUser && !isProfileComplete && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 lg:p-5 mb-6 rounded-r-lg">
-          <h3 className="font-bold text-gray-900 text-base lg:text-lg">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 lg:p-5 mb-4 lg:mb-6 rounded-r-lg">
+          <h3 className="font-bold text-gray-900 text-sm sm:text-base lg:text-lg">
             ¡Te has registrado con éxito!
           </h3>
-          <p className="text-sm lg:text-base text-gray-700 mt-2">
+          <p className="text-xs sm:text-sm lg:text-base text-gray-700 mt-2">
             Casi estás listo para comenzar tu solicitud de crédito, pero antes es importante que completes la información de tu perfil. Por favor rellena los datos tal como aparecen en tu identificación oficial para agilizar el proceso.
           </p>
         </div>
       )}
 
-      <div className="space-y-6 lg:space-y-8">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
 
         {/* Profile Information */}
         <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="text-gray-900">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center">
-              <User className="w-5 h-5 mr-3 text-primary-600" />
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
+              <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
               Resumen de tu perfil
             </h2>
-            <div className="text-center lg:text-right">
-              <label htmlFor="profile-picture-upload" className="cursor-pointer group">
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all mx-auto lg:mx-0">
+            <div className="text-center">
+              <label htmlFor="profile-picture-upload" className="cursor-pointer group inline-block">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all">
                   {previewUrl ? (
                     <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-12 h-12 text-gray-400" />
+                    <User className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
                   )}
                 </div>
                 <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600 block">Cambiar foto</span>
@@ -407,13 +407,13 @@ const ProfilePage: React.FC = () => {
 
 
           {isProfileComplete ? (
-            <div className="mb-6 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
-                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                <h3 className="text-xl font-bold text-green-900">¡Perfil Completo!</h3>
-                <p className="text-gray-600 mt-2 mb-4">Has completado tu información personal. El siguiente paso es crear tu perfilamiento bancario para encontrar el banco con las mejores condiciones para tu caso específico.</p>
+            <div className="mb-4 lg:mb-6 p-4 sm:p-6 bg-green-50 border border-green-200 rounded-xl text-center">
+                <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mx-auto mb-3" />
+                <h3 className="text-lg sm:text-xl font-bold text-green-900">¡Perfil Completo!</h3>
+                <p className="text-sm sm:text-base text-gray-600 mt-2 mb-4">Has completado tu información personal. El siguiente paso es crear tu perfilamiento bancario para encontrar el banco con las mejores condiciones para tu caso específico.</p>
                 <Link
                     to="/escritorio/perfilacion-bancaria"
-                    className="inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-500"
+                    className="inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-500 touch-manipulation min-h-[44px] w-full sm:w-auto"
                 >
                     Crear mi perfil bancario  <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
@@ -422,9 +422,9 @@ const ProfilePage: React.FC = () => {
 
           {/* Profile Summary Card */}
           {profile && (
-            <div className="mb-6 p-6 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-300 rounded-xl">
-              <h3 className="text-lg font-bold text-primary-900 mb-4">Resumen de tu Perfil</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="mb-4 lg:mb-6 p-4 sm:p-6 bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-300 rounded-xl">
+              <h3 className="text-base sm:text-lg font-bold text-primary-900 mb-4">Resumen de tu Perfil</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                 <div>
                   <p className="text-primary-600 font-medium">Nombre Completo</p>
                   <p className="text-primary-900 font-semibold">
@@ -662,7 +662,7 @@ const ProfilePage: React.FC = () => {
             <button
               type="submit"
               disabled={saveState === 'saving'}
-              className={`inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70
+              className={`inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70 touch-manipulation min-h-[44px] w-full sm:w-auto
                 ${saveState === 'saved'
                   ? 'bg-green-500 hover:bg-green-600 focus:ring-green-500'
                   : 'hover:opacity-90 focus:ring-[#FF6801]'

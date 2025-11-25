@@ -714,3 +714,24 @@ background: radial-gradient(circle, rgba(255, 120, 10, 1) 18%, rgba(255, 104, 1,
   );
   pointer-events: none;
 }
+
+/* Shimmer Button Animations */
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), -100cqh);
+  }
+}
+
+@keyframes spin-around {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.animate-shimmer-slide {
+  animation: shimmer-slide calc(var(--shimmer-duration) * 1) linear infinite;
+}
+
+.animate-spin-around {
+  animation: spin-around calc(var(--shimmer-duration) * 0.75) linear infinite;
+}

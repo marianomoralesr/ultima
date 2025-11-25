@@ -2,12 +2,20 @@
 
 import { TimelineContent } from "./timeline-animation";
 import { Button } from "./button";
-import { HighlightText } from "./shadcn-io/highlight-text";
 import { ChevronRight, Shield, Star } from "lucide-react";
 import { motion, useAnimationControls } from "motion/react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+
+// Simple HighlightText component
+const HighlightText: React.FC<{ text: string; className?: string; inView?: boolean; transition?: any }> = ({ text, className }) => {
+  return (
+    <span className={className}>
+      {text}
+    </span>
+  );
+};
 
 type TimelineStep = {
   label: string;

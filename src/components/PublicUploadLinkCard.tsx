@@ -68,89 +68,73 @@ const PublicUploadLinkCard: React.FC<PublicUploadLinkCardProps> = ({ token, comp
   }
 
   return (
-    <div className="bg-gradient-to-br from-primary-50 to-white border-2 border-primary-200 rounded-xl p-6 shadow-sm">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900 flex items-center">
-            <Link2 className="w-5 h-5 mr-2 text-primary-600" />
-            Liga Pública de Documentos
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+      {/* Header - Compact */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="p-2 bg-primary-50 rounded-lg">
+          <Link2 className="w-4 h-4 text-primary-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900">
+            Tu liga privada para cargar documentos
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
-            Comparte este enlace para que te envíen documentos de forma segura
+          <p className="text-xs text-gray-500 mt-0.5">
+            Solo para carga segura - Sin acceso a tus datos personales
           </p>
         </div>
       </div>
 
-      {/* URL Display */}
-      <div className="bg-white border border-gray-300 rounded-lg p-4 mb-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-gray-700 font-mono break-all flex-1">
+      {/* URL Display - Sleek */}
+      <div className="bg-gray-50 border border-gray-200 rounded-md p-2.5 mb-3">
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-gray-600 font-mono truncate flex-1">
             {publicUrl}
           </p>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold transition-colors flex-shrink-0"
+            className="p-1.5 hover:bg-gray-200 rounded transition-colors flex-shrink-0"
+            title="Copiar enlace"
           >
             {copied ? (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Copiado</span>
-              </>
+              <CheckCircle className="w-4 h-4 text-green-600" />
             ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span className="hidden sm:inline">Copiar</span>
-              </>
+              <Copy className="w-4 h-4 text-gray-600" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
+      {/* Action Buttons - Modern & Compact */}
+      <div className="flex gap-2">
         <button
           onClick={handleShowQR}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg font-semibold text-gray-700 transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-xs font-medium text-gray-700 transition-colors"
         >
-          <QrCode className="w-4 h-4" />
-          {showQR ? 'Ocultar QR' : 'Mostrar QR'}
+          <QrCode className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">{showQR ? 'Ocultar' : 'Mostrar'} QR</span>
+          <span className="sm:hidden">QR</span>
         </button>
         <a
           href={publicUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg font-semibold text-gray-700 transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md text-xs font-medium transition-colors"
         >
-          <ExternalLink className="w-4 h-4" />
-          Abrir
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Abrir Liga</span>
+          <span className="sm:hidden">Abrir</span>
         </a>
       </div>
 
-      {/* QR Code Display */}
+      {/* QR Code Display - Compact */}
       {showQR && qrDataUrl && (
-        <div className="mt-4 p-4 bg-white border border-gray-300 rounded-lg text-center">
-          <p className="text-sm text-gray-700 font-semibold mb-3">
-            Escanea este código QR para acceder al dropzone
+        <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
+          <p className="text-xs text-gray-600 font-medium mb-2 text-center">
+            Escanea para acceder desde móvil
           </p>
-          <img src={qrDataUrl} alt="QR Code" className="mx-auto rounded-lg shadow-md" />
+          <img src={qrDataUrl} alt="QR Code" className="mx-auto w-32 h-32 rounded" />
         </div>
       )}
-
-      {/* Info Section */}
-      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start gap-2">
-          <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div>
-            <p className="text-sm font-semibold text-blue-900">¿Cómo funciona?</p>
-            <p className="text-xs text-blue-700 mt-1">
-              Cualquier persona con este enlace podrá subir documentos de forma segura.
-              Los archivos se asociarán automáticamente a tu solicitud.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

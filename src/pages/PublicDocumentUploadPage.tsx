@@ -291,17 +291,29 @@ const PublicDocumentUploadPage: React.FC = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header sutil */}
+        {/* Header con animación pulsante cuando está esperando documentos */}
         <div className="text-center mb-8">
-          <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse"></div>
+          <div className="relative w-24 h-24 mx-auto mb-4">
+            {uploadedCount < REQUIRED_DOCUMENTS.length && (
+              <>
+                {/* Ondas pulsantes sutiles */}
+                <div className="absolute inset-0 rounded-full bg-primary/15 animate-ping" style={{ animationDuration: '2s' }}></div>
+                <div className="absolute inset-2 rounded-full bg-primary/10 animate-ping" style={{ animationDuration: '2.5s', animationDelay: '0.3s' }}></div>
+              </>
+            )}
             <div className="absolute inset-0 rounded-full bg-primary flex items-center justify-center">
-              <Upload className="w-8 h-8 text-primary-foreground" />
+              <Upload className="w-10 h-10 text-primary-foreground" />
             </div>
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight mb-2">Carga de Documentos</h1>
-          <p className="text-muted-foreground">Sube tus documentos de manera fácil y segura</p>
+          <p className="text-muted-foreground">
+            {uploadedCount === 0
+              ? 'Esperando documentos...'
+              : uploadedCount < REQUIRED_DOCUMENTS.length
+              ? 'Sube los documentos faltantes'
+              : '¡Todos los documentos recibidos!'}
+          </p>
 
           {/* Barra de progreso */}
           <div className="max-w-md mx-auto mt-6">

@@ -6,7 +6,7 @@ import { UserDataService } from '../services/UserDataService';
 // FIX: Import the X icon from lucide-react.
 import { Loader2, AlertTriangle, FileText, Download, Trash2, Eye, ShieldAlert, CheckCircle, X, Clock } from 'lucide-react';
 import PrintableApplication from '../components/PrintableApplication';
-import PublicUploadLinkCard from '../components/PublicUploadLinkCard';
+import UploadedDocumentsCard from '../components/UploadedDocumentsCard';
 
 const statusMap = {
     draft: { text: "Borrador", icon: FileText, color: "text-gray-500", bgColor: "bg-gray-100" },
@@ -132,9 +132,10 @@ const UserApplicationsPage: React.FC = () => {
                                         </button>
                                     </div>
                                 </div>
-                                {app.public_upload_token && (
-                                    <PublicUploadLinkCard token={app.public_upload_token} compact />
-                                )}
+                                <UploadedDocumentsCard
+                                    applicationId={app.id}
+                                    publicUploadToken={app.public_upload_token}
+                                />
                             </div>
                         );
                     }) : <p className="text-sm text-gray-500 text-center py-8">Aún no has enviado ninguna solicitud.</p>}

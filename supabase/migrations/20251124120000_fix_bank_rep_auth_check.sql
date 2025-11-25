@@ -71,15 +71,15 @@ BEGIN
     p.email,
     p.phone,
     fa.car_info,
-    COUNT(DISTINCT ad.id) AS total_documents,
-    COUNT(DISTINCT ad.id) FILTER (WHERE ad.verification_status = 'approved') AS approved_documents,
+    COUNT(DISTINCT ud.id) AS total_documents,
+    COUNT(DISTINCT ud.id) FILTER (WHERE ud.verification_status = 'approved') AS approved_documents,
     EXTRACT(EPOCH FROM (NOW() - fa.created_at)) / 3600 AS hours_since_received
   FROM financing_applications fa
   INNER JOIN profiles p ON fa.user_id = p.id
   LEFT JOIN bank_assignments ba ON ba.application_id = fa.id
     AND ba.assigned_bank_rep_id = bank_rep_uuid
-  LEFT JOIN application_documents ad ON ad.lead_id = fa.user_id
-    AND (ad.application_id = fa.id OR ad.application_id IS NULL)
+  LEFT JOIN uploaded_documents ud ON ud.user_id = fa.user_id
+    AND (ud.application_id = fa.id OR ud.application_id IS NULL)
   WHERE
     -- Filter by banco_recomendado from selected_banks or bank_profiling
     v_bank_affiliation = ANY(fa.selected_banks)
@@ -244,10 +244,10 @@ BEGIN
       ORDER BY fa.created_at DESC
     ),
     'documents', (
-      SELECT json_agg(row_to_json(ad.*))
-      FROM application_documents ad
-      WHERE ad.lead_id = p_lead_id
-      ORDER BY ad.created_at DESC
+      SELECT json_agg(row_to_json(ud.*))
+      FROM uploaded_documents ud
+      WHERE ud.user_id = p_lead_id
+      ORDER BY ud.created_at DESC
     ),
     'assignment', (
       SELECT row_to_json(ba.*)

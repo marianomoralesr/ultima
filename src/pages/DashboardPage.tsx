@@ -33,6 +33,7 @@ import { OnboardingStepper } from '../components/OnboardingStepper';
 import PrintableApplication from '../components/PrintableApplication';
 import { APPLICATION_STATUS, type ApplicationStatus } from '../constants/applicationStatus';
 import { Clock, CheckCircle, FileText } from 'lucide-react';
+import PublicUploadLinkCard from '../components/PublicUploadLinkCard';
 
 const statusMap: Record<string, { text: string; icon: any; color: string; bgColor: string }> = {
     [APPLICATION_STATUS.DRAFT]: { text: "Borrador", icon: FileText, color: "text-gray-500", bgColor: "bg-gray-100" },
@@ -523,6 +524,12 @@ const Dashboard: React.FC = () => {
                                             </span>
                                         </div>
                                     </div>
+                                    {/* Document Upload Link */}
+                                    {app.public_upload_token && (
+                                        <div className="mt-3">
+                                            <PublicUploadLinkCard token={app.public_upload_token} />
+                                        </div>
+                                    )}
                                     <div className="flex gap-2 mt-3">
                                         <button
                                             onClick={() => {

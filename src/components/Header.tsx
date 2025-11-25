@@ -37,15 +37,6 @@ const Header: React.FC = () => {
       <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
         <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex items-center h-20 sm:h-20 lg:h-28 gap-x-2 sm:gap-x-2 lg:gap-x-4">
-            {/* Mobile Menu Button */}
-            <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-1.5 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-                aria-label="Toggle mobile menu"
-            >
-                <MenuIcon className="w-5 h-5" />
-            </button>
-
             {/* Logo */}
             <div className="flex-shrink-0">
                 <Link to="/" className="flex items-center">
@@ -57,10 +48,19 @@ const Header: React.FC = () => {
                 </Link>
             </div>
 
-            {/* Center Section (Search) - Show on all pages except /autos on desktop */}
-            <div className={`flex-1 min-w-0 mx-1.5 sm:mx-3 lg:mx-4 ${isListPage ? 'lg:hidden' : ''}`}>
+            {/* Center Section (Search) - Constrained on mobile to prevent overflow */}
+            <div className={`flex-1 min-w-0 mx-1.5 sm:mx-3 lg:mx-4 max-w-[calc(100vw-200px)] sm:max-w-none ${isListPage ? 'lg:hidden' : ''}`}>
                 <HeaderSearchBar />
             </div>
+
+            {/* Mobile Menu Button - Now on the right */}
+            <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-1.5 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                aria-label="Toggle mobile menu"
+            >
+                <MenuIcon className="w-4 h-4" />
+            </button>
 
             {/* Right Section - Desktop Menu and Auth */}
             <div className={`hidden lg:flex items-center space-x-4 flex-shrink-0 ${isListPage ? 'ml-auto' : ''}`}>

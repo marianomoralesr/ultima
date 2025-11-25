@@ -208,6 +208,47 @@ serve(async (req) => {
         );
       }
 
+      // Verificar si todos los documentos requeridos están completos
+      const REQUIRED_DOCS = ['ine_front', 'ine_back', 'proof_address', 'proof_income', 'constancia_fiscal'];
+
+      const { data: allDocs } = await supabaseClient
+        .from('uploaded_documents')
+        .select('document_type')
+        .eq('application_id', application.id);
+
+      const uploadedDocTypes = new Set(allDocs?.map(doc => doc.document_type) || []);
+      const allDocsComplete = REQUIRED_DOCS.every(docType => uploadedDocTypes.has(docType));
+
+      // Si todos los documentos están completos, actualizar status a "Completa"
+      if (allDocsComplete) {
+        const { error: statusError } = await supabaseClient
+          .from('financing_applications')
+          .update({
+            status: 'submitted',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', application.id);
+
+        if (statusError) {
+          console.error('Error actualizando status de aplicación:', statusError);
+        } else {
+          console.log('Aplicación marcada como Completa (submitted) - todos los documentos subidos');
+
+          // Obtener banco recomendado del perfil bancario
+          const { data: bankProfile } = await supabaseClient
+            .from('bank_profiles')
+            .select('banco_recomendado, banco_segunda_opcion')
+            .eq('user_id', application.user_id)
+            .single();
+
+          if (bankProfile?.banco_recomendado) {
+            console.log(`Aplicación lista para banco recomendado: ${bankProfile.banco_recomendado}`);
+            // La visibilidad se maneja automáticamente por RLS policies basadas en status='submitted'
+            // y el banco_recomendado del perfil bancario del usuario
+          }
+        }
+      }
+
       // Enviar notificación por email (no bloqueante)
       try {
         // Obtener información del usuario y aplicación
@@ -273,7 +314,9 @@ serve(async (req) => {
             file_name: documentRecord.file_name,
             status: documentRecord.status,
             created_at: documentRecord.created_at
-          }
+          },
+          all_documents_complete: allDocsComplete,
+          application_status_updated: allDocsComplete ? 'submitted' : null
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

@@ -182,6 +182,14 @@ const PublicDocumentUploadPage: React.FC = () => {
       setDocuments([...documents, result.document]);
       setUploadProgress({ ...uploadProgress, [documentType]: 100 });
 
+      // Si todos los documentos están completos, recargar datos
+      if (result.all_documents_complete) {
+        // Esperar un momento y recargar para reflejar el nuevo status
+        setTimeout(() => {
+          loadApplicationData();
+        }, 1000);
+      }
+
       // Limpiar input
       if (fileInputRefs.current[documentType]) {
         fileInputRefs.current[documentType]!.value = '';

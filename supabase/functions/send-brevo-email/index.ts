@@ -73,7 +73,43 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
 
               <div class="divider"></div>
 
-              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">¿Qué sigue?</h2>
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">📄 Siguiente Paso: Sube tus Documentos</h2>
+              <p style="color: #556675; margin-bottom: 24px;">
+                Para agilizar tu solicitud, sube tus documentos de forma fácil y segura usando el siguiente enlace o código QR:
+              </p>
+
+              ${data.publicUploadUrl ? `
+              <div style="background: #F7F8FA; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+                <p style="font-size: 16px; font-weight: 600; color: #0B2540; margin-bottom: 16px;">
+                  📲 Escanea este código QR
+                </p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.publicUploadUrl)}"
+                     alt="QR Code"
+                     style="display: block; margin: 0 auto 16px auto; border-radius: 8px;" />
+                <p style="font-size: 14px; color: #556675; margin-bottom: 16px;">o</p>
+                <a href="${data.publicUploadUrl}"
+                   style="display: inline-block; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: #FFFFFF; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                  Subir Documentos Ahora
+                </a>
+                <p style="font-size: 12px; color: #9CA3AF; margin-top: 16px;">
+                  Este enlace expira en 3 días
+                </p>
+              </div>
+              ` : ''}
+
+              <div style="background: #EFF6FF; border-left: 4px solid #3B82F6; padding: 16px; border-radius: 8px; margin: 24px 0;">
+                <p style="margin: 0; color: #1E40AF; font-size: 14px; line-height: 1.6;">
+                  <strong>📋 Documentos Requeridos:</strong><br/>
+                  • INE (Frente y Reverso)<br/>
+                  • Comprobante de Domicilio<br/>
+                  • Comprobante de Ingresos<br/>
+                  • Constancia de Situación Fiscal
+                </p>
+              </div>
+
+              <div class="divider"></div>
+
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">¿Qué sigue después?</h2>
               <ul>
                 <li><strong>Revisión de Documentos:</strong> Nuestro equipo verificará la información proporcionada.</li>
                 <li><strong>Evaluación:</strong> Analizaremos tu perfil crediticio y capacidad de pago.</li>

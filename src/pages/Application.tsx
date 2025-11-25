@@ -15,9 +15,6 @@ import { ApplicationService } from '../services/ApplicationService';
 import { BankProfilingService } from '../services/BankProfilingService';
 import { ProfileService } from '../services/profileService';
 import VehicleService from '../services/VehicleService';
-
-import FileUpload from '../components/FileUpload';
-import { DocumentService, UploadedDocument } from '../services/documentService';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
 import { BrevoEmailService } from '../services/BrevoEmailService';
 import { supabase } from '../../supabaseClient';
@@ -99,7 +96,6 @@ const Application: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [recommendedBank, setRecommendedBank] = useState<string | null>(null);
     const [vehicleInfo, setVehicleInfo] = useState<any>(null);
-    const [uploadedDocuments, setUploadedDocuments] = useState<Record<string, UploadedDocument[]>>({});
 
     const applicationSchema = baseApplicationSchema;
 
@@ -278,7 +274,6 @@ const Application: React.FC = () => {
         { title: 'Personal', icon: User, fields: ['time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'] },
         { title: 'Empleo', icon: Building2, fields: ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'] },
         { title: 'Referencias', icon: Users, fields: ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'] },
-        { title: 'Documentos', icon: FileText, fields: [] },
         { title: 'Consentimiento', icon: PenSquare, fields: ['terms_and_conditions'] },
         { title: 'Resumen', icon: CheckCircle, fields: [] },
     ];
@@ -653,9 +648,8 @@ const Application: React.FC = () => {
                                         {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
                                         {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
                                         {currentStep === 2 && <ReferencesStep control={control} errors={errors} profile={profile} getValues={getValues} />}
-                                        {currentStep === 3 && applicationId && user && <DocumentUploadStep applicationId={applicationId} userId={user.id} onDocumentsChange={setUploadedDocuments} />}
-                                        {currentStep === 4 && <ConsentStep control={control} errors={errors} setValue={setValue}/>}
-                                        {currentStep === 5 && (
+                                        {currentStep === 3 && <ConsentStep control={control} errors={errors} setValue={setValue}/>}
+                                        {currentStep === 4 && (
                                             <>
                                                 <FinancingPreferencesSection control={control} vehicleInfo={vehicleInfo} setValue={setValue} getValues={getValues} />
                                                 <SummaryStep applicationData={getValues()} profile={profile} vehicleInfo={vehicleInfo} bank={recommendedBank} />
@@ -1128,99 +1122,6 @@ const DocumentRequirements: React.FC = () => (
         </ul>
     </div>
 );
-
-const DocumentUploadStep: React.FC<{ applicationId: string; userId: string; onDocumentsChange: (docs: Record<string, UploadedDocument[]>) => void; }> = ({ applicationId, userId, onDocumentsChange }) => {
-    const [uploadedDocuments, setUploadedDocuments] = useState<Record<string, UploadedDocument[]>>({});
-    const [isLoadingDocs, setIsLoadingDocs] = useState(true);
-
-    useEffect(() => {
-        const fetchDocuments = async () => {
-            if (!userId || !applicationId) return;
-            setIsLoadingDocs(true);
-            try {
-                const docs = await DocumentService.listDocuments(userId, applicationId);
-                const docsMap = docs.reduce((acc, doc) => {
-                    if (doc.documentType) {
-                        if (!acc[doc.documentType]) acc[doc.documentType] = [];
-                        acc[doc.documentType].push(doc);
-                    }
-                    return acc;
-                }, {} as Record<string, UploadedDocument[]>);
-                setUploadedDocuments(docsMap);
-                onDocumentsChange(docsMap);
-            } catch (error) {
-                console.error("Error fetching documents:", error);
-            } finally {
-                setIsLoadingDocs(false);
-            }
-        };
-        fetchDocuments();
-    }, [userId, applicationId, onDocumentsChange]);
-    
-        const handleFileUploaded = (doc: UploadedDocument) => {
-            const newDocs = { 
-                ...uploadedDocuments, 
-                [doc.documentType]: [...(uploadedDocuments[doc.documentType] || []), doc] 
-            };
-            setUploadedDocuments(newDocs);
-            onDocumentsChange(newDocs);
-        };
-
-        const handleFileDeleted = (documentId: string, documentType: string) => {
-            const newDocs = {
-                ...uploadedDocuments,
-                [documentType]: (uploadedDocuments[documentType] || []).filter(d => d.id !== documentId)
-            };
-            setUploadedDocuments(newDocs);
-            onDocumentsChange(newDocs);
-        };
-
-    const requiredDocuments = [
-        { type: 'ine_front', label: 'INE (Frente)', allowCameraScan: true },
-        { type: 'ine_back', label: 'INE (Reverso)', allowCameraScan: true },
-        { type: 'proof_address', label: 'Comprobante de Domicilio', allowCameraScan: false },
-        { type: 'proof_income', label: 'Comprobante de Ingresos', description: 'Sube tus 3 estados de cuenta o recibos de nómina más recientes (3 archivos PDF distintos). También puedes subir un solo archivo .ZIP con todos los documentos. Máximo 12 archivos.', allowCameraScan: false, multiple: true, maxFiles: 12, maxTotalSizeMB: 10 }
-    ];
-
-    if (isLoadingDocs) {
-        return <div className="flex justify-center items-center h-40"><Loader2 className="w-6 h-6 animate-spin text-primary-600" /></div>;
-    }
-    
-    return (
-        <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Carga de Documentos</h2>
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800 font-semibold">
-                    Para agilizar tu solicitud, te recomendamos subir todos los documentos ahora. Si prefieres, puedes enviar tu solicitud y completar la carga de documentos más tarde desde tu dashboard.
-                </p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-                {requiredDocuments.map(doc => (
-                    <div key={doc.type} className={doc.multiple ? "md:col-span-2" : ""}>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">{doc.label}</label>
-                        {doc.description && <p className="text-xs text-gray-500 mb-2">{doc.description}</p>}
-                        <FileUpload 
-                            onFileSelect={() => {}}
-                            onFileUpload={handleFileUploaded}
-                            onFileDelete={handleFileDeleted}
-                            accept=".pdf,.jpg,.jpeg,.png,.zip" 
-                            enableWordPressUpload={true} 
-                            applicationId={applicationId} 
-                            documentType={doc.type} 
-                            userId={userId} 
-                            allowCameraScan={doc.allowCameraScan}
-                            existingDocuments={uploadedDocuments[doc.type] || []}
-                            multiple={doc.multiple}
-                            maxFiles={doc.maxFiles}
-                            maxTotalSizeMB={doc.maxTotalSizeMB}
-                        />
-                    </div>
-                ))}
-            </div>
-            <DocumentRequirements />
-        </div>
-    );
-};
 
 const declarations = [
     "Confirmo que la información que he proporcionado es correcta y completa.",

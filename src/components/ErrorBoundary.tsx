@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -47,10 +47,17 @@ class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center p-4">
-          <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800">Ocurrió un error inesperado.</h1>
+          {isDev ? (
+            <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
+          ) : (
+            <RefreshCw className="w-16 h-16 text-blue-500 mb-4 animate-spin" style={{ animationDuration: '3s' }} />
+          )}
+          <h1 className="text-2xl font-bold text-gray-800">Nueva Versión Disponible</h1>
           <p className="text-gray-600 mt-2">
-            Nuestro equipo ha sido notificado. Por favor, intenta refrescar la página o vuelve a intentarlo más tarde.
+            Por favor actualiza tu navegador para obtener la versión más reciente.
+          </p>
+          <p className="text-gray-500 text-sm mt-1">
+            Si no puedes accesar tras recargar, por favor intenta de nuevo en unos minutos.
           </p>
 
           {isDev && this.state.error && (

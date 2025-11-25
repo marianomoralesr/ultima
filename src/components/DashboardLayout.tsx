@@ -107,7 +107,7 @@ const DashboardLayout: React.FC = () => {
     const breadcrumbs = generateBreadcrumbs();
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-white">
+        <div className="flex min-h-screen w-full flex-col bg-gray-50">
             {/* Sidebar */}
             <motion.aside
                 className="fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-background sm:flex"

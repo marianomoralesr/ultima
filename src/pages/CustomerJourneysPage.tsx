@@ -96,6 +96,94 @@ const EVENT_TEMPLATES = [
     icon: Flag,
     color: 'text-rose-600',
     bgColor: 'bg-rose-100'
+  },
+  {
+    value: 'ContactaPorWhatsApp',
+    label: 'Contacta por WhatsApp',
+    description: 'Usuario hace clic en botón de WhatsApp',
+    icon: MousePointerClick,
+    color: 'text-green-600',
+    bgColor: 'bg-green-100'
+  },
+  {
+    value: 'ComprarConFinanciamiento',
+    label: 'Comprar con Financiamiento',
+    description: 'Usuario hace clic en "Comprar con Financiamiento"',
+    icon: MousePointerClick,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-100'
+  },
+  {
+    value: 'AddToCart',
+    label: 'Agregar al Carrito',
+    description: 'Usuario agrega producto al carrito',
+    icon: MousePointerClick,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100'
+  },
+  {
+    value: 'InitiateCheckout',
+    label: 'Iniciar Checkout',
+    description: 'Usuario inicia proceso de compra',
+    icon: MousePointerClick,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100'
+  },
+  {
+    value: 'Search',
+    label: 'Búsqueda',
+    description: 'Usuario realiza una búsqueda',
+    icon: Target,
+    color: 'text-cyan-600',
+    bgColor: 'bg-cyan-100'
+  },
+  {
+    value: 'ContactoFormularioEnviado',
+    label: 'Formulario de Contacto Enviado',
+    description: 'Usuario envía formulario de contacto',
+    icon: CheckCircle2,
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-100'
+  },
+  {
+    value: 'DescargaBrochure',
+    label: 'Descarga Brochure',
+    description: 'Usuario descarga brochure o documento',
+    icon: MousePointerClick,
+    color: 'text-pink-600',
+    bgColor: 'bg-pink-100'
+  },
+  {
+    value: 'VideoPlay',
+    label: 'Reproducción de Video',
+    description: 'Usuario reproduce un video',
+    icon: Play,
+    color: 'text-red-600',
+    bgColor: 'bg-red-100'
+  },
+  {
+    value: 'SolicitudTestDrive',
+    label: 'Solicitud de Test Drive',
+    description: 'Usuario solicita prueba de manejo',
+    icon: MousePointerClick,
+    color: 'text-violet-600',
+    bgColor: 'bg-violet-100'
+  },
+  {
+    value: 'CompartirEnRedes',
+    label: 'Compartir en Redes Sociales',
+    description: 'Usuario comparte contenido en redes sociales',
+    icon: MousePointerClick,
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-100'
+  },
+  {
+    value: 'CalculadoraFinanciamiento',
+    label: 'Uso de Calculadora de Financiamiento',
+    description: 'Usuario interactúa con calculadora',
+    icon: MousePointerClick,
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-100'
   }
 ];
 
@@ -111,7 +199,9 @@ const CustomerJourneysPage: React.FC = () => {
   const [newStepPageRoute, setNewStepPageRoute] = useState('');
   const [newStepDescription, setNewStepDescription] = useState('');
   const [newStepEventType, setNewStepEventType] = useState('');
-  const [newStepTriggerType, setNewStepTriggerType] = useState<'pageview' | 'button_click' | 'form_submit' | 'custom'>('pageview');
+  const [newStepTriggerType, setNewStepTriggerType] = useState<'pageview' | 'button_click' | 'form_submit' | 'custom' | 'scroll' | 'time_on_page' | 'element_visible' | 'video_play'>('pageview');
+  const [newStepButtonIdentifierType, setNewStepButtonIdentifierType] = useState<'text_contains' | 'css_id' | 'css_class' | 'css_selector'>('text_contains');
+  const [newStepButtonIdentifier, setNewStepButtonIdentifier] = useState('');
 
   // Database state
   const [journeys, setJourneys] = useState<CustomerJourney[]>([]);
@@ -147,7 +237,12 @@ const CustomerJourneysPage: React.FC = () => {
         page_route: newStepPageRoute,
         event_type: newStepEventType,
         event_name: newStepName,
-        trigger_type: newStepTriggerType
+        trigger_type: newStepTriggerType,
+        // Include button identifier fields if trigger is button_click
+        ...(newStepTriggerType === 'button_click' && newStepButtonIdentifier ? {
+          button_identifier_type: newStepButtonIdentifierType,
+          button_identifier: newStepButtonIdentifier
+        } : {})
       };
       setFunnelSteps([...funnelSteps, newStep]);
       setNewStepName('');
@@ -155,6 +250,8 @@ const CustomerJourneysPage: React.FC = () => {
       setNewStepDescription('');
       setNewStepEventType('');
       setNewStepTriggerType('pageview');
+      setNewStepButtonIdentifierType('text_contains');
+      setNewStepButtonIdentifier('');
     }
   };
 
@@ -237,6 +334,8 @@ const CustomerJourneysPage: React.FC = () => {
     setNewStepDescription('');
     setNewStepEventType('');
     setNewStepTriggerType('pageview');
+    setNewStepButtonIdentifierType('text_contains');
+    setNewStepButtonIdentifier('');
   };
 
   const toggleJourneyStatus = async (journeyId: string) => {
@@ -397,6 +496,16 @@ const CustomerJourneysPage: React.FC = () => {
                             )}
                             <div className="text-xs text-gray-400 mt-1">
                               Trigger: <span className="font-medium">{step.trigger_type}</span>
+                              {step.trigger_type === 'button_click' && step.button_identifier && (
+                                <div className="mt-1 flex items-center gap-1 text-xs">
+                                  <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded font-mono">
+                                    {step.button_identifier_type === 'text_contains' && `texto: "${step.button_identifier}"`}
+                                    {step.button_identifier_type === 'css_id' && `#${step.button_identifier}`}
+                                    {step.button_identifier_type === 'css_class' && `.${step.button_identifier}`}
+                                    {step.button_identifier_type === 'css_selector' && step.button_identifier}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
 
@@ -501,15 +610,76 @@ const CustomerJourneysPage: React.FC = () => {
                 </label>
                 <select
                   value={newStepTriggerType}
-                  onChange={(e) => setNewStepTriggerType(e.target.value as 'pageview' | 'button_click' | 'form_submit' | 'custom')}
+                  onChange={(e) => {
+                    setNewStepTriggerType(e.target.value as any);
+                    // Reset button identifier when changing trigger type
+                    if (e.target.value !== 'button_click') {
+                      setNewStepButtonIdentifier('');
+                      setNewStepButtonIdentifierType('text_contains');
+                    }
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 >
-                  <option value="pageview">Pageview</option>
-                  <option value="button_click">Button Click</option>
-                  <option value="form_submit">Form Submit</option>
-                  <option value="custom">Custom</option>
+                  <option value="pageview">Vista de Página (Pageview)</option>
+                  <option value="button_click">Click en Botón</option>
+                  <option value="form_submit">Envío de Formulario</option>
+                  <option value="element_visible">Elemento Visible</option>
+                  <option value="scroll">Scroll en Página</option>
+                  <option value="time_on_page">Tiempo en Página</option>
+                  <option value="video_play">Reproducción de Video</option>
+                  <option value="custom">Personalizado</option>
                 </select>
               </div>
+
+              {/* Conditional button identifier fields */}
+              {newStepTriggerType === 'button_click' && (
+                <div className="space-y-3 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                  <h5 className="text-sm font-semibold text-indigo-900">
+                    Identificador del Botón
+                  </h5>
+                  <p className="text-xs text-indigo-700">
+                    Especifica cómo identificar el botón que dispara este evento
+                  </p>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo de identificador *
+                    </label>
+                    <select
+                      value={newStepButtonIdentifierType}
+                      onChange={(e) => setNewStepButtonIdentifierType(e.target.value as any)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    >
+                      <option value="text_contains">Texto contiene</option>
+                      <option value="css_id">ID de CSS</option>
+                      <option value="css_class">Clase de CSS</option>
+                      <option value="css_selector">Selector CSS personalizado</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Valor del identificador *
+                    </label>
+                    <input
+                      type="text"
+                      value={newStepButtonIdentifier}
+                      onChange={(e) => setNewStepButtonIdentifier(e.target.value)}
+                      placeholder={
+                        newStepButtonIdentifierType === 'text_contains' ? 'ej: Comprar con Financiamiento' :
+                        newStepButtonIdentifierType === 'css_id' ? 'ej: btn-whatsapp' :
+                        newStepButtonIdentifierType === 'css_class' ? 'ej: cta-button' :
+                        'ej: button[data-action="submit"]'
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white font-mono text-sm"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {newStepButtonIdentifierType === 'text_contains' && '💡 El texto del botón debe contener este valor'}
+                      {newStepButtonIdentifierType === 'css_id' && '💡 No incluyas el símbolo #, solo el ID (ej: "btn-whatsapp")'}
+                      {newStepButtonIdentifierType === 'css_class' && '💡 No incluyas el punto, solo el nombre de la clase'}
+                      {newStepButtonIdentifierType === 'css_selector' && '💡 Selector CSS completo (ej: "button[data-action=\'submit\']")'}
+                    </p>
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Descripción (opcional)

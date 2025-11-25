@@ -11,10 +11,13 @@ export interface JourneyStep {
   event_type: string;
   event_name: string;
   event_description?: string;
-  trigger_type?: 'pageview' | 'button_click' | 'form_submit' | 'custom';
+  trigger_type?: 'pageview' | 'button_click' | 'form_submit' | 'custom' | 'scroll' | 'time_on_page' | 'element_visible' | 'video_play';
   trigger_selector?: string;
   trigger_conditions?: Record<string, any>;
   event_metadata?: Record<string, any>;
+  // Button identifier fields for button_click trigger type
+  button_identifier_type?: 'text_contains' | 'css_id' | 'css_class' | 'css_selector';
+  button_identifier?: string;
   created_at?: string;
   updated_at?: string;
 }

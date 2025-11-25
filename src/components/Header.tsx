@@ -36,7 +36,7 @@ const Header: React.FC = () => {
     return (
       <header className="fixed top-0 left-0 right-0 z-30 bg-white shadow-sm border-b border-gray-200/80">
         <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-          <div className="flex items-center h-16 sm:h-18 lg:h-28 gap-x-1.5 sm:gap-x-2 lg:gap-x-4">
+          <div className="flex items-center h-20 sm:h-20 lg:h-28 gap-x-2 sm:gap-x-2 lg:gap-x-4">
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -52,13 +52,13 @@ const Header: React.FC = () => {
                   <img
                     src={"/images/trefalogo.png"}
                     alt="TREFA"
-                    className="w-auto object-contain transition-all h-4 sm:h-6 lg:h-9"
+                    className="w-auto object-contain transition-all h-6 sm:h-7 lg:h-9"
                   />
                 </Link>
             </div>
 
             {/* Center Section (Search) - Show on all pages except /autos on desktop */}
-            <div className={`flex-1 min-w-0 mx-2 sm:mx-3 lg:mx-4 ${isListPage ? 'lg:hidden' : ''}`}>
+            <div className={`flex-1 min-w-0 mx-1.5 sm:mx-3 lg:mx-4 ${isListPage ? 'lg:hidden' : ''}`}>
                 <HeaderSearchBar />
             </div>
 
@@ -113,7 +113,7 @@ const Header: React.FC = () => {
 
         {/* Mobile Sidebar Menu */}
         {mobileMenuOpen && (
-            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '64px' }}>
+            <div className="fixed inset-0 z-50 lg:hidden" style={{ top: '80px' }}>
                 <div
                     className="absolute inset-0 bg-black/60"
                     onClick={() => setMobileMenuOpen(false)}

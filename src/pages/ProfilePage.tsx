@@ -452,7 +452,7 @@ const ProfilePage: React.FC = () => {
             {/* Left Column */}
             <div className="space-y-4 lg:space-y-6">
               {/* Contact Information Section */}
-              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl">
                 <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
                   <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">1</span>
                   Información de Contacto
@@ -485,7 +485,7 @@ const ProfilePage: React.FC = () => {
               </div>
 
               {/* Personal Information Section */}
-              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl">
                 <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
                   <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">2</span>
                   Datos Personales
@@ -517,7 +517,7 @@ const ProfilePage: React.FC = () => {
             {/* Right Column */}
             <div className="space-y-4 lg:space-y-6">
               {/* RFC and Fiscal Information Section */}
-              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl">
                 <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
                   <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">3</span>
                   Información Fiscal
@@ -561,7 +561,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
               {/* Family Status Section */}
-              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl border-2 border-gray-200">
+              <div className="bg-gray-50 p-4 lg:p-6 rounded-xl">
                 <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
                   <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">4</span>
                   Estado Civil y Género
@@ -600,7 +600,7 @@ const ProfilePage: React.FC = () => {
           </div>
 
           {/* Prior TREFA Advisor Section - Full width below the grid */}
-          <div className="bg-amber-50 p-4 lg:p-6 rounded-xl border-2 border-amber-200 mt-4 lg:mt-6">
+          <div className="bg-amber-50 p-4 lg:p-6 rounded-xl mt-4 lg:mt-6">
             <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4 flex items-center">
               <span className="bg-primary-600 text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center mr-2 lg:mr-3 text-xs lg:text-sm">5</span>
               Asignación de Asesor

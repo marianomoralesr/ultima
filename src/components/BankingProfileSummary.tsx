@@ -37,44 +37,44 @@ const BankingProfileSummary: React.FC<BankingProfileSummaryProps> = ({ bankProfi
     const respuestas = bankingData.respuestas || {};
 
     return (
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-sm border border-green-200">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-sm">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-green-600" />
                 Perfilación Bancaria
             </h2>
             <div className="space-y-3">
                 {bankingData.banco_recomendado && (
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="bg-white/80 p-3 rounded-lg">
                         <p className="text-xs text-gray-500 uppercase tracking-wider">Banco Recomendado</p>
                         <p className="text-sm font-bold text-green-700">{bankingData.banco_recomendado}</p>
                     </div>
                 )}
                 {bankingData.banco_segunda_opcion && (
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="bg-white/80 p-3 rounded-lg">
                         <p className="text-xs text-gray-500 uppercase tracking-wider">Banco Segunda Opción</p>
                         <p className="text-sm font-semibold text-gray-800">{bankingData.banco_segunda_opcion}</p>
                     </div>
                 )}
                 {respuestas.trabajo_tiempo && (
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="bg-white/80 p-3 rounded-lg">
                         <p className="text-xs text-gray-500">Antigüedad en el Empleo</p>
                         <p className="text-sm font-semibold text-gray-800">{respuestas.trabajo_tiempo}</p>
                     </div>
                 )}
                 {(respuestas.cuenta_bancaria || respuestas.banco_nomina) && (
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="bg-white/80 p-3 rounded-lg">
                         <p className="text-xs text-gray-500">Cuenta Bancaria Principal</p>
                         <p className="text-sm font-semibold text-gray-800">{respuestas.cuenta_bancaria || respuestas.banco_nomina}</p>
                     </div>
                 )}
                 {respuestas.ingreso_mensual && (
-                    <div className="bg-white p-3 rounded-lg">
+                    <div className="bg-white/80 p-3 rounded-lg">
                         <p className="text-xs text-gray-500">Ingresos Mensuales Comprobables</p>
                         <p className="text-sm font-semibold text-gray-800">{respuestas.ingreso_mensual}</p>
                     </div>
                 )}
                 {(respuestas.historial_crediticio || respuestas.creditos_vigentes) && (
-                    <div className="bg-white p-3 rounded-lg grid grid-cols-2 gap-4">
+                    <div className="bg-white/80 p-3 rounded-lg grid grid-cols-2 gap-4">
                         {respuestas.historial_crediticio && (
                             <div>
                                 <p className="text-xs text-gray-500">Historial Crediticio</p>

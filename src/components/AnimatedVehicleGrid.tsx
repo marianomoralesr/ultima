@@ -81,6 +81,25 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
 
   console.log('AnimatedVehicleGrid: Rendering with', gridVehicles.length, 'vehicles, visibleCount:', visibleCount);
 
+  // Calculate responsive transform for mobile vertical screens
+  const getTransform = () => {
+    if (typeof window === 'undefined') return 'rotate(-8deg) scale(1.4)';
+    const width = window.innerWidth;
+    if (width < 640) {
+      // Mobile: adjust rotation and scale for vertical screens
+      return 'rotate(-12deg) scale(1.8) translateY(-5%)';
+    }
+    return 'rotate(-8deg) scale(1.4)';
+  };
+
+  const [transform, setTransform] = useState(getTransform);
+
+  useEffect(() => {
+    const handleResize = () => setTransform(getTransform());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       {/* Vehicle Grid Container - Diagonal Mosaic with Row Animation */}
@@ -95,7 +114,7 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
           alignItems: 'start',
           alignContent: 'start',
           opacity: 0.25,
-          transform: 'rotate(-8deg) scale(1.4)', // Increased scale for better mobile coverage
+          transform: transform,
           transformOrigin: 'center center',
         }}
       >

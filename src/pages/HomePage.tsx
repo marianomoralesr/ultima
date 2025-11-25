@@ -929,15 +929,12 @@ const HomePage: React.FC = () => {
   return (
     <main className="relative z-10 scroll-smooth">
       <HeroTrefa />
-      <NewHeroSection content={content.inventoryHero} />
-      <CarroceriaCarouselSection content={content.carroceriaCarousel} />
-      <CTACardsSection content={content.ctaCards} />
-      <YouTubeVSLSection content={content.youtubeVSL} />
+      <WallOfLove />
       <WhyChooseTrefaSection />
+      <CarroceriaCarouselSection content={content.carroceriaCarousel} />
+      <YouTubeVSLSection content={content.youtubeVSL} />
       <BranchesSection content={content.branches} />
       <TestimonioSeparator content={content.testimonial} />
-      <FeaturedInventorySection />
-      <WallOfLove />
     </main>
   );
 };

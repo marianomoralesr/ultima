@@ -157,8 +157,8 @@ function HeroTrefa() {
     >
       {/* Animated Vehicle Grid Background */}
       <AnimatedVehicleGrid maxVehicles={30} gradientDirection="diagonal" />
-      <section className="w-full py-28 md:grid md:grid-cols-2 flex flex-col md:place-content-center max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
-        <article className="space-y-5 flex-col flex justify-center text-left pb-10">
+      <section className="w-full pt-16 pb-28 md:grid md:grid-cols-2 flex flex-col md:items-start max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
+        <article className="space-y-5 flex-col flex justify-start text-left pb-10 md:pt-12">
           <a
             href="/perfilacion-bancaria"
             className="bg-white/70 backdrop-blur-sm sm:text-sm text-xs w-fit p-1 flex gap-1.5 items-center shadow-[0px_1px_4px_rgba(0,0,0,0.1),_0px_1px_1px_rgba(0,0,0,0.15)] rounded-full hover:shadow-lg transition-shadow"
@@ -174,16 +174,18 @@ function HeroTrefa() {
             animationNum={0}
             timelineRef={heroRef}
             as="h1"
-            className="xl:text-7xl md:text-6xl text-5xl font-bold"
+            className="xl:text-7xl md:text-6xl text-5xl tracking-tighter md:tracking-normal leading-tight md:leading-normal"
             style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}
           >
-            Estrena un auto seminuevo en{' '}
-            <br className="hidden md:block" />
+            <span className="font-semibold md:font-semibold">
+              Estrena un auto seminuevo en
+            </span>
+            <br />
             <HighlightText
               text="tiempo récord."
               inView={true}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="bg-gradient-to-br from-white/90 via-orange-50/50 to-white/85 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_0_rgba(255,255,255,0.8),_inset_0_1px_0_0_rgba(255,255,255,0.9)] rounded-2xl font-bold px-3 py-1 leading-tight"
+              className="bg-gradient-to-br from-white/90 via-orange-50/50 to-white/85 backdrop-blur-xl border border-white/60 rounded-2xl font-bold px-3 py-1 leading-tight"
             />
           </TimelineContent>
 
@@ -205,7 +207,7 @@ function HeroTrefa() {
         </article>
 
         <div
-          className="p-5 pb-10 relative space-y-5 bg-gradient-to-br from-white/85 via-orange-50/40 to-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_0_rgba(255,255,255,0.5),_inset_0_1px_0_0_rgba(255,255,255,0.9)] rounded-2xl z-0"
+          className="p-3 md:p-5 pb-10 relative space-y-5 bg-gradient-to-br from-white/85 via-orange-50/40 to-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_0_rgba(255,255,255,0.5),_inset_0_1px_0_0_rgba(255,255,255,0.9)] rounded-2xl z-0"
         >
           <div className="absolute top-0 left-0 w-full h-full border-[1.4px] border-[#DDDFE1] rounded-2xl z-0">
             <div className="absolute -top-2.5 left-0 w-full h-2 inline-block rounded-full">
@@ -250,15 +252,12 @@ function HeroTrefa() {
                     <Star className="w-4 h-4 text-white fill-white" />
                   </figure>
                 </div>
-                <span className="font-medium xl:text-sm sm:text-xs text-[10px] inline-block leading-relaxed flex-1 text-left" style={{ fontFamily: 'DM Sans, sans-serif', marginLeft: '8px' }}>
+                <span className="font-medium xl:text-[15.5px] sm:text-[13.5px] text-[10.5px] inline-block leading-relaxed flex-1 text-left text-gray-600" style={{ fontFamily: 'DM Sans, sans-serif', marginLeft: '8px' }}>
                   La agencia de autos seminuevos{' '}
-                  <HighlightText
-                    text="mejor calificada del país"
-                    inView={true}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-400 dark:to-orange-500 font-bold text-[10px] sm:text-xs xl:text-sm px-1 py-0 leading-tight"
-                  />{' '}
-                  con más de 5,000 autos vendidos.
+                  <span className="text-orange-600 font-bold">
+                    mejor calificada
+                  </span>{' '}
+                  del país con más de 5,000 autos vendidos.
                 </span>
               </div>
             </div>
@@ -295,12 +294,12 @@ function HeroTrefa() {
                 Financiamiento Digital
               </h1>
               <div className="p-4 px-8">
-                <figure className="rounded-full flex gap-3">
-                  <div className="xl:w-20 xl:h-20 w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100">
+                <figure className="flex gap-3">
+                  <div className="xl:w-28 xl:h-28 w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center flex-shrink-0">
                     <img
                       src="/images/fer-help.png"
                       alt="Asesor TREFA"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
                     />
                   </div>
                   <article>
@@ -323,65 +322,124 @@ function HeroTrefa() {
                 </figure>
               </div>
               <div className="px-8 p-4">
-                <div className="relative">
-                  {/* Timeline Bar */}
-                  <div className="w-[85%] mx-auto h-2 bg-gray-200 rounded-full">
-                    {/* Completed Progress */}
-                    <div
-                      className={`h-full ${
-                        steps[2].completed ? "bg-green-500" : "bg-[#FF6801]"
-                      } rounded-full transition-all duration-1000 ease-in-out`}
-                      style={{
-                        width: `${(currentStep / (steps.length - 1)) * 100}%`,
-                      }}
-                    />
-                  </div>
+                <div className="relative flex items-center justify-center py-4 -mt-4 md:-mt-9">
+                  {/* Circular Timeline Container */}
+                  <div className="relative w-full max-w-[260px] sm:max-w-[300px] md:max-w-[340px] aspect-square mx-auto">
+                    {/* Circular Progress Background */}
+                    <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                      {/* Background Circle */}
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="38"
+                        fill="none"
+                        stroke="#E5E7EB"
+                        strokeWidth="2"
+                      />
+                      {/* Progress Circle */}
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="38"
+                        fill="none"
+                        stroke={steps[2].completed ? "#10B981" : "#FF6801"}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeDasharray={`${(currentStep / (steps.length - 1)) * 238.76} 238.76`}
+                        className="transition-all duration-1000 ease-in-out"
+                      />
+                    </svg>
 
-                  {/* Timeline Points */}
-                  <div className="absolute w-[95%] xl:-top-3 -top-2 left-[2.5%] right-[2.5%] flex items-center justify-between">
-                    {steps.map((step, index) => (
-                      <div key={index} className="flex flex-col items-center">
-                        {/* Circle Point */}
+                    {/* Steps positioned around the circle */}
+                    {steps.map((step, index) => {
+                      // Calculate position (0=top, 1=right, 2=bottom, 3=left)
+                      const angle = (index * 90) - 90; // Start at top and go clockwise
+                      const radian = (angle * Math.PI) / 180;
+                      const radius = 38; // percentage
+                      const x = 50 + radius * Math.cos(radian);
+                      const y = 50 + radius * Math.sin(radian);
+
+                      return (
                         <div
-                          className={`xl:w-8 xl:h-8 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-1000 delay-300 ${
-                            step.completed || step.active
-                              ? steps[2].completed
-                                ? "bg-green-500 border-green-500"
-                                : "bg-[#FF6801] border-[#E65D00]"
-                              : "bg-white border-gray-200"
-                          }`}
+                          key={index}
+                          className="absolute"
+                          style={{
+                            left: `${x}%`,
+                            top: `${y}%`,
+                            transform: 'translate(-50%, -50%)'
+                          }}
                         >
                           <div
-                            className={`xl:w-4 xl:h-4 w-3 h-3 rounded-full delay-500 ${
-                              step.active || step.completed
-                                ? "bg-white"
-                                : "bg-gray-200"
+                            className={`flex flex-col items-center transition-all duration-700 ${
+                              step.active || step.completed ? 'opacity-100 scale-100' : 'opacity-60 scale-90'
                             }`}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="w-full flex items-center justify-between">
-                    {steps.map((step, index) => (
-                      <div key={index} className="flex flex-col items-center">
-                        {/* Label */}
-                        <div className="mt-4 text-center">
-                          <div className="xl:text-sm text-xs font-medium">
-                            {step.label}
-                          </div>
-                          <div
-                            className={`transition-opacity xl:text-base text-xs duration-1000 delay-500 ${
-                              step.active || step.completed
-                                ? "opacity-100"
-                                : "opacity-0"
-                            }`}
+                            style={{
+                              transitionDelay: `${index * 150}ms`
+                            }}
                           >
-                            {step.date}
+                            {/* Numbered Circle */}
+                            <div
+                              className={`w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full border-3 flex items-center justify-center transition-all duration-500 font-bold text-base sm:text-lg shadow-lg ${
+                                step.completed || step.active
+                                  ? steps[2].completed
+                                    ? "bg-green-500 border-green-600 text-white"
+                                    : "bg-[#FF6801] border-[#E65D00] text-white"
+                                  : "bg-white border-gray-300 text-gray-400"
+                              }`}
+                            >
+                              {step.completed ? (
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              ) : (
+                                index + 1
+                              )}
+                            </div>
+
+                            {/* Label - positioned based on circle position */}
+                            <div
+                              className={`text-center transition-all duration-500 ${
+                                index === 0 ? 'mt-2' : // Top
+                                index === 1 ? 'ml-14 sm:ml-16' : // Right
+                                index === 2 ? 'mt-2' : // Bottom
+                                '-ml-14 sm:-ml-16' // Left
+                              }`}
+                              style={{
+                                minWidth: index === 1 || index === 3 ? '90px' : '70px'
+                              }}
+                            >
+                              <div className={`text-[9px] sm:text-[10px] font-bold transition-colors duration-500 whitespace-nowrap ${
+                                step.active || step.completed ? 'text-gray-900' : 'text-gray-500'
+                              }`}>
+                                {step.label}
+                              </div>
+                              <div
+                                className={`text-[8px] sm:text-[9px] font-semibold transition-all duration-500 mt-0.5 ${
+                                  step.active || step.completed
+                                    ? "opacity-100 text-orange-600"
+                                    : "opacity-0 text-gray-400"
+                                }`}
+                              >
+                                {step.date}
+                              </div>
+                            </div>
                           </div>
                         </div>
+                      );
+                    })}
+
+                    {/* Center Content - Dynamic Emoji */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center flex flex-col items-center">
+                        {/* Dynamic Step Emoji */}
+                        <div className="text-6xl sm:text-7xl md:text-8xl transition-all duration-500">
+                          {currentStep === 0 && '👩🏻‍💻'}
+                          {currentStep === 1 && '📤'}
+                          {currentStep === 2 && '🕑'}
+                          {currentStep >= 3 && '🎉'}
+                        </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -407,40 +465,13 @@ function HeroTrefa() {
                 </article>
 
                 <Link
-                  to="/escritorio/registro"
+                  to="/acceder"
                   className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors font-semibold flex items-center gap-2 whitespace-nowrap"
                 >
                   Registrarme
                   <span>→</span>
                 </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Video Section */}
-      <section id="trefa-video" className="w-full py-16 bg-white">
-        <div className="max-w-screen-xl mx-auto px-4 md:px-10 xl:px-0">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Descubre cómo funciona TREFA
-            </h2>
-            <p className="text-lg text-gray-600">
-              Un proceso simple y transparente de principio a fin
-            </p>
-          </div>
-          <div className="rounded-3xl overflow-hidden shadow-2xl max-w-4xl mx-auto">
-            <div className="relative aspect-video bg-gray-900">
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/p-nMlle-xfw?rel=0"
-                title="TREFA - Conoce nuestra historia"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
             </div>
           </div>
         </div>

@@ -41,8 +41,15 @@ const mainNavLinks = [
     { name: 'Inventario', to: '/autos', authRequired: false, icon: CarIcon },
     { name: 'Explorar', to: '/explorar', authRequired: false, icon: LayoutGridIcon },
     { name: 'Vender mi Auto', to: '/vender-mi-auto', authRequired: false, icon: SellCarIcon },
+    { name: 'Financiamientos', to: '/financiamientos', authRequired: false, icon: FileTextIcon },
     { name: 'Promociones', to: '/promociones', authRequired: false, icon: TagIcon, featureFlag: 'show_promotions' },
     { name: 'Kit de Confianza', to: '/kit-trefa', authRequired: false, icon: AwardIcon },
+    { name: 'Conócenos', to: '/conocenos', authRequired: false, icon: UserCircleIcon },
+    { name: 'Blog', to: '/blog', authRequired: false, icon: FileTextIcon },
+    { name: 'Contacto', to: '/contacto', authRequired: false, icon: UserCircleIcon },
+    { name: 'Vacantes', to: '/vacantes', authRequired: false, icon: FileTextIcon },
+    { name: 'Registro', to: '/acceder', authRequired: false, icon: UserIcon },
+    { name: 'Política de Privacidad', to: '/privacidad', authRequired: false, icon: FileTextIcon },
     { name: 'Ayuda / FAQ', to: '/faq', authRequired: false, icon: HelpCircleIcon },
 ];
 
@@ -66,10 +73,10 @@ const PricingRangeWidget: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('inventario_cache')
-                .select('automarca, automodelo, precio')
+                .select('marca, modelo, precio')
                 .eq('ordenstatus', 'Comprado')
-                .not('automarca', 'is', null)
-                .not('automodelo', 'is', null);
+                .not('marca', 'is', null)
+                .not('modelo', 'is', null);
 
             if (error) throw error;
             return data || [];
@@ -228,10 +235,10 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('inventario_cache')
-                .select('automarca, automodelo')
+                .select('marca, modelo')
                 .eq('ordenstatus', 'Comprado')
-                .not('automarca', 'is', null)
-                .not('automodelo', 'is', null);
+                .not('marca', 'is', null)
+                .not('modelo', 'is', null);
 
             if (error) {
                 console.error('Error fetching brands/models for mega menu:', error);
@@ -256,7 +263,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
     // All brands (removed .slice(0, 12) limit)
     const marcas = useMemo(() => {
         if (!brandsAndModels) return [];
-        const allMarcas = brandsAndModels.map(v => v.automarca).filter(Boolean);
+        const allMarcas = brandsAndModels.map(v => v.marca).filter(Boolean);
         const uniqueMarcas = [...new Set(allMarcas)];
         return uniqueMarcas.sort().map(marcaName => ({
             id: marcaName,
@@ -272,12 +279,12 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
         const modelSet = new Map<string, { model: string; brand: string; }>();
 
         brandsAndModels.forEach(v => {
-            if (v.automodelo && v.automarca) {
-                const key = `${v.automarca}-${v.automodelo}`;
+            if (v.modelo && v.marca) {
+                const key = `${v.marca}-${v.modelo}`;
                 if (!modelSet.has(key)) {
                     modelSet.set(key, {
-                        model: v.automodelo,
-                        brand: v.automarca,
+                        model: v.modelo,
+                        brand: v.marca,
                     });
                 }
             }
@@ -473,7 +480,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                         {/* Column 3: Marcas */}
                         <div>
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Marcas</h3>
-                            <ScrollArea className="h-[320px] pr-2">
+                            <ScrollArea className="h-[480px] pr-2">
                                 <div className="space-y-0.5">
                                     {isBrandsLoading ? (
                                         <div className="flex items-center justify-center h-20">
@@ -514,7 +521,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                         {/* Column 4: Modelos */}
                         <div>
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Modelos</h3>
-                            <ScrollArea className="h-[320px] pr-2">
+                            <ScrollArea className="h-[480px] pr-2">
                                 <div className="space-y-0.5">
                                     {isBrandsLoading ? (
                                         <div className="flex items-center justify-center h-20">

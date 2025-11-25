@@ -645,7 +645,7 @@ const Application: React.FC = () => {
 
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <input type="hidden" {...form.register('ordencompra')} />
-                                <Card className="shadow-lg">
+                                <Card className="shadow-sm border-0">
                                     <CardContent className="p-4 sm:p-6 lg:p-8">
                                         {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
                                         {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
@@ -854,7 +854,7 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
         </div>
 
         {/* Profile Information Summary */}
-        <div className="bg-gradient-to-r from-blue-50 to-primary-50 border-2 border-blue-200 rounded-xl p-6">
+        <div className="bg-gradient-to-r from-blue-50 to-primary-50 rounded-xl p-6">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
                 <User className="w-4 h-4 mr-2" />
                 Datos Personales Registrados
@@ -897,7 +897,7 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
         </div>
 
         {/* Address Section */}
-        <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
+        <div className="bg-white rounded-xl p-6">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">Domicilio Actual</h3>
 
             <div className="space-y-4">
@@ -942,7 +942,7 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
         </div>
 
         {/* Housing & Personal Info */}
-        <div className="bg-white border-2 border-gray-200 rounded-xl p-6 space-y-6">
+        <div className="bg-white rounded-xl p-6 space-y-6">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Información del Hogar</h3>
 
             <FormRadio

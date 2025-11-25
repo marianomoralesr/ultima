@@ -460,7 +460,7 @@ const Dashboard: React.FC = () => {
 
             {/* Borradores de Solicitud - Show on mobile at the top (after Mi Asesor) */}
             {drafts.length > 0 && (
-                <div className="lg:hidden bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="lg:hidden bg-white rounded-xl shadow-sm p-4 sm:p-6">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center mb-4">
                         <FileEdit className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
                         Borradores de Solicitud
@@ -469,7 +469,7 @@ const Dashboard: React.FC = () => {
                         {drafts.map(draft => {
                             const status = statusMap[draft.status] || statusMap[APPLICATION_STATUS.DRAFT];
                             return (
-                                <div key={draft.id} className="p-3 sm:p-4 border rounded-lg bg-white">
+                                <div key={draft.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
                                     <div className="flex flex-col gap-3 mb-3">
                                         <div>
                                             <p className="font-semibold text-gray-800 text-sm sm:text-base">{draft.car_info?._vehicleTitle || 'Solicitud General'}</p>
@@ -494,7 +494,7 @@ const Dashboard: React.FC = () => {
             )}
 
              {submittedApps.length > 0 ? (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4">
                         <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
                             <History className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
@@ -513,7 +513,7 @@ const Dashboard: React.FC = () => {
                             const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.DRAFT];
                             const canEdit = app.status !== APPLICATION_STATUS.EN_REVISION && app.status !== APPLICATION_STATUS.REVIEWING;
                             return (
-                                <div key={app.id} className="p-3 sm:p-4 border rounded-lg bg-white">
+                                <div key={app.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
                                     <div className="flex flex-col gap-2 mb-3">
                                         <div>
                                             <p className="font-semibold text-gray-800 text-sm sm:text-base break-words">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
@@ -604,14 +604,14 @@ const Dashboard: React.FC = () => {
         <aside className="hidden lg:block lg:col-span-1 space-y-6 lg:space-y-8">
             {profile?.asesor_asignado_id && <MiAsesor asesorId={profile.asesor_asignado_id} />}
             {drafts.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="bg-white rounded-xl shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center mb-4">
                         <FileEdit className="w-5 h-5 mr-3 text-primary-600" />
                         Borradores de Solicitud
                     </h3>
                     <div className="space-y-4">
                         {drafts.map(draft => (
-                            <div key={draft.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col sm:flex-row justify-between items-start gap-4">
+                            <div key={draft.id} className="bg-gray-50 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start gap-4">
                                 <div>
                                     <p className="font-semibold text-gray-800">{draft.car_info?._vehicleTitle || 'Borrador sin auto seleccionado'}</p>
                                     <p className="text-xs text-gray-500 mt-1">Última modificación: {new Date(draft.updated_at).toLocaleDateString('es-MX')}</p>

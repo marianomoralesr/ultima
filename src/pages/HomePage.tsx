@@ -24,6 +24,7 @@ import BranchesSection from '../components/BranchesSection';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 import { AppleCardsCarousel } from '../components/AppleCardsCarousel';
+import HeroTrefa from '../components/ui/hero-trefa';
 import HomePageContentService, {
   HeroContent,
   InventoryHeroContent,
@@ -923,7 +924,7 @@ const HomePage: React.FC = () => {
 
   return (
     <main className="relative z-10 scroll-smooth">
-      <LandingPageHero content={content.hero} />
+      <HeroTrefa />
       <NewHeroSection content={content.inventoryHero} />
       <CarroceriaCarouselSection content={content.carroceriaCarousel} />
       <CTACardsSection content={content.ctaCards} />

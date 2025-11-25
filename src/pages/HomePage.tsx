@@ -25,6 +25,7 @@ import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 import { AppleCardsCarousel } from '../components/AppleCardsCarousel';
 import HeroTrefa from '../components/ui/hero-trefa';
+import AnimatedVehicleGrid from '../components/AnimatedVehicleGrid';
 import HomePageContentService, {
   HeroContent,
   InventoryHeroContent,
@@ -138,8 +139,11 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
 
   return (
     <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center">
-      {/* Desktop background vehicles */}
-      <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Animated Vehicle Grid Background - Full Screen */}
+      <AnimatedVehicleGrid maxVehicles={30} gradientDirection="diagonal" />
+
+      {/* Desktop background vehicles - KEPT as secondary layer for depth */}
+      <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none opacity-30">
         <motion.div
           className="absolute right-0 xl:right-16 bottom-0"
           initial={{ opacity: 0, x: 100 }}

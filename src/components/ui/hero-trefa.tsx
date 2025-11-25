@@ -7,6 +7,7 @@ import { motion, useAnimationControls } from "motion/react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import AnimatedVehicleGrid from "../AnimatedVehicleGrid";
 
 // Simple HighlightText component
 const HighlightText: React.FC<{ text: string; className?: string; inView?: boolean; transition?: any }> = ({ text, className }) => {
@@ -154,11 +155,13 @@ function HeroTrefa() {
       className="min-h-screen relative overflow-x-hidden bg-neutral-100"
       ref={heroRef}
     >
+      {/* Animated Vehicle Grid Background */}
+      <AnimatedVehicleGrid maxVehicles={30} gradientDirection="diagonal" />
       <section className="w-full py-28 md:grid md:grid-cols-2 flex flex-col md:place-content-center max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
         <article className="space-y-5 flex-col flex justify-center text-left pb-10">
           <a
             href="/perfilacion-bancaria"
-            className="bg-white sm:text-sm text-xs w-fit p-1 flex gap-1.5 items-center shadow-[0px_1px_4px_rgba(0,0,0,0.1),_0px_1px_1px_rgba(0,0,0,0.15)] rounded-full hover:shadow-lg transition-shadow"
+            className="bg-white/70 backdrop-blur-sm sm:text-sm text-xs w-fit p-1 flex gap-1.5 items-center shadow-[0px_1px_4px_rgba(0,0,0,0.1),_0px_1px_1px_rgba(0,0,0,0.15)] rounded-full hover:shadow-lg transition-shadow"
           >
             <span className="bg-[#FF6801] border-[#E65D00] border [box-shadow:inset_0px_-2px_6px_2px_#ff8533,inset_0px_4px_6px_2px_#ffa366] p-1 inline-block rounded-full px-2.5 text-white">
               Nuevo
@@ -171,8 +174,8 @@ function HeroTrefa() {
             animationNum={0}
             timelineRef={heroRef}
             as="h1"
-            className="xl:text-6xl md:text-5xl text-4xl font-extrabold"
-            style={{ fontFamily: 'DM Sans, sans-serif' }}
+            className="xl:text-7xl md:text-6xl text-5xl font-bold"
+            style={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}
           >
             Estrena un auto seminuevo en{' '}
             <br className="hidden md:block" />
@@ -180,28 +183,10 @@ function HeroTrefa() {
               text="tiempo récord."
               inView={true}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-400 dark:to-orange-500 font-extrabold px-2 py-0 leading-tight"
+              className="bg-gradient-to-br from-white/90 via-orange-50/50 to-white/85 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_0_rgba(255,255,255,0.8),_inset_0_1px_0_0_rgba(255,255,255,0.9)] rounded-2xl font-bold px-3 py-1 leading-tight"
             />
           </TimelineContent>
 
-          <TimelineContent
-            animationNum={1}
-            timelineRef={heroRef}
-            as="p"
-            className="xl:text-4xl md:text-3xl text-2xl font-light text-zinc-700 leading-relaxed"
-            style={{ fontFamily: 'DM Sans, sans-serif' }}
-          >
-            <a
-              href="#trefa-video"
-              className="text-[#FF6801] font-normal hover:underline inline-flex items-center gap-1"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('trefa-video')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Descubre cómo hacerlo aquí <span className="inline-block">→</span>
-            </a>
-          </TimelineContent>
 
           <div className="flex gap-5 items-center">
             <TimelineContent as="div" animationNum={2} timelineRef={heroRef}>
@@ -220,7 +205,7 @@ function HeroTrefa() {
         </article>
 
         <div
-          className="p-5 pb-10 relative space-y-5 bg-gradient-to-t from-white to-gray-50 rounded-2xl z-0"
+          className="p-5 pb-10 relative space-y-5 bg-gradient-to-br from-white/85 via-orange-50/40 to-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_0_rgba(255,255,255,0.5),_inset_0_1px_0_0_rgba(255,255,255,0.9)] rounded-2xl z-0"
         >
           <div className="absolute top-0 left-0 w-full h-full border-[1.4px] border-[#DDDFE1] rounded-2xl z-0">
             <div className="absolute -top-2.5 left-0 w-full h-2 inline-block rounded-full">
@@ -249,8 +234,8 @@ function HeroTrefa() {
             />
           </div>
 
-          <div className="w-full bg-[#F3F3F6] border-2 border-[#DDDFE1] rounded-xl p-3">
-            <div className="bg-white border-[1.2px] relative rounded-lg border-white shadow-[0px_1.20415px_16.8582px_rgba(0,0,0,0.1),_0px_1.20415px_1.20415px_rgba(0,0,0,0.15)]">
+          <div className="w-full bg-white/30 backdrop-blur-sm border-2 border-white/40 rounded-xl p-3">
+            <div className="bg-gradient-to-br from-white/70 via-white/50 to-white/60 backdrop-blur-md border border-white/50 relative rounded-lg shadow-[0_4px_16px_0_rgba(255,255,255,0.4),_inset_0_1px_0_0_rgba(255,255,255,0.8)]">
               <div className="absolute left-2 top-2 bottom-2 flex flex-col justify-between before:content-[''] before:w-2 before:h-2 before:rounded-full before:bg-[#DDDFE1] after:content-[''] after:w-2 after:h-2 after:rounded-full after:bg-[#DDDFE1]" />
               <div className="absolute right-2 top-2 bottom-2 flex flex-col justify-between before:content-[''] before:w-2 before:h-2 before:rounded-full before:bg-[#DDDFE1] after:content-[''] after:w-2 after:h-2 after:rounded-full after:bg-[#DDDFE1]" />
               <div className="flex gap-2 text-sm relative py-3 px-4 items-center justify-between">
@@ -286,7 +271,7 @@ function HeroTrefa() {
                 : "bg-[#F3F3F6] border-[#DDDFE1]"
             }`}
           >
-            <div className="bg-white relative rounded-lg shadow-[0px_1.20415px_16.8582px_rgba(0,0,0,0.1),_0px_1.20415px_1.20415px_rgba(0,0,0,0.15)]">
+            <div className="bg-gradient-to-br from-white/70 via-white/50 to-white/60 backdrop-blur-md border border-white/50 relative rounded-lg shadow-[0_4px_16px_0_rgba(255,255,255,0.4),_inset_0_1px_0_0_rgba(255,255,255,0.8)]">
               <div
                 className={`absolute left-2 top-2 bottom-2 flex flex-col justify-between before:content-[''] before:w-2 before:h-2 before:rounded-full ${
                   steps[2].completed
@@ -407,10 +392,10 @@ function HeroTrefa() {
             className={`w-full border-2 rounded-xl p-3 ${
               animationState === "complete"
                 ? "bg-green-200 border-green-600"
-                : "bg-[#F3F3F6] border-[#DDDFE1]"
+                : "bg-white/30 backdrop-blur-sm border-white/40"
             }`}
           >
-            <div className="bg-white relative rounded-lg shadow-[0px_1.20415px_16.8582px_rgba(0,0,0,0.1),_0px_1.20415px_1.20415px_rgba(0,0,0,0.15)]">
+            <div className="bg-gradient-to-br from-white/70 via-white/50 to-white/60 backdrop-blur-md border border-white/50 relative rounded-lg shadow-[0_4px_16px_0_rgba(255,255,255,0.4),_inset_0_1px_0_0_rgba(255,255,255,0.8)]">
               <div className="sm:flex justify-between items-center relative px-7 p-4">
                 <article className="pb-2">
                   <h1 className="font-semibold xl:text-xl text-sm">
@@ -422,10 +407,10 @@ function HeroTrefa() {
                 </article>
 
                 <Link
-                  to="/autos"
+                  to="/escritorio/registro"
                   className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors font-semibold flex items-center gap-2 whitespace-nowrap"
                 >
-                  Ver Autos
+                  Registrarme
                   <span>→</span>
                 </Link>
               </div>

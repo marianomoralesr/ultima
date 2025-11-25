@@ -265,28 +265,25 @@ export default function AdminSalesDashboard() {
                         <Globe className="h-5 w-5" />
                         Leads del Sitio Web
                     </CardTitle>
+                    <CardDescription>Gestión de leads entrantes</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <MetricCard
-                            title="Total de Leads Web"
-                            value={metrics.websiteLeads.total}
-                            icon={<Users className="h-4 w-4" />}
-                            trendPercent={trends?.leadsChangePercent}
-                            onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
-                        />
+                    <div className="grid gap-4 md:grid-cols-2">
                         <MetricCard
                             title="Leads Contactados"
                             value={metrics.websiteLeads.contacted}
                             icon={<MessageSquare className="h-4 w-4" />}
-                            description={`${((metrics.websiteLeads.contacted / (metrics.websiteLeads.total || 1)) * 100).toFixed(0)}% contactados`}
+                            description={`${((metrics.websiteLeads.contacted / (metrics.websiteLeads.total || 1)) * 100).toFixed(0)}% del total`}
                             variant="success"
+                            onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
                         />
                         <MetricCard
-                            title="Sin Contactar"
+                            title="Pendientes de Contactar"
                             value={metrics.websiteLeads.uncontacted}
                             icon={<Clock className="h-4 w-4" />}
+                            description={`${((metrics.websiteLeads.uncontacted / (metrics.websiteLeads.total || 1)) * 100).toFixed(0)}% del total`}
                             variant={metrics.websiteLeads.uncontacted > 10 ? "destructive" : "default"}
+                            onClick={() => navigate(isAdmin ? '/escritorio/admin/crm' : '/escritorio/ventas/crm')}
                         />
                     </div>
                 </CardContent>
@@ -299,25 +296,22 @@ export default function AdminSalesDashboard() {
                         <Bot className="h-5 w-5" />
                         Leads de Kommo CRM
                     </CardTitle>
+                    <CardDescription>Estado de leads en sistema CRM</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <MetricCard
-                            title="Total de Leads Kommo"
-                            value={metrics.kommoLeads.total}
-                            icon={<Users className="h-4 w-4" />}
-                        />
+                    <div className="grid gap-4 md:grid-cols-2">
                         <MetricCard
                             title="Leads Activos"
                             value={metrics.kommoLeads.active}
                             icon={<CheckCircle className="h-4 w-4" />}
-                            description={`${((metrics.kommoLeads.active / (metrics.kommoLeads.total || 1)) * 100).toFixed(0)}% activos`}
+                            description={`${((metrics.kommoLeads.active / (metrics.kommoLeads.total || 1)) * 100).toFixed(0)}% del total`}
                             variant="success"
                         />
                         <MetricCard
-                            title="Leads Eliminados"
+                            title="Leads Cerrados/Eliminados"
                             value={metrics.kommoLeads.deleted}
                             icon={<Clock className="h-4 w-4" />}
+                            description={`${((metrics.kommoLeads.deleted / (metrics.kommoLeads.total || 1)) * 100).toFixed(0)}% del total`}
                         />
                     </div>
                 </CardContent>

@@ -391,10 +391,7 @@ export default function AdminSalesDashboard() {
             {/* Source Attribution */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle>Atribución por Fuente</CardTitle>
-                        <Badge variant="secondary">{metrics.totalLeads} Total</Badge>
-                    </div>
+                    <CardTitle>Atribución por Fuente</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -419,49 +416,52 @@ export default function AdminSalesDashboard() {
                     {/* Top Row: Full-width Trend Chart */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Tendencia de 30 Días</CardTitle>
+                            <CardTitle>Tendencia de 30 Días - Leads vs Solicitudes</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {timeSeriesData.length > 0 ? (
-                                <div className="w-full min-h-[280px]">
-                                    <TrendLineChart data={timeSeriesData} />
+                                <div className="w-full h-[400px]">
+                                    <TrendLineChart data={timeSeriesData} height={400} />
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-center min-h-[280px] text-muted-foreground">
+                                <div className="flex items-center justify-center h-[400px] text-muted-foreground">
                                     <p className="text-sm">Cargando datos de tendencias...</p>
                                 </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* Bottom Row: Two-column Grid for Distribution and Funnel */}
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Distribución de Fuentes</CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex items-center justify-center">
-                                <div className="w-full max-w-md aspect-square">
-                                    <SourcePieChart data={metrics.sourceBreakdown} />
-                                </div>
-                            </CardContent>
-                        </Card>
+                    {/* Pipeline de Conversión - Full Width */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Pipeline de Conversión</CardTitle>
+                            <CardDescription>Flujo completo desde leads hasta aprobaciones</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                            <ConversionFunnel metrics={{
+                                totalLeads: metrics.totalLeads,
+                                contactedLeads: metrics.contactedLeads,
+                                totalApplications: metrics.totalApplications,
+                                processedApplications: metrics.processedApplications,
+                                approvedApplications: metrics.approvedApplications
+                            }} />
+                        </CardContent>
+                    </Card>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Pipeline de Conversión</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ConversionFunnel metrics={{
-                                    totalLeads: metrics.totalLeads,
-                                    contactedLeads: metrics.contactedLeads,
-                                    totalApplications: metrics.totalApplications,
-                                    processedApplications: metrics.processedApplications,
-                                    approvedApplications: metrics.approvedApplications
-                                }} />
-                            </CardContent>
-                        </Card>
-                    </div>
+                    {/* Distribución de Fuentes - Full Width with Pie Chart */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Distribución de Fuentes</CardTitle>
+                            <CardDescription>Análisis de origen de leads</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center justify-center">
+                                <div className="w-full max-w-lg">
+                                    <SourcePieChart data={metrics.sourceBreakdown} height={350} />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </TabsContent>
 
                 <TabsContent value="activity" className="space-y-4">

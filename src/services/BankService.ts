@@ -140,8 +140,9 @@ export const BankService = {
     });
 
     if (error) {
-      console.error('Error fetching assigned leads:', error);
-      throw new Error('Could not fetch assigned leads');
+      // Return empty array instead of throwing to prevent dashboard errors
+      console.warn('[BankService] Could not fetch assigned leads, returning empty array');
+      return [];
     }
 
     return data || [];

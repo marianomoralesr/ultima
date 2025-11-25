@@ -15,7 +15,7 @@ const getSessionId = () => {
 };
 
 export const useRealtimeVisitors = () => {
-  const [activeUsers, setActiveUsers] = useState<number>(1); // Default fallback before first fetch
+  const [activeUsers, setActiveUsers] = useState<number>(3); // Default fallback before first fetch (minimum 3)
   const [isLoading, setIsLoading] = useState(true);
 
   // Send heartbeat to track this session
@@ -69,8 +69,8 @@ export const useRealtimeVisitors = () => {
     // Send heartbeat every 30 seconds
     const heartbeatInterval = setInterval(sendHeartbeat, 30000);
 
-    // Fetch active users every 5 seconds
-    const fetchInterval = setInterval(fetchActiveUsers, 5000);
+    // Fetch active users every 8 seconds (compound of last 30 minutes with fluctuations)
+    const fetchInterval = setInterval(fetchActiveUsers, 8000);
 
     // Cleanup on unmount
     return () => {

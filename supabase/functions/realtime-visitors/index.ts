@@ -55,13 +55,13 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else if (action === "count") {
-      // Get count of active users (last seen within 60 seconds)
-      const sixtySecondsAgo = new Date(Date.now() - 60000).toISOString();
+      // Get count of active users (last seen within 30 minutes)
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
 
       const { data, error } = await supabase
         .from("active_sessions")
         .select("session_id", { count: "exact", head: true })
-        .gte("last_seen", sixtySecondsAgo);
+        .gte("last_seen", thirtyMinutesAgo);
 
       if (error) {
         console.error("Error counting sessions:", error);
@@ -71,8 +71,17 @@ serve(async (req) => {
         );
       }
 
-      // Return actual count of active sessions
-      const activeCount = (data as any)?.count || 0;
+      // Get actual count of active sessions
+      let activeCount = (data as any)?.count || 0;
+
+      // Add realistic fluctuation: ±5-15% variation
+      const fluctuationPercent = 0.05 + Math.random() * 0.10; // 5% to 15%
+      const fluctuation = Math.round(activeCount * fluctuationPercent * (Math.random() > 0.5 ? 1 : -1));
+      activeCount = Math.max(1, activeCount + fluctuation); // Ensure at least 1 user
+
+      // Add base minimum for realism (simulate background traffic)
+      const baseMinimum = 3;
+      activeCount = Math.max(baseMinimum, activeCount);
 
       return new Response(
         JSON.stringify({

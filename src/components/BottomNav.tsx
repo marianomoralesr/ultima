@@ -21,7 +21,6 @@ import { useAuth } from '../context/AuthContext';
 // Links that will appear in the unfoldable menu
 const menuLinks = [
     { name: 'Comprar', to: '/autos', authRequired: false, icon: BuyCarIcon },
-    { name: 'Explorar', to: '/explorar', authRequired: false, icon: LayoutGridIcon },
     { name: 'Vender mi Auto', to: '/escritorio/vende-tu-auto', authRequired: true, icon: SellCarIcon },
     { name: 'Promociones', to: '/promociones', authRequired: false, icon: TagIcon },
     { name: 'Mi Escritorio', to: '/escritorio', authRequired: true, icon: LayoutDashboardIcon },
@@ -207,7 +206,7 @@ const BottomNav: React.FC = () => {
             <nav className={`fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-gray-200 lg:hidden transition-transform duration-300 ${isKeyboardVisible || isHidden ? 'translate-y-full' : 'translate-y-0'}`}>
                 <div className="max-w-md mx-auto grid grid-cols-5 justify-around items-center h-16">
                     <NavItem to="/" icon={HomeIcon} label="Inicio" end={true} />
-                    <NavItem to="/autos" icon={BuyCarIcon} label="Buscar" />
+                    <NavItem to="/vender-mi-auto" icon={SellCarIcon} label="Vender" />
 
                     <div className="flex justify-center">
                         <button
@@ -231,7 +230,7 @@ const BottomNav: React.FC = () => {
                         </button>
                     </div>
 
-                    <NavItem to="/vender-mi-auto" icon={SellCarIcon} label="Vender" />
+                    <NavItem to="/autos" icon={BuyCarIcon} label="Comprar" />
                     <NavItem to={accountLink} icon={UserIcon} label="Mi Perfil" />
                 </div>
             </nav>

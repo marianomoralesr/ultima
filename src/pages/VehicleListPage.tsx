@@ -588,19 +588,32 @@ const VehicleListPage: React.FC = () => {
             </Card>
 
             <Card className="lg:hidden mb-6">
-              <CardContent className="pt-6 flex items-center justify-between">
-                <div>
-                  <h1 className="text-sm font-semibold">
-                    {resultsDisplay}
-                  </h1>
-                  <p className="text-xs text-muted-foreground mt-0.5">Toca para filtrar</p>
+              <CardContent className="pt-6 pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h1 className="text-sm font-semibold">
+                      {resultsDisplay}
+                    </h1>
+                    <p className="text-xs text-muted-foreground mt-0.5">Toca para filtrar</p>
+                  </div>
+                  <Button onClick={openSheet} size="sm">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filtros
+                  </Button>
                 </div>
-                <Button onClick={openSheet} size="sm">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                  Filtros
-                </Button>
+
+                {/* Mobile compact visitor counter */}
+                <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gradient-to-r from-orange-50 to-transparent px-2 py-1.5 rounded-md">
+                  <div className="flex -space-x-1">
+                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border border-white"></div>
+                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-green-600 border border-white"></div>
+                  </div>
+                  <span className="text-orange-600 font-bold transition-all duration-300">{activeUsers}</span>
+                  <span>explorando ahora</span>
+                  <span className="text-orange-600 animate-pulse">•</span>
+                </div>
               </CardContent>
             </Card>
 

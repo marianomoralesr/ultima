@@ -55,23 +55,26 @@ class PerformanceMonitor {
 
     // Observe Cumulative Layout Shift
     try {
-      let clsValue = 0;
-      let clsEntries: any[] = [];
+      // Check if layout-shift is supported before observing
+      if (PerformanceObserver.supportedEntryTypes?.includes('layout-shift')) {
+        let clsValue = 0;
+        let clsEntries: any[] = [];
 
-      const clsObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries() as any) {
-          if (!entry.hadRecentInput) {
-            clsValue += entry.value;
-            clsEntries.push(entry);
+        const clsObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries() as any) {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+              clsEntries.push(entry);
+            }
           }
-        }
-        this.metrics.CLS = clsValue;
-        this.report();
-      });
-      clsObserver.observe({ type: 'layout-shift', buffered: true });
-      this.observers.push(clsObserver);
+          this.metrics.CLS = clsValue;
+          this.report();
+        });
+        clsObserver.observe({ type: 'layout-shift', buffered: true });
+        this.observers.push(clsObserver);
+      }
     } catch (e) {
-      console.debug('CLS observer not supported');
+      // Silently ignore if not supported
     }
 
     // Observe First Contentful Paint

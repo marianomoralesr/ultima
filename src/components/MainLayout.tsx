@@ -17,7 +17,7 @@ const MainLayout: React.FC = () => {
         <div className="flex flex-col min-h-screen bg-gray-50 overflow-x-hidden relative">
             <AnimatedBlobs />
             <Header />
-            <main className="flex-grow pt-20 sm:pt-20 lg:pt-28 pb-0 relative z-10 w-full max-w-full">
+            <main className="flex-grow pt-16 lg:pt-28 pb-0 relative z-10 w-full max-w-full">
                 <Outlet />
             </main>
             <Footer />

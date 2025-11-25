@@ -1,8 +1,8 @@
 // Service Worker for Trefa.mx - Advanced Caching Strategy
-const CACHE_NAME = 'trefa-v1';
-const RUNTIME_CACHE = 'trefa-runtime-v1';
-const IMAGE_CACHE = 'trefa-images-v1';
-const API_CACHE = 'trefa-api-v1';
+const CACHE_NAME = 'trefa-v2';
+const RUNTIME_CACHE = 'trefa-runtime-v2';
+const IMAGE_CACHE = 'trefa-images-v2';
+const API_CACHE = 'trefa-api-v2';
 
 // Assets to cache on install
 const PRECACHE_URLS = [
@@ -56,13 +56,24 @@ const CACHE_STRATEGIES = {
     const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(request);
 
-    const fetchPromise = fetch(request).then((networkResponse) => {
-      if (networkResponse.ok) {
-        cache.put(request, networkResponse.clone());
-      }
-      return networkResponse;
-    });
+    const fetchPromise = fetch(request)
+      .then((networkResponse) => {
+        if (networkResponse.ok) {
+          cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+      })
+      .catch((error) => {
+        console.warn('Fetch failed for:', request.url, error);
+        // If fetch fails and we have a cached response, return it
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // If no cache, rethrow to be handled upstream
+        throw error;
+      });
 
+    // Return cached response immediately if available, otherwise wait for network
     return cachedResponse || fetchPromise;
   },
 
@@ -202,6 +213,17 @@ self.addEventListener('fetch', (event) => {
   // Default strategy - stale while revalidate
   event.respondWith(
     CACHE_STRATEGIES.staleWhileRevalidate(request, RUNTIME_CACHE)
+      .catch((error) => {
+        console.error('Service worker fetch error:', error);
+        // Return a basic offline response
+        return new Response('Offline - Content not available', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: new Headers({
+            'Content-Type': 'text/plain'
+          })
+        });
+      })
   );
 });
 

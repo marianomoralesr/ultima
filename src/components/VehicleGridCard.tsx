@@ -1,7 +1,7 @@
 
 
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Vehicle } from '../types/types';
 import { HeartIcon, TagIcon, ShieldCheckIcon, FuelIcon, GaugeIcon, CogIcon } from './icons';
 import ImageCarousel from './ImageCarousel'; // Import the new ImageCarousel
@@ -24,6 +24,7 @@ const SpecBadge: React.FC<{ children: React.ReactNode, icon?: React.ElementType 
 
 const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const hasSlug = vehicle.slug && vehicle.slug.trim() !== '';
   const { isFavorite, toggleFavorite, isToggling } = useFavorites();
   const favorite = isFavorite(vehicle.id);
@@ -34,6 +35,15 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
     e.preventDefault();
     e.stopPropagation();
     await toggleFavorite(vehicle.id);
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only navigate if clicking on the card background, not on interactive elements
+    const target = e.target as HTMLElement;
+    const isInteractive = target.closest('button') || target.closest('a[href]') || target.closest('[role="button"]');
+    if (!isInteractive && hasSlug) {
+      navigate(`/autos/${vehicle.slug}`);
+    }
   };
 
   const prefetchVehicle = () => {
@@ -59,7 +69,8 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   const CardContent = (
     <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-3xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative isolate ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
+      onClick={handleCardClick}
+      className={`bg-white rounded-3xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative isolate ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''} cursor-pointer`}
     >
         <div className={`block relative ${isPopular ? 'overflow-hidden rounded-t-3xl' : ''}`}>
             <ImageCarousel
@@ -135,7 +146,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
         </div>
 
         {hasSlug && (
-          <Link to={`/autos/${vehicle.slug}`} data-gtm-id="card-grid-view-details" className="absolute inset-0 z-[1]">
+          <Link to={`/autos/${vehicle.slug}`} data-gtm-id="card-grid-view-details" className="absolute inset-0 z-[1] pointer-events-none">
             <span className="sr-only">Ver detalles de {vehicle.title}</span>
           </Link>
         )}

@@ -89,6 +89,8 @@ const MediaGallery: React.FC<{
 
     const activeIndex = useMemo(() => mediaItems.findIndex(item => item.src === activeMedia?.src), [mediaItems, activeMedia]);
 
+    const [isDragging, setIsDragging] = useState(false);
+
     const goToIndex = useCallback((index: number) => {
         const newIndex = (index + mediaItems.length) % mediaItems.length;
         if (mediaItems[newIndex]) {
@@ -107,6 +109,10 @@ const MediaGallery: React.FC<{
         });
     }, [activeIndex]);
 
+    const handleDragStart = () => {
+        setIsDragging(true);
+    };
+
     const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         const swipeThreshold = 50;
         if (info.offset.x > swipeThreshold) {
@@ -114,6 +120,8 @@ const MediaGallery: React.FC<{
         } else if (info.offset.x < -swipeThreshold) {
             goToNext();
         }
+        // Reset dragging state after a short delay to prevent click events
+        setTimeout(() => setIsDragging(false), 100);
     };
 
     const bonusPromo = useMemo(() => {
@@ -152,6 +160,7 @@ const MediaGallery: React.FC<{
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.1}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             dragListener={!isEmbed} // Disable drag on iframes
         >
@@ -169,11 +178,17 @@ const MediaGallery: React.FC<{
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
+                    onClick={(e) => {
+                        // Only open lightbox if clicking on the image itself, not on buttons or while dragging
+                        const target = e.target as HTMLElement;
+                        const isButton = target.closest('button');
+                        if (!isButton && !isDragging && activeMedia?.type === 'image') {
+                            handleOpenLightbox();
+                        }
+                    }}
                 >
                     {activeMedia?.type === 'image' && (
-                        <button onClick={handleOpenLightbox} className="w-full h-full">
-                            <LazyImage src={activeMedia.src} alt="Vista principal del auto" className="w-full h-full" objectFit="cover" />
-                        </button>
+                        <LazyImage src={activeMedia.src} alt="Vista principal del auto" className="w-full h-full cursor-pointer" objectFit="cover" />
                     )}
                     {activeMedia?.type === 'video' && (
                         isEmbed ? (
@@ -191,10 +206,10 @@ const MediaGallery: React.FC<{
 
             {mediaItems.length > 1 && (
                 <>
-                    <button onClick={goToPrev} className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 text-white p-2 rounded-full backdrop-blur-sm hover:bg-black/50 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center" aria-label="Previous image">
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goToPrev(); }} className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 text-white p-2 rounded-full backdrop-blur-sm hover:bg-black/50 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center" aria-label="Previous image">
                         <ChevronLeftIcon className="w-8 h-8" />
                     </button>
-                    <button onClick={goToNext} className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 text-white p-2 rounded-full backdrop-blur-sm hover:bg-black/50 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center" aria-label="Next image">
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); goToNext(); }} className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 text-white p-2 rounded-full backdrop-blur-sm hover:bg-black/50 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center" aria-label="Next image">
                         <ChevronRightIcon className="w-8 h-8" />
                     </button>
                 </>

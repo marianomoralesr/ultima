@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Service Worker - Trefa</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ea580c;
+            margin-top: 0;
+        }
+        button {
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #c2410c;
+        }
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: none;
+        }
+        .info {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Limpiar Service Worker</h1>
+        <p>Esta página te ayudará a resolver problemas con el Service Worker de Trefa.</p>
+
+        <div class="info">
+            <strong>¿Cuándo usar esto?</strong>
+            <ul>
+                <li>La página se queda en pantalla de carga</li>
+                <li>Ves errores de "Failed to fetch"</li>
+                <li>El sitio no carga correctamente</li>
+            </ul>
+        </div>
+
+        <button onclick="clearServiceWorker()">1. Desregistrar Service Worker</button>
+        <button onclick="clearCaches()">2. Limpiar Cachés</button>
+        <button onclick="clearAll()">3. Limpiar Todo</button>
+        <button onclick="goHome()">4. Ir al Inicio</button>
+
+        <div id="success" class="success"></div>
+
+        <div id="status" style="margin-top: 20px; font-size: 14px; color: #666;"></div>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const successEl = document.getElementById('success');
+
+        function showStatus(message) {
+            statusEl.textContent = message;
+        }
+
+        function showSuccess(message) {
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 5000);
+        }
+
+        async function clearServiceWorker() {
+            showStatus('Desregistrando service workers...');
+
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+
+                for (let registration of registrations) {
+                    await registration.unregister();
+                    console.log('Service Worker desregistrado:', registration);
+                }
+
+                showSuccess(`✅ ${registrations.length} service worker(s) desregistrado(s)`);
+                showStatus('Completado. Recarga la página para aplicar cambios.');
+            } else {
+                showStatus('⚠️ Service Workers no soportados en este navegador');
+            }
+        }
+
+        async function clearCaches() {
+            showStatus('Limpiando cachés...');
+
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+
+                for (let cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    console.log('Caché eliminado:', cacheName);
+                }
+
+                showSuccess(`✅ ${cacheNames.length} caché(s) eliminado(s)`);
+                showStatus('Completado. Recarga la página para aplicar cambios.');
+            } else {
+                showStatus('⚠️ Cache API no soportada en este navegador');
+            }
+        }
+
+        async function clearAll() {
+            showStatus('Limpiando todo...');
+
+            await clearServiceWorker();
+            await clearCaches();
+
+            // Also clear local storage and session storage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            showSuccess('✅ Todo limpiado exitosamente');
+            showStatus('Esperando 2 segundos antes de recargar...');
+
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Show current status on load
+        window.addEventListener('load', async () => {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                showStatus(`Service Workers activos: ${registrations.length}`);
+            }
+
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                const cacheInfo = document.createElement('div');
+                cacheInfo.className = 'info';
+                cacheInfo.innerHTML = `<strong>Cachés actuales:</strong><br>${cacheNames.join('<br>') || 'Ninguno'}`;
+                document.querySelector('.container').appendChild(cacheInfo);
+            }
+        });
+    </script>
+</body>
+</html>

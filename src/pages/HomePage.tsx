@@ -136,7 +136,7 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
   const heroContent = content || defaultContent;
 
   return (
-    <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center -mt-[100px] pt-[100px]">
+    <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center -mt-20 pt-20 lg:-mt-28 lg:pt-28">
       {/* Desktop background vehicles */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div

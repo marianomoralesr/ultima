@@ -212,9 +212,9 @@ function HeroTrefa() {
         </article>
 
         <div
-          className="p-5 pb-10 relative space-y-5 bg-gradient-to-t from-white to-gray-50 rounded-2xl"
+          className="p-5 pb-10 relative space-y-5 bg-gradient-to-t from-white to-gray-50 rounded-2xl z-0"
         >
-          <div className="absolute top-0 left-0 w-full h-full border-[1.4px] border-[#DDDFE1] rounded-2xl">
+          <div className="absolute top-0 left-0 w-full h-full border-[1.4px] border-[#DDDFE1] rounded-2xl z-0">
             <div className="absolute -top-2.5 left-0 w-full h-2 inline-block rounded-full">
               <motion.div
                 className="bg-neutral-100 rounded-full w-10 h-4 absolute left-[40%] before:absolute before:left-2 before:top-1 before:content-[''] before:w-6 before:h-2 before:bg-white before:border-2 before:border-[#DDDFE1] before:rounded-full"
@@ -229,15 +229,15 @@ function HeroTrefa() {
                 animate={secondDivControls}
               />
             </div>
-            <div className="absolute -top-3 -left-3 w-6 h-6 bg-neutral-100 inline-block rounded-full" />
-            <div className="absolute -right-3 -top-3 w-6 h-6 bg-neutral-100 inline-block rounded-full" />
-            <div className="absolute -bottom-3 -left-3 w-6 h-6 bg-neutral-100 inline-block rounded-full" />
-            <div className="absolute -bottom-3 -right-3 w-6 h-6 bg-neutral-100 inline-block rounded-full" />
+            <div className="absolute -top-3 -left-3 w-6 h-6 bg-neutral-100 inline-block rounded-full z-[1]" />
+            <div className="absolute -right-3 -top-3 w-6 h-6 bg-neutral-100 inline-block rounded-full z-[1]" />
+            <div className="absolute -bottom-3 -left-3 w-6 h-6 bg-neutral-100 inline-block rounded-full z-[1]" />
+            <div className="absolute -bottom-3 -right-3 w-6 h-6 bg-neutral-100 inline-block rounded-full z-[1]" />
             <div
-              className="absolute w-full -top-2 h-2 left-0 before:absolute before:-left-2 before:-top-0 before:content-[''] before:w-4 before:h-4 before:bg-white before:border-4 before:border-[#DDDFE1] before:rounded-full after:absolute after:-right-2 after:-top-0 after:content-[''] after:w-4 after:h-4 after:bg-white after:border-4 after:border-[#DDDFE1] after:rounded-full"
+              className="absolute w-full -top-2 h-2 left-0 z-[1] before:absolute before:-left-2 before:-top-0 before:content-[''] before:w-4 before:h-4 before:bg-white before:border-4 before:border-[#DDDFE1] before:rounded-full after:absolute after:-right-2 after:-top-0 after:content-[''] after:w-4 after:h-4 after:bg-white after:border-4 after:border-[#DDDFE1] after:rounded-full"
             />
             <div
-              className="absolute w-full -bottom-0 h-2 left-0 before:absolute before:-left-2 before:-top-0 before:content-[''] before:w-4 before:h-4 before:bg-white before:border-4 before:border-[#DDDFE1] before:rounded-full after:absolute after:-right-2 after:-top-0 after:content-[''] after:w-4 after:h-4 after:bg-white after:border-4 after:border-[#DDDFE1] after:rounded-full"
+              className="absolute w-full -bottom-0 h-2 left-0 z-[1] before:absolute before:-left-2 before:-top-0 before:content-[''] before:w-4 before:h-4 before:bg-white before:border-4 before:border-[#DDDFE1] before:rounded-full after:absolute after:-right-2 after:-top-0 after:content-[''] after:w-4 after:h-4 after:bg-white after:border-4 after:border-[#DDDFE1] after:rounded-full"
             />
           </div>
 

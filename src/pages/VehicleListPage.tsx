@@ -20,7 +20,7 @@ import useSEO from '../hooks/useSEO';
 import useDebounce from '../hooks/useDebounce';
 import { useRealtimeVisitors } from '../hooks/useRealtimeVisitors';
 import { proxyImage } from '../utils/proxyImage';
-import ExplorarTutorialOverlay from '../components/ExplorarTutorialOverlay';
+// import ExplorarTutorialOverlay from '../components/ExplorarTutorialOverlay';
 import { useDrag } from '@use-gesture/react';
 import { animated, useSpring } from 'react-spring';
 import { Card, CardContent } from '../components/ui/card';
@@ -39,15 +39,15 @@ const VehicleListPage: React.FC = () => {
   const isInitialMount = useRef(true);
 
   // Initialize showTutorial based on localStorage to prevent flash
-  const [showTutorial, setShowTutorial] = useState(() => {
-    const tutorialShown = localStorage.getItem('explorarTutorialShown');
-    return !tutorialShown;
-  });
+  // const [showTutorial, setShowTutorial] = useState(() => {
+  //   const tutorialShown = localStorage.getItem('explorarTutorialShown');
+  //   return !tutorialShown;
+  // });
 
-  const handleCloseTutorial = () => {
-    setShowTutorial(false);
-    localStorage.setItem('explorarTutorialShown', 'true');
-  };
+  // const handleCloseTutorial = () => {
+  //   setShowTutorial(false);
+  //   localStorage.setItem('explorarTutorialShown', 'true');
+  // };
 
   console.log('Vehicles:', vehicles);
   console.log('Vehicles Error:', vehiclesError);
@@ -702,7 +702,7 @@ const VehicleListPage: React.FC = () => {
           )}
         </animated.div>
       )}
-      {showTutorial && !isFilterSheetOpen && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />}
+      {/* {showTutorial && !isFilterSheetOpen && <ExplorarTutorialOverlay onClose={handleCloseTutorial} />} */}
     </>
   );
 };

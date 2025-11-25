@@ -59,7 +59,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
   const CardContent = (
     <div
       onMouseEnter={prefetchVehicle}
-      className={`bg-white rounded-3xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
+      className={`bg-white rounded-3xl shadow-sm hover:shadow-lg transition-shadow duration-300 ${!isPopular ? 'overflow-hidden' : ''} group flex flex-col relative isolate ${isSeparado ? 'opacity-70' : ''} ${isPopular ? 'popular-card' : ''}`}
     >
         <div className={`block relative ${isPopular ? 'overflow-hidden rounded-t-3xl' : ''}`}>
             <ImageCarousel
@@ -78,7 +78,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
                     <span className="bg-gray-900 text-white text-sm font-bold py-1.5 px-4 rounded-md shadow-lg tracking-wider">SEPARADO</span>
                 </div>
             )}
-            <div className="absolute top-3 right-3 z-20">
+            <div className="absolute top-3 right-3 z-[2]">
                  <button
                     onClick={handleToggleFavorite}
                     data-gtm-id="card-grid-favorite"
@@ -135,7 +135,7 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
         </div>
 
         {hasSlug && (
-          <Link to={`/autos/${vehicle.slug}`} data-gtm-id="card-grid-view-details" className="absolute inset-0 z-10">
+          <Link to={`/autos/${vehicle.slug}`} data-gtm-id="card-grid-view-details" className="absolute inset-0 z-[1]">
             <span className="sr-only">Ver detalles de {vehicle.title}</span>
           </Link>
         )}

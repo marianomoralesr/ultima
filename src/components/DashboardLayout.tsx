@@ -39,6 +39,11 @@ const DashboardLayout: React.FC = () => {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isAdminSidebarExpanded, setIsAdminSidebarExpanded] = useState(false);
 
+    // Toggle admin sidebar manually
+    const toggleAdminSidebar = () => {
+        setIsAdminSidebarExpanded(!isAdminSidebarExpanded);
+    };
+
     // Admin navigation items (right sidebar)
     const adminNavItems = [
         { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -205,31 +210,38 @@ const DashboardLayout: React.FC = () => {
                 <motion.aside
                     className={cn(
                         "fixed inset-y-0 right-0 z-10 hidden flex-col border-l shadow-lg sm:flex",
-                        isAdminSidebarExpanded ? "bg-background" : "bg-primary text-primary-foreground"
+                        isAdminSidebarExpanded ? "bg-background" : "bg-primary"
                     )}
                     initial={{ width: "60px" }}
                     animate={{ width: isAdminSidebarExpanded ? "256px" : "60px" }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    onMouseEnter={() => setIsAdminSidebarExpanded(true)}
-                    onMouseLeave={() => setIsAdminSidebarExpanded(false)}
                 >
                     <nav className="flex flex-col gap-4 px-2 py-6 h-full">
-                        {/* Admin Label */}
-                        <div className="flex items-center justify-center h-10">
+                        {/* Admin Label with Toggle */}
+                        <button
+                            onClick={toggleAdminSidebar}
+                            className={cn(
+                                "flex items-center justify-center h-10 rounded-lg transition-colors",
+                                isAdminSidebarExpanded ? "hover:bg-accent" : "hover:bg-primary-foreground/10"
+                            )}
+                        >
                             {isAdminSidebarExpanded ? (
-                                <motion.p
+                                <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className="text-sm font-semibold px-3"
+                                    className="flex items-center gap-2 px-3"
                                 >
-                                    Panel Admin
-                                </motion.p>
+                                    <p className="text-sm font-semibold">Panel Admin</p>
+                                    <ChevronRight className="h-4 w-4" />
+                                </motion.div>
                             ) : (
-                                <p className="text-xs font-bold">A</p>
+                                <div className="flex flex-col items-center">
+                                    <p className="text-xs font-bold text-white">A</p>
+                                </div>
                             )}
-                        </div>
+                        </button>
 
-                        <Separator className={cn(isAdminSidebarExpanded ? "" : "bg-primary-foreground/20")} />
+                        <Separator className={cn(isAdminSidebarExpanded ? "" : "bg-white/20")} />
 
                         {/* Admin Navigation */}
                         <div className="flex-1 space-y-1">
@@ -247,10 +259,10 @@ const DashboardLayout: React.FC = () => {
                                             active
                                                 ? isAdminSidebarExpanded
                                                     ? "bg-accent text-accent-foreground"
-                                                    : "bg-primary-foreground/20"
+                                                    : "bg-white/20 text-white"
                                                 : isAdminSidebarExpanded
                                                     ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                                    : "hover:bg-primary-foreground/10"
+                                                    : "text-white hover:bg-white/10"
                                         )}
                                         title={!isAdminSidebarExpanded ? item.label : undefined}
                                     >
@@ -269,7 +281,7 @@ const DashboardLayout: React.FC = () => {
                             })}
                         </div>
 
-                        <Separator className={cn(isAdminSidebarExpanded ? "" : "bg-primary-foreground/20")} />
+                        <Separator className={cn(isAdminSidebarExpanded ? "" : "bg-white/20")} />
 
                         {/* Sign Out Button */}
                         <button
@@ -279,7 +291,7 @@ const DashboardLayout: React.FC = () => {
                                 isAdminSidebarExpanded ? "px-3 py-2 gap-3" : "justify-center py-2",
                                 isAdminSidebarExpanded
                                     ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                    : "hover:bg-primary-foreground/10"
+                                    : "text-white hover:bg-white/10"
                             )}
                             title={!isAdminSidebarExpanded ? "Cerrar Sesión" : undefined}
                         >
@@ -298,30 +310,17 @@ const DashboardLayout: React.FC = () => {
                 </motion.aside>
             )}
 
-            {/* Handle Indicator - Outside Admin Sidebar */}
-            {isAdmin && (
-                <motion.div
-                    className="fixed top-1/2 -translate-y-1/2 z-[5] hidden sm:flex items-center justify-center pointer-events-none"
-                    animate={{
-                        right: isAdminSidebarExpanded ? "256px" : "60px",
-                        opacity: isAdminSidebarExpanded ? 0 : 1
-                    }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                    <div className="h-24 w-4 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-r-lg flex items-center justify-center">
-                        <div className="bg-background/80 backdrop-blur-sm rounded-full p-1 shadow-sm border border-border/50">
-                            <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                        </div>
-                    </div>
-                </motion.div>
-            )}
-
-            {/* Main Content - Responsive padding based on role */}
-            <div className={cn(
-                "flex flex-col sm:gap-4",
-                isSales && !isAdmin && "sm:pl-64",  // Sales: left sidebar
-                isAdmin && "sm:pr-[60px]"          // Admin: right sidebar
-            )}>
+            {/* Main Content - Responsive padding based on role and sidebar state */}
+            <motion.div
+                className={cn(
+                    "flex flex-col sm:gap-4",
+                    isSales && !isAdmin && "sm:pl-64"  // Sales: left sidebar
+                )}
+                animate={{
+                    paddingRight: isAdmin ? (isAdminSidebarExpanded ? "256px" : "60px") : "0px"
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
                 {/* Top Bar with Breadcrumbs */}
                 <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
                     <Breadcrumb className="hidden md:flex">
@@ -368,7 +367,10 @@ const DashboardLayout: React.FC = () => {
                 <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 pb-20 sm:pb-4 w-full max-w-full overflow-x-hidden">
                     <Outlet />
                 </main>
-            </div>
+
+                {/* Bottom Navigation - Mobile Only */}
+                <BottomNav />
+            </motion.div>
 
             {/* Mobile Sidebar for Admins/Sales (triggered by hamburger) */}
             {(isAdmin || isSales) && (

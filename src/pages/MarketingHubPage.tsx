@@ -195,7 +195,7 @@ const MarketingHubPage: React.FC = () => {
     <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Panel Administrativo</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard General</h2>
         <p className="text-sm text-muted-foreground">
           Centro de herramientas de marketing, ventas y análisis
         </p>
@@ -203,7 +203,7 @@ const MarketingHubPage: React.FC = () => {
 
       {/* Summary Metrics Row */}
       <div className="grid gap-3 md:grid-cols-4">
-        <Card>
+        <Card className="bg-blue-50/50 border-blue-100">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -217,7 +217,7 @@ const MarketingHubPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-green-50/50 border-green-100">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -231,7 +231,7 @@ const MarketingHubPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-purple-50/50 border-purple-100">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -245,7 +245,10 @@ const MarketingHubPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`${
+          summaryMetrics.trend24h.direction === 'up' ? 'bg-green-50/50 border-green-100' :
+          summaryMetrics.trend24h.direction === 'down' ? 'bg-red-50/50 border-red-100' : 'bg-gray-50/50 border-gray-100'
+        }`}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>

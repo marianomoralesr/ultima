@@ -10,7 +10,7 @@ ADD COLUMN IF NOT EXISTS processed_at TIMESTAMPTZ;
 -- 2. Crear índice compuesto para detectar duplicados potenciales
 -- Permite detectar rápidamente si un usuario ya disparó un evento específico
 CREATE INDEX IF NOT EXISTS idx_tracking_events_user_event_date
-ON public.tracking_events(user_id, event_type, DATE(created_at))
+ON public.tracking_events(user_id, event_type, (created_at::date))
 WHERE user_id IS NOT NULL;
 
 -- 3. Crear función para validar si un evento ya existe

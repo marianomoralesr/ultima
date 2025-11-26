@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
     User,
@@ -27,10 +27,12 @@ import {
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
 import BottomNav from './BottomNav';
+import type { Profile } from '../types/types';
 
 const UserDashboardLayout: React.FC = () => {
     const { profile, signOut } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     // Navigation items for regular users
@@ -77,6 +79,31 @@ const UserDashboardLayout: React.FC = () => {
     };
 
     const breadcrumbs = generateBreadcrumbs();
+
+    // Required profile fields for completeness check
+    const requiredFields: (keyof Profile)[] = [
+        'first_name',
+        'last_name',
+        'mother_last_name',
+        'phone',
+        'birth_date',
+        'homoclave',
+        'fiscal_situation',
+        'civil_status',
+        'rfc'
+    ];
+
+    // Check if profile is complete
+    const isProfileComplete = profile && requiredFields.every(
+        field => profile[field] && String(profile[field]).trim() !== ''
+    );
+
+    // Redirect to profile page if incomplete (but allow navigation away)
+    useEffect(() => {
+        if (profile && !isProfileComplete && location.pathname !== '/escritorio/profile') {
+            navigate('/escritorio/profile', { replace: true });
+        }
+    }, [profile, isProfileComplete, location.pathname, navigate]);
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-gray-50">

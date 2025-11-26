@@ -2,20 +2,102 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users, TrendingUp, BookOpen, Settings, Briefcase,
-  BarChart3, FileText, Database, LayoutDashboard, Activity, Home, Camera, ClipboardCheck
+  BarChart3, FileText, Database, LayoutDashboard, Activity, Home, Camera, ClipboardCheck,
+  Eye, ArrowUp, ArrowDown, Minus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { MetricsService, type EventTypeMetrics } from '../services/MetricsService';
+import { supabase } from '../../supabaseClient';
+
+interface SummaryMetrics {
+  totalLeads: number;
+  totalSolicitudes: number;
+  totalTraffic: number;
+  trend24h: {
+    percentage: number;
+    direction: 'up' | 'down' | 'stable';
+  };
+}
 
 const MarketingHubPage: React.FC = () => {
   const [eventStats, setEventStats] = useState<EventTypeMetrics[]>([]);
   const [loading, setLoading] = useState(true);
+  const [summaryMetrics, setSummaryMetrics] = useState<SummaryMetrics>({
+    totalLeads: 0,
+    totalSolicitudes: 0,
+    totalTraffic: 0,
+    trend24h: { percentage: 0, direction: 'stable' }
+  });
 
   useEffect(() => {
+    loadSummaryMetrics();
     loadEventStats();
   }, []);
+
+  const loadSummaryMetrics = async () => {
+    try {
+      // Total leads (all profiles)
+      const { count: leadsCount, error: leadsError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Total solicitudes enviadas (non-draft applications)
+      const { count: solicitudesCount, error: solicitudesError } = await supabase
+        .from('financing_applications')
+        .select('*', { count: 'exact', head: true })
+        .neq('status', 'draft');
+
+      // Total traffic (all PageView events)
+      const { count: trafficCount, error: trafficError } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_type', 'PageView');
+
+      // 24h trend - compare last 24h vs previous 24h
+      const now = new Date();
+      const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const previous24h = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+      const { count: recentCount } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', last24h.toISOString());
+
+      const { count: previousCount } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', previous24h.toISOString())
+        .lt('created_at', last24h.toISOString());
+
+      // Calculate trend
+      let direction: 'up' | 'down' | 'stable' = 'stable';
+      let percentage = 0;
+
+      if (previousCount && previousCount > 0) {
+        percentage = ((recentCount || 0) - previousCount) / previousCount * 100;
+        if (percentage > 5) direction = 'up';
+        else if (percentage < -5) direction = 'down';
+        else direction = 'stable';
+      } else if (recentCount && recentCount > 0) {
+        direction = 'up';
+        percentage = 100;
+      }
+
+      setSummaryMetrics({
+        totalLeads: leadsCount || 0,
+        totalSolicitudes: solicitudesCount || 0,
+        totalTraffic: trafficCount || 0,
+        trend24h: {
+          percentage: Math.abs(Math.round(percentage)),
+          direction
+        }
+      });
+    } catch (error) {
+      console.error('Error loading summary metrics:', error);
+    }
+  };
 
   const loadEventStats = async () => {
     setLoading(true);
@@ -117,6 +199,89 @@ const MarketingHubPage: React.FC = () => {
         <p className="text-sm text-muted-foreground">
           Centro de herramientas de marketing, ventas y análisis
         </p>
+      </div>
+
+      {/* Summary Metrics Row */}
+      <div className="grid gap-3 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Leads</p>
+                <p className="text-2xl font-bold mt-1">{summaryMetrics.totalLeads.toLocaleString()}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Solicitudes Enviadas</p>
+                <p className="text-2xl font-bold mt-1">{summaryMetrics.totalSolicitudes.toLocaleString()}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                <FileText className="h-5 w-5 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Tráfico</p>
+                <p className="text-2xl font-bold mt-1">{summaryMetrics.totalTraffic.toLocaleString()}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <Eye className="h-5 w-5 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tendencia 24h</p>
+                <div className="flex items-center gap-1 mt-1">
+                  {summaryMetrics.trend24h.direction === 'up' && (
+                    <>
+                      <ArrowUp className="h-5 w-5 text-green-600" />
+                      <span className="text-2xl font-bold text-green-600">+{summaryMetrics.trend24h.percentage}%</span>
+                    </>
+                  )}
+                  {summaryMetrics.trend24h.direction === 'down' && (
+                    <>
+                      <ArrowDown className="h-5 w-5 text-red-600" />
+                      <span className="text-2xl font-bold text-red-600">-{summaryMetrics.trend24h.percentage}%</span>
+                    </>
+                  )}
+                  {summaryMetrics.trend24h.direction === 'stable' && (
+                    <>
+                      <Minus className="h-5 w-5 text-gray-600" />
+                      <span className="text-2xl font-bold text-gray-600">~{summaryMetrics.trend24h.percentage}%</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                summaryMetrics.trend24h.direction === 'up' ? 'bg-green-100' :
+                summaryMetrics.trend24h.direction === 'down' ? 'bg-red-100' : 'bg-gray-100'
+              }`}>
+                {summaryMetrics.trend24h.direction === 'up' && <TrendingUp className="h-5 w-5 text-green-600" />}
+                {summaryMetrics.trend24h.direction === 'down' && <TrendingUp className="h-5 w-5 text-red-600 rotate-180" />}
+                {summaryMetrics.trend24h.direction === 'stable' && <Minus className="h-5 w-5 text-gray-600" />}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Tools Grid */}

@@ -346,6 +346,11 @@ const DashboardSidebarPage: React.FC = () => {
     }
   };
 
+  // Reload stats when location changes (user navigates)
+  useEffect(() => {
+    loadStats();
+  }, [location, loadStats]);
+
   const copyToClipboard = () => {
     if (publicUploadLink) {
       navigator.clipboard.writeText(publicUploadLink);

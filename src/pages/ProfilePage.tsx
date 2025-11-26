@@ -209,7 +209,11 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (firstName && lastName && motherLastName && birthDate && homoclave) {
       const rfc = calculateRFC({ first_name: firstName, last_name: lastName, mother_last_name: motherLastName, birth_date: birthDate, homoclave });
-      setCalculatedRfc(rfc || 'Completa los campos para calcular');
+      if (rfc) {
+        setCalculatedRfc(rfc);
+      }
+    } else {
+      setCalculatedRfc('');
     }
   }, [firstName, lastName, motherLastName, birthDate, homoclave]);
 
@@ -356,12 +360,9 @@ const ProfilePage: React.FC = () => {
         setSaveState('saved');
         toast.success('¡Perfil completado! Redirigiendo a perfilación bancaria...');
 
-        // Automatic redirect to perfilacion bancaria
+        // Simplified redirect - single timeout
         setTimeout(() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => {
-            navigate('/escritorio/perfilacion-bancaria');
-          }, 300);
+          navigate('/escritorio/perfilacion-bancaria');
         }, 1500);
       } else {
         setSaveState('saved');
@@ -396,7 +397,19 @@ const ProfilePage: React.FC = () => {
 
     const isValid = await profileForm.trigger(fieldsToValidate);
 
-    if (isValid && currentStep < STEPS.length) {
+    if (!isValid) {
+      // Show toast with specific validation errors
+      const errors = profileForm.formState.errors;
+      const errorFields = Object.keys(errors);
+      if (errorFields.length > 0) {
+        toast.error('Por favor, completa todos los campos obligatorios antes de continuar.');
+      }
+      // Scroll to first error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

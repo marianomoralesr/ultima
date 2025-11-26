@@ -72,13 +72,22 @@ export const ApplicationService = {
 
     const currentStatus = currentApp?.status || 'draft';
 
-    // Only automatically set status if current status is draft or if explicitly provided
+    // Determine new status
     let newStatus = applicationData.status || currentStatus;
 
-    // Auto-detect status based on documents only if status is draft or not in review/approved/rejected
-    if (currentStatus === APPLICATION_STATUS.DRAFT || !applicationData.status) {
+    // Auto-detect status based on documents when:
+    // 1. Transitioning from draft (first submission) - check documents and set to faltan_documentos or completa
+    // 2. Already in faltan_documentos or completa state (document upload/update) - re-check and update
+    const shouldAutoDetectStatus =
+      !applicationData.status && (
+        currentStatus === APPLICATION_STATUS.DRAFT ||
+        currentStatus === APPLICATION_STATUS.FALTAN_DOCUMENTOS ||
+        currentStatus === APPLICATION_STATUS.COMPLETA
+      );
+
+    if (shouldAutoDetectStatus) {
       const hasAllDocuments = await this.checkApplicationDocuments(applicationId, applicationData);
-      // Set status based on documents: "Completa" if has docs, "Faltan Documentos" if not
+      // When submitting from draft or updating documents, set status based on document completion
       newStatus = hasAllDocuments ? APPLICATION_STATUS.COMPLETA : APPLICATION_STATUS.FALTAN_DOCUMENTOS;
     }
 

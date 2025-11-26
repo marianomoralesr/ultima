@@ -93,6 +93,7 @@ const BankLeadProfilePage = lazy(() => import('./pages/BankLeadProfilePage'));
 const AdminBankManagementPage = lazy(() => import('./pages/AdminBankManagementPage'));
 const DashboardExample = lazy(() => import('./pages/DashboardExample'));
 const PublicDocumentUploadPage = lazy(() => import('./pages/PublicDocumentUploadPage'));
+const DashboardSidebarPage = lazy(() => import('./pages/DashboardSidebarPage'));
 
 import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
@@ -188,6 +189,7 @@ function App(): React.JSX.Element {
                 <Route path="solicitudes" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
                 <Route path="ejemplo" element={<DashboardExample />} />
+                <Route path="sidebar-dashboard" element={<DashboardSidebarPage />} />
 
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>

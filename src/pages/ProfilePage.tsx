@@ -313,10 +313,13 @@ const ProfilePage: React.FC = () => {
       }
 
       await ProfileService.updateProfile(payload);
-      await reloadProfile();
+      const reloadedProfile = await reloadProfile();
 
-      // Check if profile is complete
-      const isComplete = checkProfileCompleteness(payload as Profile);
+      // Check if profile is complete using the RELOADED profile, not the payload
+      const isComplete = checkProfileCompleteness(reloadedProfile || undefined);
+
+      // Update the local state immediately
+      setIsProfileComplete(isComplete);
 
       // Track profile update conversion ONLY if profile is complete
       if (isComplete) {
@@ -339,7 +342,7 @@ const ProfilePage: React.FC = () => {
           setTimeout(() => {
             navigate('/escritorio/perfilacion-bancaria');
           }, 300);
-        }, 4000);
+        }, 1500); // Reduced from 4000ms to 1500ms
       } else {
         toast.success('Perfil guardado. Completa todos los campos para continuar.');
       }

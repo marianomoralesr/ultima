@@ -191,6 +191,83 @@
 
         <div class="content">
 
+            <!-- VERSIÓN v1.11.4 - 25 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.4</span>
+                    <span class="version-date">25 de Noviembre, 2025</span>
+                    <span class="branch-name">main</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Funcionalidad</span>
+                        Página de Confirmación Post-Solicitud
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Nueva página de confirmación después de enviar solicitud de financiamiento</li>
+                        <li class="change-item">Mensaje de felicitaciones personalizado con información del vehículo seleccionado</li>
+                        <li class="change-item">Lista de próximos pasos con documentos requeridos (INE, comprobante domicilio, ingresos, constancia fiscal)</li>
+                        <li class="change-item">Liga pública del dropzone con botón de copiar para facilitar compartir</li>
+                        <li class="change-item">Integración directa con PublicUploadLinkCard para carga inmediata de documentos</li>
+                        <li class="change-item">Botón "Volver al Dashboard" que redirige correctamente a /escritorio</li>
+                        <li class="change-item">Tracking de conversión: dispara evento "SolicitudCompleta" automáticamente</li>
+                        <li class="change-item">Solo se muestra en primer envío, previene acceso en ediciones posteriores</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        Homepage en Blanco
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Corregido bucle infinito en hero-trefa.tsx que causaba crash del navegador</li>
+                        <li class="change-item">Problema: useEffect con 'steps' en dependencias pero modificándose internamente</li>
+                        <li class="change-item">Solución: usar updater functions setState((prev) => ...) para evitar dependencia circular</li>
+                        <li class="change-item">Homepage ahora estable y sin crashes después de carga inicial</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        Upload de Documentos
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Corregido dropzone que no abría Finder al hacer clic</li>
+                        <li class="change-item">Añadido botón explícito "Seleccionar Archivo" como alternativa confiable</li>
+                        <li class="change-item">Mantiene funcionalidad drag-and-drop como opción principal</li>
+                        <li class="change-item">Solución al error 500 por bucket faltante 'financing-documents'</li>
+                        <li class="change-item">Ambas opciones (arrastrar y botón) funcionan correctamente</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-perf">Mejora UX</span>
+                        Flujo de Aplicación
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Redirección automática a página de confirmación al completar solicitud</li>
+                        <li class="change-item">Parámetro ?firstSubmit=true asegura que solo se muestre una vez</li>
+                        <li class="change-item">Usuario recibe confirmación visual inmediata del envío exitoso</li>
+                        <li class="change-item">Liga de upload accesible desde confirmación para facilitar carga de documentos</li>
+                        <li class="change-item">No se confunden ediciones con nuevos envíos</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">Commits</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><span class="commit-hash">1b688ad</span> fix: Corregir bucle infinito en hero-trefa que causaba homepage en blanco</li>
+                        <li class="change-item"><span class="commit-hash">4822966</span> fix: Agregar botón explícito de selección de archivo en dropzone público</li>
+                        <li class="change-item"><span class="commit-hash">27b6886</span> feat: Agregar página de confirmación post-solicitud con tracking y upload de documentos</li>
+                    </ul>
+                </div>
+            </div>
 
             <!-- VERSIÓN v1.11.3 - 25 de Noviembre, 2025 -->
             <div class="version">

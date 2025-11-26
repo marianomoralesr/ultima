@@ -458,23 +458,25 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
                 {allOptions.map(opt => {
                     const isSelected = (opt === OTHER_OPTION && isOtherSelected) || field.value === opt;
                     return (
-                        <button
-                            type="button"
+                        <label
                             key={opt}
-                            onPointerDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleOptionClick(opt);
-                            }}
-                            className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none min-h-[56px]
+                            className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px]
                                 ${isSelected
                                     ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                     : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
                                 }`}
                         >
+                            <input
+                                type="radio"
+                                name={name}
+                                value={opt}
+                                checked={isSelected}
+                                onChange={() => handleOptionClick(opt)}
+                                className="sr-only"
+                            />
                            <span className="flex-grow">{opt}</span>
                            {isSelected && <CheckCircle className="w-5 h-5 text-white flex-shrink-0 ml-3" />}
-                        </button>
+                        </label>
                     );
                 })}
             </div>
@@ -505,23 +507,25 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
             {helper && <p className="text-sm text-gray-600 mb-4 flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-500" />{helper}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {options.map(opt => (
-                    <button
-                        type="button"
+                    <label
                         key={opt}
-                        onPointerDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            field.onChange(opt);
-                        }}
-                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none min-h-[56px]
+                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px]
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
                             }`}
                     >
+                        <input
+                            type="radio"
+                            {...field}
+                            value={opt}
+                            checked={field.value === opt}
+                            onChange={() => field.onChange(opt)}
+                            className="sr-only"
+                        />
                        <span className="flex-grow">{opt}</span>
                        {field.value === opt && <CheckCircle className="w-5 h-5 text-white flex-shrink-0 ml-3" />}
-                    </button>
+                    </label>
                 ))}
             </div>
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
@@ -535,23 +539,25 @@ const RadioField: React.FC<{ control: any, name: any, label: string, options: st
             <h3 className="text-lg font-semibold text-gray-800 mb-4">{label}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {options.map(opt => (
-                    <button
-                        type="button"
+                    <label
                         key={opt}
-                        onPointerDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            field.onChange(opt);
-                        }}
-                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none min-h-[56px]
+                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px]
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
                             }`}
                     >
+                        <input
+                            type="radio"
+                            {...field}
+                            value={opt}
+                            checked={field.value === opt}
+                            onChange={() => field.onChange(opt)}
+                            className="sr-only"
+                        />
                        <span className="flex-grow">{opt}</span>
                        {field.value === opt && <CheckCircle className="w-5 h-5 text-white flex-shrink-0 ml-3" />}
-                    </button>
+                    </label>
                 ))}
             </div>
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}

@@ -75,10 +75,17 @@ const DashboardLayout: React.FC = () => {
         const paths = location.pathname.split('/').filter(Boolean);
         const breadcrumbs = [{ label: 'Inicio', href: '/' }];
 
+        // Combine all navigation items
+        const allNavItems = [
+            ...(isAdmin ? adminNavItems : []),
+            ...(isSales && !isAdmin ? salesNavItems : []),
+            ...secondaryNav
+        ];
+
         let currentPath = '';
         paths.forEach((path, index) => {
             currentPath += `/${path}`;
-            const navItem = [...navItems, ...secondaryNav].find(item => item.to === currentPath);
+            const navItem = allNavItems.find(item => item.to === currentPath);
 
             if (navItem) {
                 breadcrumbs.push({ label: navItem.label, href: currentPath });

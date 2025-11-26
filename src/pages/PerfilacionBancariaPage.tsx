@@ -407,7 +407,7 @@ const PerfilacionBancariaPage: React.FC = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="inline-flex items-center justify-center py-3 px-8 border border-transparent shadow-sm text-base font-bold rounded-lg text-white bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer select-none active:scale-[0.98] transition-transform"
+                        className="inline-flex items-center justify-center py-4 px-10 border border-transparent shadow-sm text-base font-bold rounded-lg text-white bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer select-none active:scale-[0.98] transition-transform min-h-[56px]"
                     >
                         {isSubmitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Guardando...</> : 'Guardar y Analizar Perfil'}
                     </button>
@@ -461,8 +461,12 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
                         <button
                             type="button"
                             key={opt}
-                            onClick={() => handleOptionClick(opt)}
-                            className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none
+                            onPointerDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleOptionClick(opt);
+                            }}
+                            className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none min-h-[56px]
                                 ${isSelected
                                     ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                     : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -504,8 +508,12 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
                     <button
                         type="button"
                         key={opt}
-                        onClick={() => field.onChange(opt)}
-                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none
+                        onPointerDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            field.onChange(opt);
+                        }}
+                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none min-h-[56px]
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -530,8 +538,12 @@ const RadioField: React.FC<{ control: any, name: any, label: string, options: st
                     <button
                         type="button"
                         key={opt}
-                        onClick={() => field.onChange(opt)}
-                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none
+                        onPointerDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            field.onChange(opt);
+                        }}
+                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none min-h-[56px]
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'

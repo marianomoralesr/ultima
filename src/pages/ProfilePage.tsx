@@ -108,11 +108,9 @@ const checkProfileCompleteness = (p: Profile | undefined): boolean => {
 };
 
 const STEPS = [
-  { id: 1, title: 'Contacto', description: 'Información de contacto' },
-  { id: 2, title: 'Personal', description: 'Datos personales' },
+  { id: 1, title: 'Contacto', description: 'Información de contacto y asesor' },
+  { id: 2, title: 'Personal', description: 'Datos personales y estado civil' },
   { id: 3, title: 'Fiscal', description: 'Información fiscal' },
-  { id: 4, title: 'Civil', description: 'Estado civil y género' },
-  { id: 5, title: 'Asesor', description: 'Asignación de asesor' },
 ];
 
 const ProfilePage: React.FC = () => {
@@ -379,16 +377,12 @@ const ProfilePage: React.FC = () => {
 
     switch (currentStep) {
       case 1:
+        // Step 1: Contact + Advisor
         fieldsToValidate = ['phone'];
         break;
       case 2:
-        fieldsToValidate = ['first_name', 'last_name', 'mother_last_name'];
-        break;
-      case 3:
-        fieldsToValidate = ['birth_date', 'homoclave', 'fiscal_situation'];
-        break;
-      case 4:
-        fieldsToValidate = ['civil_status'];
+        // Step 2: Personal + Civil Status
+        fieldsToValidate = ['first_name', 'last_name', 'mother_last_name', 'birth_date', 'civil_status'];
         if (isMarried) {
           fieldsToValidate.push('spouse_name');
         }
@@ -520,69 +514,232 @@ const ProfilePage: React.FC = () => {
       <form onSubmit={(e) => e.preventDefault()} className="text-gray-900">
         <div className="bg-white border rounded-xl p-4 sm:p-6 mb-6 min-h-[400px]">
 
-          {/* Step 1: Contact Information */}
+          {/* Step 1: Contact Information + Advisor */}
           {currentStep === 1 && (
-            <div className="space-y-4">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Información de Contacto</h3>
-                <p className="text-sm text-gray-600">Ingresa tus datos de contacto para que podamos comunicarnos contigo</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono *</Label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm font-medium">MX +52</span>
-                  <Input id="phone" {...profileForm.register('phone')} placeholder="10 dígitos" className="rounded-l-none" />
+            <div className="space-y-6">
+              {/* Advisor Assignment - Destacado al inicio */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-5 border-2 border-blue-200 shadow-sm">
+                <div className="text-center mb-4">
+                  <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-1">Asignación de Asesor</h4>
+                  <p className="text-xs sm:text-sm text-gray-600">¿Ya has sido atendido por un asesor de TREFA anteriormente?</p>
                 </div>
-                {profileForm.formState.errors.phone && <p className="text-sm text-red-600">{profileForm.formState.errors.phone?.message as React.ReactNode}</p>}
+
+                <div>
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700 mb-3 block">
+                    ¿Ya he sido atendido por un asesor de TREFA?
+                  </Label>
+                  <RadioGroup value={hasPriorAdvisor} onValueChange={setHasPriorAdvisor} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="no-prior-advisor" />
+                      <Label htmlFor="no-prior-advisor" className="font-normal cursor-pointer text-sm">No</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="yes-prior-advisor" />
+                      <Label htmlFor="yes-prior-advisor" className="font-normal cursor-pointer text-sm">Sí</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {hasPriorAdvisor === 'yes' && (
+                  <div className="mt-4">
+                    <Label htmlFor="sales-agent-select" className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">
+                      Selecciona tu asesor
+                    </Label>
+                    <Select value={selectedSalesAgentId} onValueChange={setSelectedSalesAgentId}>
+                      <SelectTrigger id="sales-agent-select" className="w-full text-sm">
+                        <SelectValue placeholder="Selecciona un asesor..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SALES_AGENTS.map((agent) => (
+                          <SelectItem key={agent.id} value={agent.id}>
+                            {agent.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {assignedAgentName && selectedSalesAgentId && (
+                      <p className="text-xs text-blue-600 mt-2 flex items-center">
+                        <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                        Se asignará a {assignedAgentName} como tu asesor y tendrá acceso a tu cuenta para dar seguimiento.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {hasPriorAdvisor === 'no' && (
+                  <p className="text-xs sm:text-sm text-gray-600 bg-blue-100 p-3 rounded-lg border border-blue-300 mt-4">
+                    <Info className="w-3 h-3 sm:w-4 sm:h-4 inline mr-2" />
+                    Se te asignará un asesor automáticamente al guardar tu perfil.
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="cellphone_company">Compañía Telefónica</Label>
-                <select id="cellphone_company" {...profileForm.register('cellphone_company')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                  <option value="">Seleccionar...</option>
-                  {CELLPHONE_COMPANIES.map((company) => (
-                    <option key={company} value={company}>{company}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Información de Contacto</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Ingresa tus datos de contacto para que podamos comunicarnos contigo</p>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
-                <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
-                <p className="text-xs text-muted-foreground">Este correo está vinculado a tu cuenta y no puede ser modificado.</p>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm">Teléfono *</Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-2 sm:px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs sm:text-sm font-medium">MX +52</span>
+                    <Input id="phone" {...profileForm.register('phone')} placeholder="10 dígitos" className="rounded-l-none text-sm" />
+                  </div>
+                  {profileForm.formState.errors.phone && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.phone?.message as React.ReactNode}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cellphone_company" className="text-sm">Compañía Telefónica</Label>
+                  <select id="cellphone_company" {...profileForm.register('cellphone_company')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <option value="">Seleccionar...</option>
+                    {CELLPHONE_COMPANIES.map((company) => (
+                      <option key={company} value={company}>{company}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm">Correo Electrónico</Label>
+                  <Input id="email" type="email" value={user?.email || ''} readOnly disabled className="text-sm" />
+                  <p className="text-xs text-muted-foreground">Este correo está vinculado a tu cuenta y no puede ser modificado.</p>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 2: Personal Information */}
+          {/* Step 2: Personal Information + Civil Status */}
           {currentStep === 2 && (
-            <div className="space-y-4">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Datos Personales</h3>
-                <p className="text-sm text-gray-600">Ingresa tu nombre completo tal como aparece en tu identificación oficial</p>
+            <div className="space-y-4 sm:space-y-5">
+              <div className="text-center mb-4 sm:mb-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Datos Personales</h3>
+                <p className="text-xs sm:text-sm text-gray-600">Ingresa tu nombre completo tal como aparece en tu identificación oficial</p>
+              </div>
+
+              {/* Nombres en una sola fila - Optimizado para móvil */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name" className="text-sm">Nombre(s) *</Label>
+                  <Input id="first_name" {...profileForm.register('first_name')} placeholder="Tu(s) nombre(s)" className="text-sm" />
+                  {profileForm.formState.errors.first_name && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.first_name?.message as React.ReactNode}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="last_name" className="text-sm">Apellido Paterno *</Label>
+                  <Input id="last_name" {...profileForm.register('last_name')} placeholder="Apellido paterno" className="text-sm" />
+                  {profileForm.formState.errors.last_name && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.last_name?.message as React.ReactNode}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mother_last_name" className="text-sm">Apellido Materno *</Label>
+                  <Input id="mother_last_name" {...profileForm.register('mother_last_name')} placeholder="Apellido materno" className="text-sm" />
+                  {profileForm.formState.errors.mother_last_name && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.mother_last_name?.message as React.ReactNode}</p>}
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="first_name">Nombre(s) *</Label>
-                <Input id="first_name" {...profileForm.register('first_name')} placeholder="Tu(s) nombre(s)" />
-                {profileForm.formState.errors.first_name && <p className="text-sm text-red-600">{profileForm.formState.errors.first_name?.message as React.ReactNode}</p>}
+                <Label htmlFor="birth_date" className="text-sm">Fecha de Nacimiento *</Label>
+                <Input id="birth_date" type="date" {...profileForm.register('birth_date')} className="text-sm" />
+                {profileForm.formState.errors.birth_date && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.birth_date.message as React.ReactNode}</p>}
               </div>
 
+              {/* Género con botones pill */}
               <div className="space-y-2">
-                <Label htmlFor="last_name">Apellido Paterno *</Label>
-                <Input id="last_name" {...profileForm.register('last_name')} placeholder="Apellido paterno" />
-                {profileForm.formState.errors.last_name && <p className="text-sm text-red-600">{profileForm.formState.errors.last_name?.message as React.ReactNode}</p>}
+                <Label className="text-sm">Género</Label>
+                <RadioGroup
+                  value={watchProfileFields('gender') || ''}
+                  onValueChange={(value) => profileForm.setValue('gender', value)}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <div>
+                    <RadioGroupItem value="Masculino" id="gender-masculino" className="peer sr-only" />
+                    <Label
+                      htmlFor="gender-masculino"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-sm"
+                    >
+                      Masculino
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="Femenino" id="gender-femenino" className="peer sr-only" />
+                    <Label
+                      htmlFor="gender-femenino"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-sm"
+                    >
+                      Femenino
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
 
+              {/* Estado Civil con botones pill - Grid mejorado para móvil */}
               <div className="space-y-2">
-                <Label htmlFor="mother_last_name">Apellido Materno *</Label>
-                <Input id="mother_last_name" {...profileForm.register('mother_last_name')} placeholder="Apellido materno" />
-                {profileForm.formState.errors.mother_last_name && <p className="text-sm text-red-600">{profileForm.formState.errors.mother_last_name?.message as React.ReactNode}</p>}
+                <Label className="text-sm">Estado Civil *</Label>
+                <RadioGroup
+                  value={civilStatus || ''}
+                  onValueChange={(value) => profileForm.setValue('civil_status', value)}
+                  className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mt-2"
+                >
+                  <div>
+                    <RadioGroupItem value="soltero" id="civil-soltero" className="peer sr-only" />
+                    <Label
+                      htmlFor="civil-soltero"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-xs sm:text-sm"
+                    >
+                      Soltero(a)
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="casado" id="civil-casado" className="peer sr-only" />
+                    <Label
+                      htmlFor="civil-casado"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-xs sm:text-sm"
+                    >
+                      Casado(a)
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="viudo" id="civil-viudo" className="peer sr-only" />
+                    <Label
+                      htmlFor="civil-viudo"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-xs sm:text-sm"
+                    >
+                      Viudo(a)
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="union" id="civil-union" className="peer sr-only" />
+                    <Label
+                      htmlFor="civil-union"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-xs sm:text-sm"
+                    >
+                      Unión Libre
+                    </Label>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <RadioGroupItem value="divorciado" id="civil-divorciado" className="peer sr-only" />
+                    <Label
+                      htmlFor="civil-divorciado"
+                      className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 sm:p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer transition-all text-xs sm:text-sm"
+                    >
+                      Divorciado(a)
+                    </Label>
+                  </div>
+                </RadioGroup>
+                {profileForm.formState.errors.civil_status && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.civil_status?.message as React.ReactNode}</p>}
               </div>
+
+              {isMarried && (
+                <div className="space-y-2">
+                  <Label htmlFor="spouse_name" className="text-sm">Nombre Completo del Cónyuge *</Label>
+                  <Input id="spouse_name" {...profileForm.register('spouse_name')} placeholder="Nombre completo del cónyuge" className="text-sm" />
+                  {profileForm.formState.errors.spouse_name && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.spouse_name.message as React.ReactNode}</p>}
+                </div>
+              )}
 
               <p className="text-xs text-blue-600 mt-3 flex items-center">
-                <Info className="w-4 h-4 mr-1" />
+                <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                 Los nombres se formatearán automáticamente con mayúsculas y minúsculas apropiadas.
               </p>
             </div>
@@ -590,39 +747,33 @@ const ProfilePage: React.FC = () => {
 
           {/* Step 3: Fiscal Information */}
           {currentStep === 3 && (
-            <div className="space-y-4">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Información Fiscal</h3>
-                <p className="text-sm text-gray-600">Completa tus datos fiscales para calcular tu RFC</p>
+            <div className="space-y-4 sm:space-y-5">
+              <div className="text-center mb-4 sm:mb-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Información Fiscal</h3>
+                <p className="text-xs sm:text-sm text-gray-600">Completa tus datos fiscales para calcular tu RFC</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="birth_date">Fecha de Nacimiento *</Label>
-                <Input id="birth_date" type="date" {...profileForm.register('birth_date')} />
-                {profileForm.formState.errors.birth_date && <p className="text-sm text-red-600">{profileForm.formState.errors.birth_date.message as React.ReactNode}</p>}
+                <Label htmlFor="homoclave" className="text-sm">Homoclave (RFC) *</Label>
+                <Input id="homoclave" {...profileForm.register('homoclave')} maxLength={3} placeholder="Últimos 3 dígitos" className="text-sm" />
+                {profileForm.formState.errors.homoclave && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.homoclave.message as React.ReactNode}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="homoclave">Homoclave (RFC) *</Label>
-                <Input id="homoclave" {...profileForm.register('homoclave')} maxLength={3} placeholder="Últimos 3 dígitos" />
-                {profileForm.formState.errors.homoclave && <p className="text-sm text-red-600">{profileForm.formState.errors.homoclave.message as React.ReactNode}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="rfc">RFC Calculado</Label>
+                <Label htmlFor="rfc" className="text-sm">RFC Calculado</Label>
                 <Input
                   id="rfc"
                   type="text"
                   value={calculatedRfc}
                   readOnly
                   disabled
-                  className="font-mono font-bold"
+                  className="font-mono font-bold text-sm"
                 />
                 <p className="text-xs text-muted-foreground">Este campo se calcula automáticamente con los datos proporcionados.</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fiscal_situation">Situación Fiscal *</Label>
+                <Label htmlFor="fiscal_situation" className="text-sm">Situación Fiscal *</Label>
                 <select {...profileForm.register('fiscal_situation')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <option value="">Seleccionar...</option>
                   <option value="asalariado">Empleado con nómina</option>
@@ -631,108 +782,11 @@ const ProfilePage: React.FC = () => {
                   <option value="pensionado">Pensionado</option>
                   <option value="actividad_empresarial">Persona Física con Actividad Empresarial</option>
                 </select>
-                {profileForm.formState.errors.fiscal_situation && <p className="text-sm text-red-600">{profileForm.formState.errors.fiscal_situation?.message as React.ReactNode}</p>}
+                {profileForm.formState.errors.fiscal_situation && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.fiscal_situation?.message as React.ReactNode}</p>}
               </div>
             </div>
           )}
 
-          {/* Step 4: Family Status */}
-          {currentStep === 4 && (
-            <div className="space-y-4">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Estado Civil y Género</h3>
-                <p className="text-sm text-gray-600">Información sobre tu estado civil actual</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="civil_status">Estado Civil *</Label>
-                <select {...profileForm.register('civil_status')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                  <option value="">Seleccionar...</option>
-                  <option value="soltero">Soltero(a)</option>
-                  <option value="casado">Casado(a)</option>
-                  <option value="viudo">Viudo(a)</option>
-                  <option value="union">Unión Libre</option>
-                </select>
-                {profileForm.formState.errors.civil_status && <p className="text-sm text-red-600">{profileForm.formState.errors.civil_status?.message as React.ReactNode}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="gender">Género</Label>
-                <select {...profileForm.register('gender')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                  <option value="">Seleccionar...</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Femenino">Femenino</option>
-                </select>
-              </div>
-
-              {isMarried && (
-                <div className="space-y-2">
-                  <Label htmlFor="spouse_name">Nombre Completo del Cónyuge *</Label>
-                  <Input id="spouse_name" {...profileForm.register('spouse_name')} placeholder="Nombre completo del cónyuge" />
-                  {profileForm.formState.errors.spouse_name && <p className="text-sm text-red-600">{profileForm.formState.errors.spouse_name.message as React.ReactNode}</p>}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Step 5: Advisor Assignment */}
-          {currentStep === 5 && (
-            <div className="space-y-4">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Asignación de Asesor</h3>
-                <p className="text-sm text-gray-600">¿Ya has sido atendido por un asesor de TREFA anteriormente?</p>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                  ¿Ya he sido atendido por un asesor de TREFA?
-                </Label>
-                <RadioGroup value={hasPriorAdvisor} onValueChange={setHasPriorAdvisor} className="flex gap-4">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="no-prior-advisor" />
-                    <Label htmlFor="no-prior-advisor" className="font-normal cursor-pointer">No</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="yes-prior-advisor" />
-                    <Label htmlFor="yes-prior-advisor" className="font-normal cursor-pointer">Sí</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {hasPriorAdvisor === 'yes' && (
-                <div>
-                  <Label htmlFor="sales-agent-select" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Selecciona tu asesor
-                  </Label>
-                  <Select value={selectedSalesAgentId} onValueChange={setSelectedSalesAgentId}>
-                    <SelectTrigger id="sales-agent-select" className="w-full">
-                      <SelectValue placeholder="Selecciona un asesor..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SALES_AGENTS.map((agent) => (
-                        <SelectItem key={agent.id} value={agent.id}>
-                          {agent.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {assignedAgentName && selectedSalesAgentId && (
-                    <p className="text-xs text-blue-600 mt-2 flex items-center">
-                      <Info className="w-4 h-4 mr-1" />
-                      Se asignará a {assignedAgentName} como tu asesor y tendrá acceso a tu cuenta para dar seguimiento.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {hasPriorAdvisor === 'no' && (
-                <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                  <Info className="w-4 h-4 inline mr-2" />
-                  Se te asignará un asesor automáticamente al guardar tu perfil.
-                </p>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Navigation Buttons */}

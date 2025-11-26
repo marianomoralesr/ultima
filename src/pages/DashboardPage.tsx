@@ -17,7 +17,7 @@ import {
   Edit as EditIcon
 } from 'lucide-react';
 // FIX: Changed single quotes to double quotes to address potential module resolution issues.
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import { ApplicationService } from '../services/ApplicationService';
 import FinancialProjection from '../components/FinancialProjection';

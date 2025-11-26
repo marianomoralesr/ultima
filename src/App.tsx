@@ -7,6 +7,7 @@ import AuthHandler from './components/AuthHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import DashboardLayout from './components/DashboardLayout';
+import UserDashboardLayout from './components/UserDashboardLayout';
 import AdminRoute from './components/AdminRoute';
 import SalesRoute from './components/SalesRoute';
 import RedirectManager from './components/RedirectManager';
@@ -93,6 +94,7 @@ const BankLeadProfilePage = lazy(() => import('./pages/BankLeadProfilePage'));
 const AdminBankManagementPage = lazy(() => import('./pages/AdminBankManagementPage'));
 const DashboardExample = lazy(() => import('./pages/DashboardExample'));
 const PublicDocumentUploadPage = lazy(() => import('./pages/PublicDocumentUploadPage'));
+const DashboardSidebarPage = lazy(() => import('./pages/DashboardSidebarPage'));
 
 import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
@@ -165,19 +167,16 @@ function App(): React.JSX.Element {
             </Route>
 
             <Route path="/escritorio" element={<ProtectedRoute />}>
-              <Route element={<DashboardLayout />}>
-                <Route index element={<DashboardPage />} />
-                {/* Dashboard route for admin/sales roles */}
-                <Route element={<SalesRoute />}>
-                  <Route path="dashboard" element={<AdminSalesDashboard />} />
-                </Route>
+              {/* User routes with UserDashboardLayout */}
+              <Route element={<UserDashboardLayout />}>
+                <Route index element={<DashboardSidebarPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
                 <Route path="aplicacion" element={<Application />} />
                 <Route path="aplicacion/:id" element={<Application />} />
                 <Route path="aplicacion/:id/confirmacion" element={<ApplicationConfirmationPage />} />
                 <Route path="seguimiento" element={<SeguimientoPage />} />
-                <Route path="seguimiento/:id" element={<Application />} />
+                <Route path="seguimiento/:id" element={<SeguimientoPage />} />
                 <Route path="favoritos" element={<FavoritesPage />} />
                 <Route path="beta-v.0.1" element={<BetaPollPage />} />
                 <Route path="encuesta" element={<SurveyPage />} />
@@ -188,6 +187,10 @@ function App(): React.JSX.Element {
                 <Route path="solicitudes" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
                 <Route path="ejemplo" element={<DashboardExample />} />
+              </Route>
+
+              {/* Admin/Sales routes WITH DashboardLayout */}
+              <Route element={<DashboardLayout />}>
 
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>

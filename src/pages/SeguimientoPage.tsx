@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Clock, Loader2, AlertTriangle, FileText, Download, Trash2, Eye, ShieldAlert, CheckCircle, ArrowLeft, Edit, X } from 'lucide-react';
+import { Clock, Loader2, AlertTriangle, FileText, Download, Trash2, Eye, ShieldAlert, CheckCircle, ArrowLeft, Edit, X, Car } from 'lucide-react';
 import { ApplicationService } from '../services/ApplicationService';
 import { useAuth } from '../context/AuthContext';
 import PrintableApplication from '../components/PrintableApplication';
 import { UserDataService } from '../services/UserDataService';
 import { PrintIcon, WhatsAppIcon } from '../components/icons';
 import { APPLICATION_STATUS, getStatusConfig, type ApplicationStatus } from '../constants/applicationStatus';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ApplicationData {
   id: string;
@@ -200,55 +201,157 @@ const SeguimientoPage: React.FC = () => {
                       <p className="mt-1 text-gray-600">Revisa tus solicitudes pasadas y gestiona tu información personal.</p>
                   </div>
 
-                  <div className="bg-white p-6 rounded-xl shadow-sm border">
-                      <h2 className="text-lg font-semibold text-gray-800 mb-4">Historial de Aplicaciones</h2>
-                      <div className="space-y-4">
-                          {applications.length > 0 ? applications.map(app => {
-                              const status = statusMap[app.status] || statusMap.draft;
-                              const canEdit = app.status !== APPLICATION_STATUS.EN_REVISION && app.status !== APPLICATION_STATUS.REVIEWING;
-                              return (
-                                <div key={app.id} className="p-4 border rounded-lg">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <p className="font-semibold text-gray-800">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
-                                            <p className="text-xs text-gray-500">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
-                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
-                                                <status.icon className="w-3 h-3" />
-                                                {status.text}
+                  {/* Separate applications into drafts and submitted */}
+                  {(() => {
+                    const drafts = applications.filter(app => app.status === APPLICATION_STATUS.DRAFT);
+                    const submitted = applications.filter(app =>
+                      app.status !== APPLICATION_STATUS.DRAFT
+                    );
+
+                    const formatDate = (dateString: string) => {
+                      return new Date(dateString).toLocaleDateString('es-MX', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      });
+                    };
+
+                    return (
+                      <>
+                        {/* Borradores Section */}
+                        {drafts.length > 0 && (
+                          <div>
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Borradores</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {drafts.map(app => {
+                                const status = statusMap[app.status] || statusMap.draft;
+                                return (
+                                  <Link
+                                    key={app.id}
+                                    to={`/escritorio/aplicacion/${app.id}`}
+                                    className="block"
+                                  >
+                                    <Card className="border-2 hover:border-gray-400 transition-all hover:shadow-md cursor-pointer h-full">
+                                      <CardContent className="p-4">
+                                        <div className="flex items-start gap-3">
+                                          {app.car_info?._featureImage ? (
+                                            <img
+                                              src={app.car_info._featureImage}
+                                              alt={app.car_info._vehicleTitle || 'Vehículo'}
+                                              className="w-20 h-16 object-cover rounded-lg flex-shrink-0"
+                                            />
+                                          ) : (
+                                            <div className="w-20 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                              <Car className="w-8 h-8 text-gray-400" />
+                                            </div>
+                                          )}
+                                          <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-900 text-sm truncate">
+                                              {app.car_info?._vehicleTitle || 'Solicitud General'}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                              Creada: {formatDate(app.created_at)}
+                                            </p>
+                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
+                                              <status.icon className="w-3 h-3" />
+                                              {status.text}
                                             </span>
+                                          </div>
                                         </div>
-                                    </div>
-                                    <div className="flex gap-2 mt-3">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedApplication(app);
-                                                setShowPrintableModal(true);
-                                            }}
-                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
-                                        >
-                                            <Eye className="w-4 h-4"/> Ver Solicitud
-                                        </button>
-                                        {canEdit ? (
-                                            <Link
-                                                to={`/escritorio/aplicacion/${app.id}`}
-                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
-                                            >
-                                                <Edit className="w-4 h-4"/> Editar
-                                            </Link>
-                                        ) : (
-                                            <button
-                                                disabled
-                                                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed opacity-60"
-                                            >
-                                                <Edit className="w-4 h-4"/> Editar
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                              );
-                          }) : <p className="text-sm text-gray-500 text-center py-8">Aún no has enviado ninguna solicitud.</p>}
-                      </div>
-                  </div>
+                                        <div className="mt-3 pt-3 border-t border-gray-100">
+                                          <p className="text-xs text-gray-600 flex items-center gap-1.5">
+                                            <Edit className="w-3 h-3" />
+                                            Haz clic para continuar editando
+                                          </p>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Solicitudes Enviadas Section */}
+                        {submitted.length > 0 && (
+                          <div>
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Enviadas</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {submitted.map(app => {
+                                const status = statusMap[app.status] || statusMap.draft;
+                                return (
+                                  <Link
+                                    key={app.id}
+                                    to={`/escritorio/seguimiento/${app.id}`}
+                                    className="block"
+                                  >
+                                    <Card className="border-2 hover:border-blue-400 transition-all hover:shadow-md cursor-pointer h-full">
+                                      <CardContent className="p-4">
+                                        <div className="flex items-start gap-3">
+                                          {app.car_info?._featureImage ? (
+                                            <img
+                                              src={app.car_info._featureImage}
+                                              alt={app.car_info._vehicleTitle || 'Vehículo'}
+                                              className="w-20 h-16 object-cover rounded-lg flex-shrink-0"
+                                            />
+                                          ) : (
+                                            <div className="w-20 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                              <Car className="w-8 h-8 text-gray-400" />
+                                            </div>
+                                          )}
+                                          <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-900 text-sm truncate">
+                                              {app.car_info?._vehicleTitle || 'Solicitud General'}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                              Enviada: {formatDate(app.created_at)}
+                                            </p>
+                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
+                                              <status.icon className="w-3 h-3" />
+                                              {status.text}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="mt-3 pt-3 border-t border-gray-100">
+                                          <p className="text-xs text-gray-600 flex items-center gap-1.5">
+                                            <Eye className="w-3 h-3" />
+                                            Haz clic para ver detalles
+                                          </p>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Empty State */}
+                        {applications.length === 0 && (
+                          <Card className="border-2 border-dashed">
+                            <CardContent className="p-12 text-center">
+                              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                              <p className="text-lg font-semibold text-gray-600 mb-2">
+                                Aún no has creado ninguna solicitud
+                              </p>
+                              <p className="text-sm text-gray-500 mb-6">
+                                Comienza tu proceso de financiamiento seleccionando un vehículo
+                              </p>
+                              <Link
+                                to="/autos"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold"
+                              >
+                                <Car className="w-5 h-5" />
+                                Ver Inventario
+                              </Link>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </>
+                    );
+                  })()}
 
                   <div className="bg-white p-6 rounded-xl shadow-sm border">
                       <h2 className="text-lg font-semibold text-gray-800 mb-4">Gestión de Datos Personales</h2>

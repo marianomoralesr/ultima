@@ -2,24 +2,16 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
     LayoutDashboard,
-    User,
-    FileText,
-    Heart,
-    Car,
-    Calendar,
-    DollarSign,
     HelpCircle,
-    Settings,
-    Home,
     Users,
     BarChart3,
-    Package,
     Route,
     Building2,
     LogOut,
     Menu,
     X,
-    ChevronRight
+    ChevronRight,
+    DollarSign
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -43,11 +35,8 @@ const DashboardLayout: React.FC = () => {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
-    // Navigation items based on user role
+    // Navigation items based on user role - ADMIN/SALES ONLY
     const navItems = [
-        ...(!isAdmin && !isSales ? [
-            { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true }
-        ] : []),
         ...(isAdmin ? [
             { to: '/escritorio/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
             { to: '/escritorio/admin/business-analytics', label: 'Analytics', icon: BarChart3 },
@@ -63,12 +52,6 @@ const DashboardLayout: React.FC = () => {
             { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users },
             { to: '/escritorio/ventas/performance', label: 'Performance', icon: BarChart3 },
         ] : []),
-        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
-        { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
-        { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText },
-        { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
-        { to: '/escritorio/vende-tu-auto', label: 'Vender Auto', icon: DollarSign },
-        { to: '/autos', label: 'Inventario', icon: Car },
     ];
 
     const secondaryNav = [

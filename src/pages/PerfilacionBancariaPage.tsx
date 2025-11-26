@@ -260,6 +260,10 @@ const PerfilacionBancariaPage: React.FC = () => {
 
     const onSubmit = async (data: BankProfileFormData) => {
         if (!user) return;
+
+        // Set submitting state immediately to prevent double submission
+        setIsSubmitting(true);
+
         try {
             const { recommendedBank, secondOption, lowScore } = calculateBankScores(data);
             await BankProfilingService.saveUserBankProfile(user.id, {
@@ -290,6 +294,9 @@ const PerfilacionBancariaPage: React.FC = () => {
             setStatus('success');
         } catch (error) {
             console.error(error);
+            toast.error('Hubo un error al guardar tu perfil. Por favor, intenta nuevamente.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
     

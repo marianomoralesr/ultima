@@ -99,9 +99,11 @@ export const UpdateProvider: React.FC<UpdateProviderProps> = ({ children }) => {
       const currentVersion = import.meta.env.VITE_APP_VERSION || '';
       const lastSeenVersion = localStorage.getItem('lastSeenVersion');
 
-      // Si hay una versión y es diferente a la última vista
-      if (currentVersion && lastSeenVersion && lastSeenVersion !== currentVersion) {
+      // Solo mostrar banner si hay versión Y es diferente Y no hemos mostrado el banner en esta sesión
+      const shownThisSession = sessionStorage.getItem('updateBannerShown');
+      if (currentVersion && lastSeenVersion && lastSeenVersion !== currentVersion && !shownThisSession) {
         setShowUpdateBanner(true);
+        sessionStorage.setItem('updateBannerShown', 'true');
       } else if (!lastSeenVersion && currentVersion) {
         // Primera vez que se carga la app, guardar versión actual
         localStorage.setItem('lastSeenVersion', currentVersion);

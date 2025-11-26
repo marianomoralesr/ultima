@@ -176,7 +176,7 @@ const DashboardSidebarPage: React.FC = () => {
         // Generar link público
         if (latestApp.public_upload_token) {
           const baseUrl = window.location.origin;
-          setPublicUploadLink(`${baseUrl}/upload-documentos/${latestApp.public_upload_token}`);
+          setPublicUploadLink(`${baseUrl}/documentos/${latestApp.public_upload_token}`);
         }
       }
 

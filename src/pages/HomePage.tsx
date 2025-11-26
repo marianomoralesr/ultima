@@ -140,7 +140,11 @@ const LandingPageHero: React.FC<{ content: HeroContent | null }> = ({ content })
   return (
     <section className="relative overflow-hidden bg-white min-h-[100dvh] flex items-center">
       {/* Animated Vehicle Grid Background - Full Screen */}
-      <AnimatedVehicleGrid maxVehicles={30} gradientDirection="diagonal" />
+      {/* Reduce vehicles on mobile for faster loading */}
+      <AnimatedVehicleGrid
+        maxVehicles={window.innerWidth < 768 ? 12 : 30}
+        gradientDirection="diagonal"
+      />
 
       {/* Desktop background vehicles - KEPT as secondary layer for depth */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none opacity-30">

@@ -37,9 +37,7 @@ const UserDashboardLayout: React.FC = () => {
     const navItems = [
         { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true },
         { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
-        { to: '/escritorio/perfilacion-bancaria', label: 'Perfilación Bancaria', icon: Building2 },
         { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
-        { to: '/escritorio/aplicacion', label: 'Nueva Solicitud', icon: FileText },
         { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
         { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
         { to: '/escritorio/inventario', label: 'Inventario', icon: Package },

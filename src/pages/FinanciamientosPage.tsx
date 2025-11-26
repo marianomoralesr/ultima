@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import useSEO from '../hooks/useSEO';
 import {
@@ -196,6 +196,7 @@ const FinanciamientosPage: React.FC = () => {
   });
 
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'otp' | 'otp_error'>('idle');
   const { vehicles: allVehicles } = useVehicles();
@@ -587,9 +588,9 @@ const FinanciamientosPage: React.FC = () => {
       reset();
       setFormDataCache(null);
 
-      // Redirect to profile page immediately with URL parameters preserved
-      const redirectUrl = `/escritorio/profile${urlParams ? `?${urlParams}` : ''}`;
-      window.location.href = redirectUrl;
+      // Redirect to profile page immediately with URL parameters preserved (client-side navigation)
+      const redirectPath = `/escritorio/profile${urlParams ? `?${urlParams}` : ''}`;
+      navigate(redirectPath, { replace: true });
 
     } catch (error) {
       console.error('Error verifying OTP:', error);

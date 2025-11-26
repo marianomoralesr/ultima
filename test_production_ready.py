@@ -275,7 +275,7 @@ def navigate_to_vehicle_and_click_financing(page):
         if len(vehicle_cards) > 0:
             print(f"   ✅ Encontrados {len(vehicle_cards)} vehículos")
 
-            # Hacer clic en el primer vehículo
+            # Obtener el href del primer vehículo y navegar directamente
             first_vehicle = vehicle_cards[0]
 
             # Intentar obtener el título del vehículo
@@ -285,9 +285,19 @@ def navigate_to_vehicle_and_click_financing(page):
             except:
                 print("   → Seleccionando primer vehículo disponible")
 
-            first_vehicle.click()
-            page.wait_for_load_state('networkidle')
-            time.sleep(3)
+            # Obtener el href en lugar de hacer clic
+            vehicle_href = first_vehicle.get_attribute('href')
+            if vehicle_href:
+                # Navegar directamente al vehículo
+                full_url = f"http://localhost:5173{vehicle_href}" if vehicle_href.startswith('/') else vehicle_href
+                print(f"   → Navegando a: {full_url}")
+                page.goto(full_url, wait_until='domcontentloaded')
+                time.sleep(3)
+            else:
+                # Si no tiene href, intentar hacer clic con force
+                first_vehicle.click(force=True)
+                page.wait_for_load_state('networkidle')
+                time.sleep(3)
 
             handle_update_modal(page)
             take_screenshot(page, "02_vehicle_detail")

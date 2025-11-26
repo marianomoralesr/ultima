@@ -442,17 +442,43 @@ serve(async (req) => {
     console.log('Ensuring header row exists...');
     await ensureHeaderRow(GOOGLE_SHEET_ID, GOOGLE_SHEET_NAME, headers, accessToken);
 
-    // Append data to sheet
-    console.log('Appending data to Google Sheet...');
-    await appendToGoogleSheet(GOOGLE_SHEET_ID, GOOGLE_SHEET_NAME, values, accessToken);
+    // Check if this application already exists in the sheet
+    console.log('Checking if application already exists in sheet...');
+    const existingRow = await findApplicationRow(
+      GOOGLE_SHEET_ID,
+      GOOGLE_SHEET_NAME,
+      application.id,
+      accessToken
+    );
 
-    console.log(`Successfully synced application ${application.id} to Google Sheets`);
+    let action: string;
+    if (existingRow !== null) {
+      // Update existing row
+      console.log(`Application ${application.id} found at row ${existingRow}, updating...`);
+      await updateGoogleSheetRow(
+        GOOGLE_SHEET_ID,
+        GOOGLE_SHEET_NAME,
+        existingRow,
+        values,
+        accessToken
+      );
+      action = 'updated';
+    } else {
+      // Append new row
+      console.log(`Application ${application.id} not found, creating new row...`);
+      await appendToGoogleSheet(GOOGLE_SHEET_ID, GOOGLE_SHEET_NAME, values, accessToken);
+      action = 'created';
+    }
+
+    console.log(`Successfully ${action} application ${application.id} in Google Sheets`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Application synced to Google Sheets',
+        message: `Application ${action} in Google Sheets`,
         applicationId: application.id,
+        action: action,
+        rowNumber: existingRow || 'new',
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -115,7 +115,7 @@ BEGIN
     FROM tracking_events
     WHERE DATE(created_at) = target_date
       AND event_type = 'PageView'
-      AND (metadata->>'page' = '/financiamientos' ');
+      AND metadata->>'page' = '/financiamientos';
 
     -- Calcular registros únicos (ConversionLandingPage)
     SELECT
@@ -178,11 +178,9 @@ BEGIN
     FROM tracking_events
     WHERE DATE(created_at) = target_date
       AND event_type = 'PageView'
-      AND (metadata->>'page' = '/financiamientos' ')
+      AND metadata->>'page' = '/financiamientos'
       AND (
           metadata->>'fbclid' IS NOT NULL
-          '
-          '
           OR utm_source ILIKE '%facebook%'
           OR utm_source ILIKE '%instagram%'
           OR utm_source ILIKE '%meta%'
@@ -198,8 +196,6 @@ BEGIN
       AND user_id IS NOT NULL
       AND (
           metadata->>'fbclid' IS NOT NULL
-          '
-          '
           OR utm_source ILIKE '%facebook%'
           OR utm_source ILIKE '%instagram%'
           OR utm_source ILIKE '%meta%'

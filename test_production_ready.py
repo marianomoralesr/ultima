@@ -251,65 +251,51 @@ def navigate_to_vehicle_and_click_financing(page):
     """
     print("\n🚗 NAVEGACIÓN A VEHÍCULO Y SOLICITUD DE FINANCIAMIENTO")
 
-    # Primero, ir a la página de autos para encontrar un vehículo
+    # Primero, ir a la página de autos para capturar screenshot
     print("   → Navegando a página de autos...")
     page.goto('http://localhost:5173/autos', wait_until='domcontentloaded')
-    time.sleep(3)
+    time.sleep(2)
 
     handle_update_modal(page)
     take_screenshot(page, "01_autos_page")
 
-    # Buscar el primer vehículo disponible
-    print("   → Buscando vehículo disponible...")
+    # Buscar el primer vehículo disponible en el HTML
+    print("   → Buscando URL de vehículo...")
     try:
-        # Buscar cards de vehículos
-        vehicle_cards = page.locator('[data-vehicle-card], .vehicle-card, a[href*="/autos/"]').all()
+        # Buscar todos los links que apuntan a vehículos
+        vehicle_links = page.locator('a[href*="/autos/"]:not([href="/autos"])').all()
 
-        if len(vehicle_cards) == 0:
-            print("   ⚠️  No se encontraron vehículos, intentando con selector alternativo...")
-            # Intentar con links que contengan /autos/
-            vehicle_links = page.locator('a[href*="/autos/"]').all()
-            if len(vehicle_links) > 0:
-                vehicle_cards = vehicle_links
+        if len(vehicle_links) > 0:
+            print(f"   ✅ Encontrados {len(vehicle_links)} vehículos")
 
-        if len(vehicle_cards) > 0:
-            print(f"   ✅ Encontrados {len(vehicle_cards)} vehículos")
+            # Obtener el href del primer vehículo
+            first_link = vehicle_links[0]
+            vehicle_href = first_link.get_attribute('href')
 
-            # Obtener el href del primer vehículo y navegar directamente
-            first_vehicle = vehicle_cards[0]
-
-            # Intentar obtener el título del vehículo
-            try:
-                vehicle_title = first_vehicle.locator('h2, h3, .vehicle-title').first.text_content()
-                print(f"   → Seleccionando: {vehicle_title}")
-            except:
-                print("   → Seleccionando primer vehículo disponible")
-
-            # Obtener el href en lugar de hacer clic
-            vehicle_href = first_vehicle.get_attribute('href')
             if vehicle_href:
-                # Navegar directamente al vehículo
-                full_url = f"http://localhost:5173{vehicle_href}" if vehicle_href.startswith('/') else vehicle_href
-                print(f"   → Navegando a: {full_url}")
+                # Construir URL completa
+                if vehicle_href.startswith('/'):
+                    full_url = f"http://localhost:5173{vehicle_href}"
+                else:
+                    full_url = vehicle_href
+
+                print(f"   → Navegando directamente a vehículo: {full_url}")
                 page.goto(full_url, wait_until='domcontentloaded')
                 time.sleep(3)
+
+                handle_update_modal(page)
+                take_screenshot(page, "02_vehicle_detail")
+
+                print(f"   ✅ En página de detalle del vehículo")
             else:
-                # Si no tiene href, intentar hacer clic con force
-                first_vehicle.click(force=True)
-                page.wait_for_load_state('networkidle')
-                time.sleep(3)
-
-            handle_update_modal(page)
-            take_screenshot(page, "02_vehicle_detail")
-
-            print(f"   ✅ En página de detalle: {page.url}")
-
+                print("   ❌ No se pudo obtener URL del vehículo")
+                return False
         else:
-            print("   ❌ No se encontraron vehículos disponibles")
+            print("   ❌ No se encontraron vehículos en la página")
             return False
 
     except Exception as e:
-        print(f"   ❌ Error navegando a vehículo: {e}")
+        print(f"   ❌ Error buscando vehículo: {e}")
         take_screenshot(page, "error_vehicle_navigation")
         return False
 
@@ -591,6 +577,33 @@ def complete_profile_step(page):
                 time.sleep(0.2)
         except:
             continue
+
+    # Buscar y llenar campos de teléfono específicos (tipo tel)
+    try:
+        tel_inputs = page.locator('input[type="tel"]').all()
+        for tel_input in tel_inputs:
+            if tel_input.is_visible():
+                tel_input.fill('8112345678')
+                time.sleep(0.2)
+    except:
+        pass
+
+    # Seleccionar compañía telefónica si existe dropdown
+    try:
+        phone_company_selects = page.locator('select:visible').all()
+        for sel in phone_company_selects:
+            try:
+                if sel.is_visible():
+                    # Intentar seleccionar la primera opción que no sea placeholder
+                    options = sel.locator('option').all()
+                    if len(options) > 1:
+                        sel.select_option(index=1)
+                        time.sleep(0.2)
+                        print("   → Compañía telefónica seleccionada")
+            except:
+                continue
+    except:
+        pass
 
     take_screenshot(page, "step1_profile_filled")
 

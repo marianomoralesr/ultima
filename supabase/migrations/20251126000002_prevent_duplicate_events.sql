@@ -90,47 +90,10 @@ CREATE TRIGGER trg_prevent_duplicate_events
     FOR EACH ROW
     EXECUTE FUNCTION prevent_critical_event_duplicates();
 
--- 6. Crear vista materializada para eventos únicos (para reportes rápidos)
--- Agregamos una columna event_date calculada para evitar problemas con índices
-CREATE MATERIALIZED VIEW IF NOT EXISTS public.unique_tracking_events AS
-SELECT DISTINCT ON (user_id, event_type, (created_at::date))
-    id,
-    event_name,
-    event_type,
-    user_id,
-    session_id,
-    metadata,
-    utm_source,
-    utm_medium,
-    utm_campaign,
-    utm_term,
-    utm_content,
-    created_at,
-    (created_at::date) as event_date
-FROM tracking_events
-WHERE user_id IS NOT NULL
-ORDER BY user_id, event_type, (created_at::date), created_at DESC;
+-- 6. Nota: Vista materializada removida debido a problemas con funciones IMMUTABLE
+-- Los dashboards pueden consultar tracking_events directamente con deduplicación en queries
 
--- Crear índices en la vista materializada usando la columna event_date
-CREATE INDEX IF NOT EXISTS idx_unique_events_user ON public.unique_tracking_events(user_id);
-CREATE INDEX IF NOT EXISTS idx_unique_events_type ON public.unique_tracking_events(event_type);
-CREATE INDEX IF NOT EXISTS idx_unique_events_date ON public.unique_tracking_events(event_date);
-
--- 7. Función para refrescar la vista materializada
-CREATE OR REPLACE FUNCTION refresh_unique_tracking_events()
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-    REFRESH MATERIALIZED VIEW CONCURRENTLY public.unique_tracking_events;
-END;
-$$;
-
--- 8. Agregar política RLS para la vista materializada
-ALTER MATERIALIZED VIEW public.unique_tracking_events OWNER TO postgres;
-
--- 9. Crear tabla para controlar eventos de confirmación (page-level tracking)
+-- 7. Crear tabla para controlar eventos de confirmación (page-level tracking)
 CREATE TABLE IF NOT EXISTS public.confirmation_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -161,7 +124,7 @@ CREATE POLICY "Los usuarios pueden insertar sus propios eventos de confirmación
     TO authenticated
     WITH CHECK (auth.uid() = user_id);
 
--- 10. Función helper para registrar evento de confirmación
+-- 8. Función helper para registrar evento de confirmación
 CREATE OR REPLACE FUNCTION register_confirmation_event(
     p_application_id TEXT,
     p_event_type TEXT
@@ -205,9 +168,8 @@ BEGIN
 END;
 $$;
 
--- 11. Comentarios para documentación
+-- 9. Comentarios para documentación
 COMMENT ON FUNCTION check_duplicate_event IS 'Verifica si un evento ya fue disparado por un usuario en una ventana de tiempo';
 COMMENT ON FUNCTION prevent_critical_event_duplicates IS 'Trigger function que marca eventos duplicados en metadata';
-COMMENT ON MATERIALIZED VIEW unique_tracking_events IS 'Vista materializada con eventos únicos por usuario, tipo y día';
 COMMENT ON TABLE confirmation_events IS 'Tabla para controlar eventos disparados en página de confirmación';
 COMMENT ON FUNCTION register_confirmation_event IS 'Registra y valida si un evento de confirmación debe dispararse';

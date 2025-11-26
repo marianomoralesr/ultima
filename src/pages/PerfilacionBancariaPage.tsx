@@ -170,7 +170,7 @@ const BankCard: React.FC<{ bankName: string, title: string, description: string 
 
 
 const PerfilacionBancariaPage: React.FC = () => {
-    const { user, profile, loading: authLoading, isAdmin } = useAuth();
+    const { user, profile, loading: authLoading, isAdmin, reloadProfile } = useAuth();
     const navigate = useNavigate();
     const [status, setStatus] = useState<'loading' | 'profile_incomplete' | 'ready' | 'error' | 'success'>('loading');
     const [showConfetti, setShowConfetti] = useState(false);
@@ -189,15 +189,19 @@ const PerfilacionBancariaPage: React.FC = () => {
             return;
         }
 
-        const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
-        const isProfileComplete = requiredFields.every(field => profile[field] && String(profile[field]).trim() !== '');
-        
-        if (!isProfileComplete) {
-            setStatus('profile_incomplete');
-            return;
-        }
+        const checkProfileAndLoad = async () => {
+            // Reload profile to ensure we have the latest data
+            const reloadedProfile = await reloadProfile();
+            const profileToCheck = reloadedProfile || profile;
 
-        const fetchBankProfile = async () => {
+            const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
+            const isProfileComplete = requiredFields.every(field => profileToCheck[field] && String(profileToCheck[field]).trim() !== '');
+
+            if (!isProfileComplete) {
+                setStatus('profile_incomplete');
+                return;
+            }
+
             const existingProfile = await BankProfilingService.getUserBankProfile(user.id);
             if (existingProfile) {
                 if (existingProfile.respuestas) {
@@ -222,8 +226,8 @@ const PerfilacionBancariaPage: React.FC = () => {
             }
         };
 
-        fetchBankProfile();
-    }, [user, profile, authLoading, reset]);
+        checkProfileAndLoad();
+    }, [user, profile, authLoading, reset, reloadProfile]);
 
     useEffect(() => {
         // Skip auto-redirect for admins - they can test the form unlimited times

@@ -26,29 +26,32 @@ const MarketingHubPage: React.FC = () => {
   const loadEventStats = async () => {
     try {
       const { data, error } = await supabase
-        .from('marketing_events')
-        .select('event_name, session_id, created_at')
+        .from('tracking_events')
+        .select('event_name, event_type, user_id, session_id, created_at')
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       // Aggregate event data
-      const eventMap = new Map<string, { count: number; sessions: Set<string> }>();
+      const eventMap = new Map<string, { count: number; users: Set<string> }>();
 
       data?.forEach(event => {
-        if (!eventMap.has(event.event_name)) {
-          eventMap.set(event.event_name, { count: 0, sessions: new Set() });
+        // Use event_type as primary, fallback to event_name
+        const eventKey = event.event_type || event.event_name;
+        if (!eventMap.has(eventKey)) {
+          eventMap.set(eventKey, { count: 0, users: new Set() });
         }
-        const stat = eventMap.get(event.event_name)!;
+        const stat = eventMap.get(eventKey)!;
         stat.count++;
-        if (event.session_id) stat.sessions.add(event.session_id);
+        // Count unique users by user_id (more accurate than session_id)
+        if (event.user_id) stat.users.add(event.user_id);
       });
 
       const stats: EventStat[] = Array.from(eventMap.entries()).map(([name, data]) => ({
         event_name: name,
         event_count: data.count,
-        unique_users: data.sessions.size,
+        unique_users: data.users.size,
       }));
 
       stats.sort((a, b) => b.event_count - a.event_count);
@@ -180,9 +183,9 @@ const MarketingHubPage: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Eventos GTM (Últimos 7 días)</CardTitle>
+              <CardTitle>Eventos de Tracking (Últimos 7 días)</CardTitle>
               <CardDescription>
-                Eventos enviados a Google Tag Manager incluyendo ViewContent y ViewPage
+                Todos los eventos registrados incluyendo PageView, ConversionLandingPage y más
               </CardDescription>
             </div>
             <Button

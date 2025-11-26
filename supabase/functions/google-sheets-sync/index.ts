@@ -291,6 +291,76 @@ async function ensureHeaderRow(
   }
 }
 
+/**
+ * Find the row number of an existing application by ID
+ * Returns null if not found, or the row number (1-indexed) if found
+ */
+async function findApplicationRow(
+  sheetId: string,
+  sheetName: string,
+  applicationId: string,
+  accessToken: string
+): Promise<number | null> {
+  // Read all data from column A (ID de Solicitud)
+  const range = `${sheetName}!A:A`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}`;
+
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to read sheet data for finding application');
+  }
+
+  const data = await response.json();
+
+  if (!data.values || data.values.length === 0) {
+    return null;
+  }
+
+  // Search for the application ID (skip header row at index 0)
+  for (let i = 1; i < data.values.length; i++) {
+    if (data.values[i][0] === applicationId) {
+      return i + 1; // Return 1-indexed row number
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Update an existing row in Google Sheet
+ */
+async function updateGoogleSheetRow(
+  sheetId: string,
+  sheetName: string,
+  rowNumber: number,
+  values: any[],
+  accessToken: string
+): Promise<void> {
+  const range = `${sheetName}!A${rowNumber}:ZZ${rowNumber}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?valueInputOption=RAW`;
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      values: [values],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to update Google Sheet row: ${error}`);
+  }
+}
+
 serve(async (req) => {
   // CORS headers
   const corsHeaders = {

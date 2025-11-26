@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext';
 import { ApplicationService } from '../services/ApplicationService';
 import { conversionTracking } from '../services/ConversionTrackingService';
+import { supabase } from '../../supabaseClient';
 import {
   CheckCircle,
   FileText,
@@ -61,15 +62,29 @@ const ApplicationConfirmationPage: React.FC = () => {
         }
         setApplication(app);
 
-        // Fire conversion event: SolicitudCompleta
-        const vehicleInfo = app.car_info;
-        conversionTracking.trackApplication.completed({
-          applicationId: id,
-          vehicleId: vehicleInfo?._ordenCompra,
-          vehicleName: vehicleInfo?._vehicleTitle || undefined,
-          vehiclePrice: vehicleInfo?._precioNumerico || 0,
-          userId: user.id
-        });
+        // Verificar si ya se disparó el evento de confirmación para esta aplicación
+        const { data: shouldDispatch, error: checkError } = await supabase
+          .rpc('register_confirmation_event', {
+            p_application_id: id,
+            p_event_type: 'SolicitudEnviada'
+          });
+
+        // Solo disparar evento si es la primera vez
+        if (shouldDispatch && !checkError) {
+          // Fire conversion event: SolicitudCompleta
+          const vehicleInfo = app.car_info;
+          await conversionTracking.trackApplication.completed({
+            applicationId: id,
+            vehicleId: vehicleInfo?._ordenCompra,
+            vehicleName: vehicleInfo?._vehicleTitle || undefined,
+            vehiclePrice: vehicleInfo?._precioNumerico || 0,
+            userId: user.id
+          });
+
+          console.log('[ApplicationConfirmation] Evento SolicitudEnviada disparado para aplicación:', id);
+        } else {
+          console.log('[ApplicationConfirmation] Evento ya fue disparado previamente para aplicación:', id);
+        }
       } catch (err) {
         console.error('Error loading application:', err);
         setError('Error al cargar tu solicitud');

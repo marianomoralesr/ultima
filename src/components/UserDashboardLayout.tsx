@@ -12,7 +12,12 @@ import {
     Menu,
     X,
     Building2,
-    Search
+    Search,
+    BarChart3,
+    Route,
+    Settings,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -27,13 +32,15 @@ import {
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Separator } from './ui/separator';
 import BottomNav from './BottomNav';
+import { motion } from 'framer-motion';
 import type { Profile } from '../types/types';
 
 const UserDashboardLayout: React.FC = () => {
-    const { profile, signOut } = useAuth();
+    const { profile, signOut, isAdmin } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const [isAdminSidebarExpanded, setIsAdminSidebarExpanded] = useState(false);
 
     // Navigation items for regular users
     const navItems = [
@@ -43,6 +50,15 @@ const UserDashboardLayout: React.FC = () => {
         { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
         { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
         { to: '/autos', label: 'Inventario', icon: Search },
+    ];
+
+    // Admin navigation items (right sidebar)
+    const adminNavItems = [
+        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+        { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
+        { to: '/escritorio/admin/marketing-analytics', label: 'Analytics', icon: BarChart3 },
+        { to: '/bancos/dashboard', label: 'Portal Bancario', icon: Building2 },
+        { to: '/escritorio/admin/config', label: 'Configuración', icon: Settings },
     ];
 
     const secondaryNav = [
@@ -223,8 +239,77 @@ const UserDashboardLayout: React.FC = () => {
                 </nav>
             </aside>
 
+            {/* Admin Sidebar (Right Side) - Only visible for admins */}
+            {isAdmin && (
+                <motion.aside
+                    className="fixed inset-y-0 right-0 z-10 hidden flex-col border-l bg-background shadow-lg sm:flex"
+                    initial={{ width: "60px" }}
+                    animate={{ width: isAdminSidebarExpanded ? "256px" : "60px" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                    <nav className="flex flex-col gap-4 px-2 py-6 h-full">
+                        {/* Toggle Button */}
+                        <button
+                            onClick={() => setIsAdminSidebarExpanded(!isAdminSidebarExpanded)}
+                            className="flex items-center justify-center h-10 rounded-lg hover:bg-accent transition-colors"
+                        >
+                            {isAdminSidebarExpanded ? (
+                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            ) : (
+                                <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+                            )}
+                        </button>
+
+                        <Separator />
+
+                        {/* Admin Navigation */}
+                        <div className="flex-1 space-y-1">
+                            {!isAdminSidebarExpanded && (
+                                <p className="text-xs font-semibold text-muted-foreground text-center mb-2">
+                                    Admin
+                                </p>
+                            )}
+                            {isAdminSidebarExpanded && (
+                                <p className="text-sm font-semibold text-muted-foreground px-3 mb-2">
+                                    Panel Administrativo
+                                </p>
+                            )}
+                            {adminNavItems.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActiveLink(item.to);
+
+                                return (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                            active
+                                                ? "bg-accent text-accent-foreground"
+                                                : "text-muted-foreground hover:text-foreground",
+                                            !isAdminSidebarExpanded && "justify-center"
+                                        )}
+                                        title={!isAdminSidebarExpanded ? item.label : undefined}
+                                    >
+                                        <Icon className="h-5 w-5 shrink-0" />
+                                        {isAdminSidebarExpanded && (
+                                            <span className="whitespace-nowrap">
+                                                {item.label}
+                                            </span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </nav>
+                </motion.aside>
+            )}
+
             {/* Main Content */}
-            <div className="flex flex-col sm:gap-4 sm:pl-64">
+            <div className={cn(
+                "flex flex-col sm:gap-4",
+                isAdmin ? "sm:pl-64 sm:pr-[60px]" : "sm:pl-64"
+            )}>
                 {/* Top Bar with Breadcrumbs */}
                 <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
                     <Breadcrumb className="hidden md:flex">

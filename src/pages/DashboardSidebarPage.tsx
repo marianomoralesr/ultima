@@ -349,7 +349,8 @@ const DashboardSidebarPage: React.FC = () => {
   // Reload stats when location changes (user navigates)
   useEffect(() => {
     loadStats();
-  }, [location, loadStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   const copyToClipboard = () => {
     if (publicUploadLink) {

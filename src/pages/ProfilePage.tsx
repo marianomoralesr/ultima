@@ -415,7 +415,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       <Link
         to="/escritorio"
         className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 lg:mb-6 transition-colors touch-manipulation min-h-[44px] -ml-2 pl-2 pr-3 py-2 rounded-lg hover:bg-gray-100"
@@ -436,79 +436,39 @@ const ProfilePage: React.FC = () => {
         </div>
       )}
 
-      {/* Profile Complete Banner */}
-      {isProfileComplete && (
-        <div className="mb-4 lg:mb-6 p-4 sm:p-6 bg-green-50 border border-green-200 rounded-xl text-center">
-          <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mx-auto mb-3" />
-          <h3 className="text-lg sm:text-xl font-bold text-green-900">¡Perfil Completo!</h3>
-          <p className="text-sm sm:text-base text-gray-600 mt-2 mb-4">Has completado tu información personal. El siguiente paso es crear tu perfilamiento bancario para encontrar el banco con las mejores condiciones para tu caso específico.</p>
-          <Link
-            to="/escritorio/perfilacion-bancaria"
-            className="inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-500 touch-manipulation min-h-[44px] w-full sm:w-auto"
-          >
-            Crear mi perfil bancario  <ArrowRight className="w-4 h-4 ml-2" />
-          </Link>
-        </div>
-      )}
-
-      {/* Progress Bar */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
-            <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
-            Completa tu perfil
-          </h2>
-          <span className="text-sm font-medium text-gray-600">
-            Paso {currentStep} de {STEPS.length}
-          </span>
-        </div>
-        <Progress value={progress} className="h-2" />
-        <div className="flex justify-between mt-2">
-          {STEPS.map((step) => (
-            <div
-              key={step.id}
-              className={`text-xs text-center flex-1 ${
-                step.id === currentStep
-                  ? 'text-primary-600 font-bold'
-                  : step.id < currentStep
-                  ? 'text-green-600 font-medium'
-                  : 'text-gray-400'
-              }`}
-            >
-              {step.title}
+      {/* Layout con Grid: Form a la izquierda, Sidebar a la derecha */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content - Form */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Progress Bar */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
+                <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
+                Completa tu perfil
+              </h2>
+              <span className="text-sm font-medium text-gray-600">
+                Paso {currentStep} de {STEPS.length}
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Profile Picture & Summary */}
-      <div className="bg-white border rounded-xl p-4 sm:p-6 mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex-1">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">Foto de Perfil</h3>
-            {profile && (
-              <div className="text-xs sm:text-sm text-gray-600">
-                <p><strong>Nombre:</strong> {normalizeNameToTitleCase(profile.first_name || '')} {normalizeNameToTitleCase(profile.last_name || '')}</p>
-                <p><strong>Email:</strong> {profile.email}</p>
-                {calculatedRfc && <p><strong>RFC:</strong> {calculatedRfc}</p>}
-              </div>
-            )}
+            <Progress value={progress} className="h-2" />
+            <div className="flex justify-between mt-2">
+              {STEPS.map((step) => (
+                <div
+                  key={step.id}
+                  className={`text-xs text-center flex-1 ${
+                    step.id === currentStep
+                      ? 'text-primary-600 font-bold'
+                      : step.id < currentStep
+                      ? 'text-green-600 font-medium'
+                      : 'text-gray-400'
+                  }`}
+                >
+                  {step.title}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="text-center">
-            <label htmlFor="profile-picture-upload" className="cursor-pointer group inline-block">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all">
-                {previewUrl ? (
-                  <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
-                )}
-              </div>
-              <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600 block">Cambiar foto</span>
-            </label>
-            <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handlePictureChange} />
-          </div>
-        </div>
-      </div>
 
       {/* Multi-Step Form */}
       <form onSubmit={(e) => e.preventDefault()} className="text-gray-900">
@@ -831,6 +791,64 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </form>
+        </div>
+
+        {/* Sidebar - Profile Picture & Complete Banner */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Profile Complete Banner en Sidebar */}
+          {isProfileComplete && (
+            <div className="p-4 sm:p-5 bg-green-50 border border-green-200 rounded-xl text-center sticky top-6">
+              <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mx-auto mb-3" />
+              <h3 className="text-base sm:text-lg font-bold text-green-900">¡Perfil Completo!</h3>
+              <p className="text-xs sm:text-sm text-gray-600 mt-2 mb-4">Has completado tu información personal. El siguiente paso es crear tu perfilamiento bancario.</p>
+              <Link
+                to="/escritorio/perfilacion-bancaria"
+                className="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-xs sm:text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 touch-manipulation min-h-[40px] w-full"
+              >
+                Crear perfil bancario  <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </div>
+          )}
+
+          {/* Profile Picture & Summary en Sidebar */}
+          <div className="bg-white border rounded-xl p-4 sm:p-5 sticky top-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 text-center">Foto de Perfil</h3>
+
+            <div className="text-center mb-4">
+              <label htmlFor="profile-picture-upload" className="cursor-pointer group inline-block">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all">
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-12 h-12 sm:w-14 sm:h-14 text-gray-400" />
+                  )}
+                </div>
+                <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600 block">Cambiar foto</span>
+              </label>
+              <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handlePictureChange} />
+            </div>
+
+            {profile && (
+              <div className="space-y-2 text-xs sm:text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-700">Nombre:</span>
+                  <span className="text-right">{normalizeNameToTitleCase(profile.first_name || '')} {normalizeNameToTitleCase(profile.last_name || '')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-700">Email:</span>
+                  <span className="text-right truncate ml-2">{profile.email}</span>
+                </div>
+                {calculatedRfc && (
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">RFC:</span>
+                    <span className="font-mono font-bold text-primary-600">{calculatedRfc}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

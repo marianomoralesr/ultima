@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Home,
   MapPin,
@@ -80,11 +80,7 @@ const DashboardSidebarPage: React.FC = () => {
   const [vehiclesLabel, setVehiclesLabel] = useState('');
   const location = useLocation();
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -286,7 +282,11 @@ const DashboardSidebarPage: React.FC = () => {
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
     }
-  };
+  }, []); // Empty deps - function doesn't depend on any external values
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   const getStatusConfig = (status: string) => {
     switch (status) {

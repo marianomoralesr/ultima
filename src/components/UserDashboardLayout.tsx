@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -93,15 +93,30 @@ const UserDashboardLayout: React.FC = () => {
         'rfc'
     ];
 
-    // Check if profile is complete
-    const isProfileComplete = profile && requiredFields.every(
-        field => profile[field] && String(profile[field]).trim() !== ''
-    );
+    // Check if profile is complete - memoize to prevent recalculation on every render
+    const isProfileComplete = useMemo(() => {
+        if (!profile) return false;
+        return requiredFields.every(
+            field => profile[field] && String(profile[field]).trim() !== ''
+        );
+    }, [profile]);
+
+    // Use ref to track if we've already attempted redirect
+    const hasAttemptedRedirect = useRef(false);
 
     // Redirect to profile page if incomplete (but allow navigation away)
     useEffect(() => {
-        if (profile && !isProfileComplete && location.pathname !== '/escritorio/profile') {
+        // Only attempt redirect once and only if we haven't already redirected
+        if (profile && !isProfileComplete &&
+            location.pathname !== '/escritorio/profile' &&
+            !hasAttemptedRedirect.current) {
+            hasAttemptedRedirect.current = true;
             navigate('/escritorio/profile', { replace: true });
+        }
+
+        // Reset redirect flag when navigating away from profile page
+        if (location.pathname === '/escritorio/profile') {
+            hasAttemptedRedirect.current = false;
         }
     }, [profile, isProfileComplete, location.pathname, navigate]);
 
@@ -231,16 +246,26 @@ const UserDashboardLayout: React.FC = () => {
                         </BreadcrumbList>
                     </Breadcrumb>
 
-                    {/* Mobile Header - Logo and Hamburger */}
-                    <div className="flex items-center gap-2 sm:hidden">
-                        <button
-                            onClick={() => setIsMobileSidebarOpen(true)}
-                            className="p-2 hover:bg-accent rounded-lg"
-                            aria-label="Abrir menú"
-                        >
-                            <Menu className="h-5 w-5" />
-                        </button>
-                        <Link to="/" className="flex items-center gap-2">
+                    {/* Mobile Header - Greeting and Hamburger */}
+                    <div className="flex items-center justify-between w-full sm:hidden">
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsMobileSidebarOpen(true)}
+                                className="p-2 hover:bg-accent rounded-lg transition-colors"
+                                aria-label="Abrir menú"
+                            >
+                                <Menu className="h-5 w-5 text-primary-600" />
+                            </button>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-gray-900">
+                                    Hola, {profile?.first_name || 'Usuario'}!
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                    Bienvenido a tu dashboard
+                                </span>
+                            </div>
+                        </div>
+                        <Link to="/" className="flex-shrink-0">
                             <img
                                 src="/images/trefalogo.png"
                                 alt="TREFA"

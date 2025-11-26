@@ -37,26 +37,26 @@ const DashboardLayout: React.FC = () => {
     const { profile, isAdmin, isSales, signOut } = useAuth();
     const location = useLocation();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+    const [isAdminSidebarExpanded, setIsAdminSidebarExpanded] = useState(false);
 
-    // Navigation items based on user role - ADMIN/SALES ONLY
-    const navItems = [
-        ...(isAdmin ? [
-            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-            { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
-            { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
-            { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
-            { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },
-            { to: '/escritorio/admin/survey-analytics', label: 'Encuestas', icon: MessageSquare },
-            { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
-            { to: '/escritorio/admin/bancos', label: 'Bancos', icon: Building2 },
-            { to: '/changelog', label: 'Changelog', icon: FileText },
-        ] : []),
-        ...(isSales ? [
-            { to: '/escritorio/ventas/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-            { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users },
-            { to: '/escritorio/ventas/performance', label: 'Performance', icon: BarChart3 },
-        ] : []),
+    // Admin navigation items (right sidebar)
+    const adminNavItems = [
+        { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+        { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
+        { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
+        { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },
+        { to: '/escritorio/admin/survey-analytics', label: 'Encuestas', icon: MessageSquare },
+        { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
+        { to: '/escritorio/admin/bancos', label: 'Bancos', icon: Building2 },
+        { to: '/changelog', label: 'Changelog', icon: FileText },
+    ];
+
+    // Sales navigation items (left sidebar - only visible to sales)
+    const salesNavItems = [
+        { to: '/escritorio/ventas/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+        { to: '/escritorio/ventas/crm', label: 'CRM', icon: Users },
+        { to: '/escritorio/ventas/performance', label: 'Performance', icon: BarChart3 },
     ];
 
     const secondaryNav = [
@@ -96,181 +96,225 @@ const DashboardLayout: React.FC = () => {
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-gray-50">
-            {/* Sidebar */}
-            <motion.aside
-                className="fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-background sm:flex"
-                initial={{ width: "60px" }}
-                animate={{ width: isSidebarExpanded ? "256px" : "60px" }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                onMouseEnter={() => setIsSidebarExpanded(true)}
-                onMouseLeave={() => setIsSidebarExpanded(false)}
-            >
-                <nav className="flex flex-col gap-4 px-4 py-6 h-full">
-                    {/* Logo */}
-                    <Link
-                        to="/"
-                        className="group flex h-12 items-center rounded-lg px-3 text-lg font-semibold text-foreground hover:bg-accent overflow-hidden"
-                    >
-                        <img
-                            src="/images/trefalogo.png"
-                            alt="TREFA"
-                            className={cn(
-                                "h-8 w-auto object-contain transition-all",
-                                isSidebarExpanded ? "mr-2" : "mr-0"
-                            )}
-                        />
-                    </Link>
+            {/* Sales Sidebar (Left) - Only visible for sales agents */}
+            {isSales && !isAdmin && (
+                <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
+                    <nav className="flex flex-col gap-4 px-4 py-6 h-full">
+                        {/* Logo */}
+                        <Link
+                            to="/"
+                            className="group flex h-12 items-center rounded-lg px-3 text-lg font-semibold text-foreground hover:bg-accent"
+                        >
+                            <img
+                                src="/images/trefalogo.png"
+                                alt="TREFA"
+                                className="h-8 w-auto object-contain mr-2"
+                            />
+                        </Link>
 
-                    {/* User Profile Card */}
-                    <div className={cn(
-                        "flex items-center rounded-lg border bg-card transition-all",
-                        isSidebarExpanded ? "gap-3 p-3" : "justify-center p-2"
-                    )}>
-                        <Avatar className="h-10 w-10 flex-shrink-0">
-                            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                                {profile?.first_name?.[0]?.toUpperCase() || 'U'}
-                            </AvatarFallback>
-                        </Avatar>
-                        {isSidebarExpanded && (
-                            <motion.div
-                                className="flex-1 min-w-0"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                            >
+                        {/* User Profile Card */}
+                        <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
+                                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                                    {profile?.first_name?.[0]?.toUpperCase() || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium leading-none truncate">
                                     {profile?.first_name || 'Usuario'}
                                 </p>
                                 <p className="text-xs text-muted-foreground truncate">
                                     {profile?.email}
                                 </p>
-                            </motion.div>
-                        )}
-                    </div>
+                            </div>
+                        </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Main Navigation */}
-                    <div className="flex-1 space-y-1">
-                        {navItems.map((item) => {
-                            const Icon = item.icon;
-                            const active = isActiveLink(item.to, item.end);
+                        {/* Sales Navigation */}
+                        <div className="flex-1 space-y-1">
+                            {salesNavItems.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActiveLink(item.to, item.end);
 
-                            return (
-                                <Link
-                                    key={item.to}
-                                    to={item.to}
-                                    className={cn(
-                                        "flex items-center rounded-lg text-sm font-medium transition-all hover:bg-accent overflow-hidden",
-                                        isSidebarExpanded ? "px-3 py-2" : "justify-center py-2",
-                                        active
-                                            ? "bg-accent text-accent-foreground"
-                                            : "text-muted-foreground hover:text-foreground"
-                                    )}
-                                >
-                                    <Icon className="h-5 w-5 shrink-0" />
-                                    <motion.span
-                                        animate={{
-                                            opacity: isSidebarExpanded ? 1 : 0,
-                                            width: isSidebarExpanded ? "auto" : 0,
-                                            marginLeft: isSidebarExpanded ? "12px" : "0px"
-                                        }}
-                                        transition={{ duration: 0.2 }}
-                                        className="whitespace-nowrap"
+                                return (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                            active
+                                                ? "bg-accent text-accent-foreground"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        )}
                                     >
-                                        {item.label}
-                                    </motion.span>
-                                </Link>
-                            );
-                        })}
-                    </div>
+                                        <Icon className="h-5 w-5 shrink-0" />
+                                        <span className="whitespace-nowrap">{item.label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Secondary Navigation */}
-                    <div className="space-y-1">
-                        {secondaryNav.map((item) => {
-                            const Icon = item.icon;
-                            const active = isActiveLink(item.to);
+                        {/* Secondary Navigation */}
+                        <div className="space-y-1">
+                            {secondaryNav.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActiveLink(item.to);
 
-                            return (
-                                <Link
-                                    key={item.to}
-                                    to={item.to}
-                                    className={cn(
-                                        "flex items-center rounded-lg text-sm font-medium transition-all hover:bg-accent overflow-hidden",
-                                        isSidebarExpanded ? "px-3 py-2" : "justify-center py-2",
-                                        active
-                                            ? "bg-accent text-accent-foreground"
-                                            : "text-muted-foreground hover:text-foreground"
-                                    )}
-                                >
-                                    <Icon className="h-5 w-5 shrink-0" />
-                                    <motion.span
-                                        animate={{
-                                            opacity: isSidebarExpanded ? 1 : 0,
-                                            width: isSidebarExpanded ? "auto" : 0,
-                                            marginLeft: isSidebarExpanded ? "12px" : "0px"
-                                        }}
-                                        transition={{ duration: 0.2 }}
-                                        className="whitespace-nowrap"
+                                return (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                            active
+                                                ? "bg-accent text-accent-foreground"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        )}
                                     >
-                                        {item.label}
-                                    </motion.span>
-                                </Link>
-                            );
-                        })}
+                                        <Icon className="h-5 w-5 shrink-0" />
+                                        <span className="whitespace-nowrap">{item.label}</span>
+                                    </Link>
+                                );
+                            })}
+
+                            {/* Sign Out Button */}
+                            <button
+                                onClick={() => signOut()}
+                                className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground"
+                            >
+                                <LogOut className="h-5 w-5 shrink-0" />
+                                <span className="whitespace-nowrap">Cerrar Sesión</span>
+                            </button>
+                        </div>
+                    </nav>
+                </aside>
+            )}
+
+            {/* Admin Sidebar (Right) - Only visible for admins */}
+            {isAdmin && (
+                <motion.aside
+                    className={cn(
+                        "fixed inset-y-0 right-0 z-10 hidden flex-col border-l shadow-lg sm:flex",
+                        isAdminSidebarExpanded ? "bg-background" : "bg-primary text-primary-foreground"
+                    )}
+                    initial={{ width: "60px" }}
+                    animate={{ width: isAdminSidebarExpanded ? "256px" : "60px" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    onMouseEnter={() => setIsAdminSidebarExpanded(true)}
+                    onMouseLeave={() => setIsAdminSidebarExpanded(false)}
+                >
+                    <nav className="flex flex-col gap-4 px-2 py-6 h-full">
+                        {/* Admin Label */}
+                        <div className="flex items-center justify-center h-10">
+                            {isAdminSidebarExpanded ? (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-sm font-semibold px-3"
+                                >
+                                    Panel Admin
+                                </motion.p>
+                            ) : (
+                                <p className="text-xs font-bold">A</p>
+                            )}
+                        </div>
+
+                        <Separator className={cn(isAdminSidebarExpanded ? "" : "bg-primary-foreground/20")} />
+
+                        {/* Admin Navigation */}
+                        <div className="flex-1 space-y-1">
+                            {adminNavItems.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActiveLink(item.to, item.end);
+
+                                return (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        className={cn(
+                                            "flex items-center rounded-lg text-sm font-medium transition-all overflow-hidden",
+                                            isAdminSidebarExpanded ? "px-3 py-2 gap-3" : "justify-center py-2",
+                                            active
+                                                ? isAdminSidebarExpanded
+                                                    ? "bg-accent text-accent-foreground"
+                                                    : "bg-primary-foreground/20"
+                                                : isAdminSidebarExpanded
+                                                    ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                                    : "hover:bg-primary-foreground/10"
+                                        )}
+                                        title={!isAdminSidebarExpanded ? item.label : undefined}
+                                    >
+                                        <Icon className="h-5 w-5 shrink-0" />
+                                        {isAdminSidebarExpanded && (
+                                            <motion.span
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="whitespace-nowrap"
+                                            >
+                                                {item.label}
+                                            </motion.span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+
+                        <Separator className={cn(isAdminSidebarExpanded ? "" : "bg-primary-foreground/20")} />
 
                         {/* Sign Out Button */}
                         <button
                             onClick={() => signOut()}
                             className={cn(
-                                "w-full flex items-center rounded-lg text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground overflow-hidden",
-                                isSidebarExpanded ? "px-3 py-2" : "justify-center py-2"
+                                "flex items-center rounded-lg text-sm font-medium transition-all overflow-hidden",
+                                isAdminSidebarExpanded ? "px-3 py-2 gap-3" : "justify-center py-2",
+                                isAdminSidebarExpanded
+                                    ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                    : "hover:bg-primary-foreground/10"
                             )}
+                            title={!isAdminSidebarExpanded ? "Cerrar Sesión" : undefined}
                         >
                             <LogOut className="h-5 w-5 shrink-0" />
-                            <motion.span
-                                animate={{
-                                    opacity: isSidebarExpanded ? 1 : 0,
-                                    width: isSidebarExpanded ? "auto" : 0,
-                                    marginLeft: isSidebarExpanded ? "12px" : "0px"
-                                }}
-                                transition={{ duration: 0.2 }}
-                                className="whitespace-nowrap"
-                            >
-                                Cerrar Sesión
-                            </motion.span>
+                            {isAdminSidebarExpanded && (
+                                <motion.span
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="whitespace-nowrap"
+                                >
+                                    Cerrar Sesión
+                                </motion.span>
+                            )}
                         </button>
-                    </div>
-                </nav>
-            </motion.aside>
+                    </nav>
+                </motion.aside>
+            )}
 
-            {/* Subtle Handle Indicator - Outside Sidebar */}
-            <motion.div
-                className="fixed top-1/2 -translate-y-1/2 z-[5] hidden sm:flex items-center justify-center pointer-events-none"
-                animate={{
-                    left: isSidebarExpanded ? "256px" : "60px",
-                    opacity: isSidebarExpanded ? 0 : 1
-                }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-                <div className="h-24 w-4 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-r-lg flex items-center justify-center">
-                    <div className="bg-background/80 backdrop-blur-sm rounded-full p-1 shadow-sm border border-border/50">
-                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* Main Content - Mobile-first responsive layout */}
-            <div className="flex flex-col sm:gap-4 sm:pl-[60px]">
+            {/* Handle Indicator - Outside Admin Sidebar */}
+            {isAdmin && (
                 <motion.div
-                    className="hidden sm:block"
-                    animate={{ paddingLeft: isSidebarExpanded ? "196px" : "0px" }}
+                    className="fixed top-1/2 -translate-y-1/2 z-[5] hidden sm:flex items-center justify-center pointer-events-none"
+                    animate={{
+                        right: isAdminSidebarExpanded ? "256px" : "60px",
+                        opacity: isAdminSidebarExpanded ? 0 : 1
+                    }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-                />
+                >
+                    <div className="h-24 w-4 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-r-lg flex items-center justify-center">
+                        <div className="bg-background/80 backdrop-blur-sm rounded-full p-1 shadow-sm border border-border/50">
+                            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Main Content - Responsive padding based on role */}
+            <div className={cn(
+                "flex flex-col sm:gap-4",
+                isSales && !isAdmin && "sm:pl-64",  // Sales: left sidebar
+                isAdmin && "sm:pr-[60px]"          // Admin: right sidebar
+            )}>
                 {/* Top Bar with Breadcrumbs */}
                 <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 sm:py-4">
                     <Breadcrumb className="hidden md:flex">

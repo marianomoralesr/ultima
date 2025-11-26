@@ -27,6 +27,7 @@ import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '../../supabaseClient';
 import { toast } from 'sonner';
+import { useAuth } from '../context/AuthContext';
 
 const SALES_AGENTS = [
   { id: 'd21e808e-083c-48fd-be78-d52ee7837146', name: 'Anahi Garza Garcia', phone: '+52 81 8704 9079' },
@@ -57,7 +58,15 @@ const getMotivationalMessage = (progress: number): string => {
 };
 
 const DashboardSidebarPage: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const { isAdmin } = useAuth();
+
+  // Close sidebar on mobile by default
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768; // md breakpoint
+    }
+    return false;
+  });
   const [stats, setStats] = useState({
     borradores: 0,
     enviadas: 0,
@@ -114,9 +123,11 @@ const DashboardSidebarPage: React.FC = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
-      const latestApp = applications?.[0];
+      // Obtener la aplicación ACTIVA (no borrador más reciente) para mostrar su estado
+      const activeApp = applications?.find(app => app.status !== 'draft');
+      const latestApp = activeApp || applications?.[0]; // Si no hay activa, usa la más reciente
       setLatestApplication(latestApp);
-      
+
       // Separar borradores y enviadas
       const drafts = applications?.filter(app => app.status === 'draft') || [];
       // Enviadas incluye todas las solicitudes que NO son borrador
@@ -181,27 +192,33 @@ const DashboardSidebarPage: React.FC = () => {
         }
       }
 
-      // Calcular progreso
+      // Calcular progreso basado en pasos reales del proceso
       let progress = 0;
       const hasSubmittedApp = enviadas > 0;
 
+      // Paso 1: Perfil completo (25%)
+      if (profileComplete) progress += 25;
+
+      // Paso 2: Perfilación bancaria completa (25%)
+      if (bankProfileComplete) progress += 25;
+
+      // Paso 3: Solicitud enviada (25%)
+      if (hasSubmittedApp) progress += 25;
+
+      // Paso 4: Documentos completos (25%)
       if (hasSubmittedApp && documentosPendientes === 0) {
-        progress = 100;
-      } else {
-        if (profileComplete) progress += 20;
-        if (bankProfileComplete) progress += 20;
-        if (applications && applications.length > 0) progress += 30;
-        if (documentosPendientes < 4) {
-          progress += (4 - documentosPendientes) * 7.5;
-        }
+        progress += 25;
+      } else if (hasSubmittedApp && documentosPendientes < 4) {
+        // Progreso parcial de documentos
+        progress += ((4 - documentosPendientes) / 4) * 25;
       }
 
       setStats({
         borradores,
         enviadas,
         documentosPendientes,
-        status: latestApp?.status || 'draft',
-        progreso: Math.min(progress, 100),
+        status: activeApp?.status || latestApp?.status || 'draft',
+        progreso: Math.min(Math.round(progress), 100),
         profileComplete,
         bankProfileComplete
       });
@@ -648,6 +665,86 @@ const DashboardSidebarPage: React.FC = () => {
               )}
             </div>
 
+            {/* Mobile Only: Sidebar Content in Main Area */}
+            <div className="md:hidden space-y-4">
+              {/* Assigned Agent Card */}
+              {assignedAgent && (
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Mi Asesor
+                    </h3>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                        {assignedAgent.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{assignedAgent.name}</p>
+                        <p className="text-sm text-gray-600">{assignedAgent.phone}</p>
+                      </div>
+                    </div>
+                    <a
+                      href={`https://wa.me/${assignedAgent.phone.replace(/\D/g, '')}?text=Hola,%20necesito%20ayuda`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium touch-manipulation"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Contactar por WhatsApp
+                    </a>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Vehicles Section */}
+              {sidebarVehicles.length > 0 && (
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-red-500 fill-red-500" />}
+                      {vehiclesLabel === 'Vistos Recientemente' && <TrendingUp className="w-4 h-4 text-blue-500" />}
+                      {vehiclesLabel}
+                    </h3>
+                    <div className="space-y-3">
+                      {sidebarVehicles.map((vehicle) => {
+                        const imageUrl = vehicle.feature_image || vehicle.fotos_exterior_url?.[0] || vehicle.galeria_exterior?.[0];
+                        return (
+                          <Link
+                            key={vehicle.id}
+                            to={`/autos/${vehicle.slug || vehicle.id}`}
+                            className="block"
+                          >
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                              {imageUrl ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={vehicle.titulo}
+                                  className="w-20 h-15 object-cover rounded flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-20 h-15 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                                  <Car className="w-6 h-6 text-gray-400" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm text-gray-900 line-clamp-2">
+                                  {vehicle.titulo}
+                                </p>
+                                <p className="text-sm text-primary-600 font-bold mt-1">
+                                  ${vehicle.precio?.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
             {/* Dropzone Section with QR and Link */}
             {publicUploadLink && latestApplication && (
               <Card className="border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white">
@@ -723,7 +820,9 @@ const DashboardSidebarPage: React.FC = () => {
       {/* Sidebar - Right Side */}
       <aside
         className={`${
-          isOpen ? 'w-56 bg-background' : 'w-16 bg-[#FF6801] hidden md:flex'
+          isOpen
+            ? 'w-56 bg-background'
+            : `w-16 ${isAdmin ? 'bg-gray-800' : 'bg-[#FF6801]'} hidden md:flex`
         } border-l transition-all duration-300 ease-in-out flex flex-col`}
       >
         {/* Header */}

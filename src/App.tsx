@@ -88,6 +88,7 @@ const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
 const AdminSalesDashboard = lazy(() => import('./pages/AdminSalesDashboard'));
 const AdminLogsPage = lazy(() => import('./pages/AdminLogsPage'));
 const AdminBusinessAnalyticsDashboard = lazy(() => import('./pages/AdminBusinessAnalyticsDashboard'));
+const UnifiedAdminDashboard = lazy(() => import('./pages/UnifiedAdminDashboard'));
 const BankLoginPage = lazy(() => import('./pages/BankLoginPage'));
 const BankDashboardPage = lazy(() => import('./pages/BankDashboardPage'));
 const BankLeadProfilePage = lazy(() => import('./pages/BankLeadProfilePage'));
@@ -197,6 +198,7 @@ function App(): React.JSX.Element {
                   <Route path="admin" element={<AdminSalesDashboard />} />
                   <Route path="admin/dashboard" element={<AdminSalesDashboard />} />
                   <Route path="admin/business-analytics" element={<AdminBusinessAnalyticsDashboard />} />
+                  <Route path="dashboard" element={<UnifiedAdminDashboard />} />
                   <Route path="admin/crm" element={<UnifiedCRMPage userRole="admin" />} />
                   <Route path="admin/leads" element={<UnifiedCRMPage userRole="admin" />} />
                   <Route path="admin/client/:id" element={<AdminClientProfilePage />} />

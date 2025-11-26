@@ -400,6 +400,8 @@ const Application: React.FC = () => {
         try {
             // Re-check for active applications right before submission to prevent race conditions
             const currentApp = await ApplicationService.getApplicationById(user.id, applicationId);
+            const isFirstSubmit = currentApp?.status === 'draft'; // Track if this is the first submission
+
             if (!currentApp || currentApp.status !== 'draft') {
                 // If this application is no longer a draft, check if there's another active application
                 const hasActiveApp = await ApplicationService.hasActiveApplication(user.id);
@@ -502,11 +504,19 @@ const Application: React.FC = () => {
                 userId: user.id
             });
 
-            // Redirect to confirmation page (only shown on first submit)
-            navigate(`/escritorio/aplicacion/${applicationId}/confirmacion?firstSubmit=true`, { 
-              replace: true,
-              state: { application: updatedApp }
-            });
+            // Redirect based on whether this is first submit or an edit
+            if (isFirstSubmit) {
+                // First submission: go to confirmation page
+                navigate(`/escritorio/aplicacion/${applicationId}/confirmacion?firstSubmit=true`, {
+                    replace: true,
+                    state: { application: updatedApp }
+                });
+            } else {
+                // Edit/resubmission: go to seguimiento page
+                navigate(`/escritorio/seguimiento/${applicationId}`, {
+                    replace: true
+                });
+            }
 
         } catch(e: any) {
             // Check if error is due to duplicate application

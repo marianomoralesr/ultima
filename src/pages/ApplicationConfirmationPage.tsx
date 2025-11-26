@@ -65,34 +65,66 @@ const ApplicationConfirmationPage: React.FC = () => {
         }
         setApplication(app);
 
-        
+
         try {
           // Verificar si ya se disparó el evento de confirmación para esta aplicación
           const { data: shouldDispatch, error: checkError } = await supabase
             .rpc('register_confirmation_event', {
               p_application_id: id,
-              p_event_type: 'SolicitudEnviada'
+              p_event_type: 'SolicitudCompleta'
             });
 
           if (checkError) {
             throw checkError;
           }
 
-          // Solo disparar evento si es la primera vez
+          // Solo disparar eventos si es la primera vez que se visita la página de confirmación
           if (shouldDispatch) {
-            // Fire conversion event: SolicitudCompleta
+            // Fire SolicitudCompleta event (Spanish tracking event)
             const vehicleInfo = app.car_info;
-            await conversionTracking.trackApplication.completed({
+
+            // Track SolicitudCompleta - this is shown to the user that their application is complete
+            await conversionTracking.track('SolicitudCompleta', 'Solicitud Completa', {
               applicationId: id,
               vehicleId: vehicleInfo?._ordenCompra,
               vehicleName: vehicleInfo?._vehicleTitle || undefined,
               vehiclePrice: vehicleInfo?._precioNumerico || 0,
-              userId: user.id
+              userId: user.id,
+              page: '/escritorio/aplicacion/confirmacion',
+              content_name: 'Solicitud Completa',
+              status: 'completed'
             });
 
-            console.log('[ApplicationConfirmation] Evento SolicitudEnviada disparado para aplicación:', id);
+            // Also track LeadComplete if user came from landing page
+            // Check if user has ConversionLandingPage event
+            const { data: landingPageEvent } = await supabase
+              .from('tracking_events')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('event_type', 'ConversionLandingPage')
+              .limit(1)
+              .maybeSingle();
+
+            if (landingPageEvent) {
+              await conversionTracking.track('LeadComplete', 'Lead Complete', {
+                applicationId: id,
+                vehicleId: vehicleInfo?._ordenCompra,
+                vehicleName: vehicleInfo?._vehicleTitle || undefined,
+                vehiclePrice: vehicleInfo?._precioNumerico || 0,
+                userId: user.id,
+                page: '/escritorio/aplicacion/confirmacion',
+                value: vehicleInfo?._precioNumerico || 0,
+                currency: 'MXN',
+                content_name: 'Lead Complete',
+                status: 'completed',
+                from_landing_page: true
+              });
+              console.log('[ApplicationConfirmation] LeadComplete disparado (usuario desde landing page)');
+            }
+
+            console.log('[ApplicationConfirmation] Eventos disparados para aplicación:', id);
           } else {
-            console.log('[ApplicationConfirmation] Evento ya fue disparado previamente para aplicación:', id);
+            console.log('[ApplicationConfirmation] Eventos ya fueron disparados previamente para aplicación:', id);
           }
         } catch (trackingError) {
           console.error('[ApplicationConfirmation] Error during tracking or RPC call, not blocking UI:', trackingError);
@@ -149,38 +181,38 @@ const ApplicationConfirmationPage: React.FC = () => {
   const vehicleInfo = application.car_info;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         {/* Success Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 mb-6 text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-            <CheckCircle className="w-12 h-12 text-green-600" />
+        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 mb-4 sm:mb-6 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mb-3 sm:mb-4">
+            <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-600" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 px-2">
             ¡Felicidades! Tu Solicitud ha Sido Enviada
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
             Estamos revisando tu información. Te notificaremos por correo electrónico y WhatsApp sobre el progreso de tu solicitud.
           </p>
         </div>
 
         {/* Vehicle Info */}
         {vehicleInfo?._vehicleTitle && (
-          <Card className="mb-6">
+          <Card className="mb-4 sm:mb-6">
             <CardHeader>
-              <CardTitle className="text-lg">Vehículo de Interés</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Vehículo de Interés</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src={vehicleInfo._featureImage}
                   alt={vehicleInfo._vehicleTitle}
-                  className="w-24 h-16 object-cover rounded-lg flex-shrink-0"
+                  className="w-20 h-14 sm:w-24 sm:h-16 object-cover rounded-lg flex-shrink-0"
                 />
                 <div>
-                  <h3 className="font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-gray-900">{vehicleInfo._vehicleTitle}</h3>
                   {vehicleInfo._precioFormateado && (
-                    <p className="text-sm text-gray-600">{vehicleInfo._precioFormateado}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">{vehicleInfo._precioFormateado}</p>
                   )}
                 </div>
               </div>
@@ -189,24 +221,24 @@ const ApplicationConfirmationPage: React.FC = () => {
         )}
 
         {/* Next Steps */}
-        <Card className="mb-6">
+        <Card className="mb-4 sm:mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary-600" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
               Próximos Pasos
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 sm:space-y-5">
             <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-sm">
+              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-xs sm:text-sm">
                 1
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">Carga tus Documentos</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1">Carga tus Documentos</h4>
+                <p className="text-xs sm:text-sm text-gray-600">
                   Para procesar tu solicitud más rápido, necesitamos los siguientes documentos:
                 </p>
-                <ul className="mt-2 text-sm text-gray-600 space-y-1 ml-4">
+                <ul className="mt-2 text-xs sm:text-sm text-gray-600 space-y-1 ml-3 sm:ml-4">
                   <li>• INE (frente y reverso)</li>
                   <li>• Comprobante de domicilio</li>
                   <li>• Comprobante de ingresos</li>
@@ -216,24 +248,24 @@ const ApplicationConfirmationPage: React.FC = () => {
             </div>
 
             <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-sm">
+              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-xs sm:text-sm">
                 2
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">Revisión de tu Solicitud</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1">Revisión de tu Solicitud</h4>
+                <p className="text-xs sm:text-sm text-gray-600">
                   Nuestro equipo revisará tu información y documentos. Este proceso generalmente toma de 1 a 2 días hábiles.
                 </p>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-sm">
+              <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-xs sm:text-sm">
                 3
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">Aprobación y Siguiente Paso</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1">Aprobación y Siguiente Paso</h4>
+                <p className="text-xs sm:text-sm text-gray-600">
                   Una vez aprobado tu crédito, podrás separar el vehículo de tu preferencia y coordinar la entrega.
                 </p>
               </div>
@@ -243,34 +275,34 @@ const ApplicationConfirmationPage: React.FC = () => {
 
         {/* Document Upload Section */}
         {publicUrl && (
-          <Card className="mb-6">
+          <Card className="mb-4 sm:mb-6">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="w-5 h-5 text-primary-600" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
                 Liga para Carga de Documentos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-900 mb-3">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                <p className="text-xs sm:text-sm text-blue-900 mb-2 sm:mb-3">
                   <strong>📧 Te enviamos esta liga por correo electrónico</strong>
                 </p>
-                <p className="text-sm text-blue-800 mb-3">
+                <p className="text-xs sm:text-sm text-blue-800 mb-3">
                   Puedes usar este enlace en cualquier momento para cargar tus documentos de forma segura.
                   También puedes compartir esta liga para que alguien más suba los documentos por ti.
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     value={publicUrl}
                     readOnly
-                    className="flex-1 px-3 py-2 bg-white border border-blue-300 rounded-lg text-sm text-gray-700 font-mono"
+                    className="flex-1 px-3 py-2 bg-white border border-blue-300 rounded-lg text-xs sm:text-sm text-gray-700 font-mono"
                   />
                   <Button
                     onClick={handleCopyLink}
                     variant="outline"
                     size="sm"
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 w-full sm:w-auto min-h-[44px] touch-manipulation"
                   >
                     {copied ? (
                       <>
@@ -289,7 +321,7 @@ const ApplicationConfirmationPage: React.FC = () => {
                   href={publicUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-3 text-sm text-blue-700 hover:text-blue-800 font-semibold"
+                  className="inline-flex items-center gap-2 mt-3 text-xs sm:text-sm text-blue-700 hover:text-blue-800 font-semibold min-h-[44px] touch-manipulation"
                 >
                   <ExternalLink className="w-4 h-4" />
                   Abrir liga de carga de documentos
@@ -304,29 +336,27 @@ const ApplicationConfirmationPage: React.FC = () => {
           </Card>
         )}
 
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <Button
-            onClick={() => navigate('/escritorio')}
-            className="w-full"
-            size="lg"
-          >
-            <Home className="w-5 h-5 mr-2" />
-            Volver al Dashboard
-          </Button>
-
+        {/* Single Call to Action */}
+        <div className="mt-2 sm:mt-4">
           <Link
-            to="/escritorio/seguimiento"
-            className="block w-full text-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+            to={`/escritorio/seguimiento/${id}`}
+            className="block w-full"
           >
-            Ver Estado de mi Solicitud
+            <Button
+              className="w-full min-h-[52px] sm:min-h-[56px] text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all touch-manipulation"
+              size="lg"
+              style={{ backgroundColor: '#FF6801' }}
+            >
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
+              Ver mi Solicitud
+            </Button>
           </Link>
         </div>
 
         {/* Footer Note */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            ¿Tienes preguntas? <Link to="/contacto" className="text-primary-600 hover:text-primary-700 font-semibold">Contáctanos</Link>
+        <div className="mt-6 sm:mt-8 text-center pb-4">
+          <p className="text-xs sm:text-sm text-gray-500">
+            ¿Tienes preguntas? <Link to="/contacto" className="text-primary-600 hover:text-primary-700 font-semibold underline min-h-[44px] touch-manipulation inline-flex items-center">Contáctanos</Link>
           </p>
         </div>
       </div>

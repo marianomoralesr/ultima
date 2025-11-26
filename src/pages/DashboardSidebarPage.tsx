@@ -119,9 +119,8 @@ const DashboardSidebarPage: React.FC = () => {
       
       // Separar borradores y enviadas
       const drafts = applications?.filter(app => app.status === 'draft') || [];
-      const submitted = applications?.filter(app =>
-        app.status === 'faltan_documentos' || app.status === 'completa'
-      ) || [];
+      // Enviadas incluye todas las solicitudes que NO son borrador
+      const submitted = applications?.filter(app => app.status !== 'draft') || [];
 
       setDraftApplications(drafts);
       setSubmittedApplications(submitted);
@@ -351,11 +350,381 @@ const DashboardSidebarPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen w-full bg-gray-50">
-      {/* Sidebar */}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <header className="bg-background border-b px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">
+              Panel de Control
+            </h1>
+            <div className="flex items-center gap-3">
+              <Bell className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              <Link to="/escritorio/profile">
+                <User className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto bg-gray-50">
+          <div className="space-y-4 sm:space-y-6">
+            {/* Limit Warning */}
+            {stats.enviadas > 1 && (
+              <Card className="border-2 border-yellow-500 bg-yellow-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-yellow-800">
+                        Aviso: Solo se permite 1 solicitud enviada a la vez
+                      </p>
+                      <p className="text-sm text-yellow-700">
+                        Actualmente tienes {stats.enviadas} solicitudes enviadas. Por favor, contacta a soporte.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Stats Cards Row */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* Borradores - Clickable */}
+              <div
+                className="cursor-pointer touch-manipulation"
+                onClick={() => setShowDrafts(!showDrafts)}
+              >
+                <Card className="hover:shadow-md transition-all hover:scale-[1.02]">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="text-center">
+                      <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-gray-600 mx-auto mb-1 sm:mb-2" />
+                      <p className="text-xs sm:text-sm text-gray-600 font-medium">Borradores</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.borradores}</p>
+                      {stats.borradores > 0 && (
+                        <div className="mt-1 sm:mt-2">
+                          {showDrafts ? <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4 mx-auto text-gray-500" /> : <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 mx-auto text-gray-500" />}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Enviadas - Clickable */}
+              <div
+                className="cursor-pointer touch-manipulation"
+                onClick={() => setShowSubmitted(!showSubmitted)}
+              >
+                <Card className="hover:shadow-md transition-all hover:scale-[1.02]">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="text-center">
+                      <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mx-auto mb-1 sm:mb-2" />
+                      <p className="text-xs sm:text-sm text-gray-600 font-medium">Enviadas</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.enviadas}</p>
+                      {stats.enviadas > 0 && (
+                        <div className="mt-1 sm:mt-2">
+                          {showSubmitted ? <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4 mx-auto text-gray-500" /> : <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 mx-auto text-gray-500" />}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Docs Pendientes */}
+              <Card className={`${docsComplete ? 'bg-green-50 border-green-200' : ''}`}>
+                <CardContent className="p-3 sm:p-4">
+                  <div className="text-center">
+                    {docsComplete ? (
+                      <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 mx-auto mb-1 sm:mb-2" />
+                    ) : (
+                      <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600 mx-auto mb-1 sm:mb-2" />
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-600 font-medium">Docs. Pendientes</p>
+                    <p className={`text-2xl sm:text-3xl font-bold ${docsComplete ? 'text-green-600' : 'text-gray-900'}`}>
+                      {stats.documentosPendientes}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Estado de Solicitud */}
+              <Card className={statusConfig.bgColor}>
+                <CardContent className="p-3 sm:p-4">
+                  <div className="text-center">
+                    <MapPin className={`w-6 h-6 sm:w-8 sm:h-8 ${statusConfig.textColor} mx-auto mb-1 sm:mb-2`} />
+                    <p className={`text-xs sm:text-sm ${statusConfig.textColor} opacity-90 font-medium`}>Estado</p>
+                    <p className={`text-lg sm:text-xl font-bold ${statusConfig.textColor}`}>
+                      {statusConfig.label}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Dropdown Lists */}
+            {showDrafts && draftApplications.length > 0 && (
+              <Card className="border-2 border-gray-300">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3">Borradores</h3>
+                  <div className="space-y-2">
+                    {draftApplications.map((app) => (
+                      <Link
+                        key={app.id}
+                        to={`/escritorio/aplicacion/${app.id}`}
+                        className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {app.car_info?.title || 'Solicitud sin vehículo'}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Creada: {formatDate(app.created_at)}
+                            </p>
+                          </div>
+                          <span className="text-xs bg-gray-200 px-2 py-1 rounded">
+                            Borrador
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {showSubmitted && submittedApplications.length > 0 && (
+              <Card className="border-2 border-blue-300">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3">Solicitudes Enviadas</h3>
+                  <div className="space-y-2">
+                    {submittedApplications.map((app) => (
+                      <Link
+                        key={app.id}
+                        to={`/escritorio/seguimiento/${app.id}`}
+                        className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {app.car_info?.title || 'Solicitud sin vehículo'}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Enviada: {formatDate(app.created_at)}
+                            </p>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            app.status === 'approved' ? 'bg-green-200 text-green-800' :
+                            app.status === 'pending' ? 'bg-yellow-200 text-yellow-800' :
+                            'bg-blue-200 text-blue-800'
+                          }`}>
+                            {getStatusConfig(app.status).label}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Progress Bar with Motivational Message */}
+            <Card>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-2 sm:gap-4 mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                      Progreso del Proceso
+                    </h3>
+                    <p className="text-xs sm:text-sm font-medium text-primary-600">
+                      {motivationalMessage}
+                    </p>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-xl sm:text-2xl font-bold text-gray-900">{stats.progreso}%</span>
+                  </div>
+                </div>
+                <Progress value={stats.progreso} className="h-2 sm:h-3" />
+              </CardContent>
+            </Card>
+
+            {/* Action Cards Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {/* Mi Perfil con check sutil */}
+              <Link to="/escritorio/profile" className="touch-manipulation">
+                <Card className={`hover:shadow-md transition-all hover:scale-[1.02] h-full ${
+                  stats.profileComplete ? 'border-green-200 bg-green-50' : ''
+                }`}>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      {stats.profileComplete ? (
+                        <div className="relative flex-shrink-0">
+                          <User className="w-7 h-7 sm:w-8 sm:h-8 text-primary-600" />
+                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
+                        </div>
+                      ) : (
+                        <User className="w-7 h-7 sm:w-8 sm:h-8 text-primary-600 flex-shrink-0" />
+                      )}
+                      <div>
+                        <p className="font-semibold text-sm sm:text-base text-gray-900">Mi Perfil</p>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          {stats.profileComplete ? 'Completado ✓' : 'Actualiza tu información'}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Perfilación Bancaria con check sutil */}
+              <Link to="/escritorio/perfilacion-bancaria" className="touch-manipulation">
+                <Card className={`hover:shadow-md transition-all hover:scale-[1.02] h-full ${
+                  stats.bankProfileComplete ? 'border-green-200 bg-green-50' : ''
+                }`}>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center gap-3">
+                      {stats.bankProfileComplete ? (
+                        <div className="relative flex-shrink-0">
+                          <CreditCard className="w-7 h-7 sm:w-8 sm:h-8 text-primary-600" />
+                          <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
+                        </div>
+                      ) : (
+                        <CreditCard className="w-7 h-7 sm:w-8 sm:h-8 text-primary-600 flex-shrink-0" />
+                      )}
+                      <div>
+                        <p className="font-semibold text-sm sm:text-base text-gray-900">Perfilación Bancaria</p>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          {stats.bankProfileComplete ? 'Completado ✓' : 'Completa tu perfil'}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Vehículo Seleccionado */}
+              {selectedVehicle ? (
+                <Link to={`/autos/${selectedVehicle.slug || selectedVehicle.id}`} className="touch-manipulation">
+                  <Card className="hover:shadow-md transition-all hover:scale-[1.02] h-full">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        {selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0] ? (
+                          <img
+                            src={selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0]}
+                            alt={selectedVehicle.titulo}
+                            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
+                          />
+                        ) : (
+                          <Car className="w-14 h-14 sm:w-16 sm:h-16 text-primary-600 flex-shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm sm:text-base text-gray-900 truncate">
+                            {selectedVehicle.titulo || 'Vehículo'}
+                          </p>
+                          <p className="text-xs text-gray-500">ID: {selectedVehicle.id}</p>
+                          <p className="text-xs sm:text-sm text-gray-600">Ver detalles</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ) : (
+                <Link to="/autos" className="touch-manipulation">
+                  <Card className="border-2 border-dashed hover:border-primary-500 transition-colors cursor-pointer h-full">
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3">
+                        <Car className="w-8 h-8 text-gray-400" />
+                        <div>
+                          <p className="font-semibold text-gray-600">Sin vehículo</p>
+                          <p className="text-sm text-gray-500">Selecciona uno</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )}
+            </div>
+
+            {/* Dropzone Section with QR and Link */}
+            {publicUploadLink && latestApplication && (
+              <Card className="border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row items-start gap-6">
+                    {/* QR Code */}
+                    <div className="flex-shrink-0 mx-auto md:mx-0">
+                      <div className="bg-white p-4 rounded-lg shadow-md">
+                        <QRCodeSVG
+                          value={publicUploadLink}
+                          size={120}
+                          level="H"
+                          includeMargin={true}
+                        />
+                      </div>
+                      <p className="text-xs text-center text-gray-600 mt-2">
+                        Escanea para subir
+                      </p>
+                    </div>
+
+                    {/* Dropzone Info */}
+                    <div className="flex-1 w-full">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="relative">
+                          <Upload className="w-8 h-8 text-primary-600" />
+                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-800">
+                            Zona de Carga de Documentos
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Comparte este link o QR para recibir documentos
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Link con botón copiar */}
+                      <div className="flex items-center gap-2 bg-white p-3 rounded-lg border-2 border-gray-200">
+                        <input
+                          type="text"
+                          value={publicUploadLink}
+                          readOnly
+                          className="flex-1 text-sm text-gray-700 bg-transparent outline-none"
+                        />
+                        <button
+                          onClick={copyToClipboard}
+                          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm font-medium"
+                        >
+                          <Copy className="w-4 h-4" />
+                          Copiar
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-gray-500 mt-2">
+                        {docsComplete
+                          ? '✓ Todos los documentos han sido recibidos'
+                          : `Faltan ${stats.documentosPendientes} documento(s) por recibir`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Sidebar - Right Side */}
       <aside
         className={`${
           isOpen ? 'w-56' : 'w-16'
-        } bg-background border-r transition-all duration-300 ease-in-out flex flex-col`}
+        } bg-background border-l transition-all duration-300 ease-in-out flex flex-col`}
       >
         {/* Header */}
         <div className="px-3 py-3 border-b flex items-center justify-center">
@@ -478,376 +847,6 @@ const DashboardSidebarPage: React.FC = () => {
           </div>
         )}
       </aside>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <header className="bg-background border-b px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">
-              Panel de Control
-            </h1>
-            <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
-              <Link to="/escritorio/profile">
-                <User className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 overflow-y-auto">
-          <div className="max-w-7xl mx-auto space-y-4">
-            {/* Limit Warning */}
-            {stats.enviadas > 1 && (
-              <Card className="border-2 border-yellow-500 bg-yellow-50">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-yellow-800">
-                        Aviso: Solo se permite 1 solicitud enviada a la vez
-                      </p>
-                      <p className="text-sm text-yellow-700">
-                        Actualmente tienes {stats.enviadas} solicitudes enviadas. Por favor, contacta a soporte.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Stats Cards Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Borradores - Clickable */}
-              <div
-                className="cursor-pointer"
-                onClick={() => setShowDrafts(!showDrafts)}
-              >
-                <Card className="border-2 hover:border-gray-400 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <FileText className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Borradores</p>
-                      <p className="text-3xl font-bold text-gray-800">{stats.borradores}</p>
-                      {stats.borradores > 0 && (
-                        <div className="mt-2">
-                          {showDrafts ? <ChevronUp className="w-4 h-4 mx-auto" /> : <ChevronDown className="w-4 h-4 mx-auto" />}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Enviadas - Clickable */}
-              <div
-                className="cursor-pointer"
-                onClick={() => setShowSubmitted(!showSubmitted)}
-              >
-                <Card className="border-2 hover:border-blue-400 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <FileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Enviadas</p>
-                      <p className="text-3xl font-bold text-gray-800">{stats.enviadas}</p>
-                      {stats.enviadas > 0 && (
-                        <div className="mt-2">
-                          {showSubmitted ? <ChevronUp className="w-4 h-4 mx-auto" /> : <ChevronDown className="w-4 h-4 mx-auto" />}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Docs Pendientes */}
-              <Card className={`border-2 ${docsComplete ? 'border-green-500 bg-green-50' : ''}`}>
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    {docsComplete ? (
-                      <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    ) : (
-                      <FileText className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                    )}
-                    <p className="text-sm text-gray-600">Docs. Pendientes</p>
-                    <p className={`text-3xl font-bold ${docsComplete ? 'text-green-600' : 'text-gray-800'}`}>
-                      {stats.documentosPendientes}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Estado de Solicitud */}
-              <Card className={`border-2 ${statusConfig.bgColor}`}>
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <MapPin className={`w-8 h-8 ${statusConfig.textColor} mx-auto mb-2`} />
-                    <p className={`text-sm ${statusConfig.textColor} opacity-90`}>Estado</p>
-                    <p className={`text-xl font-bold ${statusConfig.textColor}`}>
-                      {statusConfig.label}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Dropdown Lists */}
-            {showDrafts && draftApplications.length > 0 && (
-              <Card className="border-2 border-gray-300">
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-gray-800 mb-3">Borradores</h3>
-                  <div className="space-y-2">
-                    {draftApplications.map((app) => (
-                      <Link
-                        key={app.id}
-                        to={`/escritorio/aplicacion/${app.id}`}
-                        className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {app.car_info?.title || 'Solicitud sin vehículo'}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              Creada: {formatDate(app.created_at)}
-                            </p>
-                          </div>
-                          <span className="text-xs bg-gray-200 px-2 py-1 rounded">
-                            Borrador
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {showSubmitted && submittedApplications.length > 0 && (
-              <Card className="border-2 border-blue-300">
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-gray-800 mb-3">Solicitudes Enviadas</h3>
-                  <div className="space-y-2">
-                    {submittedApplications.map((app) => (
-                      <Link
-                        key={app.id}
-                        to={`/escritorio/seguimiento/${app.id}`}
-                        className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {app.car_info?.title || 'Solicitud sin vehículo'}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              Enviada: {formatDate(app.created_at)}
-                            </p>
-                          </div>
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            app.status === 'approved' ? 'bg-green-200 text-green-800' :
-                            app.status === 'pending' ? 'bg-yellow-200 text-yellow-800' :
-                            'bg-blue-200 text-blue-800'
-                          }`}>
-                            {getStatusConfig(app.status).label}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Progress Bar with Motivational Message */}
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                      Progreso del Proceso
-                    </h3>
-                    <p className="text-sm font-medium text-primary-600">
-                      {motivationalMessage}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-bold text-gray-800">{stats.progreso}%</span>
-                  </div>
-                </div>
-                <Progress value={stats.progreso} className="h-3" />
-              </CardContent>
-            </Card>
-
-            {/* Action Cards Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Mi Perfil con check sutil */}
-              <Link to="/escritorio/profile">
-                <Card className={`border-2 hover:border-primary-500 transition-colors cursor-pointer h-full ${
-                  stats.profileComplete ? 'border-green-300 bg-green-50' : ''
-                }`}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      {stats.profileComplete ? (
-                        <div className="relative">
-                          <User className="w-8 h-8 text-primary-600" />
-                          <CheckCircle className="w-4 h-4 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
-                        </div>
-                      ) : (
-                        <User className="w-8 h-8 text-primary-600" />
-                      )}
-                      <div>
-                        <p className="font-semibold text-gray-800">Mi Perfil</p>
-                        <p className="text-sm text-gray-600">
-                          {stats.profileComplete ? 'Completado ✓' : 'Actualiza tu información'}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Perfilación Bancaria con check sutil */}
-              <Link to="/escritorio/perfilacion-bancaria">
-                <Card className={`border-2 hover:border-primary-500 transition-colors cursor-pointer h-full ${
-                  stats.bankProfileComplete ? 'border-green-300 bg-green-50' : ''
-                }`}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      {stats.bankProfileComplete ? (
-                        <div className="relative">
-                          <CreditCard className="w-8 h-8 text-primary-600" />
-                          <CheckCircle className="w-4 h-4 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
-                        </div>
-                      ) : (
-                        <CreditCard className="w-8 h-8 text-primary-600" />
-                      )}
-                      <div>
-                        <p className="font-semibold text-gray-800">Perfilación Bancaria</p>
-                        <p className="text-sm text-gray-600">
-                          {stats.bankProfileComplete ? 'Completado ✓' : 'Completa tu perfil'}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Vehículo Seleccionado */}
-              {selectedVehicle ? (
-                <Link to={`/autos/${selectedVehicle.slug || selectedVehicle.id}`}>
-                  <Card className="border-2 hover:border-primary-500 transition-colors cursor-pointer h-full">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        {selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0] ? (
-                          <img
-                            src={selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0]}
-                            alt={selectedVehicle.titulo}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                        ) : (
-                          <Car className="w-16 h-16 text-primary-600" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-800 truncate">
-                            {selectedVehicle.titulo || 'Vehículo'}
-                          </p>
-                          <p className="text-xs text-gray-500">ID: {selectedVehicle.id}</p>
-                          <p className="text-sm text-gray-600">Ver detalles</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ) : (
-                <Link to="/autos">
-                  <Card className="border-2 border-dashed hover:border-primary-500 transition-colors cursor-pointer h-full">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3">
-                        <Car className="w-8 h-8 text-gray-400" />
-                        <div>
-                          <p className="font-semibold text-gray-600">Sin vehículo</p>
-                          <p className="text-sm text-gray-500">Selecciona uno</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              )}
-            </div>
-
-            {/* Dropzone Section with QR and Link */}
-            {publicUploadLink && latestApplication && (
-              <Card className="border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white">
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row items-start gap-6">
-                    {/* QR Code */}
-                    <div className="flex-shrink-0 mx-auto md:mx-0">
-                      <div className="bg-white p-4 rounded-lg shadow-md">
-                        <QRCodeSVG
-                          value={publicUploadLink}
-                          size={120}
-                          level="H"
-                          includeMargin={true}
-                        />
-                      </div>
-                      <p className="text-xs text-center text-gray-600 mt-2">
-                        Escanea para subir
-                      </p>
-                    </div>
-
-                    {/* Dropzone Info */}
-                    <div className="flex-1 w-full">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="relative">
-                          <Upload className="w-8 h-8 text-primary-600" />
-                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-800">
-                            Zona de Carga de Documentos
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            Comparte este link o QR para recibir documentos
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Link con botón copiar */}
-                      <div className="flex items-center gap-2 bg-white p-3 rounded-lg border-2 border-gray-200">
-                        <input
-                          type="text"
-                          value={publicUploadLink}
-                          readOnly
-                          className="flex-1 text-sm text-gray-700 bg-transparent outline-none"
-                        />
-                        <button
-                          onClick={copyToClipboard}
-                          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm font-medium"
-                        >
-                          <Copy className="w-4 h-4" />
-                          Copiar
-                        </button>
-                      </div>
-
-                      <p className="text-xs text-gray-500 mt-2">
-                        {docsComplete
-                          ? '✓ Todos los documentos han sido recibidos'
-                          : `Faltan ${stats.documentosPendientes} documento(s) por recibir`
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </main>
-      </div>
     </div>
   );
 };

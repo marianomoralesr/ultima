@@ -7,7 +7,9 @@ import PrintableApplication from '../components/PrintableApplication';
 import { UserDataService } from '../services/UserDataService';
 import { PrintIcon, WhatsAppIcon } from '../components/icons';
 import { APPLICATION_STATUS, getStatusConfig, type ApplicationStatus } from '../constants/applicationStatus';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import PublicUploadLinkCard from '../components/PublicUploadLinkCard';
 
 interface ApplicationData {
   id: string;
@@ -17,6 +19,7 @@ interface ApplicationData {
   personal_info_snapshot: any;
   selected_banks: string[];
   application_data: any;
+  public_upload_token: string | null;
 }
 
 const statusMap: Record<string, { text: string; icon: any; color: string; bgColor: string }> = {
@@ -38,6 +41,7 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
     const { text, icon: Icon, color, bgColor } = statusMap[application.status] || statusMap.draft;
     const profile = application.personal_info_snapshot || {};
     const carInfo = application.car_info || {};
+    const [showPrintablePreview, setShowPrintablePreview] = useState(true);
 
     const getStatusDescription = () => {
         switch(application.status) {
@@ -49,7 +53,7 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
                 return `¡Felicidades, ${profile.first_name}! Hemos recibido tu solicitud y nuestro equipo ya la está revisando. Normalmente, recibirás una respuesta en las próximas 24 horas hábiles.`;
             case APPLICATION_STATUS.FALTAN_DOCUMENTOS:
             case APPLICATION_STATUS.PENDING_DOCS:
-                return 'Hemos revisado tu solicitud, pero necesitamos que subas algunos documentos para continuar. Por favor, ve a tu dashboard para completar este paso.';
+                return 'Hemos revisado tu solicitud, pero necesitamos que subas algunos documentos para continuar. Por favor, usa la sección de carga de documentos más abajo.';
             case APPLICATION_STATUS.APROBADA:
             case APPLICATION_STATUS.APPROVED:
                 return '¡Excelentes noticias! Tu solicitud de financiamiento ha sido aprobada. Un asesor se pondrá en contacto contigo para coordinar los siguientes pasos.';
@@ -65,55 +69,139 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
     return (
         <>
             {/* --- ON-SCREEN VIEW --- */}
-            <div className="space-y-8 no-print">
-                {/* Status Header */}
-                <div className={`p-6 rounded-xl text-center ${bgColor}`}>
-                    <Icon className={`w-16 h-16 ${color} mx-auto mb-4`} />
-                    <h2 className={`text-2xl font-bold ${color}`}>{text}</h2>
-                    <p className="text-gray-500 mt-1">Solicitud #{application.id.substring(0, 8)}...</p>
-                </div>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    <div className="lg:col-span-2 space-y-6">
+            <div className="space-y-4 sm:space-y-6 no-print">
+                {/* Status Header - BIG AND BOLD */}
+                <Card className={`${bgColor} border-none shadow-lg`}>
+                    <CardContent className="p-6 sm:p-8 text-center">
+                        <Icon className={`w-16 h-16 sm:w-20 sm:h-20 ${color} mx-auto mb-3 sm:mb-4`} />
+                        <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black ${color} mb-1 sm:mb-2`}>{text}</h1>
+                        <p className="text-base sm:text-lg text-gray-600">Solicitud #{application.id.substring(0, 8)}</p>
+                    </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                         {/* Next Steps / Summary */}
-                        <div className="p-6 bg-white rounded-xl shadow-sm border">
-                            <h3 className="font-bold text-gray-800">Resumen y Próximos Pasos</h3>
-                            <p className="text-sm text-gray-600 mt-2">{getStatusDescription()}</p>
-                        </div>
+                        <Card>
+                            <CardHeader>
+                                <h3 className="text-lg sm:text-xl font-bold text-gray-900">Resumen y Próximos Pasos</h3>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{getStatusDescription()}</p>
+                            </CardContent>
+                        </Card>
 
                         {/* Vehicle Info */}
                         {carInfo._vehicleTitle && (
-                            <div className="p-6 bg-white rounded-xl shadow-sm border">
-                                <h3 className="font-bold text-gray-800 mb-4">Vehículo en tu Solicitud</h3>
-                                <div className="flex items-center gap-4">
-                                    <img src={carInfo._featureImage} alt={carInfo._vehicleTitle} className="w-24 h-20 object-cover rounded-md flex-shrink-0" />
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900">{carInfo._vehicleTitle}</h4>
-                                        <p className="text-sm text-gray-500">Orden de Compra: {carInfo._ordenCompra}</p>
+                            <Card>
+                                <CardHeader>
+                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                                        <Car className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
+                                        Vehículo en tu Solicitud
+                                    </h3>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center gap-3 sm:gap-4">
+                                        <img src={carInfo._featureImage} alt={carInfo._vehicleTitle} className="w-24 h-18 sm:w-32 sm:h-24 object-cover rounded-lg flex-shrink-0 shadow-sm" />
+                                        <div>
+                                            <h4 className="font-bold text-base sm:text-lg text-gray-900">{carInfo._vehicleTitle}</h4>
+                                            <p className="text-xs sm:text-sm text-gray-600 mt-1">Orden de Compra: <span className="font-semibold">{carInfo._ordenCompra}</span></p>
+                                            {carInfo._precioFormateado && (
+                                                <p className="text-xs sm:text-sm text-primary-600 font-semibold mt-1">{carInfo._precioFormateado}</p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         )}
+
+                        {/* Document Upload Instructions & Widget */}
+                        <Card className="border-2 border-primary-200 bg-primary-50/30">
+                            <CardHeader>
+                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
+                                    Carga de Documentos
+                                </h3>
+                            </CardHeader>
+                            <CardContent className="space-y-3 sm:space-y-4">
+                                <div className="bg-white rounded-lg p-3 sm:p-4 border border-primary-200">
+                                    <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Documentos Requeridos:</h4>
+                                    <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
+                                        <li className="flex items-start gap-2">
+                                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                            <span><strong>INE</strong> (frente y reverso, legible)</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                            <span><strong>Comprobante de domicilio</strong> (no mayor a 3 meses)</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                            <span><strong>Comprobante de ingresos</strong> (recibo de nómina, estados de cuenta)</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                            <span><strong>Constancia fiscal</strong> (si eres persona física con actividad empresarial)</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {/* Public Upload Link */}
+                                {application.public_upload_token && (
+                                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 sm:p-4">
+                                        <PublicUploadLinkCard token={application.public_upload_token} />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Printable Application Preview - Open on Page Load */}
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <h3 className="text-base sm:text-xl font-bold text-gray-900">Vista Previa de tu Solicitud</h3>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowPrintablePreview(!showPrintablePreview)}
+                                    className="min-h-[40px] touch-manipulation"
+                                >
+                                    {showPrintablePreview ? <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-2" /> : <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-2" />}
+                                    <span className="hidden sm:inline">{showPrintablePreview ? 'Ocultar' : 'Mostrar'}</span>
+                                </Button>
+                            </CardHeader>
+                            {showPrintablePreview && (
+                                <CardContent>
+                                    <div className="border-2 border-gray-200 rounded-lg p-2 sm:p-4 bg-white max-h-[600px] sm:max-h-[800px] overflow-y-auto">
+                                        <PrintableApplication application={application} />
+                                    </div>
+                                </CardContent>
+                            )}
+                        </Card>
                     </div>
 
-                    <div className="space-y-6 lg:sticky lg:top-24">
-                        <div className="p-6 bg-white rounded-xl shadow-sm border">
-                            <h3 className="font-bold text-gray-800 mb-4">Acciones</h3>
-                            <div className="space-y-3">
+                    <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-24">
+                        <Card>
+                            <CardHeader>
+                                <h3 className="text-base sm:text-lg font-bold text-gray-900">Acciones</h3>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
                                 <a href={`https://wa.me/5218187049079?text=Hola,%20quisiera%20dar%20seguimiento%20a%20mi%20solicitud%20${application.id.substring(0,8)}`}
                                 target="_blank" rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 text-white font-semibold text-sm rounded-lg hover:bg-green-600 transition-colors">
-                                    <WhatsAppIcon className="w-5 h-5" /> Contactar Asesor
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 min-h-[48px] bg-green-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md touch-manipulation">
+                                    <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5" /> Contactar Asesor
                                 </a>
-                                <button onClick={() => window.print()} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-600 text-white font-semibold text-sm rounded-lg hover:bg-gray-700 transition-colors">
-                                    <PrintIcon className="w-5 h-5" /> Imprimir / Guardar PDF
+                                <button onClick={() => window.print()} className="w-full flex items-center justify-center gap-2 px-4 py-3 min-h-[48px] bg-gray-700 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-gray-800 transition-colors shadow-sm hover:shadow-md touch-manipulation">
+                                    <PrintIcon className="w-4 h-4 sm:w-5 sm:h-5" /> Imprimir / Guardar PDF
                                 </button>
-                            </div>
-                        </div>
+                                <Link to={`/escritorio/aplicacion/${application.id}`} className="w-full flex items-center justify-center gap-2 px-4 py-3 min-h-[48px] bg-primary-600 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-primary-700 transition-colors shadow-sm hover:shadow-md touch-manipulation">
+                                    <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Editar Solicitud
+                                </Link>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>
-            
+
             {/* --- PRINT-ONLY VIEW --- */}
             <div className="print-only">
                 <PrintableApplication application={application} />

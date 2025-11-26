@@ -356,8 +356,9 @@ class ConversionTrackingService {
 
   /**
    * Core tracking method - sends to all configured platforms
+   * Made public to allow custom event tracking from components
    */
-  private async track(eventType: string, eventName: string, metadata: ConversionMetadata = {}): Promise<void> {
+  async track(eventType: string, eventName: string, metadata: ConversionMetadata = {}): Promise<void> {
     // Get UTM parameters from sessionStorage
     const leadSourceData = sessionStorage.getItem('leadSourceData');
     let utmParams: any = {};

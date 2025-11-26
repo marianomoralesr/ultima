@@ -46,7 +46,7 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Progressive animation with increasing speed
+  // Progressive animation with increasing speed - optimized with proper cleanup
   useEffect(() => {
     if (visibleCount >= gridVehicles.length) return;
 
@@ -55,12 +55,17 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     const currentSpeed = Math.max(50, 400 - (visibleCount * 8));
 
     const timer = setTimeout(() => {
-      setVisibleCount(prev => prev + 1);
+      setVisibleCount(prev => Math.min(prev + 1, gridVehicles.length));
       setAnimationSpeed(currentSpeed);
     }, currentSpeed);
 
     return () => clearTimeout(timer);
   }, [visibleCount, gridVehicles.length]);
+
+  // Reset animation when vehicles change
+  useEffect(() => {
+    setVisibleCount(0);
+  }, [gridVehicles]);
 
   // Calculate gradient overlay style
   const getGradientStyle = () => {
@@ -161,17 +166,22 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
                 padding: 0,
                 display: 'block',
                 lineHeight: 0,
+                willChange: isVisible ? 'opacity, transform' : 'auto',
               }}
             >
               <motion.div
-                animate={{
+                animate={isVisible ? {
                   x: [0, rowDirection * 5, 0], // Whole row slides slowly
-                }}
+                } : false}
                 transition={{
                   duration: 12 + row * 2, // Varying duration per row
                   repeat: Infinity,
                   ease: "easeInOut",
                   delay: row * 0.5, // Stagger by row
+                  repeatType: "loop",
+                }}
+                style={{
+                  willChange: isVisible ? 'transform' : 'auto',
                 }}
                 className="w-full h-full"
               >
@@ -180,6 +190,7 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
                   alt={vehicle.titulo}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
               </motion.div>
             </motion.div>

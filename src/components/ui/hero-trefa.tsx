@@ -97,20 +97,29 @@ function HeroTrefa() {
     return () => clearTimeout(timer);
   }, [currentStep]);
 
-  // Animation sequence using useEffect to create the loop - More subtle animation
+  // Animation sequence using useEffect to create the loop - More subtle animation with proper cleanup
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const animationSequence = async () => {
+      if (!isMounted) return;
+
       // Step 1: Animate first div from left 0% to 100% - slower and smoother
       await firstDivControls.start({
         left: "95%",
         transition: { duration: 8, ease: [0.25, 0.1, 0.25, 1] },
       });
 
+      if (!isMounted) return;
+
       // Step 2: Fade out first div gently
       await firstDivControls.start({
         opacity: 0,
         transition: { duration: 1, ease: "easeOut" },
       });
+
+      if (!isMounted) return;
 
       // Step 3: Reset first div position (instantly)
       firstDivControls.set({ left: "0%" });
@@ -121,11 +130,15 @@ function HeroTrefa() {
         transition: { duration: 1, ease: "easeIn" },
       });
 
+      if (!isMounted) return;
+
       // Step 5: Animate second div from left 0% to 100% - slower and smoother
       await secondDivControls.start({
         left: "95%",
         transition: { duration: 8, ease: [0.25, 0.1, 0.25, 1] },
       });
+
+      if (!isMounted) return;
 
       // Step 6: Fade out second div gently
       await secondDivControls.start({
@@ -133,21 +146,40 @@ function HeroTrefa() {
         transition: { duration: 1, ease: "easeOut" },
       });
 
+      if (!isMounted) return;
+
       // Step 7: Reset second div position (instantly)
       secondDivControls.set({ left: "0%" });
 
       // Step 8: Show first div again gently
-      firstDivControls.start({
+      await firstDivControls.start({
         opacity: 1,
         transition: { duration: 1, ease: "easeIn" },
       });
 
+      if (!isMounted) return;
+
       // Longer delay before restarting the sequence
-      setTimeout(animationSequence, 1000);
+      timeoutId = setTimeout(() => {
+        if (isMounted) {
+          animationSequence();
+        }
+      }, 1000);
     };
 
     // Start the animation sequence
     animationSequence();
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      // Stop all ongoing animations
+      firstDivControls.stop();
+      secondDivControls.stop();
+    };
   }, [firstDivControls, secondDivControls]);
 
   return (
@@ -159,16 +191,16 @@ function HeroTrefa() {
       <AnimatedVehicleGrid maxVehicles={30} gradientDirection="diagonal" />
       <section className="w-full pt-16 pb-28 md:grid md:grid-cols-2 flex flex-col md:items-start max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
         <article className="space-y-5 flex-col flex justify-start text-left pb-10 md:pt-12">
-          <a
-            href="/perfilacion-bancaria"
+          <Link
+            to="/financiamientos"
             className="bg-white/70 backdrop-blur-sm sm:text-sm text-xs w-fit p-1 flex gap-1.5 items-center shadow-[0px_1px_4px_rgba(0,0,0,0.1),_0px_1px_1px_rgba(0,0,0,0.15)] rounded-full hover:shadow-lg transition-shadow"
           >
             <span className="bg-[#FF6801] border-[#E65D00] border [box-shadow:inset_0px_-2px_6px_2px_#ff8533,inset_0px_4px_6px_2px_#ffa366] p-1 inline-block rounded-full px-2.5 text-white">
               Nuevo
             </span>
-            <p>portal de financiamiento automotriz</p>
+            <p>Portal de Financiamiento Automotriz, 100% Digital</p>
             <ChevronRight />
-          </a>
+          </Link>
 
           <TimelineContent
             animationNum={0}

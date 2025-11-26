@@ -246,6 +246,8 @@ const ProfilePage: React.FC = () => {
             };
 
             await ProfileService.updateProfile(payload);
+            // Reload profile after auto-save to keep context in sync
+            await reloadProfile();
             console.log('Auto-saved profile');
           } catch (error) {
             console.error('Auto-save error:', error);
@@ -257,7 +259,7 @@ const ProfilePage: React.FC = () => {
     });
 
     return subscription.unsubscribe;
-  }, [watchProfileFields, saveState, user, profile]);
+  }, [watchProfileFields, saveState, user, profile, reloadProfile]);
 
   const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -342,6 +344,7 @@ const ProfilePage: React.FC = () => {
       setIsProfileComplete(isComplete);
 
       if (isComplete) {
+        // Track PersonalInformationComplete event
         conversionTracking.trackProfile.updated({
           userId: user.id,
           email: user.email,
@@ -349,12 +352,11 @@ const ProfilePage: React.FC = () => {
           hasProfilePicture: !!pictureUrl,
           asesorAutorizado: !!payload.asesor_autorizado_acceso
         });
-      }
 
-      setSaveState('saved');
+        setSaveState('saved');
+        toast.success('¡Perfil completado! Redirigiendo a perfilación bancaria...');
 
-      if (isComplete) {
-        toast.success('¡Perfil guardado! Redirigiendo a perfilación bancaria...');
+        // Automatic redirect to perfilacion bancaria
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
           setTimeout(() => {
@@ -362,7 +364,10 @@ const ProfilePage: React.FC = () => {
           }, 300);
         }, 1500);
       } else {
-        toast.info('Progreso guardado. Completa todos los campos obligatorios para continuar a perfilación bancaria.');
+        setSaveState('saved');
+        toast.info('Progreso guardado. Completa todos los campos obligatorios para continuar.');
+        // Reset save state after showing feedback
+        setTimeout(() => setSaveState('idle'), 2000);
       }
 
     } catch (error) {
@@ -404,7 +409,8 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const progress = (currentStep / STEPS.length) * 100;
+  // Calculate progress: if profile is complete, always show 100%, otherwise show current step progress
+  const progress = isProfileComplete ? 100 : (currentStep / STEPS.length) * 100;
 
   if (loading) {
     return (
@@ -451,13 +457,17 @@ const ProfilePage: React.FC = () => {
                 {isProfileComplete ? '100% - ¡Perfil completado!' : `Paso ${currentStep} de ${STEPS.length}`}
               </span>
             </div>
-            <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-200' : ''}`} />
+            <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-500' : ''}`} />
             <div className="flex justify-between mt-2">
               {STEPS.map((step) => (
                 <div
                   key={step.id}
                   className={`text-xs text-center flex-1 ${
-                    step.id === currentStep
+                    isProfileComplete
+                      ? step.id === currentStep
+                        ? 'text-green-700 font-bold'
+                        : 'text-green-500 font-medium'
+                      : step.id === currentStep
                       ? 'text-green-700 font-bold'
                       : step.id < currentStep
                       ? 'text-green-500 font-medium'

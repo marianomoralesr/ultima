@@ -4,19 +4,13 @@ import {
   Users, TrendingUp, BookOpen, Settings, Briefcase,
   BarChart3, FileText, Database, LayoutDashboard, Activity, Home, Camera, ClipboardCheck
 } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-
-interface EventStat {
-  event_name: string;
-  event_count: number;
-  unique_users: number;
-}
+import { MetricsService, type EventTypeMetrics } from '../services/MetricsService';
 
 const MarketingHubPage: React.FC = () => {
-  const [eventStats, setEventStats] = useState<EventStat[]>([]);
+  const [eventStats, setEventStats] = useState<EventTypeMetrics[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,37 +18,14 @@ const MarketingHubPage: React.FC = () => {
   }, []);
 
   const loadEventStats = async () => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('tracking_events')
-        .select('event_name, event_type, user_id, session_id, created_at')
-        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: false });
+      // Calcular fecha de hace 7 días
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const today = new Date().toISOString().split('T')[0];
 
-      if (error) throw error;
-
-      // Aggregate event data
-      const eventMap = new Map<string, { count: number; users: Set<string> }>();
-
-      data?.forEach(event => {
-        // Use event_type as primary, fallback to event_name
-        const eventKey = event.event_type || event.event_name;
-        if (!eventMap.has(eventKey)) {
-          eventMap.set(eventKey, { count: 0, users: new Set() });
-        }
-        const stat = eventMap.get(eventKey)!;
-        stat.count++;
-        // Count unique users by user_id (more accurate than session_id)
-        if (event.user_id) stat.users.add(event.user_id);
-      });
-
-      const stats: EventStat[] = Array.from(eventMap.entries()).map(([name, data]) => ({
-        event_name: name,
-        event_count: data.count,
-        unique_users: data.users.size,
-      }));
-
-      stats.sort((a, b) => b.event_count - a.event_count);
+      // Usar MetricsService para obtener eventos confiables
+      const stats = await MetricsService.getEventTypeMetrics(sevenDaysAgo, today);
       setEventStats(stats);
     } catch (error) {
       console.error('Error loading event stats:', error);
@@ -83,10 +54,10 @@ const MarketingHubPage: React.FC = () => {
       link: '/intel',
     },
     {
-      title: 'Business Analytics',
-      description: 'Métricas de rendimiento, KPIs y análisis de negocio',
-      icon: BarChart3,
-      link: '/escritorio/admin/business-analytics',
+      title: 'Dashboard Administrativo',
+      description: 'Dashboard unificado con métricas de marketing y negocio',
+      icon: LayoutDashboard,
+      link: '/escritorio/dashboard',
     },
     {
       title: 'Configuración de Tracking',
@@ -135,12 +106,6 @@ const MarketingHubPage: React.FC = () => {
       description: 'Gestión de reportes de inspección de 150 puntos',
       icon: ClipboardCheck,
       link: '/escritorio/admin/inspecciones',
-    },
-    {
-      title: 'Dashboard Principal',
-      description: 'Vista general con métricas clave y accesos rápidos',
-      icon: LayoutDashboard,
-      link: '/escritorio/dashboard',
     },
   ];
 
@@ -206,16 +171,18 @@ const MarketingHubPage: React.FC = () => {
             <div className="space-y-2">
               {eventStats.map((stat) => (
                 <div
-                  key={stat.event_name}
+                  key={stat.type}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
                 >
                   <div>
-                    <p className="font-medium">{stat.event_name}</p>
+                    <p className="font-medium">{stat.type}</p>
                     <p className="text-sm text-muted-foreground">
                       {stat.unique_users} usuario{stat.unique_users !== 1 ? 's' : ''} único{stat.unique_users !== 1 ? 's' : ''}
+                      {' • '}
+                      {stat.percentage.toFixed(1)}% del total
                     </p>
                   </div>
-                  <Badge variant="secondary">{stat.event_count} eventos</Badge>
+                  <Badge variant="secondary">{stat.count} eventos</Badge>
                 </div>
               ))}
             </div>

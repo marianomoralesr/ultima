@@ -271,6 +271,40 @@ const ProfilePage: React.FC = () => {
     }
   };
   
+  // New function to handle save with validation but always save
+  const handleSaveProfile = async () => {
+    if (!user) return;
+
+    // Trigger validation to show errors
+    const isValid = await profileForm.trigger();
+
+    // Get current values regardless of validation
+    const currentValues = profileForm.getValues();
+
+    // If not valid, show specific error message but still save
+    if (!isValid) {
+      const errors = profileForm.formState.errors;
+      const missingFields: string[] = [];
+
+      if (errors.first_name) missingFields.push('Nombre');
+      if (errors.last_name) missingFields.push('Apellido Paterno');
+      if (errors.mother_last_name) missingFields.push('Apellido Materno');
+      if (errors.phone) missingFields.push('Teléfono');
+      if (errors.birth_date) missingFields.push('Fecha de Nacimiento');
+      if (errors.homoclave) missingFields.push('Homoclave');
+      if (errors.fiscal_situation) missingFields.push('Situación Fiscal');
+      if (errors.civil_status) missingFields.push('Estado Civil');
+      if (errors.rfc) missingFields.push('RFC');
+
+      if (missingFields.length > 0) {
+        toast.warning(`Guardando progreso. Campos faltantes: ${missingFields.join(', ')}`);
+      }
+    }
+
+    // Continue with save using current values
+    await handleProfileUpdate(currentValues);
+  };
+
   const handleProfileUpdate = async (data: ProfileFormData) => {
     if (!user) return;
     setSaveState('saving');
@@ -284,9 +318,9 @@ const ProfilePage: React.FC = () => {
       // Normalize names to Title Case
       const normalizedData = {
         ...data,
-        first_name: normalizeNameToTitleCase(data.first_name),
-        last_name: normalizeNameToTitleCase(data.last_name),
-        mother_last_name: normalizeNameToTitleCase(data.mother_last_name),
+        first_name: data.first_name ? normalizeNameToTitleCase(data.first_name) : data.first_name,
+        last_name: data.last_name ? normalizeNameToTitleCase(data.last_name) : data.last_name,
+        mother_last_name: data.mother_last_name ? normalizeNameToTitleCase(data.mother_last_name) : data.mother_last_name,
         spouse_name: data.spouse_name ? normalizeNameToTitleCase(data.spouse_name) : undefined,
       };
 
@@ -344,7 +378,7 @@ const ProfilePage: React.FC = () => {
           }, 300);
         }, 1500); // Reduced from 4000ms to 1500ms
       } else {
-        toast.success('Perfil guardado. Completa todos los campos para continuar.');
+        toast.info('Progreso guardado. Completa todos los campos obligatorios para continuar a perfilación bancaria.');
       }
 
     } catch (error) {
@@ -387,7 +421,7 @@ const ProfilePage: React.FC = () => {
       <div className="space-y-4 sm:space-y-6 lg:space-y-8">
 
         {/* Profile Information */}
-        <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="text-gray-900">
+        <form onSubmit={(e) => e.preventDefault()} className="text-gray-900">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
               <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
@@ -663,7 +697,8 @@ const ProfilePage: React.FC = () => {
 
           <div className="flex justify-end pt-4">
             <button
-              type="submit"
+              type="button"
+              onClick={handleSaveProfile}
               disabled={saveState === 'saving'}
               className={`inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70 touch-manipulation min-h-[44px] w-full sm:w-auto
                 ${saveState === 'saved'

@@ -404,7 +404,11 @@ const PerfilacionBancariaPage: React.FC = () => {
                  <IncomeRadioField control={control} name="ingreso_mensual" label="Ingresos mensuales comprobables" options={["Menos de $15,000", "$15,000 - $25,000", "$25,001 - $40,000"]} error={errors.ingreso_mensual?.message} />
 
                 <div className="pt-4 flex justify-end">
-                    <button type="submit" disabled={isSubmitting} className="inline-flex items-center justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 disabled:opacity-50">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="inline-flex items-center justify-center py-3 px-8 border border-transparent shadow-sm text-base font-bold rounded-lg text-white bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer select-none active:scale-[0.98] transition-transform"
+                    >
                         {isSubmitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Guardando...</> : 'Guardar y Analizar Perfil'}
                     </button>
                 </div>
@@ -458,7 +462,7 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
                             type="button"
                             key={opt}
                             onClick={() => handleOptionClick(opt)}
-                            className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 active:scale-[0.98]
+                            className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none
                                 ${isSelected
                                     ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                     : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -501,7 +505,7 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
                         type="button"
                         key={opt}
                         onClick={() => field.onChange(opt)}
-                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 touch-manipulation active:scale-[0.98]
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -527,7 +531,7 @@ const RadioField: React.FC<{ control: any, name: any, label: string, options: st
                         type="button"
                         key={opt}
                         onClick={() => field.onChange(opt)}
-                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 touch-manipulation active:scale-[0.98]
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors touch-manipulation cursor-pointer select-none
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'

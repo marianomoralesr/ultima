@@ -432,7 +432,31 @@ const DashboardLayout: React.FC = () => {
 
                             {/* Main Navigation */}
                             <div className="flex-1 space-y-1">
-                                {navItems.map((item) => {
+                                {/* Admin Navigation for Mobile */}
+                                {isAdmin && adminNavItems.map((item) => {
+                                    const Icon = item.icon;
+                                    const active = isActiveLink(item.to, item.end);
+
+                                    return (
+                                        <Link
+                                            key={item.to}
+                                            to={item.to}
+                                            onClick={() => setIsMobileSidebarOpen(false)}
+                                            className={cn(
+                                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                                active
+                                                    ? "bg-accent text-accent-foreground"
+                                                    : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                        >
+                                            <Icon className="h-4 w-4" />
+                                            {item.label}
+                                        </Link>
+                                    );
+                                })}
+
+                                {/* Sales Navigation for Mobile */}
+                                {isSales && !isAdmin && salesNavItems.map((item) => {
                                     const Icon = item.icon;
                                     const active = isActiveLink(item.to, item.end);
 

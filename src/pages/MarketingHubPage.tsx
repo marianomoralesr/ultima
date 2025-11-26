@@ -103,12 +103,12 @@ const MarketingHubPage: React.FC = () => {
   const loadEventStats = async () => {
     setLoading(true);
     try {
-      // Calcular fecha de hace 7 días
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Calcular fecha de hace 90 días (3 meses) para mostrar todos los eventos recientes
+      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const today = new Date().toISOString().split('T')[0];
 
       // Usar MetricsService para obtener eventos confiables
-      const stats = await MetricsService.getEventTypeMetrics(sevenDaysAgo, today);
+      const stats = await MetricsService.getEventTypeMetrics(ninetyDaysAgo, today);
       setEventStats(stats);
     } catch (error) {
       console.error('Error loading event stats:', error);
@@ -317,7 +317,7 @@ const MarketingHubPage: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Eventos de Tracking (Últimos 7 días)</CardTitle>
+              <CardTitle>Eventos de Tracking (Últimos 90 días)</CardTitle>
               <CardDescription>
                 Todos los eventos registrados incluyendo PageView, ConversionLandingPage y más
               </CardDescription>

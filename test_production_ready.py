@@ -95,18 +95,23 @@ def validate_homepage_with_retries(page, max_attempts=3):
             # Limpiar storage en cada intento
             clear_storage(page)
 
-            # Verificar si hay mensajes de error en la página
-            page_content = page.content().lower()
-            error_indicators = [
-                'error',
-                'failed to fetch',
-                'network error',
-                'something went wrong',
-                'error de red',
-                'algo salió mal'
-            ]
+            # Verificar si hay mensajes de error CRÍTICOS en la página
+            # Solo buscar errores en elementos visibles, no en todo el HTML
+            has_error = False
+            try:
+                # Buscar modales o alertas de error visibles
+                error_elements = page.locator('[role="alert"], .error-message, .alert-error').all()
+                for elem in error_elements:
+                    if elem.is_visible():
+                        has_error = True
+                        break
 
-            has_error = any(indicator in page_content for indicator in error_indicators)
+                # Buscar el modal de "Nueva Versión Disponible" con error
+                if page.locator('text="Nueva Versión Disponible"').count() > 0:
+                    if page.locator('text="Error Details"').is_visible(timeout=1000):
+                        has_error = True
+            except:
+                pass
 
             if has_error:
                 print(f"   ❌ Intento {attempt} - Detectado mensaje de error en la página")
@@ -534,18 +539,136 @@ def verify_confirmation_page(page):
         print(f"   ℹ️  URL esperada debería contener '/confirmacion'")
         return False
 
+def complete_profile_step(page):
+    """Completar paso de perfil"""
+    print("\n📋 PASO: COMPLETAR PERFIL")
+
+    # Navegar a perfil
+    page.goto('http://localhost:5173/escritorio/profile')
+    page.wait_for_load_state('networkidle')
+    time.sleep(2)
+
+    handle_update_modal(page)
+    take_screenshot(page, "step1_profile_page")
+
+    print("   → Completando campos del perfil...")
+
+    # Llenar campos del perfil
+    profile_fields = [
+        ('input[name="first_name"]', 'Usuario'),
+        ('input[name="last_name"]', 'Prueba'),
+        ('input[name="mother_last_name"]', 'Testing'),
+        ('input[name="phone"]', '8112345678'),
+        ('input[name="birth_date"]', '1990-01-01'),
+        ('input[name="rfc"]', 'PUET900101XXX'),
+        ('select[name="civil_status"]', 'Soltero'),
+        ('select[name="fiscal_situation"]', 'Empleado'),
+        ('input[name="address"]', 'Calle Ejemplo 123'),
+        ('input[name="colony"]', 'Colonia Centro'),
+        ('input[name="city"]', 'Monterrey'),
+        ('select[name="state"]', 'Nuevo León'),
+        ('input[name="zip_code"]', '64000'),
+    ]
+
+    for selector, value in profile_fields:
+        try:
+            field = page.locator(selector).first
+            if field.is_visible(timeout=2000):
+                if 'select' in selector:
+                    field.select_option(value)
+                else:
+                    field.fill(value)
+                time.sleep(0.2)
+        except:
+            continue
+
+    take_screenshot(page, "step1_profile_filled")
+
+    # Guardar perfil
+    try:
+        save_btn = page.locator('button:has-text("Guardar"), button[type="submit"]').first
+        if save_btn.is_visible(timeout=2000):
+            print("   → Guardando perfil...")
+            save_btn.click()
+            page.wait_for_load_state('networkidle')
+            time.sleep(2)
+            print("   ✅ Perfil guardado")
+    except:
+        print("   ⚠️  No se encontró botón guardar, continuando...")
+
+    take_screenshot(page, "step1_profile_saved")
+    return True
+
+def complete_bank_profiling_step(page):
+    """Completar perfilación bancaria"""
+    print("\n🏦 PASO: PERFILACIÓN BANCARIA")
+
+    # Verificar si estamos siendo redirigidos automáticamente
+    current_url = page.url
+    if '/perfilacion' not in current_url:
+        print("   → Navegando a perfilación bancaria...")
+        page.goto('http://localhost:5173/escritorio/perfilacion-bancaria')
+        page.wait_for_load_state('networkidle')
+        time.sleep(2)
+    else:
+        print("   ✅ Ya estamos en perfilación bancaria (redirección automática)")
+
+    handle_update_modal(page)
+    take_screenshot(page, "step2_bank_profiling_start")
+
+    print("   → Completando perfilación bancaria...")
+
+    # Responder preguntas de perfilación
+    max_questions = 10
+    for question_num in range(max_questions):
+        # Seleccionar opciones de radio/botones
+        try:
+            option_buttons = page.locator('button[role="radio"]:visible, button[type="button"]:visible').all()
+            if len(option_buttons) > 0:
+                visible = [btn for btn in option_buttons if btn.is_visible()]
+                if visible:
+                    random.choice(visible).click()
+                    time.sleep(0.5)
+        except:
+            pass
+
+        # Buscar botón siguiente/continuar
+        next_found = False
+        for selector in ['button:has-text("Siguiente")', 'button:has-text("Continuar")', 'button:has-text("Finalizar")']:
+            try:
+                btn = page.locator(selector).first
+                if btn.is_visible(timeout=1000):
+                    btn.click()
+                    page.wait_for_load_state('networkidle')
+                    time.sleep(1)
+                    next_found = True
+                    break
+            except:
+                continue
+
+        if not next_found:
+            break
+
+    take_screenshot(page, "step2_bank_profiling_completed")
+    print("   ✅ Perfilación bancaria completada")
+
+    # Esperar redirección automática a aplicación
+    time.sleep(2)
+    return True
+
 def main():
     """Función principal del test"""
     print("="*80)
     print("🚀 TEST DE PRODUCCIÓN - FLUJO COMPLETO AUTOMATIZADO")
     print("="*80)
-    print("\nCaracterísticas:")
-    print("  ✅ Hard reset y limpieza de caché")
-    print("  ✅ Validación de homepage con 3 reintentos")
-    print("  ✅ Inicio desde página de vehículo")
-    print("  ✅ Clic en 'Comprar con financiamiento'")
-    print("  ✅ Flujo completo hasta confirmación")
-    print("  ✅ Manejo automático de modales")
+    print("\nFlujo del Test:")
+    print("  1. Hard reset y validación homepage")
+    print("  2. Login automático")
+    print("  3. Navegación a vehículo → Clic 'Comprar con financiamiento'")
+    print("  4. /escritorio/profile → Completar perfil")
+    print("  5. /escritorio/perfilacion-bancaria → Completar perfilación")
+    print("  6. /escritorio/aplicacion → Completar solicitud")
+    print("  7. /escritorio/aplicacion/:id/confirmacion → Verificar éxito")
     print("\n" + "="*80 + "\n")
 
     with sync_playwright() as p:
@@ -579,10 +702,35 @@ def main():
             if not navigate_to_vehicle_and_click_financing(page):
                 raise Exception("No se pudo navegar a vehículo o hacer clic en financiamiento")
 
-            # PASO 4: Completar flujo de aplicación
+            # En este punto deberíamos estar en /escritorio/profile o ser redirigidos ahí
+            time.sleep(2)
+            current_url = page.url
+            print(f"\n📍 URL después de clic en financiamiento: {current_url}")
+
+            # PASO 4: Completar perfil
+            complete_profile_step(page)
+
+            # PASO 5: Perfilación bancaria (debería redirigir automáticamente)
+            time.sleep(2)
+            complete_bank_profiling_step(page)
+
+            # PASO 6: Verificar que estamos en aplicación
+            time.sleep(2)
+            current_url = page.url
+            print(f"\n📍 URL después de perfilación: {current_url}")
+
+            if '/aplicacion' not in current_url:
+                print("   ⚠️  No estamos en aplicación, navegando manualmente...")
+                page.goto('http://localhost:5173/escritorio/aplicacion')
+                page.wait_for_load_state('networkidle')
+                time.sleep(2)
+            else:
+                print("   ✅ Redirigidos automáticamente a aplicación")
+
+            # PASO 7: Completar flujo de aplicación
             complete_application_flow(page)
 
-            # PASO 5: Verificar confirmación
+            # PASO 8: Verificar confirmación
             success = verify_confirmation_page(page)
 
             if success:

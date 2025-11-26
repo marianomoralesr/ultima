@@ -50,7 +50,8 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     utmSource?: string;
     utmCampaign?: string;
   }>({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    // Cambiar a 90 días (3 meses) para capturar todos los eventos recientes
+    startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
   });
 

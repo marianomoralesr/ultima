@@ -40,26 +40,40 @@ const UserDashboardLayout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [isAdminSidebarExpanded, setIsAdminSidebarExpanded] = useState(false);
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(true); // Default abierta
 
-    // Navigation items for regular users
-    const navItems = [
-        { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true },
-        { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
-        { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
-        { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
-        { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
-        { to: '/autos', label: 'Inventario', icon: Search },
-    ];
+    // Toggle sidebar manually
+    const toggleSidebar = () => {
+        setIsSidebarExpanded(!isSidebarExpanded);
+    };
 
-    // Admin navigation items (right sidebar)
-    const adminNavItems = [
-        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
-        { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
-        { to: '/escritorio/admin/marketing-analytics', label: 'Analytics', icon: BarChart3 },
-        { to: '/bancos/dashboard', label: 'Portal Bancario', icon: Building2 },
-        { to: '/escritorio/admin/config', label: 'Configuración', icon: Settings },
-    ];
+    // Unified navigation items based on role
+    const getNavItems = () => {
+        if (isAdmin) {
+            // Admin tiene acceso a todo: opciones de usuario + opciones de admin
+            return [
+                { to: '/escritorio', label: 'Mi Dashboard', icon: LayoutDashboard, end: true },
+                { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
+                { to: '/escritorio/dashboard', label: 'Dashboard Admin', icon: BarChart3, end: true },
+                { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+                { to: '/escritorio/admin/crm', label: 'CRM', icon: User },
+                { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: User },
+                { to: '/changelog', label: 'Changelog', icon: FileText },
+            ];
+        } else {
+            // Usuario regular
+            return [
+                { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true },
+                { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
+                { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
+                { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
+                { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
+                { to: '/autos', label: 'Inventario', icon: Search },
+            ];
+        }
+    };
+
+    const navItems = getNavItems();
 
     const secondaryNav = [
         { to: '/faq', label: 'Ayuda', icon: HelpCircle },
@@ -138,8 +152,16 @@ const UserDashboardLayout: React.FC = () => {
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-gray-50">
-            {/* Sidebar - Always expanded (256px) */}
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
+            {/* Unified Sidebar (Left) - Collapsible for all users */}
+            <motion.aside
+                className={cn(
+                    "fixed inset-y-0 left-0 z-10 hidden flex-col border-r shadow-sm sm:flex",
+                    !isSidebarExpanded && isAdmin ? "bg-primary" : "bg-background"
+                )}
+                initial={false}
+                animate={{ width: isSidebarExpanded ? "256px" : "60px" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
                 <nav className="flex flex-col gap-4 px-4 py-6 h-full">
                     {/* Logo */}
                     <Link
@@ -237,7 +259,7 @@ const UserDashboardLayout: React.FC = () => {
                         </button>
                     </div>
                 </nav>
-            </aside>
+            </motion.aside>
 
             {/* Admin Sidebar (Right Side) - Only visible for admins */}
             {isAdmin && (

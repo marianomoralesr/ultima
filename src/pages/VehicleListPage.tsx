@@ -20,6 +20,7 @@ import useSEO from '../hooks/useSEO';
 import useDebounce from '../hooks/useDebounce';
 import { useRealtimeVisitors } from '../hooks/useRealtimeVisitors';
 import { proxyImage } from '../utils/proxyImage';
+import { getVehicleImage } from '../utils/getVehicleImage';
 // import ExplorarTutorialOverlay from '../components/ExplorarTutorialOverlay';
 import { useDrag } from '@use-gesture/react';
 import { animated, useSpring } from 'react-spring';
@@ -385,6 +386,21 @@ const VehicleListPage: React.FC = () => {
     ));
   }, [view]);
 
+  // Preload first 6 vehicle images for instant display
+  useEffect(() => {
+    if (vehicles.length > 0) {
+      const imagesToPreload = vehicles.slice(0, 6).map(v => getVehicleImage(v)).filter(Boolean);
+      imagesToPreload.forEach((imgUrl) => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = imgUrl;
+        link.fetchPriority = 'high';
+        document.head.appendChild(link);
+      });
+    }
+  }, [vehicles]);
+
   const isLoading = vehiclesLoading;
 
   if (isLoading && vehicles.length === 0) {
@@ -416,8 +432,8 @@ const VehicleListPage: React.FC = () => {
     <>
       <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start">
-          <aside className="hidden lg:block h-full">
-            <StickySidebar topOffset={24}>
+          <aside className="hidden lg:block">
+            <StickySidebar topOffset={120}>
               <FilterSidebar
                 allVehicles={vehicles}
                 onFiltersChange={handleFiltersChange}

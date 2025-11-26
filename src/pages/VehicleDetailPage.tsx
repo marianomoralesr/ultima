@@ -755,7 +755,7 @@ const VehicleDetailPage: React.FC = () => {
     useEffect(() => {
         if (vehicle) {
             const price = parseFloat(String(vehicle.precio_reduccion)) || vehicle.precio;
-            const minDP = vehicle.engancheMinimo || price * 0.15;
+            const minDP = vehicle.engancheMinimo || price * 0.25; // 25% minimum to match calculator
             setDownPayment(minDP);
 
             const maxTerm = vehicle.plazomax || 60;

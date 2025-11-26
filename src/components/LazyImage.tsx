@@ -13,6 +13,8 @@ interface LazyImageProps {
   responsive?: boolean;
   /** Sizes attribute for responsive images */
   sizes?: string;
+  /** Priority loading - use eager loading instead of lazy for critical images */
+  priority?: boolean;
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -24,6 +26,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   imageOptions,
   responsive = false,
   sizes,
+  priority = false,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -48,8 +51,14 @@ const LazyImage: React.FC<LazyImageProps> = ({
     return src;
   }, [src, alt]);
 
-  // Convert URL to use CDN if configured
-  const cdnSrc = getCdnUrl(validatedSrc, imageOptions);
+  // Convert URL to use CDN if configured - use smaller sizes for faster loading
+  const defaultOptions = !imageOptions ? {
+    width: priority ? 600 : 400, // Smaller thumbnails for cards
+    quality: 85,
+    format: 'auto' as const
+  } : imageOptions;
+
+  const cdnSrc = getCdnUrl(validatedSrc, defaultOptions);
   const srcSet = responsive ? getResponsiveSrcSet(validatedSrc) : undefined;
 
   useEffect(() => {
@@ -91,11 +100,12 @@ const LazyImage: React.FC<LazyImageProps> = ({
         srcSet={srcSet}
         sizes={sizes}
         alt={alt}
-        className={`w-full h-full object-${objectFit} transition-all duration-500 ease-in-out ${
-          isLoaded ? 'blur-0 scale-100' : 'blur-lg scale-110'
+        className={`w-full h-full object-${objectFit} transition-all duration-300 ease-in-out ${
+          isLoaded ? 'blur-0 scale-100' : 'blur-sm scale-105'
         }`}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
         crossOrigin="anonymous"
         onLoad={() => setIsLoaded(true)}
         onError={handleError}

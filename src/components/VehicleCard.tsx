@@ -64,10 +64,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
     const imageUrls = [
       mainImage,
       ...(vehicle.galeria_exterior || []),
-      ...(vehicle.galeria_interior || []),
     ];
-    // Deduplicate and filter out any falsy values
-    return [...new Set(imageUrls.filter(Boolean))];
+    // Deduplicate, filter out falsy values, and LIMIT TO 3 IMAGES MAX for performance
+    const uniqueImages = [...new Set(imageUrls.filter(Boolean))];
+    return uniqueImages.slice(0, 3);
   }, [vehicle]);
 
   const isRezago = vehicle.rezago === true;

@@ -502,7 +502,8 @@ const Application: React.FC = () => {
                 userId: user.id
             });
 
-            setPageStatus('success');
+            // Redirect to confirmation page (only shown on first submit)
+            navigate(`/escritorio/aplicacion/${applicationId}/confirmacion?firstSubmit=true`, { replace: true });
 
         } catch(e: any) {
             // Check if error is due to duplicate application

@@ -26,6 +26,7 @@ const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 // Removed: DashboardInventoryPage - using VehicleListPage for all inventory views
 const Application = lazy(() => import('./pages/Application'));
+const ApplicationConfirmationPage = lazy(() => import('./pages/ApplicationConfirmationPage'));
 const UserApplicationsPage = lazy(() => import('./pages/UserApplicationsPage'));
 const SeguimientoPage = lazy(() => import('./pages/SeguimientoPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
@@ -173,6 +174,7 @@ function App(): React.JSX.Element {
                 <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
                 <Route path="aplicacion" element={<Application />} />
                 <Route path="aplicacion/:id" element={<Application />} />
+                <Route path="aplicacion/:id/confirmacion" element={<ApplicationConfirmationPage />} />
                 <Route path="seguimiento" element={<SeguimientoPage />} />
                 <Route path="seguimiento/:id" element={<Application />} />
                 <Route path="favoritos" element={<FavoritesPage />} />

@@ -210,59 +210,75 @@ const DashboardSidebarPage: React.FC = () => {
       });
 
       // Cargar asesor asignado
-      if (profile?.assigned_sales_agent_id) {
-        const agent = SALES_AGENTS.find(a => a.id === profile.assigned_sales_agent_id);
+      console.log('Profile asesor_asignado_id:', profile?.asesor_asignado_id);
+      if (profile?.asesor_asignado_id) {
+        const agent = SALES_AGENTS.find(a => a.id === profile.asesor_asignado_id);
+        console.log('Found agent:', agent);
         if (agent) {
           setAssignedAgent(agent);
         }
       }
 
       // Cargar vehículos para sidebar: favoritos > recently viewed > sugerencias
+      let vehiclesLoaded = false;
+
       try {
         // 1. Intentar cargar favoritos
-        const { data: favorites } = await supabase
+        const { data: favorites, error: favError } = await supabase
           .from('user_favorites')
           .select('vehicle_id')
           .eq('user_id', user.id)
           .limit(3);
 
+        console.log('Favorites query result:', favorites, favError);
+
         if (favorites && favorites.length > 0) {
           const vehicleIds = favorites.map(f => f.vehicle_id);
-          const { data: favVehicles } = await supabase
+          const { data: favVehicles, error: vehError } = await supabase
             .from('vehicles')
             .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
             .in('id', vehicleIds)
             .limit(3);
 
+          console.log('Favorite vehicles:', favVehicles, vehError);
+
           if (favVehicles && favVehicles.length > 0) {
             setSidebarVehicles(favVehicles);
             setVehiclesLabel('Tus Favoritos');
-            return;
+            vehiclesLoaded = true;
           }
         }
 
         // 2. Si no hay favoritos, intentar recently viewed
-        const recentlyViewedRaw = localStorage.getItem('trefa_recently_viewed');
-        if (recentlyViewedRaw) {
-          const recentlyViewed = JSON.parse(recentlyViewedRaw);
-          if (recentlyViewed && recentlyViewed.length > 0) {
-            setSidebarVehicles(recentlyViewed.slice(0, 3));
-            setVehiclesLabel('Vistos Recientemente');
-            return;
+        if (!vehiclesLoaded) {
+          const recentlyViewedRaw = localStorage.getItem('trefa_recently_viewed');
+          console.log('Recently viewed raw:', recentlyViewedRaw);
+
+          if (recentlyViewedRaw) {
+            const recentlyViewed = JSON.parse(recentlyViewedRaw);
+            if (recentlyViewed && recentlyViewed.length > 0) {
+              setSidebarVehicles(recentlyViewed.slice(0, 3));
+              setVehiclesLabel('Vistos Recientemente');
+              vehiclesLoaded = true;
+            }
           }
         }
 
         // 3. Si no hay ni favoritos ni recently viewed, mostrar sugerencias
-        const { data: suggestions } = await supabase
-          .from('vehicles')
-          .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
-          .eq('disponibilidad', 'disponible')
-          .order('created_at', { ascending: false })
-          .limit(3);
+        if (!vehiclesLoaded) {
+          const { data: suggestions, error: sugError } = await supabase
+            .from('vehicles')
+            .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
+            .eq('disponibilidad', 'disponible')
+            .order('created_at', { ascending: false })
+            .limit(3);
 
-        if (suggestions && suggestions.length > 0) {
-          setSidebarVehicles(suggestions);
-          setVehiclesLabel('Algunas Sugerencias');
+          console.log('Suggestions:', suggestions, sugError);
+
+          if (suggestions && suggestions.length > 0) {
+            setSidebarVehicles(suggestions);
+            setVehiclesLabel('Algunas Sugerencias');
+          }
         }
       } catch (error) {
         console.error('Error cargando vehículos para sidebar:', error);
@@ -412,12 +428,8 @@ const DashboardSidebarPage: React.FC = () => {
                   {sidebarVehicles.map((vehicle) => {
                     const imageUrl = vehicle.feature_image || vehicle.fotos_exterior_url?.[0] || vehicle.galeria_exterior?.[0];
                     return (
-                      <Link
-                        key={vehicle.id}
-                        to={`/autos/${vehicle.slug || vehicle.id}`}
-                        className="block bg-gray-50 hover:bg-gray-100 rounded-lg p-2 transition-colors border border-gray-200"
-                      >
-                        <div className="flex items-center gap-2">
+                      <div key={vehicle.id} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                        <div className="flex items-center gap-2 mb-2">
                           {imageUrl ? (
                             <img
                               src={imageUrl}
@@ -438,7 +450,13 @@ const DashboardSidebarPage: React.FC = () => {
                             </p>
                           </div>
                         </div>
-                      </Link>
+                        <Link
+                          to={`/autos/${vehicle.slug || vehicle.id}`}
+                          className="block w-full px-3 py-1.5 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 transition-colors text-center"
+                        >
+                          Ver Detalles
+                        </Link>
+                      </div>
                     );
                   })}
                 </div>

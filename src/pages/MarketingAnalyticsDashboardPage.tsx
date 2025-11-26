@@ -4,51 +4,43 @@ import {
   Calendar, Filter, Download, RefreshCw, ExternalLink, AlertCircle,
   FileText, Eye, TrendingDown, CheckCircle, Clock
 } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
-import { MetricsService, type FunnelMetrics, type MetaFunnelMetrics } from '../services/MetricsService';
-
-interface TrackingEvent {
-  id?: string;
-  event_name: string;
-  event_type: string;
-  user_id?: string;
-  session_id?: string;
-  metadata?: Record<string, any>;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  utm_term?: string;
-  utm_content?: string;
-  created_at?: string;
-}
+import {
+  MetricsService,
+  type FunnelMetrics,
+  type MetaFunnelMetrics,
+  type SourceMetrics,
+  type CampaignMetrics as CampaignMetricsType,
+  type PageMetrics,
+  type EventTypeMetrics,
+  type TimeSeriesData
+} from '../services/MetricsService';
 
 interface DashboardMetrics {
   // Métricas del embudo principal
   funnelMetrics: FunnelMetrics;
   metaFunnelMetrics: MetaFunnelMetrics;
 
-  // Métricas adicionales
+  // Métricas adicionales (ahora desde MetricsService)
   total_events: number;
   unique_sessions: number;
   unique_users: number;
 
-  // Top fuentes y campañas
-  top_sources: Array<{ source: string; count: number; users: number }>;
-  top_campaigns: Array<{ campaign: string; count: number; users: number }>;
+  // Top fuentes y campañas (ahora tipadas desde MetricsService)
+  top_sources: SourceMetrics[];
+  top_campaigns: CampaignMetricsType[];
 
   // Eventos por tipo
-  events_by_type: Array<{ type: string; count: number; percentage: number }>;
+  events_by_type: EventTypeMetrics[];
 
   // Eventos en el tiempo
-  events_over_time: Array<{ date: string; count: number }>;
+  events_over_time: TimeSeriesData[];
 
   // Páginas más vistas
-  top_pages: Array<{ page: string; views: number; unique_users: number }>;
+  top_pages: PageMetrics[];
 }
 
 const MarketingAnalyticsDashboardPage: React.FC = () => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [rawEvents, setRawEvents] = useState<TrackingEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,156 +64,58 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     setError(null);
 
     try {
-      // 1. Obtener métricas del embudo usando MetricsService
-      const [funnelMetrics, metaFunnelMetrics, sources, campaigns] = await Promise.all([
+      console.log('[MarketingAnalytics] Loading data with filters:', filters);
+
+      // Cargar TODAS las métricas desde MetricsService para garantizar consistencia
+      const [
+        funnelMetrics,
+        metaFunnelMetrics,
+        sourceMetrics,
+        campaignMetrics,
+        pageMetrics,
+        eventTypeMetrics,
+        timeSeriesData,
+        sources,
+        campaigns,
+        totalVisits,
+        uniqueVisitors
+      ] = await Promise.all([
         MetricsService.getFunnelMetrics(filters.startDate, filters.endDate),
         MetricsService.getMetaFunnelMetrics(filters.startDate, filters.endDate),
+        MetricsService.getSourceMetrics(filters.startDate, filters.endDate, filters.utmCampaign),
+        MetricsService.getCampaignMetrics(filters.startDate, filters.endDate, filters.utmSource),
+        MetricsService.getPageMetrics(filters.startDate, filters.endDate),
+        MetricsService.getEventTypeMetrics(filters.startDate, filters.endDate),
+        MetricsService.getTimeSeriesData(filters.startDate, filters.endDate),
         MetricsService.getAvailableUTMSources(),
-        MetricsService.getAvailableUTMCampaigns()
+        MetricsService.getAvailableUTMCampaigns(),
+        MetricsService.getTotalSiteVisits(filters.startDate, filters.endDate),
+        MetricsService.getUniqueSiteVisitors(filters.startDate, filters.endDate)
       ]);
+
+      console.log('[MarketingAnalytics] Datos cargados:', {
+        funnel: funnelMetrics,
+        sources: sourceMetrics.length,
+        campaigns: campaignMetrics.length,
+        pages: pageMetrics.length,
+        eventTypes: eventTypeMetrics.length
+      });
 
       setAvailableSources(sources);
       setAvailableCampaigns(campaigns);
 
-      // 2. Obtener eventos raw para análisis detallado
-      let query = supabase
-        .from('tracking_events')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (filters.startDate) {
-        query = query.gte('created_at', filters.startDate + 'T00:00:00');
-      }
-      if (filters.endDate) {
-        query = query.lte('created_at', filters.endDate + 'T23:59:59');
-      }
-      if (filters.utmSource) {
-        query = query.eq('utm_source', filters.utmSource);
-      }
-      if (filters.utmCampaign) {
-        query = query.eq('utm_campaign', filters.utmCampaign);
-      }
-
-      const { data: eventsData, error: eventsError } = await query;
-
-      if (eventsError) {
-        throw new Error(`Error cargando eventos: ${eventsError.message}`);
-      }
-
-      const events = eventsData || [];
-      setRawEvents(events);
-
-      // 3. Calcular métricas adicionales
-      const uniqueSessions = new Set(events.map(e => e.session_id).filter(Boolean)).size;
-      const uniqueUsers = new Set(events.map(e => e.user_id).filter(Boolean)).size;
-
-      // Top fuentes
-      const sourceMap = new Map<string, { count: number; users: Set<string> }>();
-      events.forEach(e => {
-        const source = e.utm_source || 'directo';
-        if (!sourceMap.has(source)) {
-          sourceMap.set(source, { count: 0, users: new Set() });
-        }
-        const entry = sourceMap.get(source)!;
-        entry.count++;
-        if (e.user_id) entry.users.add(e.user_id);
-      });
-
-      const top_sources = Array.from(sourceMap.entries())
-        .map(([source, data]) => ({
-          source,
-          count: data.count,
-          users: data.users.size
-        }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Top campañas
-      const campaignMap = new Map<string, { count: number; users: Set<string> }>();
-      events.forEach(e => {
-        if (e.utm_campaign) {
-          if (!campaignMap.has(e.utm_campaign)) {
-            campaignMap.set(e.utm_campaign, { count: 0, users: new Set() });
-          }
-          const entry = campaignMap.get(e.utm_campaign)!;
-          entry.count++;
-          if (e.user_id) entry.users.add(e.user_id);
-        }
-      });
-
-      const top_campaigns = Array.from(campaignMap.entries())
-        .map(([campaign, data]) => ({
-          campaign,
-          count: data.count,
-          users: data.users.size
-        }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      // Eventos por tipo
-      const typeMap = new Map<string, number>();
-      events.forEach(e => {
-        const type = e.event_type || e.event_name;
-        typeMap.set(type, (typeMap.get(type) || 0) + 1);
-      });
-
-      const totalEvents = events.length;
-      const events_by_type = Array.from(typeMap.entries())
-        .map(([type, count]) => ({
-          type,
-          count,
-          percentage: totalEvents > 0 ? (count / totalEvents) * 100 : 0
-        }))
-        .sort((a, b) => b.count - a.count);
-
-      // Eventos en el tiempo (últimos 30 días)
-      const dateMap = new Map<string, number>();
-      events.forEach(e => {
-        if (e.created_at) {
-          const date = new Date(e.created_at).toISOString().split('T')[0];
-          dateMap.set(date, (dateMap.get(date) || 0) + 1);
-        }
-      });
-
-      const events_over_time = Array.from(dateMap.entries())
-        .map(([date, count]) => ({ date, count }))
-        .sort((a, b) => a.date.localeCompare(b.date));
-
-      // Páginas más vistas
-      const pageMap = new Map<string, { views: number; users: Set<string> }>();
-      events
-        .filter(e => e.event_type === 'PageView')
-        .forEach(e => {
-          const page = e.metadata?.page || 'unknown';
-          if (!pageMap.has(page)) {
-            pageMap.set(page, { views: 0, users: new Set() });
-          }
-          const entry = pageMap.get(page)!;
-          entry.views++;
-          if (e.user_id) entry.users.add(e.user_id);
-        });
-
-      const top_pages = Array.from(pageMap.entries())
-        .map(([page, data]) => ({
-          page,
-          views: data.views,
-          unique_users: data.users.size
-        }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 15);
-
-      // 4. Consolidar todas las métricas
+      // Consolidar todas las métricas
       setMetrics({
         funnelMetrics,
         metaFunnelMetrics,
-        total_events: totalEvents,
-        unique_sessions: uniqueSessions,
-        unique_users: uniqueUsers,
-        top_sources,
-        top_campaigns,
-        events_by_type,
-        events_over_time,
-        top_pages
+        total_events: eventTypeMetrics.reduce((sum, e) => sum + e.count, 0),
+        unique_sessions: uniqueVisitors,
+        unique_users: eventTypeMetrics.reduce((sum, e) => sum + e.unique_users, 0),
+        top_sources: sourceMetrics.slice(0, 10),
+        top_campaigns: campaignMetrics.slice(0, 10),
+        events_by_type: eventTypeMetrics,
+        events_over_time: timeSeriesData,
+        top_pages: pageMetrics.slice(0, 15)
       });
 
     } catch (err) {
@@ -503,7 +397,12 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                       <div key={source.source} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-mono text-gray-500">#{idx + 1}</span>
-                          <span className="font-medium text-gray-900">{source.source}</span>
+                          <div>
+                            <span className="font-medium text-gray-900">{source.source}</span>
+                            <p className="text-xs text-green-600 font-medium">
+                              {source.conversionRate}% conversión
+                            </p>
+                          </div>
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="text-sm text-gray-600">{source.users} usuarios</span>
@@ -612,7 +511,12 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                         <span className="text-lg font-mono text-gray-500 w-8">#{idx + 1}</span>
                         <div>
                           <p className="font-semibold text-gray-900">{source.source}</p>
-                          <p className="text-sm text-gray-600">{source.users} usuarios únicos</p>
+                          <p className="text-sm text-gray-600">
+                            {source.users} usuarios • {source.sessions} sesiones • {source.conversions} conversiones
+                          </p>
+                          <p className="text-sm text-green-600 font-medium">
+                            {source.conversionRate}% tasa de conversión
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -632,12 +536,20 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                 {metrics.top_campaigns.length > 0 ? (
                   <div className="space-y-2">
                     {metrics.top_campaigns.map((campaign, idx) => (
-                      <div key={campaign.campaign} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div key={`${campaign.campaign}-${campaign.source}-${campaign.medium}`} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div className="flex items-center gap-4">
                           <span className="text-lg font-mono text-gray-500 w-8">#{idx + 1}</span>
                           <div>
                             <p className="font-semibold text-gray-900">{campaign.campaign}</p>
-                            <p className="text-sm text-gray-600">{campaign.users} usuarios únicos</p>
+                            <p className="text-xs text-gray-500">
+                              Fuente: {campaign.source} • Medio: {campaign.medium}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {campaign.users} usuarios • {campaign.conversions} conversiones
+                            </p>
+                            <p className="text-sm text-green-600 font-medium">
+                              {campaign.conversionRate}% tasa de conversión
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -667,7 +579,9 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                         <span className="text-lg font-mono text-gray-500 flex-shrink-0">#{idx + 1}</span>
                         <div className="min-w-0 flex-1">
                           <p className="font-mono text-sm text-gray-900 truncate">{page.page}</p>
-                          <p className="text-sm text-gray-600">{page.unique_users} usuarios únicos</p>
+                          <p className="text-sm text-gray-600">
+                            {page.unique_users} usuarios • {page.unique_sessions} sesiones
+                          </p>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -688,7 +602,10 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
                   {metrics.events_by_type.map((event, idx) => (
                     <div key={event.type} className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-gray-900">{event.type}</span>
+                        <div>
+                          <span className="font-medium text-gray-900">{event.type}</span>
+                          <p className="text-xs text-gray-600">{event.unique_users} usuarios únicos</p>
+                        </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-gray-600">{event.percentage.toFixed(1)}%</span>
                           <span className="text-lg font-bold text-gray-900">{event.count}</span>

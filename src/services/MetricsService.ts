@@ -48,6 +48,47 @@ export interface TimeFrameMetrics {
   last_30d: FunnelMetrics;
 }
 
+export interface SourceMetrics {
+  source: string;
+  count: number;
+  users: number;
+  sessions: number;
+  conversions: number;
+  conversionRate: number;
+}
+
+export interface CampaignMetrics {
+  campaign: string;
+  source: string;
+  medium: string;
+  count: number;
+  users: number;
+  conversions: number;
+  conversionRate: number;
+}
+
+export interface PageMetrics {
+  page: string;
+  views: number;
+  unique_users: number;
+  unique_sessions: number;
+  bounceRate?: number;
+}
+
+export interface EventTypeMetrics {
+  type: string;
+  count: number;
+  percentage: number;
+  unique_users: number;
+}
+
+export interface TimeSeriesData {
+  date: string;
+  count: number;
+  unique_users: number;
+  unique_sessions: number;
+}
+
 class MetricsServiceClass {
 
   /**
@@ -399,6 +440,386 @@ class MetricsServiceClass {
       application_to_lead: safeDiv(metrics.lead_completes, metrics.application_starts),
       overall_conversion: safeDiv(metrics.lead_completes, metrics.landing_page_views),
     };
+  }
+
+  /**
+   * Obtiene métricas por fuente UTM
+   * Incluye conteo de eventos, usuarios únicos, sesiones y conversiones
+   */
+  async getSourceMetrics(startDate?: string, endDate?: string, utmCampaign?: string): Promise<SourceMetrics[]> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+      if (utmCampaign) {
+        query = query.eq('utm_campaign', utmCampaign);
+      }
+
+      const { data: events, error } = await query;
+
+      if (error || !events) {
+        console.error('[MetricsService] Error fetching events for source metrics:', error);
+        return [];
+      }
+
+      // Agrupar eventos por fuente
+      const sourceMap = new Map<string, {
+        count: number;
+        users: Set<string>;
+        sessions: Set<string>;
+        conversions: Set<string>;
+      }>();
+
+      events.forEach(event => {
+        const source = event.utm_source || 'directo';
+
+        if (!sourceMap.has(source)) {
+          sourceMap.set(source, {
+            count: 0,
+            users: new Set(),
+            sessions: new Set(),
+            conversions: new Set()
+          });
+        }
+
+        const metrics = sourceMap.get(source)!;
+        metrics.count++;
+
+        if (event.user_id) {
+          metrics.users.add(event.user_id);
+        }
+        if (event.session_id) {
+          metrics.sessions.add(event.session_id);
+        }
+
+        // Contar conversiones (LeadComplete)
+        if ((event.event_type === 'LeadComplete' || event.event_name === 'LeadComplete') && event.user_id) {
+          metrics.conversions.add(event.user_id);
+        }
+      });
+
+      // Convertir a array y calcular tasas de conversión
+      return Array.from(sourceMap.entries())
+        .map(([source, data]) => ({
+          source,
+          count: data.count,
+          users: data.users.size,
+          sessions: data.sessions.size,
+          conversions: data.conversions.size,
+          conversionRate: data.users.size > 0
+            ? Math.round((data.conversions.size / data.users.size) * 1000) / 10
+            : 0
+        }))
+        .sort((a, b) => b.count - a.count);
+    } catch (error) {
+      console.error('[MetricsService] Error in getSourceMetrics:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtiene métricas por campaña UTM
+   * Incluye fuente, medio y métricas de conversión
+   */
+  async getCampaignMetrics(startDate?: string, endDate?: string, utmSource?: string): Promise<CampaignMetrics[]> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+      if (utmSource) {
+        query = query.eq('utm_source', utmSource);
+      }
+
+      const { data: events, error } = await query;
+
+      if (error || !events) {
+        console.error('[MetricsService] Error fetching events for campaign metrics:', error);
+        return [];
+      }
+
+      // Agrupar por campaña + fuente + medio
+      const campaignMap = new Map<string, {
+        campaign: string;
+        source: string;
+        medium: string;
+        count: number;
+        users: Set<string>;
+        conversions: Set<string>;
+      }>();
+
+      events.forEach(event => {
+        // Solo procesar eventos con campaña
+        if (!event.utm_campaign) return;
+
+        const campaign = event.utm_campaign;
+        const source = event.utm_source || 'directo';
+        const medium = event.utm_medium || 'none';
+        const key = `${campaign}|${source}|${medium}`;
+
+        if (!campaignMap.has(key)) {
+          campaignMap.set(key, {
+            campaign,
+            source,
+            medium,
+            count: 0,
+            users: new Set(),
+            conversions: new Set()
+          });
+        }
+
+        const metrics = campaignMap.get(key)!;
+        metrics.count++;
+
+        if (event.user_id) {
+          metrics.users.add(event.user_id);
+        }
+
+        // Contar conversiones
+        if ((event.event_type === 'LeadComplete' || event.event_name === 'LeadComplete') && event.user_id) {
+          metrics.conversions.add(event.user_id);
+        }
+      });
+
+      return Array.from(campaignMap.values())
+        .map(data => ({
+          campaign: data.campaign,
+          source: data.source,
+          medium: data.medium,
+          count: data.count,
+          users: data.users.size,
+          conversions: data.conversions.size,
+          conversionRate: data.users.size > 0
+            ? Math.round((data.conversions.size / data.users.size) * 1000) / 10
+            : 0
+        }))
+        .sort((a, b) => b.count - a.count);
+    } catch (error) {
+      console.error('[MetricsService] Error in getCampaignMetrics:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtiene métricas por página
+   * Analiza vistas de página, usuarios únicos y sesiones únicas
+   */
+  async getPageMetrics(startDate?: string, endDate?: string): Promise<PageMetrics[]> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('*')
+        .eq('event_type', 'PageView')
+        .order('created_at', { ascending: true });
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+
+      const { data: events, error } = await query;
+
+      if (error || !events) {
+        console.error('[MetricsService] Error fetching events for page metrics:', error);
+        return [];
+      }
+
+      // Agrupar por página
+      const pageMap = new Map<string, {
+        views: number;
+        users: Set<string>;
+        sessions: Set<string>;
+      }>();
+
+      events.forEach(event => {
+        const page = event.metadata?.page || event.metadata?.url || 'unknown';
+
+        if (!pageMap.has(page)) {
+          pageMap.set(page, {
+            views: 0,
+            users: new Set(),
+            sessions: new Set()
+          });
+        }
+
+        const metrics = pageMap.get(page)!;
+        metrics.views++;
+
+        if (event.user_id) {
+          metrics.users.add(event.user_id);
+        }
+        if (event.session_id) {
+          metrics.sessions.add(event.session_id);
+        }
+      });
+
+      return Array.from(pageMap.entries())
+        .map(([page, data]) => ({
+          page,
+          views: data.views,
+          unique_users: data.users.size,
+          unique_sessions: data.sessions.size
+        }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 50); // Limitar a top 50
+    } catch (error) {
+      console.error('[MetricsService] Error in getPageMetrics:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtiene distribución de eventos por tipo
+   */
+  async getEventTypeMetrics(startDate?: string, endDate?: string): Promise<EventTypeMetrics[]> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+
+      const { data: events, error } = await query;
+
+      if (error || !events) {
+        console.error('[MetricsService] Error fetching events for event type metrics:', error);
+        return [];
+      }
+
+      const totalEvents = events.length;
+
+      // Agrupar por tipo de evento
+      const typeMap = new Map<string, {
+        count: number;
+        users: Set<string>;
+      }>();
+
+      events.forEach(event => {
+        const type = event.event_type || event.event_name || 'unknown';
+
+        if (!typeMap.has(type)) {
+          typeMap.set(type, {
+            count: 0,
+            users: new Set()
+          });
+        }
+
+        const metrics = typeMap.get(type)!;
+        metrics.count++;
+
+        if (event.user_id) {
+          metrics.users.add(event.user_id);
+        }
+      });
+
+      return Array.from(typeMap.entries())
+        .map(([type, data]) => ({
+          type,
+          count: data.count,
+          percentage: totalEvents > 0
+            ? Math.round((data.count / totalEvents) * 1000) / 10
+            : 0,
+          unique_users: data.users.size
+        }))
+        .sort((a, b) => b.count - a.count);
+    } catch (error) {
+      console.error('[MetricsService] Error in getEventTypeMetrics:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Obtiene serie temporal de eventos
+   * Agrupa eventos por día con usuarios y sesiones únicos
+   */
+  async getTimeSeriesData(startDate?: string, endDate?: string, eventType?: string): Promise<TimeSeriesData[]> {
+    try {
+      let query = supabase
+        .from('tracking_events')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (startDate) {
+        query = query.gte('created_at', startDate + 'T00:00:00');
+      }
+      if (endDate) {
+        query = query.lte('created_at', endDate + 'T23:59:59');
+      }
+      if (eventType) {
+        query = query.eq('event_type', eventType);
+      }
+
+      const { data: events, error } = await query;
+
+      if (error || !events) {
+        console.error('[MetricsService] Error fetching events for time series:', error);
+        return [];
+      }
+
+      // Agrupar por fecha
+      const dateMap = new Map<string, {
+        count: number;
+        users: Set<string>;
+        sessions: Set<string>;
+      }>();
+
+      events.forEach(event => {
+        const date = new Date(event.created_at).toISOString().split('T')[0];
+
+        if (!dateMap.has(date)) {
+          dateMap.set(date, {
+            count: 0,
+            users: new Set(),
+            sessions: new Set()
+          });
+        }
+
+        const metrics = dateMap.get(date)!;
+        metrics.count++;
+
+        if (event.user_id) {
+          metrics.users.add(event.user_id);
+        }
+        if (event.session_id) {
+          metrics.sessions.add(event.session_id);
+        }
+      });
+
+      return Array.from(dateMap.entries())
+        .map(([date, data]) => ({
+          date,
+          count: data.count,
+          unique_users: data.users.size,
+          unique_sessions: data.sessions.size
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    } catch (error) {
+      console.error('[MetricsService] Error in getTimeSeriesData:', error);
+      return [];
+    }
   }
 
   private getEmptyMetrics(): FunnelMetrics {

@@ -90,7 +90,7 @@ const DashboardSidebarPage: React.FC = () => {
         .select('*')
         .eq('id', user.id)
         .single();
-
+      
       const profileComplete = !!(
         profile?.first_name &&
         profile?.last_name &&
@@ -113,14 +113,14 @@ const DashboardSidebarPage: React.FC = () => {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-
+      
       const latestApp = applications?.[0];
       setLatestApplication(latestApp);
-
+      
       // Separar borradores y enviadas
       const drafts = applications?.filter(app => app.status === 'draft') || [];
       const submitted = applications?.filter(app =>
-        app.status === 'submitted' || app.status === 'approved' || app.status === 'pending'
+        app.status === 'faltan_documentos' || app.status === 'completa'
       ) || [];
 
       setDraftApplications(drafts);
@@ -162,13 +162,16 @@ const DashboardSidebarPage: React.FC = () => {
         documentosPendientes = 4 - docsPresentes;
 
         // Obtener vehículo seleccionado
-        if (latestApp.car_info?.id) {
+        if (latestApp.car_info?._ordenCompra) {
           const { data: vehicle } = await supabase
-            .from('vehicles')
+            .from('inventario_cache')
             .select('*')
-            .eq('id', latestApp.car_info.id)
+            .eq('ordencompra', latestApp.car_info._ordenCompra)
             .single();
 
+          if (!vehicle) {
+            console.warn('Vehicle not found in database for ordencompra:', latestApp.car_info._ordenCompra);
+          }
           setSelectedVehicle(vehicle);
         }
 
@@ -205,10 +208,8 @@ const DashboardSidebarPage: React.FC = () => {
       });
 
       // Cargar asesor asignado
-      console.log('Profile asesor_asignado_id:', profile?.asesor_asignado_id);
       if (profile?.asesor_asignado_id) {
         const agent = SALES_AGENTS.find(a => a.id === profile.asesor_asignado_id);
-        console.log('Found agent:', agent);
         if (agent) {
           setAssignedAgent(agent);
         }
@@ -225,17 +226,13 @@ const DashboardSidebarPage: React.FC = () => {
           .eq('user_id', user.id)
           .limit(3);
 
-        console.log('Favorites query result:', favorites, favError);
-
         if (favorites && favorites.length > 0) {
           const vehicleIds = favorites.map(f => f.vehicle_id);
           const { data: favVehicles, error: vehError } = await supabase
-            .from('vehicles')
+            .from('inventario_cache')
             .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
             .in('id', vehicleIds)
             .limit(3);
-
-          console.log('Favorite vehicles:', favVehicles, vehError);
 
           if (favVehicles && favVehicles.length > 0) {
             setSidebarVehicles(favVehicles);
@@ -247,7 +244,6 @@ const DashboardSidebarPage: React.FC = () => {
         // 2. Si no hay favoritos, intentar recently viewed
         if (!vehiclesLoaded) {
           const recentlyViewedRaw = localStorage.getItem('trefa_recently_viewed');
-          console.log('Recently viewed raw:', recentlyViewedRaw);
 
           if (recentlyViewedRaw) {
             const recentlyViewed = JSON.parse(recentlyViewedRaw);
@@ -262,13 +258,11 @@ const DashboardSidebarPage: React.FC = () => {
         // 3. Si no hay ni favoritos ni recently viewed, mostrar sugerencias
         if (!vehiclesLoaded) {
           const { data: suggestions, error: sugError } = await supabase
-            .from('vehicles')
+            .from('inventario_cache')
             .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
             .eq('disponibilidad', 'disponible')
             .order('created_at', { ascending: false })
             .limit(3);
-
-          console.log('Suggestions:', suggestions, sugError);
 
           if (suggestions && suggestions.length > 0) {
             setSidebarVehicles(suggestions);
@@ -295,6 +289,19 @@ const DashboardSidebarPage: React.FC = () => {
           bgColor: 'bg-gray-500',
           textColor: 'text-white'
         };
+      case 'faltan_documentos':
+        return {
+          label: 'Faltan Documentos',
+          bgColor: 'bg-yellow-500',
+          textColor: 'text-white'
+        };
+      case 'completa':
+        return {
+          label: 'Completa',
+          bgColor: 'bg-blue-500',
+          textColor: 'text-white'
+        };
+      case 'en_revision':
       case 'submitted':
       case 'pending':
         return {
@@ -733,10 +740,10 @@ const DashboardSidebarPage: React.FC = () => {
                   <Card className="border-2 hover:border-primary-500 transition-colors cursor-pointer h-full">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
-                        {selectedVehicle.images?.[0] ? (
+                        {selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0] ? (
                           <img
-                            src={selectedVehicle.images[0]}
-                            alt={selectedVehicle.title}
+                            src={selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0]}
+                            alt={selectedVehicle.titulo}
                             className="w-16 h-16 object-cover rounded-lg"
                           />
                         ) : (
@@ -744,7 +751,7 @@ const DashboardSidebarPage: React.FC = () => {
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-gray-800 truncate">
-                            {selectedVehicle.title || 'Vehículo'}
+                            {selectedVehicle.titulo || 'Vehículo'}
                           </p>
                           <p className="text-xs text-gray-500">ID: {selectedVehicle.id}</p>
                           <p className="text-sm text-gray-600">Ver detalles</p>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FileText, CheckCircle, Clock, AlertTriangle, ExternalLink, Image, FileIcon } from 'lucide-react';
+
 import { supabase } from '../../supabaseClient';
 
 interface UploadedDocument {
@@ -134,15 +136,12 @@ const UploadedDocumentsCard: React.FC<UploadedDocumentsCardProps> = ({
               <p className="text-xs text-gray-600 mt-1">
                 Aún no has subido documentos para esta solicitud.
               </p>
-              <a
-                href={publicUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={`/escritorio/seguimiento/${applicationId}`}
                 className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
-                Subir Documentos
-              </a>
+                Cargar documentos ahora &gt;
+              </Link>
             </div>
           </div>
         </div>

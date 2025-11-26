@@ -91,7 +91,7 @@ export const ApplicationService = {
       .from('financing_applications')
       .update(patch)
       .eq('id', applicationId)
-      .select('id, status, updated_at')
+      .select('*')
       .maybeSingle();
 
     if (error) {

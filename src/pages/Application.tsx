@@ -427,7 +427,7 @@ const Application: React.FC = () => {
                 selected_banks: [recommendedBank],
             };
 
-            await ApplicationService.updateApplication(applicationId, payload);
+            const updatedApp = await ApplicationService.updateApplication(applicationId, payload);
 
             // Send email notifications (non-blocking)
             const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
@@ -503,7 +503,10 @@ const Application: React.FC = () => {
             });
 
             // Redirect to confirmation page (only shown on first submit)
-            navigate(`/escritorio/aplicacion/${applicationId}/confirmacion?firstSubmit=true`, { replace: true });
+            navigate(`/escritorio/aplicacion/${applicationId}/confirmacion?firstSubmit=true`, { 
+              replace: true,
+              state: { application: updatedApp }
+            });
 
         } catch(e: any) {
             // Check if error is due to duplicate application

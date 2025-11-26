@@ -501,10 +501,10 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
                         type="button"
                         key={opt}
                         onClick={() => field.onChange(opt)}
-                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 touch-manipulation active:scale-[0.98]
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
-                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50'
+                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
                             }`}
                     >
                        <span className="flex-grow">{opt}</span>
@@ -527,10 +527,10 @@ const RadioField: React.FC<{ control: any, name: any, label: string, options: st
                         type="button"
                         key={opt}
                         onClick={() => field.onChange(opt)}
-                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 touch-manipulation active:scale-[0.98]
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
-                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50'
+                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
                             }`}
                     >
                        <span className="flex-grow">{opt}</span>

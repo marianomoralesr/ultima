@@ -451,16 +451,16 @@ const ProfilePage: React.FC = () => {
                 {isProfileComplete ? '100% - ¡Perfil completado!' : `Paso ${currentStep} de ${STEPS.length}`}
               </span>
             </div>
-            <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-500' : ''}`} />
+            <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-200' : ''}`} />
             <div className="flex justify-between mt-2">
               {STEPS.map((step) => (
                 <div
                   key={step.id}
                   className={`text-xs text-center flex-1 ${
                     step.id === currentStep
-                      ? 'text-primary-600 font-bold'
+                      ? 'text-green-700 font-bold'
                       : step.id < currentStep
-                      ? 'text-green-600 font-medium'
+                      ? 'text-green-500 font-medium'
                       : 'text-gray-400'
                   }`}
                 >

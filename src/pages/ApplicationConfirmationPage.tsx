@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApplicationService } from '../services/ApplicationService';
 import { conversionTracking } from '../services/ConversionTrackingService';
@@ -30,6 +30,7 @@ const ApplicationConfirmationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState<ApplicationData | null>(null);
@@ -46,6 +47,8 @@ const ApplicationConfirmationPage: React.FC = () => {
       return;
     }
 
+    const applicationFromState = location.state?.application;
+
     const loadApplication = async () => {
       if (!user?.id || !id) {
         setError('No se pudo cargar la información de tu solicitud');
@@ -54,7 +57,7 @@ const ApplicationConfirmationPage: React.FC = () => {
       }
 
       try {
-        const app = await ApplicationService.getApplicationById(user.id, id);
+        const app = applicationFromState || await ApplicationService.getApplicationById(user.id, id);
         if (!app) {
           setError('No se encontró la solicitud');
           setLoading(false);
@@ -62,29 +65,39 @@ const ApplicationConfirmationPage: React.FC = () => {
         }
         setApplication(app);
 
-        // Verificar si ya se disparó el evento de confirmación para esta aplicación
-        const { data: shouldDispatch, error: checkError } = await supabase
-          .rpc('register_confirmation_event', {
-            p_application_id: id,
-            p_event_type: 'SolicitudEnviada'
-          });
+        
+        try {
+          // Verificar si ya se disparó el evento de confirmación para esta aplicación
+          const { data: shouldDispatch, error: checkError } = await supabase
+            .rpc('register_confirmation_event', {
+              p_application_id: id,
+              p_event_type: 'SolicitudEnviada'
+            });
 
-        // Solo disparar evento si es la primera vez
-        if (shouldDispatch && !checkError) {
-          // Fire conversion event: SolicitudCompleta
-          const vehicleInfo = app.car_info;
-          await conversionTracking.trackApplication.completed({
-            applicationId: id,
-            vehicleId: vehicleInfo?._ordenCompra,
-            vehicleName: vehicleInfo?._vehicleTitle || undefined,
-            vehiclePrice: vehicleInfo?._precioNumerico || 0,
-            userId: user.id
-          });
+          if (checkError) {
+            throw checkError;
+          }
 
-          console.log('[ApplicationConfirmation] Evento SolicitudEnviada disparado para aplicación:', id);
-        } else {
-          console.log('[ApplicationConfirmation] Evento ya fue disparado previamente para aplicación:', id);
+          // Solo disparar evento si es la primera vez
+          if (shouldDispatch) {
+            // Fire conversion event: SolicitudCompleta
+            const vehicleInfo = app.car_info;
+            await conversionTracking.trackApplication.completed({
+              applicationId: id,
+              vehicleId: vehicleInfo?._ordenCompra,
+              vehicleName: vehicleInfo?._vehicleTitle || undefined,
+              vehiclePrice: vehicleInfo?._precioNumerico || 0,
+              userId: user.id
+            });
+
+            console.log('[ApplicationConfirmation] Evento SolicitudEnviada disparado para aplicación:', id);
+          } else {
+            console.log('[ApplicationConfirmation] Evento ya fue disparado previamente para aplicación:', id);
+          }
+        } catch (trackingError) {
+          console.error('[ApplicationConfirmation] Error during tracking or RPC call, not blocking UI:', trackingError);
         }
+
       } catch (err) {
         console.error('Error loading application:', err);
         setError('Error al cargar tu solicitud');
@@ -94,7 +107,7 @@ const ApplicationConfirmationPage: React.FC = () => {
     };
 
     loadApplication();
-  }, [id, user?.id, isFirstSubmit, navigate]);
+  }, [id, user?.id, isFirstSubmit, navigate, location.state]);
 
   const publicUrl = application?.public_upload_token
     ? `${window.location.origin}/documentos/${application.public_upload_token}`

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { RefreshCw, X } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -29,52 +29,37 @@ export function UpdateBanner({ onUpdate, onDismiss }: UpdateBannerProps) {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 z-[9999] transition-all duration-300 ease-out ${
+      className={`fixed bottom-4 left-4 right-4 md:left-auto md:right-4 z-[9999] transition-all duration-300 ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
-      style={{ maxWidth: '400px' }}
+      style={{ maxWidth: '420px' }}
     >
-      <Card className="overflow-hidden border-2 border-primary-500 shadow-2xl">
-        <div className="bg-gradient-to-r from-primary-600 to-primary-500 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="bg-white/20 p-2 rounded-full mt-0.5">
-                <RefreshCw className="h-5 w-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-white font-semibold text-base mb-1">
-                  Nueva versión disponible
-                </h3>
-                <p className="text-white/90 text-sm leading-relaxed">
-                  Hemos mejorado tu experiencia. Actualiza ahora para disfrutar de las últimas mejoras.
-                </p>
-              </div>
+      <Card className="overflow-hidden border-0 shadow-2xl">
+        <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 p-5">
+          <div className="flex items-start gap-4">
+            <div className="bg-white/25 p-2.5 rounded-xl backdrop-blur-sm">
+              <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <button
-              onClick={handleDismiss}
-              className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
-              aria-label="Cerrar"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="mt-4 flex gap-2">
-            <Button
-              onClick={handleUpdate}
-              className="flex-1 bg-white text-primary-600 hover:bg-white/90 font-semibold shadow-md"
-              size="sm"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Actualizar ahora
-            </Button>
-            <Button
-              onClick={handleDismiss}
-              variant="ghost"
-              className="text-white hover:bg-white/10"
-              size="sm"
-            >
-              Más tarde
-            </Button>
+            <div className="flex-1">
+              <h3 className="text-white font-bold text-lg mb-2">
+                ¡Hay mejoras nuevas!
+              </h3>
+              <p className="text-white/95 text-sm leading-relaxed mb-4">
+                Para que todo funcione correctamente, solo haz clic en actualizar. Esto tomará solo unos segundos.
+              </p>
+              <Button
+                onClick={handleUpdate}
+                className="w-full bg-white text-orange-600 hover:bg-orange-50 font-bold shadow-lg text-base py-5"
+              >
+                Actualizar ahora
+              </Button>
+              <button
+                onClick={handleDismiss}
+                className="w-full text-white/80 hover:text-white text-xs mt-3 transition-colors"
+              >
+                Continuar sin actualizar (no recomendado)
+              </button>
+            </div>
           </div>
         </div>
       </Card>

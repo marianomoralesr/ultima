@@ -41,6 +41,7 @@ const UserDashboardLayout: React.FC = () => {
     const navigate = useNavigate();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true); // Default abierta
+    const [isAdminSidebarExpanded, setIsAdminSidebarExpanded] = useState(false); // Admin sidebar collapsed by default
 
     // Toggle sidebar manually
     const toggleSidebar = () => {
@@ -74,6 +75,13 @@ const UserDashboardLayout: React.FC = () => {
     };
 
     const navItems = getNavItems();
+
+    const adminNavItems = [
+        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+        { to: '/escritorio/admin/crm', label: 'CRM', icon: User },
+        { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: User },
+        { to: '/changelog', label: 'Changelog', icon: FileText },
+    ];
 
     const secondaryNav = [
         { to: '/faq', label: 'Ayuda', icon: HelpCircle },

@@ -15,7 +15,11 @@ import {
   Upload,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
+  Phone,
+  MessageCircle,
+  Heart,
+  TrendingUp
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -25,48 +29,14 @@ import { supabase } from '../../supabaseClient';
 import Logo from '@/assets/svg/logo';
 import { toast } from 'sonner';
 
-interface MenuItem {
-  icon: React.ReactNode;
-  label: string;
-  href: string;
-}
-
-const menuItems: MenuItem[] = [
-  {
-    label: 'Escritorio',
-    href: '/escritorio',
-    icon: <Home className="w-6 h-6" />
-  },
-  {
-    label: 'Progreso',
-    href: '/escritorio/seguimiento',
-    icon: <MapPin className="w-6 h-6" />
-  },
-  {
-    label: 'Inventario',
-    href: '/autos',
-    icon: <Package className="w-6 h-6" />
-  },
-  {
-    label: 'Mis Solicitudes',
-    href: '/escritorio/seguimiento',
-    icon: <FileText className="w-6 h-6" />
-  },
-  {
-    label: 'Notificaciones',
-    href: '/escritorio',
-    icon: <Bell className="w-6 h-6" />
-  },
-  {
-    label: 'Documentos',
-    href: '/escritorio',
-    icon: <FileText className="w-6 h-6" />
-  },
-  {
-    label: 'Mi Cuenta',
-    href: '/escritorio/profile',
-    icon: <User className="w-6 h-6" />
-  }
+const SALES_AGENTS = [
+  { id: 'd21e808e-083c-48fd-be78-d52ee7837146', name: 'Anahi Garza Garcia', phone: '+52 81 8704 9079' },
+  { id: 'cb55da28-ef7f-4632-9fcd-a8d9f37f1463', name: 'Carlos Isidro Berrones', phone: '+52 81 8704 9079' },
+  { id: 'e49bf74c-308f-4e8d-b683-3575d7214e98', name: 'Daniel Rodríguez', phone: '+52 81 8704 9079' },
+  { id: '7e239ec5-aceb-4e9f-ae67-2ac16733609b', name: 'David Rojas', phone: '+52 81 8704 9079' },
+  { id: 'fe901e9e-c3f2-41a1-b5a0-6d95c9d81344', name: 'David Marconi Mazariegos', phone: '+52 81 8704 9079' },
+  { id: 'a4165ce3-e52b-4f8d-9123-327c0179f73c', name: 'Israel Ramírez', phone: '+52 81 8704 9079' },
+  { id: '4c8c43bb-c936-44a2-ab82-f40326387770', name: 'Ramón Araujo', phone: '+52 81 8704 9079' },
 ];
 
 // Documentos obligatorios
@@ -105,6 +75,9 @@ const DashboardSidebarPage: React.FC = () => {
   const [submittedApplications, setSubmittedApplications] = useState<any[]>([]);
   const [showDrafts, setShowDrafts] = useState(false);
   const [showSubmitted, setShowSubmitted] = useState(false);
+  const [assignedAgent, setAssignedAgent] = useState<any>(null);
+  const [sidebarVehicles, setSidebarVehicles] = useState<any[]>([]);
+  const [vehiclesLabel, setVehiclesLabel] = useState('');
   const location = useLocation();
 
   useEffect(() => {
@@ -235,6 +208,65 @@ const DashboardSidebarPage: React.FC = () => {
         profileComplete,
         bankProfileComplete
       });
+
+      // Cargar asesor asignado
+      if (profile?.assigned_sales_agent_id) {
+        const agent = SALES_AGENTS.find(a => a.id === profile.assigned_sales_agent_id);
+        if (agent) {
+          setAssignedAgent(agent);
+        }
+      }
+
+      // Cargar vehículos para sidebar: favoritos > recently viewed > sugerencias
+      try {
+        // 1. Intentar cargar favoritos
+        const { data: favorites } = await supabase
+          .from('user_favorites')
+          .select('vehicle_id')
+          .eq('user_id', user.id)
+          .limit(3);
+
+        if (favorites && favorites.length > 0) {
+          const vehicleIds = favorites.map(f => f.vehicle_id);
+          const { data: favVehicles } = await supabase
+            .from('vehicles')
+            .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
+            .in('id', vehicleIds)
+            .limit(3);
+
+          if (favVehicles && favVehicles.length > 0) {
+            setSidebarVehicles(favVehicles);
+            setVehiclesLabel('Tus Favoritos');
+            return;
+          }
+        }
+
+        // 2. Si no hay favoritos, intentar recently viewed
+        const recentlyViewedRaw = localStorage.getItem('trefa_recently_viewed');
+        if (recentlyViewedRaw) {
+          const recentlyViewed = JSON.parse(recentlyViewedRaw);
+          if (recentlyViewed && recentlyViewed.length > 0) {
+            setSidebarVehicles(recentlyViewed.slice(0, 3));
+            setVehiclesLabel('Vistos Recientemente');
+            return;
+          }
+        }
+
+        // 3. Si no hay ni favoritos ni recently viewed, mostrar sugerencias
+        const { data: suggestions } = await supabase
+          .from('vehicles')
+          .select('id, slug, titulo, precio, feature_image, fotos_exterior_url, galeria_exterior')
+          .eq('disponibilidad', 'disponible')
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (suggestions && suggestions.length > 0) {
+          setSidebarVehicles(suggestions);
+          setVehiclesLabel('Algunas Sugerencias');
+        }
+      } catch (error) {
+        console.error('Error cargando vehículos para sidebar:', error);
+      }
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
     }
@@ -328,32 +360,115 @@ const DashboardSidebarPage: React.FC = () => {
           )}
         </div>
 
-        {/* Menu Items */}
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <li key={item.label}>
-                  <Link
-                    to={item.href}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-primary-50 text-primary-600'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    } ${!isOpen && 'justify-center'}`}
-                    title={!isOpen ? item.label : undefined}
-                  >
-                    <span className={isActive ? 'text-primary-600' : 'text-gray-500'}>
-                      {item.icon}
-                    </span>
-                    {isOpen && <span className="font-medium">{item.label}</span>}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        {/* Sidebar Content */}
+        {isOpen && (
+          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {/* Assigned Agent */}
+            {assignedAgent && (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    {assignedAgent.name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 truncate">
+                      {assignedAgent.name}
+                    </p>
+                    <p className="text-xs text-gray-600">Tu Asesor</p>
+                  </div>
+                </div>
+                <a
+                  href={`tel:${assignedAgent.phone}`}
+                  className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                >
+                  <Phone className="w-4 h-4" />
+                  {assignedAgent.phone}
+                </a>
+              </div>
+            )}
+
+            {/* WhatsApp Support */}
+            <a
+              href="https://wa.me/5218187049079?text=Hola,%20necesito%20ayuda%20con%20mi%20financiamiento"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold text-sm shadow-sm"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Soporte WhatsApp
+            </a>
+
+            {/* Vehicles Section */}
+            {sidebarVehicles.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-red-500 fill-red-500" />}
+                  {vehiclesLabel === 'Vistos Recientemente' && <TrendingUp className="w-4 h-4 text-blue-500" />}
+                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                    {vehiclesLabel}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {sidebarVehicles.map((vehicle) => {
+                    const imageUrl = vehicle.feature_image || vehicle.fotos_exterior_url?.[0] || vehicle.galeria_exterior?.[0];
+                    return (
+                      <Link
+                        key={vehicle.id}
+                        to={`/autos/${vehicle.slug || vehicle.id}`}
+                        className="block bg-gray-50 hover:bg-gray-100 rounded-lg p-2 transition-colors border border-gray-200"
+                      >
+                        <div className="flex items-center gap-2">
+                          {imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt={vehicle.titulo}
+                              className="w-16 h-12 object-cover rounded flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-16 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                              <Car className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-gray-800 truncate">
+                              {vehicle.titulo}
+                            </p>
+                            <p className="text-xs text-primary-600 font-bold">
+                              ${vehicle.precio?.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* CTA Button */}
+            <Link
+              to="/escritorio/aplicacion"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all font-semibold text-sm shadow-md hover:shadow-lg"
+            >
+              <CreditCard className="w-5 h-5" />
+              Solicitar Financiamiento
+            </Link>
+          </div>
+        )}
+
+        {/* Collapsed State */}
+        {!isOpen && (
+          <div className="flex-1 flex flex-col items-center justify-center p-2 space-y-4">
+            {assignedAgent && (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold text-sm">
+                {assignedAgent.name.charAt(0)}
+              </div>
+            )}
+            <MessageCircle className="w-6 h-6 text-green-500" />
+            {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-6 h-6 text-red-500 fill-red-500" />}
+            <CreditCard className="w-6 h-6 text-primary-600" />
+          </div>
+        )}
       </aside>
 
       {/* Main Content Area */}

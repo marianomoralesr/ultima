@@ -8,6 +8,7 @@ import { FilterProvider } from './context/FilterContext';
 import { QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ConfigProvider } from './context/ConfigContext';
+import { UpdateProvider } from './contexts/UpdateContext';
 import { conversionTracking } from './services/ConversionTrackingService';
 import serviceWorkerRegistration from './utils/serviceWorkerRegistration';
 import { queryClient } from './utils/queryClientConfig';
@@ -43,17 +44,19 @@ const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <FilterProvider>
-            <ConfigProvider>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </ConfigProvider>
-          </FilterProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+      <UpdateProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <FilterProvider>
+              <ConfigProvider>
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </ConfigProvider>
+            </FilterProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </UpdateProvider>
     </ErrorBoundary>
   </React.StrictMode>
 );

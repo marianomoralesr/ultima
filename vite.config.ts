@@ -1,10 +1,30 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { createHash } from 'crypto';
+
+// Plugin para generar hash de versión automático basado en timestamp
+const versionPlugin = () => {
+  const buildHash = createHash('md5')
+    .update(Date.now().toString())
+    .digest('hex')
+    .substring(0, 8);
+
+  return {
+    name: 'version-plugin',
+    config() {
+      return {
+        define: {
+          'import.meta.env.VITE_APP_VERSION': JSON.stringify(buildHash),
+        },
+      };
+    },
+  };
+};
 
 export default defineConfig({
   base: '/',
-  plugins: [react()],
+  plugins: [react(), versionPlugin()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

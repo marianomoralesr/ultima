@@ -46,15 +46,6 @@ export function register(config?: Config): void {
         registerValidSW(swUrl, config);
       }
     });
-
-    // Listen for controller change and reload the page
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        window.location.reload();
-        refreshing = true;
-      }
-    });
   }
 }
 
@@ -95,8 +86,10 @@ function registerValidSW(swUrl: string, config?: Config): void {
                 config.onUpdate(registration);
               }
 
-              // Show update prompt to user
-              showUpdatePrompt(registration);
+              // Notificar al UpdateProvider que hay una actualización disponible
+              if (typeof (window as any).__UPDATE_AVAILABLE__ === 'function') {
+                (window as any).__UPDATE_AVAILABLE__(registration);
+              }
             } else {
               // At this point, everything has been precached.
               console.log('Content is cached for offline use.');
@@ -144,45 +137,6 @@ function checkValidServiceWorker(swUrl: string, config?: Config): void {
     .catch(() => {
       console.log('No internet connection found. App is running in offline mode.');
     });
-}
-
-function showUpdatePrompt(registration: ServiceWorkerRegistration): void {
-  // Create a simple update notification
-  const updateBanner = document.createElement('div');
-  updateBanner.className = 'fixed bottom-4 right-4 bg-primary-600 text-white p-4 rounded-lg shadow-lg z-50 flex items-center gap-3';
-  updateBanner.innerHTML = `
-    <div>
-      <p class="font-semibold">Nueva versión disponible</p>
-      <p class="text-sm">Actualiza para obtener las últimas mejoras</p>
-    </div>
-    <button
-      id="update-sw-btn"
-      class="bg-white text-primary-600 px-4 py-2 rounded-md font-semibold hover:bg-gray-100 transition"
-    >
-      Actualizar
-    </button>
-    <button
-      id="dismiss-sw-btn"
-      class="text-white hover:text-gray-200 transition"
-    >
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-  `;
-
-  document.body.appendChild(updateBanner);
-
-  document.getElementById('update-sw-btn')?.addEventListener('click', () => {
-    if (registration.waiting) {
-      // Tell the service worker to skip waiting
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-  });
-
-  document.getElementById('dismiss-sw-btn')?.addEventListener('click', () => {
-    updateBanner.remove();
-  });
 }
 
 export function unregister(): void {

@@ -32,8 +32,9 @@ const RegisterBenefits: React.FC = () => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        
-        localStorage.setItem('loginRedirect', window.location.pathname + window.location.search);
+
+        // Always redirect to dashboard/profile for new users, not current page
+        localStorage.setItem('loginRedirect', '/escritorio/profile');
 
         try {
             const { error } = await supabase.auth.signInWithOtp({

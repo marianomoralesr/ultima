@@ -114,7 +114,8 @@ ORDER BY user_id, event_type, DATE(created_at), created_at DESC;
 -- Crear índices en la vista materializada
 CREATE INDEX IF NOT EXISTS idx_unique_events_user ON public.unique_tracking_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_unique_events_type ON public.unique_tracking_events(event_type);
-CREATE INDEX IF NOT EXISTS idx_unique_events_date ON public.unique_tracking_events(DATE(created_at));
+-- Usar CAST en lugar de DATE() para evitar error de immutability
+CREATE INDEX IF NOT EXISTS idx_unique_events_date ON public.unique_tracking_events((created_at::date));
 
 -- 7. Función para refrescar la vista materializada
 CREATE OR REPLACE FUNCTION refresh_unique_tracking_events()

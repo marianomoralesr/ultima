@@ -76,3 +76,15 @@ test-*.js
 test-*.ts
 test-*.sh
 debug-*.sql
+
+# Google Sheets Credentials
+google-credentials.json
+.env.google-sheets
+
+# SQL test files
+test-*.sql
+*-test.sql
+debug-*.sql
+check-*.sql
+verify-*.sql
+configure-*.sh

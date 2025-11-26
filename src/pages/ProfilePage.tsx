@@ -447,11 +447,11 @@ const ProfilePage: React.FC = () => {
                 <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
                 Completa tu perfil
               </h2>
-              <span className="text-sm font-medium text-gray-600">
-                Paso {currentStep} de {STEPS.length}
+              <span className={`text-sm font-medium ${isProfileComplete ? 'text-green-600 font-bold' : 'text-gray-600'}`}>
+                {isProfileComplete ? '100% - ¡Perfil completado!' : `Paso ${currentStep} de ${STEPS.length}`}
               </span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-500' : ''}`} />
             <div className="flex justify-between mt-2">
               {STEPS.map((step) => (
                 <div
@@ -544,8 +544,8 @@ const ProfilePage: React.FC = () => {
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-sm">Teléfono *</Label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-2 sm:px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs sm:text-sm font-medium">MX +52</span>
-                    <Input id="phone" {...profileForm.register('phone')} placeholder="10 dígitos" className="rounded-l-none text-sm" />
+                    <span className="inline-flex items-center px-2 sm:px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs sm:text-sm font-medium whitespace-nowrap">MX +52</span>
+                    <Input id="phone" {...profileForm.register('phone')} placeholder="10 dígitos" className="rounded-l-none text-sm flex-1" />
                   </div>
                   {profileForm.formState.errors.phone && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.phone?.message as React.ReactNode}</p>}
                 </div>
@@ -793,23 +793,8 @@ const ProfilePage: React.FC = () => {
       </form>
         </div>
 
-        {/* Sidebar - Profile Picture & Complete Banner */}
+        {/* Sidebar - Profile Picture & Summary */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Profile Complete Banner en Sidebar */}
-          {isProfileComplete && (
-            <div className="p-4 sm:p-5 bg-green-50 border border-green-200 rounded-xl text-center sticky top-6">
-              <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mx-auto mb-3" />
-              <h3 className="text-base sm:text-lg font-bold text-green-900">¡Perfil Completo!</h3>
-              <p className="text-xs sm:text-sm text-gray-600 mt-2 mb-4">Has completado tu información personal. El siguiente paso es crear tu perfilamiento bancario.</p>
-              <Link
-                to="/escritorio/perfilacion-bancaria"
-                className="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-xs sm:text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 touch-manipulation min-h-[40px] w-full"
-              >
-                Crear perfil bancario  <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </div>
-          )}
-
           {/* Profile Picture & Summary en Sidebar */}
           <div className="bg-white border rounded-xl p-4 sm:p-5 sticky top-6">
             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 text-center">Foto de Perfil</h3>
@@ -842,6 +827,30 @@ const ProfilePage: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-700">RFC:</span>
                     <span className="font-mono font-bold text-primary-600">{calculatedRfc}</span>
+                  </div>
+                )}
+                {profile.phone && (
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Teléfono:</span>
+                    <span className="text-right">+52 {profile.phone}</span>
+                  </div>
+                )}
+                {profile.birth_date && (
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Fecha de Nac.:</span>
+                    <span className="text-right">{new Date(profile.birth_date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                )}
+                {profile.civil_status && (
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Estado Civil:</span>
+                    <span className="text-right">{profile.civil_status}</span>
+                  </div>
+                )}
+                {profile.fiscal_situation && (
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Situación Fiscal:</span>
+                    <span className="text-right">{profile.fiscal_situation}</span>
                   </div>
                 )}
               </div>

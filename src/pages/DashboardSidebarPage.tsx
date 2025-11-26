@@ -26,7 +26,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '../../supabaseClient';
-import Logo from '@/assets/svg/logo';
 import { toast } from 'sonner';
 
 const SALES_AGENTS = [
@@ -348,57 +347,51 @@ const DashboardSidebarPage: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={`${
-          isOpen ? 'w-64' : 'w-20'
-        } bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col`}
+          isOpen ? 'w-56' : 'w-16'
+        } bg-background border-r transition-all duration-300 ease-in-out flex flex-col`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="px-3 py-3 border-b flex items-center justify-center">
           {isOpen ? (
-            <>
-              <Link to="/" className="flex items-center gap-2">
-                <Logo className="w-8 h-8 text-primary-600" />
-                <span className="text-xl font-bold text-gray-800">TREFA</span>
-              </Link>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded-md"
-              >
-                <X className="w-5 h-5 text-gray-600" />
-              </button>
-            </>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1.5 hover:bg-accent rounded-md transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
           ) : (
             <button
               onClick={() => setIsOpen(true)}
-              className="p-1 hover:bg-gray-100 rounded-md mx-auto"
+              className="p-1.5 hover:bg-accent rounded-md transition-colors"
             >
-              <Menu className="w-5 h-5 text-gray-600" />
+              <Menu className="w-4 h-4" />
             </button>
           )}
         </div>
 
         {/* Sidebar Content */}
         {isOpen && (
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          <div className="flex-1 px-3 py-2 overflow-y-auto space-y-2">
             {/* Assigned Agent */}
             {assignedAgent && (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+              <div className="bg-accent/50 p-2 rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm flex-shrink-0">
                     {assignedAgent.name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-800 truncate">
+                    <p className="text-xs font-medium truncate">
                       {assignedAgent.name}
                     </p>
-                    <p className="text-xs text-gray-600">Tu Asesor</p>
+                    <p className="text-[10px] text-muted-foreground">Tu Asesor</p>
                   </div>
                 </div>
                 <a
                   href={`tel:${assignedAgent.phone}`}
-                  className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                  className="flex items-center justify-center gap-1.5 w-full px-2 py-1.5 bg-background border rounded-md hover:bg-accent transition-colors text-xs font-medium"
                 >
-                  <Phone className="w-4 h-4" />
-                  {assignedAgent.phone}
+                  <Phone className="w-3 h-3" />
+                  <span className="truncate">{assignedAgent.phone}</span>
                 </a>
               </div>
             )}
@@ -408,51 +401,51 @@ const DashboardSidebarPage: React.FC = () => {
               href="https://wa.me/5218187049079?text=Hola,%20necesito%20ayuda%20con%20mi%20financiamiento"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold text-sm shadow-sm"
+              className="flex items-center justify-center gap-1.5 w-full px-2 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors font-medium text-xs"
             >
-              <MessageCircle className="w-5 h-5" />
+              <MessageCircle className="w-3.5 h-3.5" />
               Soporte WhatsApp
             </a>
 
             {/* Vehicles Section */}
             {sidebarVehicles.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-red-500 fill-red-500" />}
-                  {vehiclesLabel === 'Vistos Recientemente' && <TrendingUp className="w-4 h-4 text-blue-500" />}
-                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-3 h-3 text-red-500 fill-red-500" />}
+                  {vehiclesLabel === 'Vistos Recientemente' && <TrendingUp className="w-3 h-3 text-blue-500" />}
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                     {vehiclesLabel}
                   </p>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {sidebarVehicles.map((vehicle) => {
                     const imageUrl = vehicle.feature_image || vehicle.fotos_exterior_url?.[0] || vehicle.galeria_exterior?.[0];
                     return (
-                      <div key={vehicle.id} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                        <div className="flex items-center gap-2 mb-2">
+                      <div key={vehicle.id} className="bg-accent/50 rounded-md p-1.5 border">
+                        <div className="flex items-center gap-1.5 mb-1.5">
                           {imageUrl ? (
                             <img
                               src={imageUrl}
                               alt={vehicle.titulo}
-                              className="w-16 h-12 object-cover rounded flex-shrink-0"
+                              className="w-12 h-9 object-cover rounded flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-16 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
-                              <Car className="w-6 h-6 text-gray-400" />
+                            <div className="w-12 h-9 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                              <Car className="w-4 h-4 text-muted-foreground" />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-gray-800 truncate">
+                            <p className="text-[10px] font-semibold truncate">
                               {vehicle.titulo}
                             </p>
-                            <p className="text-xs text-primary-600 font-bold">
+                            <p className="text-[10px] text-primary font-bold">
                               ${vehicle.precio?.toLocaleString()}
                             </p>
                           </div>
                         </div>
                         <Link
                           to={`/autos/${vehicle.slug || vehicle.id}`}
-                          className="block w-full px-3 py-1.5 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 transition-colors text-center"
+                          className="block w-full px-2 py-1 bg-primary text-primary-foreground text-[10px] font-medium rounded hover:bg-primary/90 transition-colors text-center"
                         >
                           Ver Detalles
                         </Link>
@@ -462,29 +455,19 @@ const DashboardSidebarPage: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* CTA Button */}
-            <Link
-              to="/escritorio/aplicacion"
-              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all font-semibold text-sm shadow-md hover:shadow-lg"
-            >
-              <CreditCard className="w-5 h-5" />
-              Solicitar Financiamiento
-            </Link>
           </div>
         )}
 
         {/* Collapsed State */}
         {!isOpen && (
-          <div className="flex-1 flex flex-col items-center justify-center p-2 space-y-4">
+          <div className="flex-1 flex flex-col items-center justify-center p-2 space-y-3">
             {assignedAgent && (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-xs">
                 {assignedAgent.name.charAt(0)}
               </div>
             )}
-            <MessageCircle className="w-6 h-6 text-green-500" />
-            {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-6 h-6 text-red-500 fill-red-500" />}
-            <CreditCard className="w-6 h-6 text-primary-600" />
+            <MessageCircle className="w-5 h-5 text-green-500" />
+            {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-red-500 fill-red-500" />}
           </div>
         )}
       </aside>
@@ -492,23 +475,23 @@ const DashboardSidebarPage: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-background border-b px-4 py-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-xl font-semibold">
               Panel de Control
             </h1>
-            <div className="flex items-center gap-4">
-              <Bell className="w-6 h-6 text-gray-600 cursor-pointer hover:text-primary-600" />
+            <div className="flex items-center gap-3">
+              <Bell className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
               <Link to="/escritorio/profile">
-                <User className="w-6 h-6 text-gray-600 cursor-pointer hover:text-primary-600" />
+                <User className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
               </Link>
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 p-4 overflow-y-auto">
+          <div className="max-w-7xl mx-auto space-y-4">
             {/* Limit Warning */}
             {stats.enviadas > 1 && (
               <Card className="border-2 border-yellow-500 bg-yellow-50">

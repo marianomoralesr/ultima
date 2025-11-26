@@ -309,7 +309,7 @@ const PublicDocumentUploadPage: React.FC = () => {
           <h1 className="text-2xl font-bold tracking-tight mb-2">Carga de Documentos</h1>
           <p className="text-muted-foreground">
             {uploadedCount === 0
-              ? 'Esperando documentos...'
+              ? 'Esperando archivos...'
               : uploadedCount < REQUIRED_DOCUMENTS.length
               ? 'Sube los documentos faltantes'
               : '¡Todos los documentos recibidos!'}
@@ -528,7 +528,7 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
               ) : (
                 <>
                   <p className="text-sm font-medium">
-                    Arrastra el archivo aquí
+                    Arrástralos o haz click para cargarlos
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">PDF, JPG o PNG (máx. 10MB)</p>
                 </>

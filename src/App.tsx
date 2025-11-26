@@ -82,6 +82,7 @@ const FinanciamientosPage = lazy(() => import('./pages/FinanciamientosPage'));
 const FinanciamientoLandingPage = lazy(() => import('./pages/FinanciamientoLandingPage'));
 const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
 const ApplicationAnalyticsPage = lazy(() => import('./pages/ApplicationAnalyticsPage'));
+const DocumentUploadAnalyticsPage = lazy(() => import('./pages/DocumentUploadAnalyticsPage'));
 const MarketingConfigPage = lazy(() => import('./pages/MarketingConfigPage'));
 const AdminSalesDashboard = lazy(() => import('./pages/AdminSalesDashboard'));
 const AdminLogsPage = lazy(() => import('./pages/AdminLogsPage'));
@@ -207,6 +208,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/vacantes/:id/candidatos" element={<AdminCandidatesPage />} />
                   <Route path="admin/usuarios" element={<AdminUserManagementPage />} />
                   <Route path="admin/solicitudes" element={<ApplicationAnalyticsPage />} />
+                  <Route path="admin/documentos-analytics" element={<DocumentUploadAnalyticsPage />} />
                   <Route path="admin/logs" element={<AdminLogsPage />} />
                   <Route path="admin/config" element={<AdminConfigPage />} />
                   <Route path="admin/marketing" element={<MarketingHubPage />} />

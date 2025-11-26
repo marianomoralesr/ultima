@@ -11,7 +11,11 @@ import {
     Menu,
     X,
     ChevronRight,
-    DollarSign
+    DollarSign,
+    MessageSquare,
+    TrendingUp,
+    FileText,
+    Database
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -38,14 +42,15 @@ const DashboardLayout: React.FC = () => {
     // Navigation items based on user role - ADMIN/SALES ONLY
     const navItems = [
         ...(isAdmin ? [
-            { to: '/escritorio/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-            { to: '/escritorio/admin/business-analytics', label: 'Analytics', icon: BarChart3 },
+            { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+            { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
             { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
             { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
             { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },
-            { to: '/escritorio/admin/marketing', label: 'Marketing', icon: BarChart3 },
-            { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
-            { to: '/bancos/dashboard', label: 'Portal Bancario', icon: Building2 },
+            { to: '/escritorio/admin/survey-analytics', label: 'Encuestas', icon: MessageSquare },
+            { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
+            { to: '/escritorio/admin/bancos', label: 'Bancos', icon: Building2 },
+            { to: '/changelog', label: 'Changelog', icon: FileText },
         ] : []),
         ...(isSales ? [
             { to: '/escritorio/ventas/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },

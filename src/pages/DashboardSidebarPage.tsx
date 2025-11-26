@@ -723,11 +723,11 @@ const DashboardSidebarPage: React.FC = () => {
       {/* Sidebar - Right Side */}
       <aside
         className={`${
-          isOpen ? 'w-56' : 'w-16'
-        } bg-background border-l transition-all duration-300 ease-in-out flex flex-col`}
+          isOpen ? 'w-56 bg-background' : 'w-16 bg-[#FF6801] hidden md:flex'
+        } border-l transition-all duration-300 ease-in-out flex flex-col`}
       >
         {/* Header */}
-        <div className="px-3 py-3 border-b flex items-center justify-center">
+        <div className={`px-3 py-3 flex items-center justify-center ${isOpen ? 'border-b' : ''}`}>
           {isOpen ? (
             <button
               onClick={() => setIsOpen(false)}
@@ -738,9 +738,9 @@ const DashboardSidebarPage: React.FC = () => {
           ) : (
             <button
               onClick={() => setIsOpen(true)}
-              className="p-1.5 hover:bg-accent rounded-md transition-colors"
+              className="p-1.5 hover:bg-white/20 rounded-md transition-colors"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-4 h-4 text-white" />
             </button>
           )}
         </div>
@@ -838,12 +838,12 @@ const DashboardSidebarPage: React.FC = () => {
         {!isOpen && (
           <div className="flex-1 flex flex-col items-center justify-center p-2 space-y-3">
             {assignedAgent && (
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-xs">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF6801] font-semibold text-xs shadow-sm">
                 {assignedAgent.name.charAt(0)}
               </div>
             )}
-            <MessageCircle className="w-5 h-5 text-green-500" />
-            {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-red-500 fill-red-500" />}
+            <MessageCircle className="w-5 h-5 text-white" />
+            {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-white fill-white" />}
           </div>
         )}
       </aside>

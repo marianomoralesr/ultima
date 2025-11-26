@@ -173,13 +173,13 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                     </div>
                 )}
 
-                {/* Sales Section */}
-                {isSales && !isAdmin && (
-                    <div className="mt-6 pt-6 border-t">
+                {/* Sales Section - Visible to Sales and Admins */}
+                {(isSales || isAdmin) && (
+                    <div className="mt-6 pt-6 border-t border-gray-200">
                         {!isCollapsed && (
-                            <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center">
-                                <TrendingUp className="w-4 h-4 mr-2" />
-                                Ventas
+                            <h3 className="px-3 mb-3 text-xs font-semibold text-[#FF6801] uppercase tracking-wider flex items-center">
+                                <BriefcaseIcon className="w-4 h-4 mr-2" />
+                                Asesores
                             </h3>
                         )}
                         <nav className="space-y-2">
@@ -190,16 +190,31 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                                     className={({ isActive }) =>
                                         `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
                                             isActive
-                                                ? 'bg-emerald-100 text-emerald-700'
-                                                : 'bg-gray-50/50 text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
+                                                ? 'bg-orange-100 text-orange-700'
+                                                : 'bg-gray-50/50 text-gray-600 hover:bg-orange-50 hover:text-orange-700'
                                         }`
                                     }
                                     title={isCollapsed ? item.label : undefined}
                                 >
-                                    <item.icon className={`${isCollapsed ? 'w-6 h-6' : 'w-4 h-4'} flex-shrink-0 text-gray-600 ${!isCollapsed ? 'mr-3' : ''}`} />
+                                    <item.icon className={`${isCollapsed ? 'w-6 h-6' : 'w-4 h-4'} flex-shrink-0 ${isActive ? 'text-orange-700' : 'text-gray-600'} ${!isCollapsed ? 'mr-3' : ''}`} />
                                     <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.6rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>{item.label}</span>
                                 </NavLink>
                             ))}
+                            {/* Mis Solicitudes - for sales to see their applications */}
+                            <NavLink
+                                to="/escritorio/ventas/mis-solicitudes"
+                                className={({ isActive }) =>
+                                    `flex ${isCollapsed ? 'flex-col items-center justify-center' : 'flex-row items-center'} px-3 ${isCollapsed ? 'py-3' : 'py-2.5'} rounded-lg transition-colors text-sm font-medium ${
+                                        isActive
+                                            ? 'bg-orange-100 text-orange-700'
+                                            : 'bg-gray-50/50 text-gray-600 hover:bg-orange-50 hover:text-orange-700'
+                                    }`
+                                }
+                                title={isCollapsed ? 'Mis Solicitudes' : undefined}
+                            >
+                                <FileText className={`${isCollapsed ? 'w-6 h-6' : 'w-4 h-4'} flex-shrink-0 ${!isCollapsed ? 'mr-3' : ''}`} />
+                                <span className={`transition-all duration-200 ${isCollapsed ? 'text-[0.6rem] mt-1 text-center leading-tight' : 'whitespace-nowrap'}`}>Mis Solicitudes</span>
+                            </NavLink>
                         </nav>
                     </div>
                 )}

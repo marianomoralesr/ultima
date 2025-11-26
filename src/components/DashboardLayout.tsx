@@ -11,6 +11,7 @@ import {
     Menu,
     X,
     ChevronRight,
+    ChevronLeft,
     DollarSign,
     MessageSquare,
     TrendingUp,

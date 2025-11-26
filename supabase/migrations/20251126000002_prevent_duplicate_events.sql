@@ -92,7 +92,7 @@ CREATE TRIGGER trg_prevent_duplicate_events
 
 -- 6. Crear vista materializada para eventos únicos (para reportes rápidos)
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.unique_tracking_events AS
-SELECT DISTINCT ON (user_id, event_type, DATE(created_at))
+SELECT DISTINCT ON (user_id, event_type, (created_at::date))
     id,
     event_name,
     event_type,
@@ -104,12 +104,10 @@ SELECT DISTINCT ON (user_id, event_type, DATE(created_at))
     utm_campaign,
     utm_term,
     utm_content,
-    page_url,
-    referrer,
     created_at
 FROM tracking_events
 WHERE user_id IS NOT NULL
-ORDER BY user_id, event_type, DATE(created_at), created_at DESC;
+ORDER BY user_id, event_type, (created_at::date), created_at DESC;
 
 -- Crear índices en la vista materializada
 CREATE INDEX IF NOT EXISTS idx_unique_events_user ON public.unique_tracking_events(user_id);

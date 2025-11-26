@@ -12,7 +12,10 @@ import {
   CheckCircle,
   Copy,
   Car,
-  Upload
+  Upload,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -71,8 +74,18 @@ const REQUIRED_DOCUMENTS = [
   'ine_front',
   'ine_back',
   'proof_address',
-  'proof_income' // Puede ser 3 estados de cuenta o 1 zip
+  'proof_income'
 ];
+
+// Mensajes motivacionales basados en progreso
+const getMotivationalMessage = (progress: number): string => {
+  if (progress === 0) return '¡Comienza tu proceso de financiamiento hoy!';
+  if (progress < 25) return '¡Buen comienzo! Sigue completando tu información.';
+  if (progress < 50) return '¡Vas muy bien! Estás a mitad de camino.';
+  if (progress < 75) return '¡Excelente progreso! Ya casi terminas.';
+  if (progress < 100) return '¡Casi lo logras! Solo un paso más.';
+  return '¡Felicidades! Has completado todo el proceso.';
+};
 
 const DashboardSidebarPage: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -81,11 +94,17 @@ const DashboardSidebarPage: React.FC = () => {
     enviadas: 0,
     documentosPendientes: 0,
     status: 'draft' as 'draft' | 'submitted' | 'approved' | 'rejected' | 'pending',
-    progreso: 0
+    progreso: 0,
+    profileComplete: false,
+    bankProfileComplete: false
   });
   const [publicUploadLink, setPublicUploadLink] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [latestApplication, setLatestApplication] = useState<any>(null);
+  const [draftApplications, setDraftApplications] = useState<any[]>([]);
+  const [submittedApplications, setSubmittedApplications] = useState<any[]>([]);
+  const [showDrafts, setShowDrafts] = useState(false);
+  const [showSubmitted, setShowSubmitted] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -97,6 +116,29 @@ const DashboardSidebarPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Verificar perfil completo
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const profileComplete = !!(
+        profile?.first_name &&
+        profile?.last_name &&
+        profile?.phone &&
+        profile?.email
+      );
+
+      // Verificar perfilación bancaria completa
+      const { data: bankProfile } = await supabase
+        .from('bank_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      const bankProfileComplete = bankProfile?.is_complete || false;
+
       // Obtener todas las solicitudes del usuario
       const { data: applications } = await supabase
         .from('financing_applications')
@@ -107,14 +149,25 @@ const DashboardSidebarPage: React.FC = () => {
       const latestApp = applications?.[0];
       setLatestApplication(latestApp);
 
-      // Contar borradores y enviadas
-      const borradores = applications?.filter(app => app.status === 'draft').length || 0;
-      const enviadas = applications?.filter(app =>
+      // Separar borradores y enviadas
+      const drafts = applications?.filter(app => app.status === 'draft') || [];
+      const submitted = applications?.filter(app =>
         app.status === 'submitted' || app.status === 'approved' || app.status === 'pending'
-      ).length || 0;
+      ) || [];
+
+      setDraftApplications(drafts);
+      setSubmittedApplications(submitted);
+
+      const borradores = drafts.length;
+      const enviadas = submitted.length;
+
+      // Validar límite de 1 solicitud enviada
+      if (enviadas > 1) {
+        console.warn('⚠️ Usuario tiene más de 1 solicitud enviada');
+      }
 
       // Obtener documentos de la solicitud más reciente
-      let documentosPendientes = 4; // Por defecto todos pendientes
+      let documentosPendientes = 4;
       let uploadedDocs: any[] = [];
 
       if (latestApp) {
@@ -133,11 +186,10 @@ const DashboardSidebarPage: React.FC = () => {
         if (docTypes.has('ine_back')) docsPresentes++;
         if (docTypes.has('proof_address')) docsPresentes++;
 
-        // proof_income puede ser múltiples archivos o un zip
         const proofIncomeCount = uploadedDocs.filter(doc =>
           doc.document_type === 'proof_income'
         ).length;
-        if (proofIncomeCount >= 1) docsPresentes++; // Al menos 1 documento de ingresos
+        if (proofIncomeCount >= 1) docsPresentes++;
 
         documentosPendientes = 4 - docsPresentes;
 
@@ -152,26 +204,25 @@ const DashboardSidebarPage: React.FC = () => {
           setSelectedVehicle(vehicle);
         }
 
-        // Generar link público si existe public_upload_token
+        // Generar link público
         if (latestApp.public_upload_token) {
           const baseUrl = window.location.origin;
           setPublicUploadLink(`${baseUrl}/upload-documentos/${latestApp.public_upload_token}`);
         }
       }
 
-      // Calcular progreso: 100% solo si hay solicitud enviada Y 0 docs pendientes
+      // Calcular progreso
       let progress = 0;
-      const hasSubmittedApp = applications?.some(app =>
-        app.status === 'submitted' || app.status === 'approved' || app.status === 'pending'
-      );
+      const hasSubmittedApp = enviadas > 0;
 
       if (hasSubmittedApp && documentosPendientes === 0) {
         progress = 100;
       } else {
-        // Progreso parcial
-        if (applications && applications.length > 0) progress += 50;
+        if (profileComplete) progress += 20;
+        if (bankProfileComplete) progress += 20;
+        if (applications && applications.length > 0) progress += 30;
         if (documentosPendientes < 4) {
-          progress += (4 - documentosPendientes) * 12.5; // 12.5% por cada doc
+          progress += (4 - documentosPendientes) * 7.5;
         }
       }
 
@@ -180,7 +231,9 @@ const DashboardSidebarPage: React.FC = () => {
         enviadas,
         documentosPendientes,
         status: latestApp?.status || 'draft',
-        progreso: Math.min(progress, 100)
+        progreso: Math.min(progress, 100),
+        profileComplete,
+        bankProfileComplete
       });
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
@@ -230,8 +283,17 @@ const DashboardSidebarPage: React.FC = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-MX', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   const statusConfig = getStatusConfig(stats.status);
   const docsComplete = stats.documentosPendientes === 0;
+  const motivationalMessage = getMotivationalMessage(stats.progreso);
 
   return (
     <div className="flex min-h-screen w-full bg-gray-50">
@@ -314,29 +376,68 @@ const DashboardSidebarPage: React.FC = () => {
         {/* Main Content */}
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-6">
+            {/* Limit Warning */}
+            {stats.enviadas > 1 && (
+              <Card className="border-2 border-yellow-500 bg-yellow-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-yellow-800">
+                        Aviso: Solo se permite 1 solicitud enviada a la vez
+                      </p>
+                      <p className="text-sm text-yellow-700">
+                        Actualmente tienes {stats.enviadas} solicitudes enviadas. Por favor, contacta a soporte.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Stats Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Borradores */}
-              <Card className="border-2">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <FileText className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Borradores</p>
-                    <p className="text-3xl font-bold text-gray-800">{stats.borradores}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Borradores - Clickable */}
+              <div
+                className="cursor-pointer"
+                onClick={() => setShowDrafts(!showDrafts)}
+              >
+                <Card className="border-2 hover:border-gray-400 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <FileText className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">Borradores</p>
+                      <p className="text-3xl font-bold text-gray-800">{stats.borradores}</p>
+                      {stats.borradores > 0 && (
+                        <div className="mt-2">
+                          {showDrafts ? <ChevronUp className="w-4 h-4 mx-auto" /> : <ChevronDown className="w-4 h-4 mx-auto" />}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-              {/* Enviadas */}
-              <Card className="border-2">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <FileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Enviadas</p>
-                    <p className="text-3xl font-bold text-gray-800">{stats.enviadas}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Enviadas - Clickable */}
+              <div
+                className="cursor-pointer"
+                onClick={() => setShowSubmitted(!showSubmitted)}
+              >
+                <Card className="border-2 hover:border-blue-400 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <FileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">Enviadas</p>
+                      <p className="text-3xl font-bold text-gray-800">{stats.enviadas}</p>
+                      {stats.enviadas > 0 && (
+                        <div className="mt-2">
+                          {showSubmitted ? <ChevronUp className="w-4 h-4 mx-auto" /> : <ChevronDown className="w-4 h-4 mx-auto" />}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Docs Pendientes */}
               <Card className={`border-2 ${docsComplete ? 'border-green-500 bg-green-50' : ''}`}>
@@ -369,48 +470,141 @@ const DashboardSidebarPage: React.FC = () => {
               </Card>
             </div>
 
-            {/* Progress Bar */}
+            {/* Dropdown Lists */}
+            {showDrafts && draftApplications.length > 0 && (
+              <Card className="border-2 border-gray-300">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3">Borradores</h3>
+                  <div className="space-y-2">
+                    {draftApplications.map((app) => (
+                      <Link
+                        key={app.id}
+                        to={`/escritorio/aplicacion/${app.id}`}
+                        className="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {app.car_info?.title || 'Solicitud sin vehículo'}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Creada: {formatDate(app.created_at)}
+                            </p>
+                          </div>
+                          <span className="text-xs bg-gray-200 px-2 py-1 rounded">
+                            Borrador
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {showSubmitted && submittedApplications.length > 0 && (
+              <Card className="border-2 border-blue-300">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3">Solicitudes Enviadas</h3>
+                  <div className="space-y-2">
+                    {submittedApplications.map((app) => (
+                      <Link
+                        key={app.id}
+                        to={`/escritorio/seguimiento/${app.id}`}
+                        className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {app.car_info?.title || 'Solicitud sin vehículo'}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Enviada: {formatDate(app.created_at)}
+                            </p>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            app.status === 'approved' ? 'bg-green-200 text-green-800' :
+                            app.status === 'pending' ? 'bg-yellow-200 text-yellow-800' :
+                            'bg-blue-200 text-blue-800'
+                          }`}>
+                            {getStatusConfig(app.status).label}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Progress Bar with Motivational Message */}
             <Card className="border-2">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Progreso del Proceso
-                </h3>
-                <div className="space-y-2">
-                  <Progress value={stats.progreso} className="h-3" />
-                  <p className="text-sm text-gray-600">
-                    {stats.progreso === 100
-                      ? '¡Proceso completado! Todos los documentos han sido enviados.'
-                      : `Has completado el ${stats.progreso}% del proceso`
-                    }
-                  </p>
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                      Progreso del Proceso
+                    </h3>
+                    <p className="text-sm font-medium text-primary-600">
+                      {motivationalMessage}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-gray-800">{stats.progreso}%</span>
+                  </div>
                 </div>
+                <Progress value={stats.progreso} className="h-3" />
               </CardContent>
             </Card>
 
             {/* Action Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Mi Perfil con check sutil */}
               <Link to="/escritorio/profile">
-                <Card className="border-2 hover:border-primary-500 transition-colors cursor-pointer h-full">
+                <Card className={`border-2 hover:border-primary-500 transition-colors cursor-pointer h-full ${
+                  stats.profileComplete ? 'border-green-300 bg-green-50' : ''
+                }`}>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3">
-                      <User className="w-8 h-8 text-primary-600" />
+                      {stats.profileComplete ? (
+                        <div className="relative">
+                          <User className="w-8 h-8 text-primary-600" />
+                          <CheckCircle className="w-4 h-4 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
+                        </div>
+                      ) : (
+                        <User className="w-8 h-8 text-primary-600" />
+                      )}
                       <div>
                         <p className="font-semibold text-gray-800">Mi Perfil</p>
-                        <p className="text-sm text-gray-600">Actualiza tu información</p>
+                        <p className="text-sm text-gray-600">
+                          {stats.profileComplete ? 'Completado ✓' : 'Actualiza tu información'}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </Link>
 
+              {/* Perfilación Bancaria con check sutil */}
               <Link to="/escritorio/perfilacion-bancaria">
-                <Card className="border-2 hover:border-primary-500 transition-colors cursor-pointer h-full">
+                <Card className={`border-2 hover:border-primary-500 transition-colors cursor-pointer h-full ${
+                  stats.bankProfileComplete ? 'border-green-300 bg-green-50' : ''
+                }`}>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3">
-                      <CreditCard className="w-8 h-8 text-primary-600" />
+                      {stats.bankProfileComplete ? (
+                        <div className="relative">
+                          <CreditCard className="w-8 h-8 text-primary-600" />
+                          <CheckCircle className="w-4 h-4 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
+                        </div>
+                      ) : (
+                        <CreditCard className="w-8 h-8 text-primary-600" />
+                      )}
                       <div>
                         <p className="font-semibold text-gray-800">Perfilación Bancaria</p>
-                        <p className="text-sm text-gray-600">Completa tu perfil</p>
+                        <p className="text-sm text-gray-600">
+                          {stats.bankProfileComplete ? 'Completado ✓' : 'Completa tu perfil'}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -464,9 +658,9 @@ const DashboardSidebarPage: React.FC = () => {
             {publicUploadLink && latestApplication && (
               <Card className="border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white">
                 <CardContent className="p-6">
-                  <div className="flex items-start gap-6">
+                  <div className="flex flex-col md:flex-row items-start gap-6">
                     {/* QR Code */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 mx-auto md:mx-0">
                       <div className="bg-white p-4 rounded-lg shadow-md">
                         <QRCodeSVG
                           value={publicUploadLink}
@@ -481,7 +675,7 @@ const DashboardSidebarPage: React.FC = () => {
                     </div>
 
                     {/* Dropzone Info */}
-                    <div className="flex-1">
+                    <div className="flex-1 w-full">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="relative">
                           <Upload className="w-8 h-8 text-primary-600" />

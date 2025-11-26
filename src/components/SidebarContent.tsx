@@ -98,7 +98,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
     ];
 
     const adminNavItems = [
-        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+        { to: '/escritorio/admin/marketing', label: 'Dashboard General', icon: BarChart3 },
         { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
         { to: '/escritorio/admin/marketing-analytics', label: 'Analytics', icon: TrendingUp },
         { to: '/bancos/dashboard', label: 'Portal Bancario', icon: Building2 },

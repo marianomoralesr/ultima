@@ -47,7 +47,7 @@ const DashboardLayout: React.FC = () => {
     // Admin navigation items (right sidebar)
     const adminNavItems = [
         { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-        { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
+        { to: '/escritorio/admin/marketing', label: 'Dashboard General', icon: BarChart3 },
         { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
         { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
         { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },

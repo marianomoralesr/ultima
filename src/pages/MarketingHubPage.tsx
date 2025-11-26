@@ -32,6 +32,7 @@ const MarketingHubPage: React.FC = () => {
   });
 
   useEffect(() => {
+    document.title = 'Dashboard General | TREFA';
     loadSummaryMetrics();
     loadEventStats();
   }, []);

@@ -12,7 +12,7 @@ import {
     Menu,
     X,
     Building2,
-    Package
+    Search
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -42,7 +42,7 @@ const UserDashboardLayout: React.FC = () => {
         { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
         { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
         { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
-        { to: '/escritorio/inventario', label: 'Inventario', icon: Package },
+        { to: '/autos', label: 'Inventario', icon: Search },
     ];
 
     const secondaryNav = [

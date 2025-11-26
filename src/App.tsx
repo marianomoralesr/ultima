@@ -7,6 +7,7 @@ import AuthHandler from './components/AuthHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import DashboardLayout from './components/DashboardLayout';
+import UserDashboardLayout from './components/UserDashboardLayout';
 import AdminRoute from './components/AdminRoute';
 import SalesRoute from './components/SalesRoute';
 import RedirectManager from './components/RedirectManager';
@@ -166,27 +167,27 @@ function App(): React.JSX.Element {
             </Route>
 
             <Route path="/escritorio" element={<ProtectedRoute />}>
-              {/* Main dashboard for regular users - uses built-in sidebar */}
-              <Route index element={<DashboardSidebarPage />} />
-
-              {/* User routes without admin layout */}
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
-              <Route path="aplicacion" element={<Application />} />
-              <Route path="aplicacion/:id" element={<Application />} />
-              <Route path="aplicacion/:id/confirmacion" element={<ApplicationConfirmationPage />} />
-              <Route path="seguimiento" element={<SeguimientoPage />} />
-              <Route path="seguimiento/:id" element={<SeguimientoPage />} />
-              <Route path="favoritos" element={<FavoritesPage />} />
-              <Route path="beta-v.0.1" element={<BetaPollPage />} />
-              <Route path="encuesta" element={<SurveyPage />} />
-              <Route path="citas" element={<VisitasPage />} />
-              <Route path="autos" element={<VehicleListPage />} />
-              <Route path="inventario" element={<VehicleListPage />} />
-              <Route path="mis-aplicaciones" element={<UserApplicationsPage />} />
-              <Route path="solicitudes" element={<UserApplicationsPage />} />
-              <Route path="vende-tu-auto" element={<SellMyCarPage />} />
-              <Route path="ejemplo" element={<DashboardExample />} />
+              {/* User routes with UserDashboardLayout */}
+              <Route element={<UserDashboardLayout />}>
+                <Route index element={<DashboardSidebarPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
+                <Route path="aplicacion" element={<Application />} />
+                <Route path="aplicacion/:id" element={<Application />} />
+                <Route path="aplicacion/:id/confirmacion" element={<ApplicationConfirmationPage />} />
+                <Route path="seguimiento" element={<SeguimientoPage />} />
+                <Route path="seguimiento/:id" element={<SeguimientoPage />} />
+                <Route path="favoritos" element={<FavoritesPage />} />
+                <Route path="beta-v.0.1" element={<BetaPollPage />} />
+                <Route path="encuesta" element={<SurveyPage />} />
+                <Route path="citas" element={<VisitasPage />} />
+                <Route path="autos" element={<VehicleListPage />} />
+                <Route path="inventario" element={<VehicleListPage />} />
+                <Route path="mis-aplicaciones" element={<UserApplicationsPage />} />
+                <Route path="solicitudes" element={<UserApplicationsPage />} />
+                <Route path="vende-tu-auto" element={<SellMyCarPage />} />
+                <Route path="ejemplo" element={<DashboardExample />} />
+              </Route>
 
               {/* Admin/Sales routes WITH DashboardLayout */}
               <Route element={<DashboardLayout />}>

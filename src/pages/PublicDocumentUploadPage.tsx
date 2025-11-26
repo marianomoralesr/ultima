@@ -508,31 +508,56 @@ const DocumentDropzone: React.FC<DocumentDropzoneProps> = ({
       )}
 
       {!status.uploaded && (
-        <div {...getRootProps()}>
-          <input {...getInputProps()} ref={fileInputRef} />
-          <div
-            className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition-all ${
-              isDragActive
-                ? 'border-primary bg-primary/5'
-                : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-accent/50'
-            } ${isUploading || tokenExpired ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <Upload className={`w-10 h-10 mx-auto mb-2 ${isDragActive ? 'text-primary' : 'text-muted-foreground'}`} />
-            {isDragActive ? (
-              <p className="text-sm font-medium text-primary">Suelta el archivo aquí</p>
-            ) : isUploading ? (
-              <p className="text-sm text-muted-foreground">Subiendo...</p>
-            ) : tokenExpired ? (
-              <p className="text-sm text-muted-foreground">Enlace expirado</p>
-            ) : (
-              <>
-                <p className="text-sm font-medium">
-                  Arrastra el archivo o haz clic
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">PDF, JPG o PNG (máx. 10MB)</p>
-              </>
-            )}
+        <div>
+          <div {...getRootProps()}>
+            <input {...getInputProps()} ref={fileInputRef} />
+            <div
+              className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition-all ${
+                isDragActive
+                  ? 'border-primary bg-primary/5'
+                  : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-accent/50'
+              } ${isUploading || tokenExpired ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Upload className={`w-10 h-10 mx-auto mb-2 ${isDragActive ? 'text-primary' : 'text-muted-foreground'}`} />
+              {isDragActive ? (
+                <p className="text-sm font-medium text-primary">Suelta el archivo aquí</p>
+              ) : isUploading ? (
+                <p className="text-sm text-muted-foreground">Subiendo...</p>
+              ) : tokenExpired ? (
+                <p className="text-sm text-muted-foreground">Enlace expirado</p>
+              ) : (
+                <>
+                  <p className="text-sm font-medium">
+                    Arrastra el archivo aquí
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">PDF, JPG o PNG (máx. 10MB)</p>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* Botón alternativo para seleccionar archivo */}
+          {!isUploading && !tokenExpired && (
+            <div className="mt-3">
+              <input
+                type="file"
+                id={`file-input-${doc.id}`}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onFileSelect(file);
+                }}
+                className="hidden"
+              />
+              <label
+                htmlFor={`file-input-${doc.id}`}
+                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors font-medium text-sm"
+              >
+                <Upload className="w-4 h-4" />
+                Seleccionar Archivo
+              </label>
+            </div>
+          )}
         </div>
       )}
 

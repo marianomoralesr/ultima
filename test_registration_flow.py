@@ -69,6 +69,11 @@ def test_registration_flow():
             viewport={'width': 1920, 'height': 1080},
             locale='es-MX'
         )
+
+        # Configurar timeouts más largos
+        context.set_default_timeout(60000)  # 60 segundos
+        context.set_default_navigation_timeout(60000)  # 60 segundos
+
         page = context.new_page()
 
         # Generar email de prueba
@@ -80,8 +85,8 @@ def test_registration_flow():
             print("\n" + "-"*80)
             print("PASO 1: Navegando a landing de financiamientos")
             print("-"*80)
-            page.goto('http://localhost:5173/financiamientos')
-            page.wait_for_load_state('networkidle')
+            page.goto('http://localhost:5173/financiamientos', wait_until='domcontentloaded')
+            time.sleep(2)  # Esperar a que cargue completamente
             take_screenshot(page, "01_landing_financiamientos")
             print("✅ Landing de financiamientos cargada")
 

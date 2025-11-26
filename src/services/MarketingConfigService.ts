@@ -212,13 +212,18 @@ class MarketingConfigService {
   initializeGTM(containerId: string, serverContainerUrl?: string): void {
     if (typeof window === 'undefined') return;
 
-    // Check if GTM is already loaded
-    if ((window as any).google_tag_manager) {
-      console.log('GTM already initialized');
+    // Enhanced check: GTM is already loaded if google_tag_manager exists OR if dataLayer has GTM events
+    // This prevents duplicate initialization from both index.html and dynamic loading
+    const hasGTMManager = !!(window as any).google_tag_manager;
+    const hasDataLayer = Array.isArray((window as any).dataLayer) && (window as any).dataLayer.length > 0;
+    const hasGTMScript = document.querySelector(`script[src*="googletagmanager.com/gtm.js?id=${containerId}"]`);
+
+    if (hasGTMManager || hasGTMScript) {
+      console.log('✅ GTM already initialized (detected via script tag or google_tag_manager object)');
       return;
     }
 
-    // Initialize dataLayer
+    // Initialize dataLayer if it doesn't exist yet
     (window as any).dataLayer = (window as any).dataLayer || [];
 
     // Add server_container_url for server-side GTM if provided

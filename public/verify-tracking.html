@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Tracking - TREFA</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #ff6b35;
+      border-bottom: 3px solid #ff6b35;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #333;
+      margin-top: 30px;
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .status.ok {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .status.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border-left: 4px solid #ff6b35;
+    }
+    button {
+      background: #ff6b35;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 5px;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #e55a25;
+    }
+    .code-block {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+      overflow-x: auto;
+    }
+    .result {
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 6px;
+      background: #f8f9fa;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      margin: 5px 0;
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #dee2e6;
+    }
+    .metric-label {
+      font-weight: 600;
+      color: #495057;
+    }
+    .metric-value {
+      font-family: 'Courier New', monospace;
+      color: #ff6b35;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Verificación de Tracking - TREFA</h1>
+    <p>Esta herramienta te ayuda a verificar que Google Tag Manager, Facebook Pixel y el tracking de eventos estén funcionando correctamente.</p>
+
+    <h2>📊 Estado del Tracking</h2>
+    <div id="tracking-status"></div>
+
+    <h2>🧪 Pruebas Rápidas</h2>
+    <button onclick="checkGTM()">Verificar GTM</button>
+    <button onclick="checkFBPixel()">Verificar Facebook Pixel</button>
+    <button onclick="checkDataLayer()">Ver DataLayer</button>
+    <button onclick="testEvent()">Disparar Evento de Prueba</button>
+    <button onclick="checkSupabaseEvents()">Ver Eventos en Supabase</button>
+
+    <div id="results"></div>
+
+    <h2>📝 Script para Consola del Navegador</h2>
+    <p>Copia y pega este código en la consola del navegador (F12) en producción:</p>
+    <div class="code-block">
+<pre>// 🔍 Verificación Completa de Tracking
+(function() {
+  console.log('%c🔍 Verificación de Tracking - TREFA', 'font-size: 20px; font-weight: bold; color: #ff6b35');
+
+  // 1. Verificar GTM
+  console.log('\n%c1️⃣ Google Tag Manager', 'font-size: 16px; font-weight: bold; color: #4285f4');
+  if (window.dataLayer) {
+    console.log('✅ dataLayer existe');
+    console.log('📊 Eventos en dataLayer:', window.dataLayer.length);
+    console.log('🔗 Últimos 5 eventos:', window.dataLayer.slice(-5));
+  } else {
+    console.error('❌ dataLayer NO encontrado');
+  }
+
+  if (window.google_tag_manager) {
+    console.log('✅ google_tag_manager cargado');
+    console.log('📦 Containers:', Object.keys(window.google_tag_manager));
+  } else {
+    console.error('❌ google_tag_manager NO encontrado');
+  }
+
+  // 2. Verificar Facebook Pixel
+  console.log('\n%c2️⃣ Facebook Pixel', 'font-size: 16px; font-weight: bold; color: #1877f2');
+  if (window.fbq) {
+    console.log('✅ fbq (Facebook Pixel) existe');
+    console.log('📊 Queue:', window.fbq.queue?.length || 0);
+    console.log('🔢 Versión:', window.fbq.version);
+  } else {
+    console.error('❌ fbq NO encontrado');
+  }
+
+  // 3. Verificar ConversionTracking Service
+  console.log('\n%c3️⃣ ConversionTracking Service', 'font-size: 16px; font-weight: bold; color: #ff6b35');
+  if (window.conversionTracking) {
+    console.log('✅ conversionTracking service disponible');
+    const utmParams = window.conversionTracking.getUTMParameters();
+    console.log('📍 UTM Parameters:', utmParams);
+  } else {
+    console.log('⚠️ conversionTracking no está expuesto globalmente (esto es normal)');
+  }
+
+  // 4. Verificar localStorage
+  console.log('\n%c4️⃣ Datos Almacenados', 'font-size: 16px; font-weight: bold; color: #34a853');
+  const leadSourceData = sessionStorage.getItem('leadSourceData');
+  if (leadSourceData) {
+    console.log('📍 Lead Source Data:', JSON.parse(leadSourceData));
+  } else {
+    console.log('ℹ️ No hay lead source data en esta sesión');
+  }
+
+  const marketingConfig = localStorage.getItem('marketing_config');
+  if (marketingConfig) {
+    console.log('⚙️ Marketing Config:', JSON.parse(marketingConfig));
+  }
+
+  // 5. Test Event
+  console.log('\n%c5️⃣ Disparar Evento de Prueba', 'font-size: 16px; font-weight: bold; color: #ea4335');
+  console.log('Ejecutando: window.dataLayer.push({ event: "test_event", timestamp: new Date() })');
+  window.dataLayer?.push({
+    event: 'test_event',
+    eventName: 'Test Event from Verification',
+    timestamp: new Date().toISOString()
+  });
+  console.log('✅ Evento enviado a dataLayer');
+
+  if (window.fbq) {
+    window.fbq('trackCustom', 'TestEvent', { source: 'verification_script' });
+    console.log('✅ Evento enviado a Facebook Pixel');
+  }
+
+  console.log('\n%c✨ Verificación Completa', 'font-size: 16px; font-weight: bold; color: #34a853');
+  console.log('Para ver eventos en Supabase, ejecuta la siguiente consulta en SQL Editor:');
+  console.log('%cSELECT event_type, event_name, COUNT(*) as count FROM tracking_events GROUP BY event_type, event_name ORDER BY count DESC;', 'background: #282c34; color: #61dafb; padding: 10px; border-radius: 4px;');
+})();
+</pre>
+    </div>
+
+    <h2>🗄️ Consulta SQL para Verificar Eventos</h2>
+    <p>Ejecuta esto en el SQL Editor de Supabase:</p>
+    <div class="code-block">
+<pre>-- Ver resumen de eventos
+SELECT
+  event_type,
+  event_name,
+  COUNT(*) as total_eventos,
+  COUNT(DISTINCT user_id) as usuarios_unicos,
+  MIN(created_at) as primer_evento,
+  MAX(created_at) as ultimo_evento
+FROM tracking_events
+WHERE created_at >= NOW() - INTERVAL '30 days'
+GROUP BY event_type, event_name
+ORDER BY total_eventos DESC;
+
+-- Ver eventos recientes
+SELECT
+  event_type,
+  event_name,
+  user_id,
+  metadata,
+  created_at
+FROM tracking_events
+ORDER BY created_at DESC
+LIMIT 20;
+
+-- Verificar total de eventos
+SELECT COUNT(*) as total_eventos FROM tracking_events;
+</pre>
+    </div>
+  </div>
+
+  <script>
+    function addResult(title, content, type = 'info') {
+      const results = document.getElementById('results');
+      const div = document.createElement('div');
+      div.className = 'result';
+      div.innerHTML = `<h3>${title}</h3><pre>${content}</pre>`;
+      results.appendChild(div);
+    }
+
+    function checkGTM() {
+      let status = '';
+
+      if (window.dataLayer) {
+        status += '✅ dataLayer: EXISTE\n';
+        status += `📊 Eventos en queue: ${window.dataLayer.length}\n\n`;
+        status += 'Últimos eventos:\n';
+        status += JSON.stringify(window.dataLayer.slice(-3), null, 2);
+      } else {
+        status += '❌ dataLayer: NO ENCONTRADO';
+      }
+
+      if (window.google_tag_manager) {
+        status += '\n\n✅ google_tag_manager: CARGADO\n';
+        status += 'Containers: ' + Object.keys(window.google_tag_manager).join(', ');
+      } else {
+        status += '\n\n❌ google_tag_manager: NO ENCONTRADO';
+      }
+
+      addResult('🔍 Google Tag Manager', status);
+    }
+
+    function checkFBPixel() {
+      let status = '';
+
+      if (window.fbq) {
+        status += '✅ Facebook Pixel: CARGADO\n';
+        status += `📊 Queue: ${window.fbq.queue?.length || 0} eventos\n`;
+        status += `🔢 Versión: ${window.fbq.version}\n`;
+        status += `⚙️ Loaded: ${window.fbq.loaded}`;
+      } else {
+        status += '❌ Facebook Pixel: NO ENCONTRADO';
+      }
+
+      addResult('📘 Facebook Pixel', status);
+    }
+
+    function checkDataLayer() {
+      if (window.dataLayer) {
+        const content = JSON.stringify(window.dataLayer, null, 2);
+        addResult('📊 DataLayer Completo', content);
+      } else {
+        addResult('❌ DataLayer', 'No encontrado');
+      }
+    }
+
+    function testEvent() {
+      const timestamp = new Date().toISOString();
+
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'test_verification',
+          eventName: 'Test Verification Event',
+          timestamp: timestamp,
+          source: 'verification_tool'
+        });
+      }
+
+      if (window.fbq) {
+        window.fbq('trackCustom', 'TestVerification', {
+          timestamp: timestamp,
+          source: 'verification_tool'
+        });
+      }
+
+      addResult('✅ Evento de Prueba Disparado',
+        `Timestamp: ${timestamp}\n\nRevisa:\n` +
+        `1. GTM Preview mode\n` +
+        `2. Facebook Pixel Helper Extension\n` +
+        `3. Network tab (buscar: gtm.js, fbevents.js)`
+      );
+    }
+
+    function checkSupabaseEvents() {
+      const info =
+        'Para ver eventos en Supabase:\n\n' +
+        '1. Ve a https://supabase.com/dashboard\n' +
+        '2. Abre tu proyecto\n' +
+        '3. Ve a SQL Editor\n' +
+        '4. Ejecuta:\n\n' +
+        'SELECT event_type, COUNT(*) as count\n' +
+        'FROM tracking_events\n' +
+        'GROUP BY event_type\n' +
+        'ORDER BY count DESC;\n\n' +
+        'O usa la tabla tracking_events directamente en Table Editor';
+
+      addResult('🗄️ Eventos en Supabase', info);
+    }
+
+    // Auto-check on load
+    window.addEventListener('load', function() {
+      const statusDiv = document.getElementById('tracking-status');
+      let html = '<div class="result">';
+
+      // GTM Status
+      html += '<div class="metric">';
+      html += '<span class="metric-label">Google Tag Manager</span>';
+      if (window.dataLayer && window.google_tag_manager) {
+        html += '<span class="status ok">✅ Funcionando</span>';
+      } else {
+        html += '<span class="status error">❌ Error</span>';
+      }
+      html += '</div>';
+
+      // FB Pixel Status
+      html += '<div class="metric">';
+      html += '<span class="metric-label">Facebook Pixel</span>';
+      if (window.fbq) {
+        html += '<span class="status ok">✅ Funcionando</span>';
+      } else {
+        html += '<span class="status error">❌ Error</span>';
+      }
+      html += '</div>';
+
+      // DataLayer Events
+      html += '<div class="metric">';
+      html += '<span class="metric-label">Eventos en DataLayer</span>';
+      html += '<span class="metric-value">' + (window.dataLayer?.length || 0) + '</span>';
+      html += '</div>';
+
+      html += '</div>';
+      statusDiv.innerHTML = html;
+    });
+  </script>
+</body>
+</html>

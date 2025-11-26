@@ -70,32 +70,32 @@ function HeroTrefa() {
   useEffect(() => {
     // Simulate timeline progression - slower and more subtle
     const timer = setTimeout(() => {
-      if (currentStep < steps.length - 1) {
-        const newSteps = [...steps];
+      setSteps((prevSteps) => {
+        if (currentStep < prevSteps.length - 1) {
+          const newSteps = [...prevSteps];
 
-        // Complete current step
-        newSteps[currentStep].completed = true;
+          // Complete current step
+          newSteps[currentStep].completed = true;
 
-        // Activate next step
-        newSteps[currentStep + 1].active = true;
+          // Activate next step
+          newSteps[currentStep + 1].active = true;
 
-        setSteps(newSteps);
-        setCurrentStep(currentStep + 1);
-      } else {
-        // Reset to start the loop over
-        const resetSteps = steps.map((step, idx) => ({
-          ...step,
-          active: idx === 0,
-          completed: idx === 0,
-        }));
+          return newSteps;
+        } else {
+          // Reset to start the loop over
+          return prevSteps.map((step, idx) => ({
+            ...step,
+            active: idx === 0,
+            completed: idx === 0,
+          }));
+        }
+      });
 
-        setSteps(resetSteps);
-        setCurrentStep(0);
-      }
+      setCurrentStep((prev) => (prev < 3 ? prev + 1 : 0));
     }, 3500); // Progress every 3.5 seconds - more subtle
 
     return () => clearTimeout(timer);
-  }, [currentStep, steps]);
+  }, [currentStep]);
 
   // Animation sequence using useEffect to create the loop - More subtle animation
   useEffect(() => {

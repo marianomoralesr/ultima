@@ -50,7 +50,9 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
   useEffect(() => {
     if (visibleCount >= gridVehicles.length) return;
 
-    const currentSpeed = Math.max(50, animationSpeed - (visibleCount * 8)); // Speed increases by 8ms each time, min 50ms
+    // Calculate speed based on current iteration to avoid circular dependency
+    // Start at 400ms, reduce by 8ms per vehicle, minimum 50ms
+    const currentSpeed = Math.max(50, 400 - (visibleCount * 8));
 
     const timer = setTimeout(() => {
       setVisibleCount(prev => prev + 1);
@@ -58,7 +60,7 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     }, currentSpeed);
 
     return () => clearTimeout(timer);
-  }, [visibleCount, gridVehicles.length, animationSpeed]);
+  }, [visibleCount, gridVehicles.length]);
 
   // Calculate gradient overlay style
   const getGradientStyle = () => {

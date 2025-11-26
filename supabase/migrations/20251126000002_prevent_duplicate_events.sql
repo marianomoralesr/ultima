@@ -91,6 +91,7 @@ CREATE TRIGGER trg_prevent_duplicate_events
     EXECUTE FUNCTION prevent_critical_event_duplicates();
 
 -- 6. Crear vista materializada para eventos únicos (para reportes rápidos)
+-- Agregamos una columna event_date calculada para evitar problemas con índices
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.unique_tracking_events AS
 SELECT DISTINCT ON (user_id, event_type, (created_at::date))
     id,
@@ -104,16 +105,16 @@ SELECT DISTINCT ON (user_id, event_type, (created_at::date))
     utm_campaign,
     utm_term,
     utm_content,
-    created_at
+    created_at,
+    (created_at::date) as event_date
 FROM tracking_events
 WHERE user_id IS NOT NULL
 ORDER BY user_id, event_type, (created_at::date), created_at DESC;
 
--- Crear índices en la vista materializada
+-- Crear índices en la vista materializada usando la columna event_date
 CREATE INDEX IF NOT EXISTS idx_unique_events_user ON public.unique_tracking_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_unique_events_type ON public.unique_tracking_events(event_type);
--- Usar CAST en lugar de DATE() para evitar error de immutability
-CREATE INDEX IF NOT EXISTS idx_unique_events_date ON public.unique_tracking_events((created_at::date));
+CREATE INDEX IF NOT EXISTS idx_unique_events_date ON public.unique_tracking_events(event_date);
 
 -- 7. Función para refrescar la vista materializada
 CREATE OR REPLACE FUNCTION refresh_unique_tracking_events()

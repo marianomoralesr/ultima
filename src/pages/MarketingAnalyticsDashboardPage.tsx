@@ -64,7 +64,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     setError(null);
 
     try {
-      console.log('[MarketingAnalytics] Loading data with filters:', filters);
+      console.log('[MarketingAnalytics] 🔄 Iniciando carga de datos con filtros:', filters);
 
       // Cargar TODAS las métricas desde MetricsService para garantizar consistencia
       const [
@@ -93,12 +93,25 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         MetricsService.getUniqueSiteVisitors(filters.startDate, filters.endDate)
       ]);
 
-      console.log('[MarketingAnalytics] Datos cargados:', {
+      console.log('[MarketingAnalytics] ✅ Datos cargados exitosamente:', {
         funnel: funnelMetrics,
+        metaFunnel: metaFunnelMetrics,
         sources: sourceMetrics.length,
         campaigns: campaignMetrics.length,
         pages: pageMetrics.length,
-        eventTypes: eventTypeMetrics.length
+        eventTypes: eventTypeMetrics.length,
+        timeSeriesData: timeSeriesData.length,
+        totalVisits,
+        uniqueVisitors
+      });
+
+      console.log('[MarketingAnalytics] 📊 Detalle de métricas del embudo:', {
+        landing_views: funnelMetrics.landing_page_views,
+        registrations: funnelMetrics.registrations,
+        profile_completes: funnelMetrics.profile_completes,
+        bank_profiling: funnelMetrics.bank_profiling_completes,
+        app_starts: funnelMetrics.application_starts,
+        lead_completes: funnelMetrics.lead_completes
       });
 
       setAvailableSources(sources);

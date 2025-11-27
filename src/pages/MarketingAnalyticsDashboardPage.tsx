@@ -50,7 +50,8 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     utmSource?: string;
     utmCampaign?: string;
   }>({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    // Cambiar a 90 días (3 meses) para capturar todos los eventos recientes
+    startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
   });
 
@@ -142,6 +143,16 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [filters.startDate, filters.endDate, filters.utmSource, filters.utmCampaign]);
+
+  // Auto-refresh cada 5 minutos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('[MarketingAnalytics] Auto-refresh triggered (every 5 minutes)');
+      loadData();
+    }, 5 * 60 * 1000); // 5 minutos
+
+    return () => clearInterval(interval);
+  }, [filters]);
 
   // Función para calcular tasas de conversión
   const calculateConversionRates = (funnel: FunnelMetrics) => {

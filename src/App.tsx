@@ -27,9 +27,11 @@ const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 // Removed: DashboardInventoryPage - using VehicleListPage for all inventory views
 const Application = lazy(() => import('./pages/Application'));
+const EnhancedApplication = lazy(() => import('./components/application/EnhancedApplication'));
 const ApplicationConfirmationPage = lazy(() => import('./pages/ApplicationConfirmationPage'));
 const UserApplicationsPage = lazy(() => import('./pages/UserApplicationsPage'));
 const SeguimientoPage = lazy(() => import('./pages/SeguimientoPage'));
+const SeguimientoDetailPage = lazy(() => import('./pages/SeguimientoDetailPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const PerfilacionBancariaPage = lazy(() => import('./pages/PerfilacionBancariaPage'));
@@ -173,11 +175,15 @@ function App(): React.JSX.Element {
                 <Route index element={<DashboardSidebarPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
-                <Route path="aplicacion" element={<Application />} />
-                <Route path="aplicacion/:id" element={<Application />} />
+                {/* Enhanced Application - New Multi-Step Form (now at /aplicacion for GTM/FB tracking) */}
+                <Route path="aplicacion" element={<EnhancedApplication />} />
+                <Route path="aplicacion/:id" element={<EnhancedApplication />} />
                 <Route path="aplicacion/:id/confirmacion" element={<ApplicationConfirmationPage />} />
+                {/* Legacy Application Form (moved to /nueva-solicitud) */}
+                <Route path="nueva-solicitud" element={<Application />} />
+                <Route path="nueva-solicitud/:id" element={<Application />} />
                 <Route path="seguimiento" element={<SeguimientoPage />} />
-                <Route path="seguimiento/:id" element={<SeguimientoPage />} />
+                <Route path="seguimiento/:id" element={<SeguimientoDetailPage />} />
                 <Route path="favoritos" element={<FavoritesPage />} />
                 <Route path="beta-v.0.1" element={<BetaPollPage />} />
                 <Route path="encuesta" element={<SurveyPage />} />

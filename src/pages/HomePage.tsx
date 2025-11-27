@@ -890,6 +890,7 @@ const HomePage: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useSEO({
     title: 'Autos Seminuevos Certificados y con Financiamiento | TREFA',
@@ -922,23 +923,35 @@ const HomePage: React.FC = () => {
     loadContent();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-white">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Move the loading check AFTER all hooks to ensure consistent hook call order
   return (
     <main className="relative z-10 scroll-smooth">
-      <HeroTrefa />
-      <WallOfLove />
-      <WhyChooseTrefaSection />
-      <CarroceriaCarouselSection content={content.carroceriaCarousel} />
-      <YouTubeVSLSection content={content.youtubeVSL} />
-      <BranchesSection content={content.branches} />
-      <TestimonioSeparator content={content.testimonial} />
+      {loading ? (
+        <div className="flex justify-center items-center min-h-screen bg-white">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
+        </div>
+      ) : (
+        <>
+          <HeroTrefa />
+          <WallOfLove />
+          <WhyChooseTrefaSection />
+          <CarroceriaCarouselSection content={content.carroceriaCarousel} />
+          <YouTubeVSLSection content={content.youtubeVSL} />
+          <BranchesSection content={content.branches} />
+          <TestimonioSeparator content={content.testimonial} />
+        </>
+      )}
     </main>
   );
 };

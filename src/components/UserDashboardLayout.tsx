@@ -64,12 +64,11 @@ const UserDashboardLayout: React.FC = () => {
         } else {
             // Usuario regular
             return [
-                { to: '/escritorio', label: 'Dashboard', icon: LayoutDashboard, end: true },
-                { to: '/escritorio/profile', label: 'Mi Perfil', icon: User },
-                { to: '/escritorio/seguimiento', label: 'Mis Solicitudes', icon: FileText },
-                { to: '/escritorio/favoritos', label: 'Favoritos', icon: Heart },
-                { to: '/escritorio/citas', label: 'Citas', icon: Calendar },
-                { to: '/autos', label: 'Inventario', icon: Search },
+                { to: '/escritorio', label: 'Escritorio', icon: LayoutDashboard, end: true },
+                { to: '/escritorio/profile', label: 'Perfil', icon: User },
+                { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText },
+                { to: '/autos', label: 'Inventario', icon: Car },
+                { to: '/contacto', label: 'Contacto', icon: Building2 },
             ];
         }
     };

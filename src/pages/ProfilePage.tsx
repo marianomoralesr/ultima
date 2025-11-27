@@ -68,7 +68,10 @@ const profileSchema = z.object({
   first_name: z.string().min(2, 'Por favor, ingresa tu nombre (mínimo 2 caracteres)'),
   last_name: z.string().min(2, 'Por favor, ingresa tu apellido paterno (mínimo 2 caracteres)'),
   mother_last_name: z.string().min(2, 'Por favor, ingresa tu apellido materno (mínimo 2 caracteres)'),
-  phone: z.string().min(10, 'Por favor, ingresa un número de teléfono válido de 10 dígitos'),
+  phone: z.string().optional().or(z.literal('')).refine(
+    (val) => !val || val.length >= 10,
+    'Por favor, ingresa un número de teléfono válido de 10 dígitos'
+  ),
   cellphone_company: z.string().optional().or(z.literal('')),
   birth_date: z.string().min(1, 'Por favor, selecciona tu fecha de nacimiento'),
   homoclave: z.string().length(3, 'La homoclave debe tener exactamente 3 caracteres'),
@@ -377,15 +380,23 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const goToNextStep = async () => {
+  const goToNextStep = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    // For Step 1, we don't require validation - just save and move forward
+    // Validation will happen at the final "Guardar y continuar" step
+    if (currentStep === 1) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     // Validate current step fields before moving forward
     let fieldsToValidate: (keyof ProfileFormData)[] = [];
 
     switch (currentStep) {
-      case 1:
-        // Step 1: Contact + Advisor
-        fieldsToValidate = ['phone'];
-        break;
       case 2:
         // Step 2: Personal + Civil Status
         fieldsToValidate = ['first_name', 'last_name', 'mother_last_name', 'birth_date', 'civil_status'];
@@ -400,8 +411,19 @@ const ProfilePage: React.FC = () => {
     if (!isValid) {
       // Show toast with specific validation errors
       const errors = profileForm.formState.errors;
-      const errorFields = Object.keys(errors);
-      if (errorFields.length > 0) {
+      const errorMessages: string[] = [];
+
+      if (errors.phone) errorMessages.push(`Teléfono: ${errors.phone.message}`);
+      if (errors.first_name) errorMessages.push(`Nombre: ${errors.first_name.message}`);
+      if (errors.last_name) errorMessages.push(`Apellido Paterno: ${errors.last_name.message}`);
+      if (errors.mother_last_name) errorMessages.push(`Apellido Materno: ${errors.mother_last_name.message}`);
+      if (errors.birth_date) errorMessages.push(`Fecha de Nacimiento: ${errors.birth_date.message}`);
+      if (errors.civil_status) errorMessages.push(`Estado Civil: ${errors.civil_status.message}`);
+      if (errors.spouse_name) errorMessages.push(`Nombre del Cónyuge: ${errors.spouse_name.message}`);
+
+      if (errorMessages.length > 0) {
+        toast.error(`Por favor, corrige los siguientes errores:\n${errorMessages.join('\n')}`);
+      } else {
         toast.error('Por favor, completa todos los campos obligatorios antes de continuar.');
       }
       // Scroll to first error
@@ -410,7 +432,8 @@ const ProfilePage: React.FC = () => {
     }
 
     if (currentStep < STEPS.length) {
-      setCurrentStep(currentStep + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -565,12 +588,13 @@ const ProfilePage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm">Teléfono *</Label>
+                  <Label htmlFor="phone" className="text-sm">Teléfono</Label>
                   <div className="flex">
                     <span className="inline-flex items-center px-2 sm:px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-xs sm:text-sm font-medium whitespace-nowrap">MX +52</span>
                     <Input id="phone" {...profileForm.register('phone')} placeholder="10 dígitos" className="rounded-l-none text-sm flex-1" />
                   </div>
                   {profileForm.formState.errors.phone && <p className="text-xs sm:text-sm text-red-600">{profileForm.formState.errors.phone?.message as React.ReactNode}</p>}
+                  <p className="text-xs text-muted-foreground">Puedes completar este campo más tarde si lo prefieres</p>
                 </div>
 
                 <div className="space-y-2">
@@ -788,7 +812,7 @@ const ProfilePage: React.FC = () => {
           {currentStep < STEPS.length ? (
             <Button
               type="button"
-              onClick={goToNextStep}
+              onClick={(e) => goToNextStep(e)}
               className="flex-1 sm:flex-none"
               style={{ backgroundColor: '#FF6801' }}
             >

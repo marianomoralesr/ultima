@@ -246,7 +246,7 @@ const SeguimientoDetailPage: React.FC = () => {
                         className="block"
                       >
                         <Button variant="default" size="sm" className="w-full bg-primary-600 hover:bg-primary-700">
-                          Ir a Zona de Carga
+                          Cargar Documentos
                         </Button>
                       </Link>
                     </div>

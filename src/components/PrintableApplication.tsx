@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BankProfilingService } from '../services/BankProfilingService';
 import type { BankProfileData } from '../types/types';
-import QRCode from 'qrcode';
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-sm font-bold uppercase tracking-wider text-white bg-trefa-blue p-2 rounded-t-md mt-3">{title}</h3>
@@ -23,7 +22,6 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
     const [hasDocuments, setHasDocuments] = useState<boolean>(false);
     const [isCheckingDocuments, setIsCheckingDocuments] = useState<boolean>(true);
     const [bankProfile, setBankProfile] = useState<BankProfileData | null>(null);
-    const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
     // Fetch advisor name if we have an asesor_asignado_id
     useEffect(() => {
@@ -106,30 +104,6 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
 
         fetchBankProfile();
     }, [application.user_id]);
-
-    // Generate QR code for document upload
-    useEffect(() => {
-        const generateQR = async () => {
-            if (!application.public_upload_token) return;
-
-            try {
-                const publicUrl = `${window.location.origin}/documentos/${application.public_upload_token}`;
-                const dataUrl = await QRCode.toDataURL(publicUrl, {
-                    width: 120,
-                    margin: 1,
-                    color: {
-                        dark: '#1e40af',
-                        light: '#ffffff',
-                    },
-                });
-                setQrDataUrl(dataUrl);
-            } catch (err) {
-                console.error('Error generating QR:', err);
-            }
-        };
-
-        generateQR();
-    }, [application.public_upload_token]);
 
     // Format currency - handles both numeric values and formatted strings like "25,000"
     const formatCurrency = (amount: any) => {
@@ -232,12 +206,6 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 </div>
                 <div className="flex flex-col items-end gap-2">
                     <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-10" />
-                    {qrDataUrl && (
-                        <div className="text-center">
-                            <img src={qrDataUrl} alt="QR Code" className="w-20 h-20 rounded border border-gray-300" />
-                            <p className="text-xs text-gray-600 mt-1 font-medium">Carga de documentos</p>
-                        </div>
-                    )}
                 </div>
             </header>
 
@@ -417,19 +385,6 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     </>
                 )}
             </main>
-
-            {/* Document Upload Instructions - Only show if QR is present */}
-            {qrDataUrl && (
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h3 className="text-sm font-bold text-blue-900 mb-2">Instrucciones para Carga de Documentos</h3>
-                    <div className="text-xs text-blue-800 space-y-1">
-                        <p>• <strong>Opción 1:</strong> Escanea el código QR en la parte superior con tu celular para acceder al portal de carga.</p>
-                        <p>• <strong>Opción 2:</strong> Utiliza el enlace que aparece en tu Dashboard de cliente para subir documentos.</p>
-                        <p>• Los documentos se asociarán automáticamente a esta solicitud.</p>
-                        <p>• Asegúrate de subir archivos legibles en formato PDF, JPG o PNG.</p>
-                    </div>
-                </div>
-            )}
 
             <footer className="mt-6 pt-3 border-t text-center text-xs text-gray-500">
                 <p className="font-semibold text-gray-600">Exclusivamente para uso interno | Autos TREFA | 2025</p>

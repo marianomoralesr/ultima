@@ -20,6 +20,7 @@ import { BankProfilingService } from '../../services/BankProfilingService';
 import { ProfileService } from '../../services/profileService';
 import VehicleService from '../../services/VehicleService';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../../utils/constants';
+import { getVehicleImage } from '../../utils/getVehicleImage';
 import { BrevoEmailService } from '../../services/BrevoEmailService';
 import { supabase } from '../../../supabaseClient';
 import { conversionTracking } from '../../services/ConversionTrackingService';
@@ -224,7 +225,7 @@ const EnhancedApplication: React.FC = () => {
           if (finalOrdenCompra) {
             const vehicle = await VehicleService.getVehicleByOrdenCompra(finalOrdenCompra);
             if (vehicle) {
-              const featureImage = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
+              const featureImage = getVehicleImage(vehicle);
               const carData = {
                 _vehicleTitle: vehicle.titulo,
                 _ordenCompra: vehicle.ordencompra,
@@ -263,7 +264,7 @@ const EnhancedApplication: React.FC = () => {
 
   const handleVehicleSelect = async (vehicle: WordPressVehicle) => {
     if (!applicationId) return;
-    const featureImage = vehicle.thumbnail_webp || vehicle.thumbnail || vehicle.feature_image_webp || vehicle.feature_image || DEFAULT_PLACEHOLDER_IMAGE;
+    const featureImage = getVehicleImage(vehicle);
     const carData = {
       _vehicleTitle: vehicle.titulo,
       _ordenCompra: vehicle.ordencompra,

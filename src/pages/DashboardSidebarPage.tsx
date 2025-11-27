@@ -783,10 +783,10 @@ const DashboardSidebarPage: React.FC = () => {
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-gray-800">
-                            Zona de Carga de Documentos
+                            Carga de Documentos
                           </h3>
                           <p className="text-sm text-gray-600">
-                            Comparte este link o QR para recibir documentos
+                            Comparte este link para recibir documentos
                           </p>
                         </div>
                       </div>

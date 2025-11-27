@@ -185,8 +185,8 @@ const ApplicationConfirmationPage: React.FC = () => {
       <div className="max-w-3xl mx-auto">
         {/* Success Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 mb-4 sm:mb-6 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mb-3 sm:mb-4">
-            <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-600" />
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full mb-3 sm:mb-4">
+            <CheckCircle className="w-7 h-7 sm:w-10 sm:h-10 text-green-600" />
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 px-2">
             ¡Felicidades! Tu Solicitud ha Sido Enviada

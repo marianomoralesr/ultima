@@ -61,13 +61,13 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
             </div>
             <div class="content">
-              <h1 class="title">¿Necesitas ayuda para completar tu solicitud?</h1>
-              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, notamos que comenzaste una solicitud de financiamiento pero aún no la has completado.</p>
+              <h1 class="title">🚗 ¡Hey! Tu auto te está esperando</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, vimos que iniciaste una solicitud hace unos días, pero aún no la has completado.</p>
 
               <div class="card">
-                <div class="card-title">Estado de tu Solicitud</div>
+                <div class="card-title">Tu Solicitud en Progreso</div>
                 <div class="card-content">
-                  ${data.vehicleTitle ? `<p><strong>Vehículo de Interés:</strong> ${data.vehicleTitle}</p>` : ''}
+                  ${data.vehicleTitle ? `<p><strong>Auto de Interés:</strong> ${data.vehicleTitle}</p>` : ''}
                   <p><strong>Iniciaste:</strong> ${new Date(data.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   <p><strong>Estado:</strong> Borrador (Incompleta)</p>
                 </div>
@@ -75,23 +75,23 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
 
               <div class="divider"></div>
 
-              <p style="font-size: 16px; color: #0B2540; text-align: center; margin: 24px 0;">
-                <strong>¿Tienes dudas? Estamos aquí para ayudarte.</strong><br>
-                Nuestro equipo puede guiarte paso a paso en el proceso de financiamiento.
+              <p style="font-size: 17px; color: #0B2540; text-align: center; margin: 24px 0; line-height: 1.6;">
+                <strong>¿Necesitas ayuda? Estamos aquí para ti</strong><br>
+                Solo te tomará <span class="highlight">5 minutos</span> terminarla y estarás un paso más cerca de tu nuevo auto 💨
               </p>
 
               <div style="text-align: center; margin: 32px 0;">
-                <a href="${data.applicationUrl}" class="button">Completar mi Solicitud</a>
+                <a href="${data.applicationUrl}" class="button">✨ Completar Ahora →</a>
               </div>
 
               <p style="font-size: 14px; color: #556675; background: #E0F2FE; padding: 16px; border-radius: 8px; border-left: 4px solid #0369A1;">
-                💡 <strong>¿Necesitas ayuda personalizada?</strong><br>
-                Contáctanos y uno de nuestros asesores te apoyará en completar tu solicitud.
+                💡 <strong>¿Tienes dudas?</strong><br>
+                Nuestro equipo puede guiarte paso a paso. Responde este email o escríbenos por WhatsApp.
               </p>
 
               ${data.vehicles && data.vehicles.length > 0 ? `
               <div class="divider"></div>
-              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">Vehículos Disponibles para Financiar</h2>
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">Autos Disponibles para Financiar</h2>
               ${data.vehicles.map((v: any) => `
                 <div class="vehicle-card">
                   ${v.image ? `<img src="${v.image}" alt="${v.title}" class="vehicle-img" />` : ''}
@@ -126,32 +126,32 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
             </div>
             <div class="content">
-              <h1 class="title">Completa tu perfil y accede a financiamiento</h1>
-              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, te damos la bienvenida a Autos TREFA. Para poder brindarte el mejor servicio, necesitamos que completes tu perfil.</p>
+              <h1 class="title">✨ Un paso más para tu financiamiento</h1>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, te damos la bienvenida a Autos TREFA. Solo necesitamos que completes tu perfil para comenzar.</p>
 
               <div class="card">
                 <div class="card-title">¿Por qué completar mi perfil?</div>
                 <div class="card-content">
-                  <p>✓ Acceso a solicitudes de financiamiento</p>
-                  <p>✓ Ofertas personalizadas de vehículos</p>
-                  <p>✓ Proceso de aprobación más rápido</p>
-                  <p>✓ Atención personalizada de nuestros asesores</p>
+                  <p>✅ Acceso completo a solicitudes de financiamiento</p>
+                  <p>✅ Recomendaciones personalizadas de autos</p>
+                  <p>✅ Proceso de aprobación más rápido</p>
+                  <p>✅ Atención preferente de nuestros asesores</p>
                 </div>
               </div>
 
               <div class="divider"></div>
 
-              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">Pasos para Solicitar Financiamiento</h2>
+              <h2 style="font-size: 20px; color: #0B2540; font-weight: 600;">🚀 Pasos para Conseguir tu Auto</h2>
               <ul>
-                <li><strong>Completa tu Perfil:</strong> Proporciona tu información personal y de contacto</li>
-                <li><strong>Elige tu Vehículo:</strong> Explora nuestro inventario y selecciona el auto ideal</li>
-                <li><strong>Inicia tu Solicitud:</strong> Llena el formulario de financiamiento</li>
-                <li><strong>Documentación:</strong> Sube los documentos requeridos</li>
-                <li><strong>Aprobación:</strong> Recibe una respuesta en 24-48 horas</li>
+                <li><strong>Completa tu Perfil:</strong> Solo toma 1 minuto (nombre, teléfono, dirección)</li>
+                <li><strong>Elige tu Auto:</strong> Explora nuestro catálogo y encuentra el ideal para ti</li>
+                <li><strong>Envía tu Solicitud:</strong> Llena el formulario de financiamiento</li>
+                <li><strong>Sube Documentos:</strong> Carga tus documentos de forma rápida y segura</li>
+                <li><strong>¡Listo!</strong> Recibe una respuesta en menos de 48 horas</li>
               </ul>
 
               <div style="text-align: center; margin: 32px 0;">
-                <a href="${data.profileUrl}" class="button">Completar mi Perfil</a>
+                <a href="${data.profileUrl}" class="button">🎯 Completar mi Perfil →</a>
               </div>
 
               ${data.vehicles && data.vehicles.length > 0 ? `
@@ -195,9 +195,9 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, recibimos tu solicitud para vender tu vehículo y estamos muy interesados.</p>
 
               <div class="card">
-                <div class="card-title">Detalles de tu Vehículo</div>
+                <div class="card-title">Detalles de tu Auto</div>
                 <div class="card-content">
-                  <p><strong>Vehículo:</strong> ${data.vehicleInfo}</p>
+                  <p><strong>Auto:</strong> ${data.vehicleInfo}</p>
                   ${data.suggestedOffer ? `<p><strong>Oferta Inicial:</strong> ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(data.suggestedOffer)}</p>` : ''}
                   <p><strong>Solicitud Enviada:</strong> ${new Date(data.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
@@ -207,7 +207,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
 
               <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; text-align: center;">Próximos Pasos para Vender tu Auto</h2>
               <ul>
-                <li><strong>Inspección Gratuita:</strong> Agenda una cita para inspeccionar tu vehículo</li>
+                <li><strong>Inspección Gratuita:</strong> Agenda una cita para inspeccionar tu auto</li>
                 <li><strong>Oferta Personalizada:</strong> Te daremos una oferta competitiva basada en el estado real</li>
                 <li><strong>Pago Inmediato:</strong> Si aceptas, te pagamos al instante</li>
                 <li><strong>Sin Complicaciones:</strong> Nos encargamos de todos los trámites</li>
@@ -260,12 +260,12 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
             </div>
             <div class="content">
               <h1 class="title">¿Listo para Vender tu ${data.vehicleInfo}?</h1>
-              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, hace poco valuaste tu vehículo con nosotros.</p>
+              <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, hace poco valuaste tu auto con nosotros.</p>
 
               <div class="card">
                 <div class="card-title">Resumen de tu Valuación</div>
                 <div class="card-content">
-                  <p><strong>Vehículo:</strong> ${data.vehicleInfo}</p>
+                  <p><strong>Auto:</strong> ${data.vehicleInfo}</p>
                   ${data.suggestedOffer ? `<p><strong>Valuación Estimada:</strong> ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(data.suggestedOffer)}</p>` : ''}
                   ${data.mileage ? `<p><strong>Kilometraje:</strong> ${new Intl.NumberFormat('es-MX').format(data.mileage)} km</p>` : ''}
                   <p><strong>Valuación Realizada:</strong> ${new Date(data.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>

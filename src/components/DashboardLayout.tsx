@@ -80,6 +80,8 @@ const DashboardLayout: React.FC = () => {
         return [];
     };
 
+    const portalBancarioItem = { to: '/escritorio/admin/bancos', label: 'Portal Bancario', icon: Building2 };
+
     const toolsItems = [
         { to: '/escritorio/car-studio', label: 'Car Studio API', icon: Camera },
         { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: ClipboardCheck },
@@ -243,6 +245,30 @@ const DashboardLayout: React.FC = () => {
                                     </Link>
                                 );
                             })}
+
+                            {/* Portal Bancario (solo para admin) */}
+                            {isAdmin && (
+                                <Link
+                                    to={portalBancarioItem.to}
+                                    className={cn(
+                                        "flex items-center rounded-lg text-xs font-medium transition-all",
+                                        isSidebarExpanded ? "px-2.5 py-2 gap-2.5" : "justify-center py-2",
+                                        isActiveLink(portalBancarioItem.to)
+                                            ? isSidebarExpanded
+                                                ? "bg-accent text-accent-foreground"
+                                                : "bg-accent text-accent-foreground"
+                                            : isSidebarExpanded
+                                                ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                                : "text-muted-foreground hover:bg-accent"
+                                    )}
+                                    title={!isSidebarExpanded ? portalBancarioItem.label : undefined}
+                                >
+                                    <Building2 className="h-4 w-4 shrink-0" />
+                                    {isSidebarExpanded && (
+                                        <span className="whitespace-nowrap truncate">{portalBancarioItem.label}</span>
+                                    )}
+                                </Link>
+                            )}
 
                             {/* Herramientas Dropdown (solo para admin) */}
                             {isAdmin && (

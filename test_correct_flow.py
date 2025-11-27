@@ -498,26 +498,65 @@ def complete_application_automatically(page):
             except Exception as e:
                 print(f"   ⚠️  Error en radios: {str(e)[:50]}")
 
-            # 4. CHECKBOXES
+            # 4. HACER SCROLL HACIA ABAJO PARA VER MÁS CAMPOS Y EL BOTÓN
+            print("   → Scrolleando hacia abajo para ver todos los campos...")
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            time.sleep(0.5)
+
+            # 5. VERIFICAR SI HAY TABS Y CLICKEAR EN "FISCAL" SI EXISTE
+            try:
+                fiscal_tab = page.locator('button:has-text("Fiscal"), [role="tab"]:has-text("Fiscal")').first
+                if fiscal_tab.is_visible(timeout=2000):
+                    print("   → Clickeando en tab 'Fiscal'...")
+                    fiscal_tab.click()
+                    time.sleep(1)
+
+                    # Llenar campos fiscales si aparecen
+                    fiscal_inputs = page.locator('input:visible').all()
+                    for inp in fiscal_inputs:
+                        try:
+                            placeholder = inp.get_attribute('placeholder') or ''
+                            if 'rfc' in placeholder.lower():
+                                inp.fill('XAXX010101000')
+                                print("   → RFC llenado")
+                            elif 'fiscal' in placeholder.lower() or 'dirección' in placeholder.lower():
+                                inp.fill('Calle Fiscal 123, Col. Centro')
+                                print("   → Dirección fiscal llenada")
+                        except:
+                            continue
+            except:
+                print("   → No se encontró tab Fiscal (puede no existir)")
+
+            # 6. CHECKBOXES (con scroll para asegurar visibilidad)
             try:
                 checkboxes = page.locator('input[type="checkbox"]:visible').all()
                 print(f"   → Encontrados {len(checkboxes)} checkboxes")
 
                 for idx, cb in enumerate(checkboxes):
                     try:
+                        # Scroll al checkbox
+                        cb.scroll_into_view_if_needed()
+                        time.sleep(0.2)
+
                         if not cb.is_checked():
-                            cb.check()
+                            cb.check(force=True)
                             print(f"   → Checkbox {idx + 1}: checked")
-                            time.sleep(0.1)
-                    except:
+                            time.sleep(0.3)
+                    except Exception as e:
+                        print(f"   ⚠️  Error en checkbox {idx + 1}: {str(e)[:30]}")
                         continue
             except Exception as e:
                 print(f"   ⚠️  Error en checkboxes: {str(e)[:50]}")
 
             time.sleep(0.5)
+
+            # Scroll hacia abajo una vez más antes de buscar el botón
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            time.sleep(0.3)
+
             take_screenshot(page, f"08_step_{step + 1}_attempt_{retry + 1}")
 
-            # 5. INTENTAR HACER CLIC EN "SIGUIENTE"
+            # 7. INTENTAR HACER CLIC EN "SIGUIENTE" / "GUARDAR Y CONTINUAR"
             next_buttons = [
                 'button:has-text("Siguiente")',
                 'button:has-text("Continuar")',
@@ -532,9 +571,15 @@ def complete_application_automatically(page):
                 try:
                     btn = page.locator(selector).first
                     if btn.is_visible(timeout=2000) and not btn.is_disabled():
+                        print(f"   → Encontrado botón: {selector}")
+
+                        # Scroll al botón y esperar
+                        btn.scroll_into_view_if_needed()
+                        time.sleep(0.5)
+
                         print(f"   → Haciendo clic en: {selector}")
-                        btn.click()
-                        page.wait_for_load_state('networkidle')
+                        btn.click(force=True)
+                        page.wait_for_load_state('networkidle', timeout=15000)
                         time.sleep(2)
                         button_clicked = True
 

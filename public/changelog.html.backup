@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Cambios - Autos TREFA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0B2540 0%, #1a3a5c 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6801 0%, #ff8533 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .version {
+            margin-bottom: 50px;
+            border-left: 4px solid #FF6801;
+            padding-left: 30px;
+        }
+
+        .version-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .version-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #0B2540;
+        }
+
+        .version-date {
+            background: #f5f5f5;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .change-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-feature { background: #dcfce7; color: #166534; }
+        .badge-fix { background: #fef3c7; color: #92400e; }
+        .badge-security { background: #fee2e2; color: #991b1b; }
+        .badge-perf { background: #dbeafe; color: #1e40af; }
+        .badge-docs { background: #f3e8ff; color: #6b21a8; }
+
+        .change-list {
+            list-style: none;
+        }
+
+        .change-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #f9fafb;
+            transition: all 0.2s;
+        }
+
+        .change-item:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+
+        .change-item::before {
+            content: "→";
+            margin-right: 10px;
+            color: #FF6801;
+            font-weight: bold;
+        }
+
+        .footer {
+            background: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 2px solid #f1f1f1;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .version {
+                padding-left: 20px;
+            }
+
+            .version-number {
+                font-size: 1.5em;
+            }
+        }
+
+        .commit-hash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            color: #888;
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .branch-name {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Registro de Cambios</h1>
+            <p>Autos TREFA - Historial de Actualizaciones</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 26 de Noviembre, 2025</p>
+        </div>
+
+        <div class="content">
+
+
+            <!-- VERSIÓN v1.11.5 - 26 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.5</span>
+                    <span class="version-date">26 de Noviembre, 2025</span>
+                    <span class="badge badge-feature">Actualización Automática</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Sidebar unificado compacto con shadcn en el lado izquierdo</strong> <span class="commit-hash">c2a0748</span></li>
+                        <li class="change-item"><strong>Renombrar Marketing Hub a Dashboard General y agregar colores a métricas</strong> <span class="commit-hash">9cd0259</span></li>
+                        <li class="change-item"><strong>Sidebar admin mejorado - iconos blancos y empuja contenido</strong> <span class="commit-hash">9431d03</span></li>
+                        <li class="change-item"><strong>Redirigir admins a marketing y agregar métricas resumen</strong> <span class="commit-hash">1bc0aa2</span></li>
+                        <li class="change-item"><strong>Sidebar admin unificado en la derecha con fondo naranja</strong> <span class="commit-hash">b282169</span></li>
+                        <li class="change-item"><strong>Menú admin mejorado con acceso a todas las herramientas principales</strong> <span class="commit-hash">84a10a9</span></li>
+                        <li class="change-item"><strong>Dashboard administrativo unificado con métricas confiables y diseño shadcn/ui</strong> <span class="commit-hash">4444184</span></li>
+                        <li class="change-item"><strong>Unificar y mejorar consistencia de datos en dashboard de analytics</strong> <span class="commit-hash">3f73775</span></li>
+                        <li class="change-item"><strong>Enhance dashboard and application flow with UX improvements and bug fixes</strong> <span class="commit-hash">12939fb</span></li>
+                        <li class="change-item"><strong>Sidebar compacto, mejoras en perfil y dropzone de documentos</strong> <span class="commit-hash">7e039d0</span></li>
+                        <li class="change-item"><strong>Implementar actualización inteligente en google-sheets-sync</strong> <span class="commit-hash">0bea6ce</span></li>
+                        <li class="change-item"><strong>Refactorizar MarketingAnalyticsDashboard para usar MetricsService centralizado</strong> <span class="commit-hash">ffa420a</span></li>
+                        <li class="change-item"><strong>Sistema optimizado de tracking, métricas y sidebar dual para admins</strong> <span class="commit-hash">c3e6646</span></li>
+                        <li class="change-item"><strong>Agregar redirección automática a perfil incompleto</strong> <span class="commit-hash">8675b06</span></li>
+                        <li class="change-item"><strong>Rediseñar sidebar de DashboardSidebarPage con contenido enfocado al usuario</strong> <span class="commit-hash">99d1530</span></li>
+                        <li class="change-item"><strong>Crear UserDashboardLayout con sidebar siempre expandido para usuarios</strong> <span class="commit-hash">36ac731</span></li>
+                        <li class="change-item"><strong>Reorganizar ProfilePage con sidebar para mejor uso del espacio</strong> <span class="commit-hash">80ffdf2</span></li>
+                        <li class="change-item"><strong>Separar dashboards de usuarios y admins con rutas independientes</strong> <span class="commit-hash">ec2f7e9</span></li>
+                        <li class="change-item"><strong>Rediseño completo de página Mis Solicitudes con estilo del dashboard</strong> <span class="commit-hash">ff3a06e</span></li>
+                        <li class="change-item"><strong>Dashboard completamente interactivo con validaciones y mensajes motivacionales</strong> <span class="commit-hash">edf2f6c</span></li>
+                        <li class="change-item"><strong>Optimizar formulario de perfil multistep para móvil</strong> <span class="commit-hash">53f0ada</span></li>
+                        <li class="change-item"><strong>Mejoras completas al Dashboard Sidebar con métricas avanzadas</strong> <span class="commit-hash">1a29b6a</span></li>
+                        <li class="change-item"><strong>Reemplazar ProfilePage con formulario multistep</strong> <span class="commit-hash">0c552f2</span></li>
+                        <li class="change-item"><strong>Implementar Dashboard Sidebar adaptado a TREFA</strong> <span class="commit-hash">723fc74</span></li>
+                        <li class="change-item"><strong>Agregar página de analytics de carga de documentos</strong> <span class="commit-hash">e777d2d</span></li>
+                        <li class="change-item"><strong>Banner de actualización ultra amigable sin logs ni alertas</strong> <span class="commit-hash">80d094c</span></li>
+                        <li class="change-item"><strong>Agregar página de confirmación post-solicitud con tracking y upload de documentos</strong> <span class="commit-hash">27b6886</span></li>
+                        <li class="change-item"><strong>Sistema elegante de actualización automática con banner amigable</strong> <span class="commit-hash">d804fb8</span></li>
+                        <li class="change-item"><strong>Mejoras importantes al homepage y navegación</strong> <span class="commit-hash">6268404</span></li>
+                        <li class="change-item"><strong>Mejorar diseño del hero con animación de vehículos y efectos de vidrio líquido</strong> <span class="commit-hash">273127b</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Corregir valor inicial del enganche en calculadora a 25%</strong> <span class="commit-hash">b137a8a</span></li>
+                        <li class="change-item"><strong>Importar ChevronLeft en DashboardLayout</strong> <span class="commit-hash">294c8f1</span></li>
+                        <li class="change-item"><strong>Corregir referencia a navItems en sidebar móvil</strong> <span class="commit-hash">001f0d7</span></li>
+                        <li class="change-item"><strong>Corregir referencia a navItems en generateBreadcrumbs</strong> <span class="commit-hash">278c031</span></li>
+                        <li class="change-item"><strong>Corregir link de documentos y optimizar carga mobile home</strong> <span class="commit-hash">c1b2293</span></li>
+                        <li class="change-item"><strong>Eliminar conversión de fecha del índice completamente</strong> <span class="commit-hash">c56d147</span></li>
+                        <li class="change-item"><strong>Cambiar DATE() a ::date en índice de tracking_events (línea 13)</strong> <span class="commit-hash">f671441</span></li>
+                        <li class="change-item"><strong>Remover vista materializada que causaba error IMMUTABLE</strong> <span class="commit-hash">74b090d</span></li>
+                        <li class="change-item"><strong>Agregar columna event_date a vista materializada para evitar índice con función</strong> <span class="commit-hash">328563a</span></li>
+                        <li class="change-item"><strong>Cambiar DATE() a CAST en vista materializada para evitar error IMMUTABLE</strong> <span class="commit-hash">2d4fd04</span></li>
+                        <li class="change-item"><strong>Corregir índice DATE en vista materializada para usar CAST immutable</strong> <span class="commit-hash">69a165b</span></li>
+                        <li class="change-item"><strong>Corregir MarketingHubPage para usar tracking_events en lugar de marketing_events</strong> <span class="commit-hash">d0d82d6</span></li>
+                        <li class="change-item"><strong>Mejoras críticas UX en dashboard móvil y redirección</strong> <span class="commit-hash">1cdb8be</span></li>
+                        <li class="change-item"><strong>Cambiar enlace de inventario en dashboard a página principal</strong> <span class="commit-hash">cceadda</span></li>
+                        <li class="change-item"><strong>Corregir loop infinito en AnimatedVehicleGrid que causaba carga eterna en móvil</strong> <span class="commit-hash">98fa96b</span></li>
+                        <li class="change-item"><strong>Corregir problemas críticos de usabilidad en móvil y navegación</strong> <span class="commit-hash">70c6d5b</span></li>
+                        <li class="change-item"><strong>Corregir visualización de asesor y vehículos en sidebar</strong> <span class="commit-hash">5683239</span></li>
+                        <li class="change-item"><strong>Corregir redirección de primer login y guardado parcial de perfil</strong> <span class="commit-hash">8f4aa64</span></li>
+                        <li class="change-item"><strong>Redirigir nuevos usuarios a perfil en lugar de página actual</strong> <span class="commit-hash">b23e8b2</span></li>
+                        <li class="change-item"><strong>Agregar botón explícito de selección de archivo en dropzone público</strong> <span class="commit-hash">4822966</span></li>
+                        <li class="change-item"><strong>Corregir bucle infinito en hero-trefa que causaba homepage en blanco</strong> <span class="commit-hash">1b688ad</span></li>
+                        <li class="change-item"><strong>Corregir bug crítico en perfilación bancaria</strong> <span class="commit-hash">d24787e</span></li>
+                        <li class="change-item"><strong>Corregir bug crítico de guardado de perfil - usar perfil recargado en lugar de payload local</strong> <span class="commit-hash">be27f4b</span></li>
+                        <li class="change-item"><strong>Arreglar Service Worker, crear header móvil optimizado y corregir contador de visitantes</strong> <span class="commit-hash">7306cd2</span></li>
+                        <li class="change-item"><strong>Optimizar hero-trefa y PublicUploadLinkCard para producción</strong> <span class="commit-hash">4ea3a42</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Actualizar changelog con versión v1.11.4</strong> <span class="commit-hash">9ee74c8</span></li>
+                        <li class="change-item"><strong>Actualizar changelog a v1.11.3</strong> <span class="commit-hash">c45577a</span></li>
+                        <li class="change-item"><strong>Actualizar changelog a v1.11.2</strong> <span class="commit-hash">3d9eb44</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">🔨 MANTENIMIENTO</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Agregar logs detallados para diagnosticar marketing-analytics</strong> <span class="commit-hash">a2d8dda</span></li>
+                        <li class="change-item"><strong>Integrar mejoras completas al dashboard de usuarios</strong> <span class="commit-hash">6f5f513</span></li>
+                        <li class="change-item"><strong>WIP on main: e777d2d feat: Agregar página de analytics de carga de documentos</strong> <span class="commit-hash">159378d</span></li>
+                        <li class="change-item"><strong>index on main: e777d2d feat: Agregar página de analytics de carga de documentos</strong> <span class="commit-hash">8230508</span></li>
+                        <li class="change-item"><strong>Actualizar backup del changelog</strong> <span class="commit-hash">9b79690</span></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- VERSIÓN v1.11.4 - 25 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.4</span>
+                    <span class="version-date">25 de Noviembre, 2025</span>
+                    <span class="branch-name">main</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">Nueva Funcionalidad</span>
+                        Página de Confirmación Post-Solicitud
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Nueva página de confirmación después de enviar solicitud de financiamiento</li>
+                        <li class="change-item">Mensaje de felicitaciones personalizado con información del vehículo seleccionado</li>
+                        <li class="change-item">Lista de próximos pasos con documentos requeridos (INE, comprobante domicilio, ingresos, constancia fiscal)</li>
+                        <li class="change-item">Liga pública del dropzone con botón de copiar para facilitar compartir</li>
+                        <li class="change-item">Integración directa con PublicUploadLinkCard para carga inmediata de documentos</li>
+                        <li class="change-item">Botón "Volver al Dashboard" que redirige correctamente a /escritorio</li>
+                        <li class="change-item">Tracking de conversión: dispara evento "SolicitudCompleta" automáticamente</li>
+                        <li class="change-item">Solo se muestra en primer envío, previene acceso en ediciones posteriores</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        Homepage en Blanco
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Corregido bucle infinito en hero-trefa.tsx que causaba crash del navegador</li>
+                        <li class="change-item">Problema: useEffect con 'steps' en dependencias pero modificándose internamente</li>
+                        <li class="change-item">Solución: usar updater functions setState((prev) => ...) para evitar dependencia circular</li>
+                        <li class="change-item">Homepage ahora estable y sin crashes después de carga inicial</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">Corrección</span>
+                        Upload de Documentos
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Corregido dropzone que no abría Finder al hacer clic</li>
+                        <li class="change-item">Añadido botón explícito "Seleccionar Archivo" como alternativa confiable</li>
+                        <li class="change-item">Mantiene funcionalidad drag-and-drop como opción principal</li>
+                        <li class="change-item">Solución al error 500 por bucket faltante 'financing-documents'</li>
+                        <li class="change-item">Ambas opciones (arrastrar y botón) funcionan correctamente</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-perf">Mejora UX</span>
+                        Flujo de Aplicación
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">Redirección automática a página de confirmación al completar solicitud</li>
+                        <li class="change-item">Parámetro ?firstSubmit=true asegura que solo se muestre una vez</li>
+                        <li class="change-item">Usuario recibe confirmación visual inmediata del envío exitoso</li>
+                        <li class="change-item">Liga de upload accesible desde confirmación para facilitar carga de documentos</li>
+                        <li class="change-item">No se confunden ediciones con nuevos envíos</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">Commits</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><span class="commit-hash">1b688ad</span> fix: Corregir bucle infinito en hero-trefa que causaba homepage en blanco</li>
+                        <li class="change-item"><span class="commit-hash">4822966</span> fix: Agregar botón explícito de selección de archivo en dropzone público</li>
+                        <li class="change-item"><span class="commit-hash">27b6886</span> feat: Agregar página de confirmación post-solicitud con tracking y upload de documentos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN v1.11.3 - 25 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.3</span>
+                    <span class="version-date">25 de Noviembre, 2025</span>
+                    <span class="badge badge-feature">Actualización Automática</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Mejoras importantes al homepage y navegación</strong> <span class="commit-hash">6268404</span></li>
+                        <li class="change-item"><strong>Mejorar diseño del hero con animación de vehículos y efectos de vidrio líquido</strong> <span class="commit-hash">273127b</span></li>
+                        <li class="change-item"><strong>Optimizar páginas clave para experiencia móvil superior</strong> <span class="commit-hash">16dc87a</span></li>
+                        <li class="change-item"><strong>Improve mobile header and document upload UX</strong> <span class="commit-hash">bef8c35</span></li>
+                        <li class="change-item"><strong>Agregar analytics para tracking de carga de documentos y mejorar manejo de errores</strong> <span class="commit-hash">95171de</span></li>
+                        <li class="change-item"><strong>Eliminar paso de carga de documentos del formulario de aplicación</strong> <span class="commit-hash">545c164</span></li>
+                        <li class="change-item"><strong>Mostrar documentos subidos con thumbnails en dashboard de usuario</strong> <span class="commit-hash">e604f11</span></li>
+                        <li class="change-item"><strong>Restaurar animación pulsante sutil para estado de espera de documentos</strong> <span class="commit-hash">1991371</span></li>
+                        <li class="change-item"><strong>Mejorar UI del dropzone público con shadcn y agregar headers de autorización</strong> <span class="commit-hash">9ac5616</span></li>
+                        <li class="change-item"><strong>Completar integración - Status automático y ruteo bancario</strong> <span class="commit-hash">d402de2</span></li>
+                        <li class="change-item"><strong>Agregar renovación de tokens por admin/sales en perfiles de clientes</strong> <span class="commit-hash">8c9fff1</span></li>
+                        <li class="change-item"><strong>Agregar expiración de tokens (3 días) y mejorar UI del dropzone</strong> <span class="commit-hash">01d755b</span></li>
+                        <li class="change-item"><strong>Agregar notificaciones por email al subir documentos</strong> <span class="commit-hash">014e210</span></li>
+                        <li class="change-item"><strong>Agregar preview, drag & drop y compresión automática al dropzone</strong> <span class="commit-hash">2b71cdb</span></li>
+                        <li class="change-item"><strong>Implementar sistema de dropzone público para carga de documentos</strong> <span class="commit-hash">90ece41</span></li>
+                        <li class="change-item"><strong>Add new UI components and hero page work-in-progress</strong> <span class="commit-hash">d2c952f</span></li>
+                        <li class="change-item"><strong>Remove capped total leads displays and focus on actionable metrics</strong> <span class="commit-hash">be66e1c</span></li>
+                        <li class="change-item"><strong>Improve post-deployment user experience with friendly update message</strong> <span class="commit-hash">393bf1b</span></li>
+                        <li class="change-item"><strong>Enhance Customer Journey builder and fix critical mobile header issues</strong> <span class="commit-hash">6900e0d</span></li>
+                        <li class="change-item"><strong>Mejorar MetricsService y filtros en Marketing Analytics</strong> <span class="commit-hash">e57e090</span></li>
+                        <li class="change-item"><strong>Agregar embudos histórico y 24h en Marketing Analytics</strong> <span class="commit-hash">4f6d62d</span></li>
+                        <li class="change-item"><strong>Sistema unificado de tracking y métricas consistentes</strong> <span class="commit-hash">9bd34a7</span></li>
+                        <li class="change-item"><strong>Fix edge functions for Google Sheets and Brevo email notifications</strong> <span class="commit-hash">738dd67</span></li>
+                        <li class="change-item"><strong>Add homepage content management system and UI improvements</strong> <span class="commit-hash">e19303b</span></li>
+                        <li class="change-item"><strong>Overhaul Car Studio photo management with ordencompra integration</strong> <span class="commit-hash">21fa760</span></li>
+                        <li class="change-item"><strong>Implement proper view and edit buttons for applications</strong> <span class="commit-hash">72e12d3</span></li>
+                        <li class="change-item"><strong>Add view and edit buttons to submitted applications</strong> <span class="commit-hash">590e87c</span></li>
+                        <li class="change-item"><strong>Remove artificial caps and show real visitor count</strong> <span class="commit-hash">4adf1ca</span></li>
+                        <li class="change-item"><strong>Swap visitor counter with results count for better visibility</strong> <span class="commit-hash">e2c539c</span></li>
+                        <li class="change-item"><strong>Add real-time visitor tracking and UI improvements</strong> <span class="commit-hash">c73c377</span></li>
+                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">470dfd2</span></li>
+                        <li class="change-item"><strong>Electric shock border animation and button height fixes</strong> <span class="commit-hash">65ddfca</span></li>
+                        <li class="change-item"><strong>Add auto-compact sidebar behavior with Framer Motion animations</strong> <span class="commit-hash">8f616a9</span></li>
+                        <li class="change-item"><strong>Add Aceternity-style Apple Cards Carousel and fix hero margin</strong> <span class="commit-hash">ada7f19</span></li>
+                        <li class="change-item"><strong>Superior homepage refactor with modern UX improvements</strong> <span class="commit-hash">abd1057</span></li>
+                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">abb8c5b</span></li>
+                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">af17a4a</span></li>
+                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">29b3b12</span></li>
+                        <li class="change-item"><strong>Update valuation system with comprehensive analysis and realistic pricing</strong> <span class="commit-hash">6c375da</span></li>
+                        <li class="change-item"><strong>Implement automatic bank portal visibility based on selected_banks</strong> <span class="commit-hash">f4afd73</span></li>
+                        <li class="change-item"><strong>Standardize application status system with visual indicators</strong> <span class="commit-hash">172bd39</span></li>
+                        <li class="change-item"><strong>Show all available vehicles in application selector and make list more compact</strong> <span class="commit-hash">f1d13b8</span></li>
+                        <li class="change-item"><strong>Update downpayment to 25% and improve draft applications display</strong> <span class="commit-hash">5f9a237</span></li>
+                        <li class="change-item"><strong>Redesign OnboardingStepper with custom design and fix Asesor profile picture</strong> <span class="commit-hash">5187df3</span></li>
+                        <li class="change-item"><strong>Implementar scroll automático a la parte superior en toda la app</strong> <span class="commit-hash">023510b</span></li>
+                        <li class="change-item"><strong>Mejorar visibilidad del logo y barra de búsqueda en header</strong> <span class="commit-hash">12db3ca</span></li>
+                        <li class="change-item"><strong>Enhance stepper with animations, shadcn-style boxes, and wider layout</strong> <span class="commit-hash">c610737</span></li>
+                        <li class="change-item"><strong>Improve onboarding stepper with better UX and mobile responsiveness</strong> <span class="commit-hash">a7e6420</span></li>
+                        <li class="change-item"><strong>Agregar botón de descarga del changelog para admins y mejorar títulos del Marketing Hub</strong> <span class="commit-hash">bbcb10b</span></li>
+                        <li class="change-item"><strong>Redesign hero section on /financiamiento page based on Figma design</strong> <span class="commit-hash">c122362</span></li>
+                        <li class="change-item"><strong>Add branches section with expandable cards to homepage</strong> <span class="commit-hash">39b7cc5</span></li>
+                        <li class="change-item"><strong>Add personalized positive messaging and gamification to onboarding stepper</strong> <span class="commit-hash">3b45089</span></li>
+                        <li class="change-item"><strong>Update onboarding stepper with more engaging copy and visual indicators</strong> <span class="commit-hash">c6f5857</span></li>
+                        <li class="change-item"><strong>Implement comprehensive onboarding flow redesign with conditional logic</strong> <span class="commit-hash">7a51f13</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Arreglar Service Worker, crear header móvil optimizado y corregir contador de visitantes</strong> <span class="commit-hash">7306cd2</span></li>
+                        <li class="change-item"><strong>Optimizar hero-trefa y PublicUploadLinkCard para producción</strong> <span class="commit-hash">4ea3a42</span></li>
+                        <li class="change-item"><strong>Arreglar dropzone y reemplazar hero del homepage</strong> <span class="commit-hash">712ef92</span></li>
+                        <li class="change-item"><strong>Eliminar padding-bottom excesivo del main layout</strong> <span class="commit-hash">5c2e50e</span></li>
+                        <li class="change-item"><strong>Corregir problemas de z-index en tarjetas de vehículos y ocultar tutorial de onboarding</strong> <span class="commit-hash">6b772b4</span></li>
+                        <li class="change-item"><strong>Corregir ruta de importación de supabaseClient</strong> <span class="commit-hash">301c05b</span></li>
+                        <li class="change-item"><strong>Remove conflicting negative margins from HomePage hero section</strong> <span class="commit-hash">557f343</span></li>
+                        <li class="change-item"><strong>Populate selected_banks field for bank representative visibility</strong> <span class="commit-hash">90d756e</span></li>
+                        <li class="change-item"><strong>Use correct table names in bank rep functions</strong> <span class="commit-hash">a4d5abc</span></li>
+                        <li class="change-item"><strong>Improve admin dashboard layout and fix chart visibility issues</strong> <span class="commit-hash">a68f8ea</span></li>
+                        <li class="change-item"><strong>Adjust HomePage hero section margins to match new header heights</strong> <span class="commit-hash">e4b3dac</span></li>
+                        <li class="change-item"><strong>Set default view to grid on VehicleListPage</strong> <span class="commit-hash">d2bfbac</span></li>
+                        <li class="change-item"><strong>Use Spanish status values in ProminentStatusSelector</strong> <span class="commit-hash">184fbde</span></li>
+                        <li class="change-item"><strong>Critical fixes for Google Sheets, bank dashboard, and survey analytics</strong> <span class="commit-hash">1019178</span></li>
+                        <li class="change-item"><strong>CRITICAL - Restore missing UPDATE policy for financing_applications</strong> <span class="commit-hash">528c79b</span></li>
+                        <li class="change-item"><strong>Resolve application draft loading issue (step 1 stuck)</strong> <span class="commit-hash">3dcac96</span></li>
+                        <li class="change-item"><strong>CRITICAL - Don't set applicationData before navigation</strong> <span class="commit-hash">4558eb0</span></li>
+                        <li class="change-item"><strong>COMPLETE bank portal document access fix</strong> <span class="commit-hash">d7370e0</span></li>
+                        <li class="change-item"><strong>CRITICAL - Fix bank portal application_documents error</strong> <span class="commit-hash">4ce19ec</span></li>
+                        <li class="change-item"><strong>CRITICAL - Fix application form not progressing past first page</strong> <span class="commit-hash">ad4fbee</span></li>
+                        <li class="change-item"><strong>Make onboarding stepper visible on mobile dashboard</strong> <span class="commit-hash">cc2fd8f</span></li>
+                        <li class="change-item"><strong>Add loading states and debugging to mega menu brands/models</strong> <span class="commit-hash">c2b54a6</span></li>
+                        <li class="change-item"><strong>Improve branch modal UX with close button and proper spacing</strong> <span class="commit-hash">9857f35</span></li>
+                        <li class="change-item"><strong>Create storage bucket and fix application draft save errors</strong> <span class="commit-hash">63d63d5</span></li>
+                        <li class="change-item"><strong>Critical mobile UX fixes and application form save error</strong> <span class="commit-hash">76ed46d</span></li>
+                        <li class="change-item"><strong>Critical application form and mobile UX improvements</strong> <span class="commit-hash">1e618fb</span></li>
+                        <li class="change-item"><strong>Optimize mobile responsiveness across all layouts</strong> <span class="commit-hash">8cb1edd</span></li>
+                        <li class="change-item"><strong>Optimize mobile dashboard layout and add UX improvements</strong> <span class="commit-hash">a39b162</span></li>
+                        <li class="change-item"><strong>Remove manual chunking to fix React initialization errors</strong> <span class="commit-hash">208fca2</span></li>
+                        <li class="change-item"><strong>Remove AWS SDK from manual chunks to enable true dynamic loading</strong> <span class="commit-hash">1e9de78</span></li>
+                        <li class="change-item"><strong>Preserve variable declarations and disable esbuild transforms for AWS SDK</strong> <span class="commit-hash">3abf9a3</span></li>
+                        <li class="change-item"><strong>Disable minification and add panel.trefa.mx to CSP</strong> <span class="commit-hash">477c5c0</span></li>
+                        <li class="change-item"><strong>Replace terser with esbuild minifier to fix JavaScript initialization errors</strong> <span class="commit-hash">530454b</span></li>
+                        <li class="change-item"><strong>Optimize deployment and fix CORS issues causing blank pages</strong> <span class="commit-hash">be8d8e4</span></li>
+                        <li class="change-item"><strong>Add missing 4th branch (Saltillo) to homepage CMS</strong> <span class="commit-hash">3feae2b</span></li>
+                        <li class="change-item"><strong>Load all application data for PrintableApplication</strong> <span class="commit-hash">4715c59</span></li>
+                        <li class="change-item"><strong>Replace ApplicationCard reference in mobile drafts section</strong> <span class="commit-hash">0cbad8b</span></li>
+                        <li class="change-item"><strong>Reposition recently viewed widget to avoid sidebar overlap</strong> <span class="commit-hash">c4fb5d1</span></li>
+                        <li class="change-item"><strong>Add authorization header to realtime visitors API calls</strong> <span class="commit-hash">a10f537</span></li>
+                        <li class="change-item"><strong>Adjust sticky sidebar top offset to 170px</strong> <span class="commit-hash">849fdb7</span></li>
+                        <li class="change-item"><strong>Restore missing supabaseClient.ts file</strong> <span class="commit-hash">1589d85</span></li>
+                        <li class="change-item"><strong>Prevent duplicate ComienzaSolicitud tracking when users return to existing draft</strong> <span class="commit-hash">c049009</span></li>
+                        <li class="change-item"><strong>Fix InteractiveStepper error - stepStates[i] is undefined</strong> <span class="commit-hash">bbd9571</span></li>
+                        <li class="change-item"><strong>Fix mobile visibility and styling for Vistos Recientemente and También te puede interesar sections</strong> <span class="commit-hash">f8c935b</span></li>
+                        <li class="change-item"><strong>Ensure header search bar is properly visible on mobile</strong> <span class="commit-hash">3504450</span></li>
+                        <li class="change-item"><strong>Improve OnboardingStepper layout and content visibility</strong> <span class="commit-hash">6ac299a</span></li>
+                        <li class="change-item"><strong>Corregir filtro crítico de vehículos disponibles en VehicleSelector</strong> <span class="commit-hash">b341bff</span></li>
+                        <li class="change-item"><strong>Remove stepper and banner from profile page</strong> <span class="commit-hash">e994364</span></li>
+                        <li class="change-item"><strong>Comprehensive onboarding stepper improvements</strong> <span class="commit-hash">a45029a</span></li>
+                        <li class="change-item"><strong>Improve dashboard and mobile menu UX</strong> <span class="commit-hash">ac4cf39</span></li>
+                        <li class="change-item"><strong>Improve onboarding stepper UX and save phone from financing form</strong> <span class="commit-hash">314b17f</span></li>
+                        <li class="change-item"><strong>Update Step 2 onboarding text and button styling</strong> <span class="commit-hash">adfe2c5</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Actualizar changelog a v1.11.2</strong> <span class="commit-hash">3d9eb44</span></li>
+                        <li class="change-item"><strong>Add Supabase troubleshooting documentation and RLS recovery</strong> <span class="commit-hash">5b7aa49</span></li>
+                        <li class="change-item"><strong>Actualizar CHANGELOG.md con cambios de los últimos 7 días</strong> <span class="commit-hash">14c8753</span></li>
+                        <li class="change-item"><strong>Agregar documentación completa de sistemas de diseño y changelog</strong> <span class="commit-hash">081a634</span></li>
+                        <li class="change-item"><strong>Actualizar changelog con cambios de los últimos 3 días</strong> <span class="commit-hash">64b9075</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">💄 ESTILOS</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Add subtle gray background to dashboard layout</strong> <span class="commit-hash">140eec0</span></li>
+                        <li class="change-item"><strong>Cambiar fondo del dashboard a blanco y ajustar títulos</strong> <span class="commit-hash">2e3c33e</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">♻️ REFACTORIZACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Fix overlapping graphs and optimize layout in AdminSalesDashboard</strong> <span class="commit-hash">97f2478</span></li>
+                        <li class="change-item"><strong>Use StickySidebar component for filter sidebar</strong> <span class="commit-hash">87b6e25</span></li>
+                        <li class="change-item"><strong>VehicleListPage and VehicleCard improvements</strong> <span class="commit-hash">9686b9a</span></li>
+                        <li class="change-item"><strong>Mejorar stepper de onboarding y componente de descarga de ebook</strong> <span class="commit-hash">32bd1a4</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">🔨 MANTENIMIENTO</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>On main: Additional untracked file</strong> <span class="commit-hash">1dbed74</span></li>
+                        <li class="change-item"><strong>index on main: 557f343 fix: Remove conflicting negative margins from HomePage hero section</strong> <span class="commit-hash">dcde5be</span></li>
+                        <li class="change-item"><strong>untracked files on main: 557f343 fix: Remove conflicting negative margins from HomePage hero section</strong> <span class="commit-hash">ea57d06</span></li>
+                        <li class="change-item"><strong>Show visible error when financing preferences are missing</strong> <span class="commit-hash">12b3e1d</span></li>
+                        <li class="change-item"><strong>Add logging to bank profile check in Application</strong> <span class="commit-hash">6c3392f</span></li>
+                        <li class="change-item"><strong>URGENT ROLLBACK: Revert application form changes</strong> <span class="commit-hash">67d2454</span></li>
+                        <li class="change-item"><strong>Add detailed logging to application draft save</strong> <span class="commit-hash">7248c84</span></li>
+                        <li class="change-item"><strong>Add emergency migrations and MCP config updates</strong> <span class="commit-hash">36e14c5</span></li>
+                        <li class="change-item"><strong>Merge branch 'homepage-refactor-superior'</strong> <span class="commit-hash">03d832a</span></li>
+                        <li class="change-item"><strong>Restore original hero section on /financiamientos page</strong> <span class="commit-hash">2d8c432</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN v1.11.2 - 25 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.2</span>
+                    <span class="version-date">25 de Noviembre, 2025</span>
+                    <span class="badge badge-feature">Actualización Automática</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Mejorar diseño del hero con animación de vehículos y efectos de vidrio líquido</strong> <span class="commit-hash">273127b</span></li>
+                        <li class="change-item"><strong>Optimizar páginas clave para experiencia móvil superior</strong> <span class="commit-hash">16dc87a</span></li>
+                        <li class="change-item"><strong>Improve mobile header and document upload UX</strong> <span class="commit-hash">bef8c35</span></li>
+                        <li class="change-item"><strong>Agregar analytics para tracking de carga de documentos y mejorar manejo de errores</strong> <span class="commit-hash">95171de</span></li>
+                        <li class="change-item"><strong>Eliminar paso de carga de documentos del formulario de aplicación</strong> <span class="commit-hash">545c164</span></li>
+                        <li class="change-item"><strong>Mostrar documentos subidos con thumbnails en dashboard de usuario</strong> <span class="commit-hash">e604f11</span></li>
+                        <li class="change-item"><strong>Restaurar animación pulsante sutil para estado de espera de documentos</strong> <span class="commit-hash">1991371</span></li>
+                        <li class="change-item"><strong>Mejorar UI del dropzone público con shadcn y agregar headers de autorización</strong> <span class="commit-hash">9ac5616</span></li>
+                        <li class="change-item"><strong>Completar integración - Status automático y ruteo bancario</strong> <span class="commit-hash">d402de2</span></li>
+                        <li class="change-item"><strong>Agregar renovación de tokens por admin/sales en perfiles de clientes</strong> <span class="commit-hash">8c9fff1</span></li>
+                        <li class="change-item"><strong>Agregar expiración de tokens (3 días) y mejorar UI del dropzone</strong> <span class="commit-hash">01d755b</span></li>
+                        <li class="change-item"><strong>Agregar notificaciones por email al subir documentos</strong> <span class="commit-hash">014e210</span></li>
+                        <li class="change-item"><strong>Agregar preview, drag & drop y compresión automática al dropzone</strong> <span class="commit-hash">2b71cdb</span></li>
+                        <li class="change-item"><strong>Implementar sistema de dropzone público para carga de documentos</strong> <span class="commit-hash">90ece41</span></li>
+                        <li class="change-item"><strong>Add new UI components and hero page work-in-progress</strong> <span class="commit-hash">d2c952f</span></li>
+                        <li class="change-item"><strong>Remove capped total leads displays and focus on actionable metrics</strong> <span class="commit-hash">be66e1c</span></li>
+                        <li class="change-item"><strong>Improve post-deployment user experience with friendly update message</strong> <span class="commit-hash">393bf1b</span></li>
+                        <li class="change-item"><strong>Enhance Customer Journey builder and fix critical mobile header issues</strong> <span class="commit-hash">6900e0d</span></li>
+                        <li class="change-item"><strong>Mejorar MetricsService y filtros en Marketing Analytics</strong> <span class="commit-hash">e57e090</span></li>
+                        <li class="change-item"><strong>Agregar embudos histórico y 24h en Marketing Analytics</strong> <span class="commit-hash">4f6d62d</span></li>
+                        <li class="change-item"><strong>Sistema unificado de tracking y métricas consistentes</strong> <span class="commit-hash">9bd34a7</span></li>
+                        <li class="change-item"><strong>Fix edge functions for Google Sheets and Brevo email notifications</strong> <span class="commit-hash">738dd67</span></li>
+                        <li class="change-item"><strong>Add homepage content management system and UI improvements</strong> <span class="commit-hash">e19303b</span></li>
+                        <li class="change-item"><strong>Overhaul Car Studio photo management with ordencompra integration</strong> <span class="commit-hash">21fa760</span></li>
+                        <li class="change-item"><strong>Implement proper view and edit buttons for applications</strong> <span class="commit-hash">72e12d3</span></li>
+                        <li class="change-item"><strong>Add view and edit buttons to submitted applications</strong> <span class="commit-hash">590e87c</span></li>
+                        <li class="change-item"><strong>Remove artificial caps and show real visitor count</strong> <span class="commit-hash">4adf1ca</span></li>
+                        <li class="change-item"><strong>Swap visitor counter with results count for better visibility</strong> <span class="commit-hash">e2c539c</span></li>
+                        <li class="change-item"><strong>Add real-time visitor tracking and UI improvements</strong> <span class="commit-hash">c73c377</span></li>
+                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">470dfd2</span></li>
+                        <li class="change-item"><strong>Electric shock border animation and button height fixes</strong> <span class="commit-hash">65ddfca</span></li>
+                        <li class="change-item"><strong>Add auto-compact sidebar behavior with Framer Motion animations</strong> <span class="commit-hash">8f616a9</span></li>
+                        <li class="change-item"><strong>Add Aceternity-style Apple Cards Carousel and fix hero margin</strong> <span class="commit-hash">ada7f19</span></li>
+                        <li class="change-item"><strong>Superior homepage refactor with modern UX improvements</strong> <span class="commit-hash">abd1057</span></li>
+                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">abb8c5b</span></li>
+                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">af17a4a</span></li>
+                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">29b3b12</span></li>
+                        <li class="change-item"><strong>Update valuation system with comprehensive analysis and realistic pricing</strong> <span class="commit-hash">6c375da</span></li>
+                        <li class="change-item"><strong>Implement automatic bank portal visibility based on selected_banks</strong> <span class="commit-hash">f4afd73</span></li>
+                        <li class="change-item"><strong>Standardize application status system with visual indicators</strong> <span class="commit-hash">172bd39</span></li>
+                        <li class="change-item"><strong>Show all available vehicles in application selector and make list more compact</strong> <span class="commit-hash">f1d13b8</span></li>
+                        <li class="change-item"><strong>Update downpayment to 25% and improve draft applications display</strong> <span class="commit-hash">5f9a237</span></li>
+                        <li class="change-item"><strong>Redesign OnboardingStepper with custom design and fix Asesor profile picture</strong> <span class="commit-hash">5187df3</span></li>
+                        <li class="change-item"><strong>Implementar scroll automático a la parte superior en toda la app</strong> <span class="commit-hash">023510b</span></li>
+                        <li class="change-item"><strong>Mejorar visibilidad del logo y barra de búsqueda en header</strong> <span class="commit-hash">12db3ca</span></li>
+                        <li class="change-item"><strong>Enhance stepper with animations, shadcn-style boxes, and wider layout</strong> <span class="commit-hash">c610737</span></li>
+                        <li class="change-item"><strong>Improve onboarding stepper with better UX and mobile responsiveness</strong> <span class="commit-hash">a7e6420</span></li>
+                        <li class="change-item"><strong>Agregar botón de descarga del changelog para admins y mejorar títulos del Marketing Hub</strong> <span class="commit-hash">bbcb10b</span></li>
+                        <li class="change-item"><strong>Redesign hero section on /financiamiento page based on Figma design</strong> <span class="commit-hash">c122362</span></li>
+                        <li class="change-item"><strong>Add branches section with expandable cards to homepage</strong> <span class="commit-hash">39b7cc5</span></li>
+                        <li class="change-item"><strong>Add personalized positive messaging and gamification to onboarding stepper</strong> <span class="commit-hash">3b45089</span></li>
+                        <li class="change-item"><strong>Update onboarding stepper with more engaging copy and visual indicators</strong> <span class="commit-hash">c6f5857</span></li>
+                        <li class="change-item"><strong>Implement comprehensive onboarding flow redesign with conditional logic</strong> <span class="commit-hash">7a51f13</span></li>
+                        <li class="change-item"><strong>Comprehensive survey system and onboarding improvements</strong> <span class="commit-hash">effff29</span></li>
+                        <li class="change-item"><strong>Enhance onboarding stepper and calculator UX</strong> <span class="commit-hash">9de1092</span></li>
+                        <li class="change-item"><strong>Enhance login flow and profile page with onboarding improvements</strong> <span class="commit-hash">e1df96d</span></li>
+                        <li class="change-item"><strong>Add interactive onboarding stepper to Dashboard</strong> <span class="commit-hash">30b3711</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Arreglar Service Worker, crear header móvil optimizado y corregir contador de visitantes</strong> <span class="commit-hash">7306cd2</span></li>
+                        <li class="change-item"><strong>Optimizar hero-trefa y PublicUploadLinkCard para producción</strong> <span class="commit-hash">4ea3a42</span></li>
+                        <li class="change-item"><strong>Arreglar dropzone y reemplazar hero del homepage</strong> <span class="commit-hash">712ef92</span></li>
+                        <li class="change-item"><strong>Eliminar padding-bottom excesivo del main layout</strong> <span class="commit-hash">5c2e50e</span></li>
+                        <li class="change-item"><strong>Corregir problemas de z-index en tarjetas de vehículos y ocultar tutorial de onboarding</strong> <span class="commit-hash">6b772b4</span></li>
+                        <li class="change-item"><strong>Corregir ruta de importación de supabaseClient</strong> <span class="commit-hash">301c05b</span></li>
+                        <li class="change-item"><strong>Remove conflicting negative margins from HomePage hero section</strong> <span class="commit-hash">557f343</span></li>
+                        <li class="change-item"><strong>Populate selected_banks field for bank representative visibility</strong> <span class="commit-hash">90d756e</span></li>
+                        <li class="change-item"><strong>Use correct table names in bank rep functions</strong> <span class="commit-hash">a4d5abc</span></li>
+                        <li class="change-item"><strong>Improve admin dashboard layout and fix chart visibility issues</strong> <span class="commit-hash">a68f8ea</span></li>
+                        <li class="change-item"><strong>Adjust HomePage hero section margins to match new header heights</strong> <span class="commit-hash">e4b3dac</span></li>
+                        <li class="change-item"><strong>Set default view to grid on VehicleListPage</strong> <span class="commit-hash">d2bfbac</span></li>
+                        <li class="change-item"><strong>Use Spanish status values in ProminentStatusSelector</strong> <span class="commit-hash">184fbde</span></li>
+                        <li class="change-item"><strong>Critical fixes for Google Sheets, bank dashboard, and survey analytics</strong> <span class="commit-hash">1019178</span></li>
+                        <li class="change-item"><strong>CRITICAL - Restore missing UPDATE policy for financing_applications</strong> <span class="commit-hash">528c79b</span></li>
+                        <li class="change-item"><strong>Resolve application draft loading issue (step 1 stuck)</strong> <span class="commit-hash">3dcac96</span></li>
+                        <li class="change-item"><strong>CRITICAL - Don't set applicationData before navigation</strong> <span class="commit-hash">4558eb0</span></li>
+                        <li class="change-item"><strong>COMPLETE bank portal document access fix</strong> <span class="commit-hash">d7370e0</span></li>
+                        <li class="change-item"><strong>CRITICAL - Fix bank portal application_documents error</strong> <span class="commit-hash">4ce19ec</span></li>
+                        <li class="change-item"><strong>CRITICAL - Fix application form not progressing past first page</strong> <span class="commit-hash">ad4fbee</span></li>
+                        <li class="change-item"><strong>Make onboarding stepper visible on mobile dashboard</strong> <span class="commit-hash">cc2fd8f</span></li>
+                        <li class="change-item"><strong>Add loading states and debugging to mega menu brands/models</strong> <span class="commit-hash">c2b54a6</span></li>
+                        <li class="change-item"><strong>Improve branch modal UX with close button and proper spacing</strong> <span class="commit-hash">9857f35</span></li>
+                        <li class="change-item"><strong>Create storage bucket and fix application draft save errors</strong> <span class="commit-hash">63d63d5</span></li>
+                        <li class="change-item"><strong>Critical mobile UX fixes and application form save error</strong> <span class="commit-hash">76ed46d</span></li>
+                        <li class="change-item"><strong>Critical application form and mobile UX improvements</strong> <span class="commit-hash">1e618fb</span></li>
+                        <li class="change-item"><strong>Optimize mobile responsiveness across all layouts</strong> <span class="commit-hash">8cb1edd</span></li>
+                        <li class="change-item"><strong>Optimize mobile dashboard layout and add UX improvements</strong> <span class="commit-hash">a39b162</span></li>
+                        <li class="change-item"><strong>Remove manual chunking to fix React initialization errors</strong> <span class="commit-hash">208fca2</span></li>
+                        <li class="change-item"><strong>Remove AWS SDK from manual chunks to enable true dynamic loading</strong> <span class="commit-hash">1e9de78</span></li>
+                        <li class="change-item"><strong>Preserve variable declarations and disable esbuild transforms for AWS SDK</strong> <span class="commit-hash">3abf9a3</span></li>
+                        <li class="change-item"><strong>Disable minification and add panel.trefa.mx to CSP</strong> <span class="commit-hash">477c5c0</span></li>
+                        <li class="change-item"><strong>Replace terser with esbuild minifier to fix JavaScript initialization errors</strong> <span class="commit-hash">530454b</span></li>
+                        <li class="change-item"><strong>Optimize deployment and fix CORS issues causing blank pages</strong> <span class="commit-hash">be8d8e4</span></li>
+                        <li class="change-item"><strong>Add missing 4th branch (Saltillo) to homepage CMS</strong> <span class="commit-hash">3feae2b</span></li>
+                        <li class="change-item"><strong>Load all application data for PrintableApplication</strong> <span class="commit-hash">4715c59</span></li>
+                        <li class="change-item"><strong>Replace ApplicationCard reference in mobile drafts section</strong> <span class="commit-hash">0cbad8b</span></li>
+                        <li class="change-item"><strong>Reposition recently viewed widget to avoid sidebar overlap</strong> <span class="commit-hash">c4fb5d1</span></li>
+                        <li class="change-item"><strong>Add authorization header to realtime visitors API calls</strong> <span class="commit-hash">a10f537</span></li>
+                        <li class="change-item"><strong>Adjust sticky sidebar top offset to 170px</strong> <span class="commit-hash">849fdb7</span></li>
+                        <li class="change-item"><strong>Restore missing supabaseClient.ts file</strong> <span class="commit-hash">1589d85</span></li>
+                        <li class="change-item"><strong>Prevent duplicate ComienzaSolicitud tracking when users return to existing draft</strong> <span class="commit-hash">c049009</span></li>
+                        <li class="change-item"><strong>Fix InteractiveStepper error - stepStates[i] is undefined</strong> <span class="commit-hash">bbd9571</span></li>
+                        <li class="change-item"><strong>Fix mobile visibility and styling for Vistos Recientemente and También te puede interesar sections</strong> <span class="commit-hash">f8c935b</span></li>
+                        <li class="change-item"><strong>Ensure header search bar is properly visible on mobile</strong> <span class="commit-hash">3504450</span></li>
+                        <li class="change-item"><strong>Improve OnboardingStepper layout and content visibility</strong> <span class="commit-hash">6ac299a</span></li>
+                        <li class="change-item"><strong>Corregir filtro crítico de vehículos disponibles en VehicleSelector</strong> <span class="commit-hash">b341bff</span></li>
+                        <li class="change-item"><strong>Remove stepper and banner from profile page</strong> <span class="commit-hash">e994364</span></li>
+                        <li class="change-item"><strong>Comprehensive onboarding stepper improvements</strong> <span class="commit-hash">a45029a</span></li>
+                        <li class="change-item"><strong>Improve dashboard and mobile menu UX</strong> <span class="commit-hash">ac4cf39</span></li>
+                        <li class="change-item"><strong>Improve onboarding stepper UX and save phone from financing form</strong> <span class="commit-hash">314b17f</span></li>
+                        <li class="change-item"><strong>Update Step 2 onboarding text and button styling</strong> <span class="commit-hash">adfe2c5</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Add Supabase troubleshooting documentation and RLS recovery</strong> <span class="commit-hash">5b7aa49</span></li>
+                        <li class="change-item"><strong>Actualizar CHANGELOG.md con cambios de los últimos 7 días</strong> <span class="commit-hash">14c8753</span></li>
+                        <li class="change-item"><strong>Agregar documentación completa de sistemas de diseño y changelog</strong> <span class="commit-hash">081a634</span></li>
+                        <li class="change-item"><strong>Actualizar changelog con cambios de los últimos 3 días</strong> <span class="commit-hash">64b9075</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">💄 ESTILOS</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Add subtle gray background to dashboard layout</strong> <span class="commit-hash">140eec0</span></li>
+                        <li class="change-item"><strong>Cambiar fondo del dashboard a blanco y ajustar títulos</strong> <span class="commit-hash">2e3c33e</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">♻️ REFACTORIZACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Fix overlapping graphs and optimize layout in AdminSalesDashboard</strong> <span class="commit-hash">97f2478</span></li>
+                        <li class="change-item"><strong>Use StickySidebar component for filter sidebar</strong> <span class="commit-hash">87b6e25</span></li>
+                        <li class="change-item"><strong>VehicleListPage and VehicleCard improvements</strong> <span class="commit-hash">9686b9a</span></li>
+                        <li class="change-item"><strong>Mejorar stepper de onboarding y componente de descarga de ebook</strong> <span class="commit-hash">32bd1a4</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">🔨 MANTENIMIENTO</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>On main: Additional untracked file</strong> <span class="commit-hash">1dbed74</span></li>
+                        <li class="change-item"><strong>index on main: 557f343 fix: Remove conflicting negative margins from HomePage hero section</strong> <span class="commit-hash">dcde5be</span></li>
+                        <li class="change-item"><strong>untracked files on main: 557f343 fix: Remove conflicting negative margins from HomePage hero section</strong> <span class="commit-hash">ea57d06</span></li>
+                        <li class="change-item"><strong>Show visible error when financing preferences are missing</strong> <span class="commit-hash">12b3e1d</span></li>
+                        <li class="change-item"><strong>Add logging to bank profile check in Application</strong> <span class="commit-hash">6c3392f</span></li>
+                        <li class="change-item"><strong>URGENT ROLLBACK: Revert application form changes</strong> <span class="commit-hash">67d2454</span></li>
+                        <li class="change-item"><strong>Add detailed logging to application draft save</strong> <span class="commit-hash">7248c84</span></li>
+                        <li class="change-item"><strong>Add emergency migrations and MCP config updates</strong> <span class="commit-hash">36e14c5</span></li>
+                        <li class="change-item"><strong>Merge branch 'homepage-refactor-superior'</strong> <span class="commit-hash">03d832a</span></li>
+                        <li class="change-item"><strong>Restore original hero section on /financiamientos page</strong> <span class="commit-hash">2d8c432</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN v1.11.1 - 24 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.1</span>
+                    <span class="version-date">24 de Noviembre, 2025</span>
+                    <span class="badge badge-feature">Actualización Automática</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Add view and edit buttons to submitted applications</strong> <span class="commit-hash">590e87c</span></li>
+                        <li class="change-item"><strong>Remove artificial caps and show real visitor count</strong> <span class="commit-hash">4adf1ca</span></li>
+                        <li class="change-item"><strong>Swap visitor counter with results count for better visibility</strong> <span class="commit-hash">e2c539c</span></li>
+                        <li class="change-item"><strong>Add real-time visitor tracking and UI improvements</strong> <span class="commit-hash">c73c377</span></li>
+                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">470dfd2</span></li>
+                        <li class="change-item"><strong>Electric shock border animation and button height fixes</strong> <span class="commit-hash">65ddfca</span></li>
+                        <li class="change-item"><strong>Add auto-compact sidebar behavior with Framer Motion animations</strong> <span class="commit-hash">8f616a9</span></li>
+                        <li class="change-item"><strong>Add Aceternity-style Apple Cards Carousel and fix hero margin</strong> <span class="commit-hash">ada7f19</span></li>
+                        <li class="change-item"><strong>Superior homepage refactor with modern UX improvements</strong> <span class="commit-hash">abd1057</span></li>
+                        <li class="change-item"><strong>Mejorar mensajes de error a español descriptivo y amigable</strong> <span class="commit-hash">abb8c5b</span></li>
+                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">af17a4a</span></li>
+                        <li class="change-item"><strong>Optimización integral de rendimiento y caché</strong> <span class="commit-hash">29b3b12</span></li>
+                        <li class="change-item"><strong>Update valuation system with comprehensive analysis and realistic pricing</strong> <span class="commit-hash">6c375da</span></li>
+                        <li class="change-item"><strong>Implement automatic bank portal visibility based on selected_banks</strong> <span class="commit-hash">f4afd73</span></li>
+                        <li class="change-item"><strong>Standardize application status system with visual indicators</strong> <span class="commit-hash">172bd39</span></li>
+                        <li class="change-item"><strong>Show all available vehicles in application selector and make list more compact</strong> <span class="commit-hash">f1d13b8</span></li>
+                        <li class="change-item"><strong>Update downpayment to 25% and improve draft applications display</strong> <span class="commit-hash">5f9a237</span></li>
+                        <li class="change-item"><strong>Redesign OnboardingStepper with custom design and fix Asesor profile picture</strong> <span class="commit-hash">5187df3</span></li>
+                        <li class="change-item"><strong>Implementar scroll automático a la parte superior en toda la app</strong> <span class="commit-hash">023510b</span></li>
+                        <li class="change-item"><strong>Mejorar visibilidad del logo y barra de búsqueda en header</strong> <span class="commit-hash">12db3ca</span></li>
+                        <li class="change-item"><strong>Enhance stepper with animations, shadcn-style boxes, and wider layout</strong> <span class="commit-hash">c610737</span></li>
+                        <li class="change-item"><strong>Improve onboarding stepper with better UX and mobile responsiveness</strong> <span class="commit-hash">a7e6420</span></li>
+                        <li class="change-item"><strong>Agregar botón de descarga del changelog para admins y mejorar títulos del Marketing Hub</strong> <span class="commit-hash">bbcb10b</span></li>
+                        <li class="change-item"><strong>Redesign hero section on /financiamiento page based on Figma design</strong> <span class="commit-hash">c122362</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Reposition recently viewed widget to avoid sidebar overlap</strong> <span class="commit-hash">c4fb5d1</span></li>
+                        <li class="change-item"><strong>Add authorization header to realtime visitors API calls</strong> <span class="commit-hash">a10f537</span></li>
+                        <li class="change-item"><strong>Adjust sticky sidebar top offset to 170px</strong> <span class="commit-hash">849fdb7</span></li>
+                        <li class="change-item"><strong>Restore missing supabaseClient.ts file</strong> <span class="commit-hash">1589d85</span></li>
+                        <li class="change-item"><strong>Prevent duplicate ComienzaSolicitud tracking when users return to existing draft</strong> <span class="commit-hash">c049009</span></li>
+                        <li class="change-item"><strong>Fix InteractiveStepper error - stepStates[i] is undefined</strong> <span class="commit-hash">bbd9571</span></li>
+                        <li class="change-item"><strong>Fix mobile visibility and styling for Vistos Recientemente and También te puede interesar sections</strong> <span class="commit-hash">f8c935b</span></li>
+                        <li class="change-item"><strong>Ensure header search bar is properly visible on mobile</strong> <span class="commit-hash">3504450</span></li>
+                        <li class="change-item"><strong>Improve OnboardingStepper layout and content visibility</strong> <span class="commit-hash">6ac299a</span></li>
+                        <li class="change-item"><strong>Corregir filtro crítico de vehículos disponibles en VehicleSelector</strong> <span class="commit-hash">b341bff</span></li>
+                        <li class="change-item"><strong>Remove stepper and banner from profile page</strong> <span class="commit-hash">e994364</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Actualizar CHANGELOG.md con cambios de los últimos 7 días</strong> <span class="commit-hash">14c8753</span></li>
+                        <li class="change-item"><strong>Agregar documentación completa de sistemas de diseño y changelog</strong> <span class="commit-hash">081a634</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">💄 ESTILOS</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Cambiar fondo del dashboard a blanco y ajustar títulos</strong> <span class="commit-hash">2e3c33e</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">♻️ REFACTORIZACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Use StickySidebar component for filter sidebar</strong> <span class="commit-hash">87b6e25</span></li>
+                        <li class="change-item"><strong>VehicleListPage and VehicleCard improvements</strong> <span class="commit-hash">9686b9a</span></li>
+                        <li class="change-item"><strong>Mejorar stepper de onboarding y componente de descarga de ebook</strong> <span class="commit-hash">32bd1a4</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">🔨 MANTENIMIENTO</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Merge branch 'homepage-refactor-superior'</strong> <span class="commit-hash">03d832a</span></li>
+                        <li class="change-item"><strong>Restore original hero section on /financiamientos page</strong> <span class="commit-hash">2d8c432</span></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- VERSIÓN 1.11.0 - Noviembre 23, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.0</span>
+                    <span class="version-date">23 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Sistema de Diseño</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Sistema de Diseño Figma MCP:</strong> Documentación completa en español del sistema de diseño basado en shadcn/ui para integración con Figma usando Model Context Protocol
+                        </li>
+                        <li class="change-item">
+                            <strong>FIGMA_DESIGN_RULES.md:</strong> Guía de 10 secciones con tokens de diseño, componentes, patrones de implementación, gestión de assets, sistema de iconos y workflow Figma → Código
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Sección de Sucursales en Homepage:</strong> Tarjetas expandibles con información de cada sucursal TREFA (dirección, horarios, contacto)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.10.0 - Noviembre 22, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.10.0</span>
+                    <span class="version-date">22 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Onboarding & UX</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Sistema de Onboarding Interactivo:</strong> Stepper progresivo con lógica condicional, mensajería personalizada y gamificación para nuevos usuarios
+                        </li>
+                        <li class="change-item">
+                            <strong>Indicadores Visuales Mejorados:</strong> Íconos animados, badges informativos y transiciones fluidas en el flujo de onboarding
+                        </li>
+                        <li class="change-item">
+                            <strong>Guardado de Teléfono desde Formulario:</strong> Captura automática del número telefónico durante el proceso de financiamiento
+                        </li>
+                        <li class="change-item">
+                            <strong>Sistema de Encuestas Completo:</strong> Mejoras integrales al sistema de encuestas con analytics mejorados
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>UX del Stepper de Onboarding:</strong> Correcciones exhaustivas en la experiencia del usuario, textos más claros y botones con mejor styling
+                        </li>
+                        <li class="change-item">
+                            <strong>Dashboard y Menú Móvil:</strong> Mejoras en la navegación móvil y experiencia del dashboard
+                        </li>
+                        <li class="change-item">
+                            <strong>Flujo de Login Mejorado:</strong> Integración perfecta con el sistema de onboarding y mejoras en la página de perfil
+                        </li>
+                        <li class="change-item">
+                            <strong>Páginas de Perfil:</strong> Eliminación de cajas delimitadoras externas para mejor apariencia visual
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.9.5 - Noviembre 21, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.5</span>
+                    <span class="version-date">21 de Noviembre, 2024</span>
+                    <span class="badge badge-fix">Calculadora & UX</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Tasas de Interés Actualizadas:</strong> Corrección de las tasas de interés en la calculadora de financiamiento
+                        </li>
+                        <li class="change-item">
+                            <strong>Eliminación de Pago Total:</strong> Simplificación de la calculadora removiendo el campo de pago total confuso
+                        </li>
+                        <li class="change-item">
+                            <strong>Fórmulas de Financiamiento:</strong> Corrección de las fórmulas matemáticas en el cálculo de pagos mensuales
+                        </li>
+                        <li class="change-item">
+                            <strong>Componentes de Financiamiento:</strong> Actualización con nueva lógica de calculadora y UX mejorada
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Calculadora de Onboarding:</strong> Mejoras en la experiencia de usuario del stepper de onboarding con calculadora integrada
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.9.4 - Noviembre 21, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.4</span>
+                    <span class="version-date">21 de Noviembre, 2024</span>
+                    <span class="badge badge-perf">Rendimiento</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Rediseño de Página de Listados:</strong> Nueva experiencia visual con rendimiento mejorado y animaciones optimizadas
+                            <span class="branch-name">feature/redesign-listings</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Barra de Búsqueda del Header:</strong> Eliminación del fondo animado que obstruía la funcionalidad
+                        </li>
+                        <li class="change-item">
+                            <strong>Animaciones de Bordes:</strong> Mejoras en las animaciones de bordes de tarjetas y styling del header
+                        </li>
+                        <li class="change-item">
+                            <strong>UX de Tarjetas de Vehículos:</strong> Mejoras visuales y de interacción en las tarjetas de vehículos con bordes animados
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-perf">⚡ RENDIMIENTO</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Imports Dinámicos de AWS SDK:</strong> Prevención de errores de inicialización de módulos usando lazy loading
+                        </li>
+                        <li class="change-item">
+                            <strong>Chunking Manual Deshabilitado:</strong> Resolución de errores de inicialización de módulos en el build
+                        </li>
+                        <li class="change-item">
+                            <strong>Chunking de Vendor AWS SDK:</strong> Eliminación del chunking manual para prevenir errores
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.9.3 - Noviembre 20, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.3</span>
+                    <span class="version-date">20 de Noviembre, 2024</span>
+                    <span class="badge badge-fix">UX & Perfilación</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Página de Perfil Bancario:</strong> Mejoras en UX y flujo de aplicaciones bancarias
+                        </li>
+                        <li class="change-item">
+                            <strong>Configuración CORS:</strong> Actualización para permitir variaciones de URL de Cloud Run
+                        </li>
+                        <li class="change-item">
+                            <strong>Navegación Móvil Unificada:</strong> Consolidación del menú de navegación móvil con mejor UX
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-perf">⚡ RENDIMIENTO</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Optimizaciones de Build:</strong> Re-adición de optimizaciones con configuración apropiada
+                            <span class="branch-name">fix/build-blank-homepage</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Resolución de Páginas en Blanco:</strong> Corrección de issues de configuración de build
+                        </li>
+                        <li class="change-item">
+                            <strong>Configuraciones Avanzadas Vite y TypeScript:</strong> Optimización del proceso de compilación
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>CHANGELOG.md Actualizado:</strong> Documentación de funcionalidades recientes en español
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.9.2 - Noviembre 20, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.2</span>
+                    <span class="version-date">20 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Navegación & Vehículos</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Botón de Vehículos Similares:</strong> Función para mostrar vehículos similares en autos separados
+                        </li>
+                        <li class="change-item">
+                            <strong>Mejoras en Tarjeta de Vehículo:</strong> Navegación mejorada y bordes visuales mejorados
+                        </li>
+                        <li class="change-item">
+                            <strong>Sistema Centralizado de Estados:</strong> Implementación de sistema unificado para estados de aplicaciones
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Guía de Customer Journeys:</strong> Documentación completa de implementación de flujos de usuario
+                        </li>
+                        <li class="change-item">
+                            <strong>Automatización de Estados:</strong> Documentación del sistema de automatización de estados de aplicaciones
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Fetch Directo por Ordencompra:</strong> Obtención directa de vehículos en página de aplicación
+                        </li>
+                        <li class="change-item">
+                            <strong>Problemas de Mega Menú:</strong> Correcciones en el menú de navegación principal
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.9.1 - Noviembre 20, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.1</span>
+                    <span class="version-date">20 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Bancos & Seguridad</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Opción Banco Renueva Car:</strong> Integración de nueva opción bancaria en el sistema de perfilación
+                            <span class="branch-name">feature/banking-profile-scoring-update</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Funciones Públicas de Catálogo Facebook:</strong> Acceso público a funciones del catálogo de productos
+                            <span class="branch-name">feature/google-sheets-sales-agent-email</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Email de Agente en Google Sheets:</strong> Sincronización automática del email del agente de ventas
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-security">🔒 SEGURIDAD</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Eliminación de Credenciales Hardcodeadas:</strong> Migración completa a variables de entorno
+                            <span class="branch-name">security/remove-hardcoded-credentials-backup</span>
+                        </li>
+                        <li class="change-item">
+                            <strong>Validación de Variables de Entorno:</strong> Sistema robusto de validación para prevenir errores de configuración
+                        </li>
+                        <li class="change-item">
+                            <strong>Documentación de Migración de Seguridad:</strong> Guía completa del proceso de migración de seguridad
+                        </li>
+                        <li class="change-item">
+                            <strong>Variables de Entorno Opcionales:</strong> Soporte para env vars undefined en builds de producción
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Nombres de Columnas Google Sheets:</strong> Coincidencia exacta para prevenir problemas con AppSheet
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VERSIÓN 1.9.0 - Noviembre 19-20, 2024 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.9.0</span>
+                    <span class="version-date">19-20 de Noviembre, 2024</span>
+                    <span class="badge badge-feature">Mobile UX & Encuestas</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item">
+                            <strong>Botón de Acción 3D en Navegación Móvil:</strong> Botón flotante con efecto 3D para acciones principales en mobile
+                        </li>
+                        <li class="change-item">
+                            <strong>Filtro de Rango de Precios en Mega Menú:</strong> Reemplazo del widget de valuación por filtro de precios más útil
+                        </li>
+                        <li class="change-item">
+                            <strong>Encuesta Anónima Revisada:</strong> Eliminación de preguntas redundantes y adición de insights de alto valor
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <p><strong>Autos TREFA</strong> - Sistema de Gestión Automotriz</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Este changelog se actualiza automáticamente con cada commit
+            </p>
+            <p style="margin-top: 5px; font-size: 0.85em; color: #999;">
+                🤖 Generado automáticamente • Última actualización: 26 de Noviembre, 2025
+            </p>
+        </div>
+    </div>
+</body>
+</html>

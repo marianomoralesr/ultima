@@ -11,6 +11,7 @@ import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { MetricsService, type FunnelMetrics, type MetaFunnelMetrics, type SourceMetrics } from '../services/MetricsService';
 import { BusinessAnalyticsService, type BusinessMetrics } from '../services/BusinessAnalyticsService';
+import { supabase } from '../../supabaseClient';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -36,6 +37,10 @@ interface DashboardData {
     sources: SourceMetrics[];
     totalVisits: number;
     uniqueVisitors: number;
+    last24hRegistrations: number;
+    last24hVisits: number;
+    last7dSubmissions: number;
+    previous7dSubmissions: number;
   };
   business: BusinessMetrics;
 }
@@ -69,6 +74,12 @@ export default function UnifiedAdminDashboard() {
     setError(null);
 
     try {
+      // Calculate date ranges for 24h and 7d metrics
+      const now = new Date();
+      const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+      const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const previous7d = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
       const [funnelMetrics, metaFunnelMetrics, sourceMetrics, totalVisits, uniqueVisitors, businessMetrics] = await Promise.all([
         MetricsService.getFunnelMetrics(dateRange.startDate, dateRange.endDate),
         MetricsService.getMetaFunnelMetrics(dateRange.startDate, dateRange.endDate),
@@ -78,13 +89,46 @@ export default function UnifiedAdminDashboard() {
         BusinessAnalyticsService.getBusinessMetrics()
       ]);
 
+      // Get 24h registrations (ConversionLandingPage events)
+      const { count: last24hRegs } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_type', 'ConversionLandingPage')
+        .gte('created_at', last24h);
+
+      // Get 24h visits (PageView events)
+      const { count: last24hPageViews } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_type', 'PageView')
+        .gte('created_at', last24h);
+
+      // Get 7d submissions (ApplicationSubmission events)
+      const { count: last7dSubs } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_type', 'ApplicationSubmission')
+        .gte('created_at', last7d);
+
+      // Get previous 7d submissions for comparison
+      const { count: previous7dSubs } = await supabase
+        .from('tracking_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_type', 'ApplicationSubmission')
+        .gte('created_at', previous7d)
+        .lt('created_at', last7d);
+
       setData({
         marketing: {
           funnel: funnelMetrics,
           metaFunnel: metaFunnelMetrics,
           sources: sourceMetrics.slice(0, 10),
           totalVisits,
-          uniqueVisitors
+          uniqueVisitors,
+          last24hRegistrations: last24hRegs || 0,
+          last24hVisits: last24hPageViews || 0,
+          last7dSubmissions: last7dSubs || 0,
+          previous7dSubmissions: previous7dSubs || 0
         },
         business: businessMetrics
       });
@@ -215,55 +259,91 @@ export default function UnifiedAdminDashboard() {
         <TabsContent value="overview" className="space-y-6">
           {/* KPI Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            {/* Box 1: Total Leads Registrados (últimas 24h) */}
+            <Card className="bg-blue-50/50 border-blue-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Visitantes Únicos</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Leads Registrados (24h)</CardTitle>
+                <Users className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatNumber(marketing.uniqueVisitors)}</div>
+                <div className="text-2xl font-bold text-blue-600">{formatNumber(marketing.last24hRegistrations)}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {formatNumber(marketing.totalVisits)} visitas totales
+                  Últimas 24 horas
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Box 2: Tasa de Registro vs Visitas (últimas 24h) */}
+            <Card className="bg-green-50/50 border-green-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Conversión Global</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Tasa Registro vs Visitas (24h)</CardTitle>
+                <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{conversionOverall}%</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {calculateConversionRate(marketing.last24hRegistrations, marketing.last24hVisits)}%
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {marketing.funnel.lead_completes} leads completos
+                  {formatNumber(marketing.last24hRegistrations)} registros de {formatNumber(marketing.last24hVisits)} visitas
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Box 3: Solicitudes Activas (mantener como está) */}
+            <Card className="bg-purple-50/50 border-purple-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Solicitudes Activas</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <FileText className="h-4 w-4 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{business.totalActiveApplications}</div>
+                <div className="text-2xl font-bold text-purple-600">{business.totalActiveApplications}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {marketing.funnel.application_submissions} totales
+                  {marketing.funnel.application_submissions} totales enviadas
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Box 4: Tendencia de Solicitudes Concluidas (últimos 7 días) */}
+            <Card className={`${
+              marketing.last7dSubmissions > marketing.previous7dSubmissions
+                ? 'bg-green-50/50 border-green-100'
+                : marketing.last7dSubmissions < marketing.previous7dSubmissions
+                ? 'bg-red-50/50 border-red-100'
+                : 'bg-gray-50/50 border-gray-100'
+            }`}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Vehículos con Demanda</CardTitle>
-                <Car className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Solicitudes Concluidas (7d)</CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {business.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length}
+                <div className="flex items-center gap-2">
+                  <div className={`text-2xl font-bold ${
+                    marketing.last7dSubmissions > marketing.previous7dSubmissions
+                      ? 'text-green-600'
+                      : marketing.last7dSubmissions < marketing.previous7dSubmissions
+                      ? 'text-red-600'
+                      : 'text-gray-600'
+                  }`}>
+                    {formatNumber(marketing.last7dSubmissions)}
+                  </div>
+                  {marketing.previous7dSubmissions > 0 && (
+                    <span className={`text-sm ${
+                      marketing.last7dSubmissions > marketing.previous7dSubmissions
+                        ? 'text-green-600'
+                        : marketing.last7dSubmissions < marketing.previous7dSubmissions
+                        ? 'text-red-600'
+                        : 'text-gray-600'
+                    }`}>
+                      {marketing.last7dSubmissions > marketing.previous7dSubmissions ? '+' : ''}
+                      {marketing.previous7dSubmissions > 0
+                        ? Math.round(((marketing.last7dSubmissions - marketing.previous7dSubmissions) / marketing.previous7dSubmissions) * 100)
+                        : 0}%
+                    </span>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Con solicitudes activas</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  vs {formatNumber(marketing.previous7dSubmissions)} la semana anterior
+                </p>
               </CardContent>
             </Card>
           </div>

@@ -462,7 +462,7 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
                     return (
                         <label
                             key={opt}
-                            className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px]
+                            className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
                                 ${isSelected
                                     ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                     : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -511,7 +511,7 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
                 {options.map(opt => (
                     <label
                         key={opt}
-                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px]
+                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -543,7 +543,7 @@ const RadioField: React.FC<{ control: any, name: any, label: string, options: st
                 {options.map(opt => (
                     <label
                         key={opt}
-                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px]
+                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'

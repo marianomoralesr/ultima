@@ -131,39 +131,37 @@ class MetricsServiceClass {
       );
 
       // PASO 2: Usuarios que se registraron (ConversionLandingPage)
-      // IMPORTANTE: Solo contar usuarios ÚNICOS que completaron el registro
+      // Contar TODOS los usuarios únicos que completaron el registro
       const registrationEvents = events.filter(e =>
         e.event_type === 'ConversionLandingPage' || e.event_name === 'ConversionLandingPage'
       );
       const registeredUserIds = [...new Set(registrationEvents.map(e => e.user_id).filter(Boolean))] as string[];
 
       // PASO 3: Usuarios con perfil completo (PersonalInformationComplete)
-      // Solo contar si el usuario se registró desde el landing
+      // Contar TODOS los usuarios únicos con perfil completo
       const profileCompleteEvents = events.filter(e =>
-        (e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete') &&
-        e.user_id && registeredUserIds.includes(e.user_id)
+        e.event_type === 'PersonalInformationComplete' || e.event_name === 'PersonalInformationComplete'
       );
       const profileCompleteUserIds = [...new Set(profileCompleteEvents.map(e => e.user_id).filter(Boolean))] as string[];
 
       // PASO 4: Usuarios con perfilación bancaria completa
+      // Contar TODOS los usuarios únicos con perfilación bancaria
       const bankProfilingEvents = events.filter(e =>
-        (e.event_type === 'PerfilacionBancariaComplete' || e.event_name === 'PerfilacionBancariaComplete') &&
-        e.user_id && profileCompleteUserIds.includes(e.user_id)
+        e.event_type === 'PerfilacionBancariaComplete' || e.event_name === 'PerfilacionBancariaComplete'
       );
       const bankProfileUserIds = [...new Set(bankProfilingEvents.map(e => e.user_id).filter(Boolean))] as string[];
 
       // PASO 5: Usuarios que iniciaron aplicación (ComienzaSolicitud)
+      // Contar TODOS los usuarios únicos que iniciaron aplicación
       const applicationStartEvents = events.filter(e =>
-        (e.event_type === 'ComienzaSolicitud' || e.event_name === 'ComienzaSolicitud') &&
-        e.user_id && bankProfileUserIds.includes(e.user_id)
+        e.event_type === 'ComienzaSolicitud' || e.event_name === 'ComienzaSolicitud'
       );
       const applicationStartUserIds = [...new Set(applicationStartEvents.map(e => e.user_id).filter(Boolean))] as string[];
 
       // PASO 6: Usuarios que completaron solicitud (LeadComplete)
-      // IMPORTANTE: LeadComplete solo se dispara para usuarios que vinieron del landing
+      // Contar TODOS los usuarios únicos que completaron la solicitud
       const leadCompleteEvents = events.filter(e =>
-        (e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete') &&
-        e.user_id && registeredUserIds.includes(e.user_id)
+        e.event_type === 'LeadComplete' || e.event_name === 'LeadComplete'
       );
       const leadCompleteUserIds = [...new Set(leadCompleteEvents.map(e => e.user_id).filter(Boolean))] as string[];
 
@@ -172,7 +170,7 @@ class MetricsServiceClass {
         (e.event_type === 'ApplicationSubmission' || e.event_name === 'ApplicationSubmission')
       ).length;
 
-      return {
+      const metrics = {
         landing_page_views: landingPageViews.length,
         registrations: registeredUserIds.length,
         profile_completes: profileCompleteUserIds.length,
@@ -188,6 +186,20 @@ class MetricsServiceClass {
         application_start_user_ids: applicationStartUserIds,
         lead_complete_user_ids: leadCompleteUserIds,
       };
+
+      console.log('[MetricsService] 📊 Funnel Metrics Calculated:', {
+        period: `${startDate} to ${endDate}`,
+        total_events: events.length,
+        landing_views: metrics.landing_page_views,
+        registrations: metrics.registrations,
+        profile_completes: metrics.profile_completes,
+        bank_profiling: metrics.bank_profiling_completes,
+        app_starts: metrics.application_starts,
+        app_submissions: metrics.application_submissions,
+        lead_completes: metrics.lead_completes
+      });
+
+      return metrics;
     } catch (error) {
       console.error('[MetricsService] Error in getFunnelMetrics:', error);
       return this.getEmptyMetrics();

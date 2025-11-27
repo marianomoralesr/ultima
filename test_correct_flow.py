@@ -454,6 +454,15 @@ def complete_application_automatically(page):
                                 should_click = True
                                 print(f"   → Estado civil: seleccionando primera opción")
 
+                        # Para asesor asignado: seleccionar "Sí" (esto abrirá un dropdown)
+                        elif 'asesor' in parent_text.lower() or 'asignado' in parent_text.lower():
+                            if 'sí' in btn_text or 'si' in btn_text or 'yes' in btn_text:
+                                should_click = True
+                                print(f"   → Asesor asignado: seleccionando 'Sí' (abrirá dropdown)")
+                            elif 'no' in btn_text and not any('sí' in b.text_content().lower() or 'si' in b.text_content().lower() for b in button_radios):
+                                should_click = True
+                                print(f"   → Asesor asignado: seleccionando 'No'")
+
                         # Para otras preguntas: seleccionar primera opción no seleccionada
                         else:
                             if aria_checked != 'true':

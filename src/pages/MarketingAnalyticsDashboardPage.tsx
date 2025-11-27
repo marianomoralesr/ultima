@@ -144,6 +144,16 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
     loadData();
   }, [filters.startDate, filters.endDate, filters.utmSource, filters.utmCampaign]);
 
+  // Auto-refresh cada 5 minutos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('[MarketingAnalytics] Auto-refresh triggered (every 5 minutes)');
+      loadData();
+    }, 5 * 60 * 1000); // 5 minutos
+
+    return () => clearInterval(interval);
+  }, [filters]);
+
   // Función para calcular tasas de conversión
   const calculateConversionRates = (funnel: FunnelMetrics) => {
     const safeDiv = (a: number, b: number) => b > 0 ? ((a / b) * 100).toFixed(1) : '0.0';

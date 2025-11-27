@@ -12,11 +12,21 @@ import {
     X,
     ChevronRight,
     ChevronLeft,
+    ChevronDown,
+    ChevronUp,
     DollarSign,
     MessageSquare,
     TrendingUp,
     FileText,
-    Database
+    Database,
+    Settings,
+    Wrench,
+    Home,
+    Palette,
+    Camera,
+    ClipboardCheck,
+    UserCheck,
+    Activity
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -39,6 +49,7 @@ const DashboardLayout: React.FC = () => {
     const location = useLocation();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true); // Default abierta
+    const [isToolsExpanded, setIsToolsExpanded] = useState(false); // Dropdown de Herramientas
 
     // Toggle sidebar manually
     const toggleSidebar = () => {
@@ -49,15 +60,14 @@ const DashboardLayout: React.FC = () => {
     const getNavItems = () => {
         if (isAdmin) {
             return [
-                { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-                { to: '/escritorio/admin/marketing', label: 'Marketing Hub', icon: BarChart3 },
-                { to: '/escritorio/admin/crm', label: 'CRM', icon: Users },
+                { to: '/escritorio/dashboard', label: 'Dashboard General', icon: LayoutDashboard, end: true },
+                { to: '/escritorio/admin/marketing-analytics', label: 'Métricas e Indicadores', icon: BarChart3 },
+                { to: '/escritorio/admin/crm', label: 'Leads (CRM)', icon: Users },
+                { to: '/escritorio/admin/marketing', label: 'Configuraciones', icon: Settings },
+                { to: '/escritorio/admin/usuarios', label: 'Asesores (Usuarios)', icon: Users },
+                { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
                 { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
-                { to: '/escritorio/admin/usuarios', label: 'Usuarios', icon: Users },
-                { to: '/escritorio/admin/survey-analytics', label: 'Encuestas', icon: MessageSquare },
-                { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
-                { to: '/escritorio/admin/bancos', label: 'Bancos', icon: Building2 },
-                { to: '/changelog', label: 'Changelog', icon: FileText },
+                { to: '/changelog', label: 'Documentación', icon: FileText },
             ];
         } else if (isSales) {
             return [
@@ -68,6 +78,17 @@ const DashboardLayout: React.FC = () => {
         }
         return [];
     };
+
+    const toolsItems = [
+        { to: '/escritorio/admin/landing-pages', label: 'Landing Pages', icon: Palette },
+        { to: '/escritorio/admin/homepage-editor', label: 'Editor de Página de Inicio', icon: Home },
+        { to: '/car-studio', label: 'Car Studio API', icon: Camera },
+        { to: '/escritorio/admin/survey-analytics', label: 'Resultados de Encuestas', icon: ClipboardCheck },
+        { to: '/escritorio/admin/aprobar-cuentas', label: 'Aprobar Cuentas', icon: UserCheck },
+        { to: '/changelog', label: 'Registro de Cambios', icon: FileText },
+        { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
+        { to: '/escritorio/admin/logs', label: 'Logs', icon: Activity },
+    ];
 
     const navItems = getNavItems();
 
@@ -221,6 +242,61 @@ const DashboardLayout: React.FC = () => {
                                     </Link>
                                 );
                             })}
+
+                            {/* Herramientas Dropdown (solo para admin) */}
+                            {isAdmin && (
+                                <div className="space-y-0.5">
+                                    <button
+                                        onClick={() => setIsToolsExpanded(!isToolsExpanded)}
+                                        className={cn(
+                                            "w-full flex items-center rounded-lg text-xs font-medium transition-all",
+                                            isSidebarExpanded ? "px-2.5 py-2 gap-2.5" : "justify-center py-2",
+                                            isSidebarExpanded
+                                                ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                                : "text-muted-foreground hover:bg-accent"
+                                        )}
+                                        title={!isSidebarExpanded ? "Herramientas" : undefined}
+                                    >
+                                        <Wrench className="h-4 w-4 shrink-0" />
+                                        {isSidebarExpanded && (
+                                            <>
+                                                <span className="whitespace-nowrap truncate flex-1">Herramientas</span>
+                                                {isToolsExpanded ? (
+                                                    <ChevronUp className="h-3 w-3" />
+                                                ) : (
+                                                    <ChevronDown className="h-3 w-3" />
+                                                )}
+                                            </>
+                                        )}
+                                    </button>
+
+                                    {/* Submenu de Herramientas */}
+                                    {isToolsExpanded && isSidebarExpanded && (
+                                        <div className="ml-4 space-y-0.5 border-l-2 border-border pl-2">
+                                            {toolsItems.map((tool) => {
+                                                const ToolIcon = tool.icon;
+                                                const activeTool = isActiveLink(tool.to, false);
+
+                                                return (
+                                                    <Link
+                                                        key={tool.to}
+                                                        to={tool.to}
+                                                        className={cn(
+                                                            "flex items-center rounded-lg text-xs font-medium transition-all px-2 py-1.5 gap-2",
+                                                            activeTool
+                                                                ? "bg-accent text-accent-foreground"
+                                                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                                        )}
+                                                    >
+                                                        <ToolIcon className="h-3.5 w-3.5 shrink-0" />
+                                                        <span className="whitespace-nowrap truncate text-[11px]">{tool.label}</span>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <Separator className={cn(!isSidebarExpanded && isAdmin ? "bg-white/20" : "")} />

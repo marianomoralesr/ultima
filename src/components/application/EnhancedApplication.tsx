@@ -507,11 +507,11 @@ const EnhancedApplication: React.FC = () => {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto p-2 sm:p-6 lg:p-8">
 
-        <Card className="gap-0 p-0 md:grid md:max-lg:grid-cols-5 lg:grid-cols-4">
+        <Card className="gap-0 p-0 md:grid md:max-lg:grid-cols-5 lg:grid-cols-4 border-0 md:border shadow-none md:shadow-sm">
           {/* Sidebar navigation */}
-          <CardContent className="col-span-5 p-3 sm:p-4 md:p-6 max-md:border-b md:border-r md:max-lg:col-span-2 lg:col-span-1">
+          <CardContent className="col-span-5 p-2 sm:p-4 md:p-6 max-md:border-b md:border-r md:max-lg:col-span-2 lg:col-span-1">
             <nav aria-label="Pasos de la solicitud">
               {/* Mobile: Horizontal scrollable stepper */}
               <ol className="flex md:flex-col overflow-x-auto md:overflow-visible gap-2 md:gap-y-4 pb-2 md:pb-0 -mx-3 px-3 md:mx-0 md:px-0">

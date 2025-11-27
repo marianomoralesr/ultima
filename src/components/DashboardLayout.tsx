@@ -68,7 +68,7 @@ const DashboardLayout: React.FC = () => {
                 { to: '/escritorio/admin/usuarios', label: 'Asesores', icon: Users },
                 { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
                 { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
-                { to: '/escritorio/intel', label: 'Intel Interna', icon: Database },
+                { to: '/intel', label: 'Intel Interna', icon: Database },
             ];
         } else if (isSales) {
             return [
@@ -81,12 +81,12 @@ const DashboardLayout: React.FC = () => {
     };
 
     const toolsItems = [
-        { to: '/car-studio', label: 'Car Studio API', icon: Camera },
+        { to: '/escritorio/car-studio', label: 'Car Studio API', icon: Camera },
         { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: ClipboardCheck },
-        { to: '/escritorio/admin/aprobar-cuentas', label: 'Aprobar Cuentas', icon: UserCheck },
+        { to: '/escritorio/admin/usuarios', label: 'Aprobar Cuentas', icon: UserCheck },
         { to: '/escritorio/admin/survey-analytics', label: 'Resultados de Encuesta', icon: MessageSquare },
-        { to: '/escritorio/admin/landing-pages', label: 'Landing Pages', icon: Palette },
-        { to: '/escritorio/admin/homepage-editor', label: 'Editor de Página de Inicio', icon: Home },
+        { to: '/escritorio/marketing/constructor', label: 'Landing Pages', icon: Palette },
+        { to: '/escritorio/marketing/homepage-editor', label: 'Editor de Página de Inicio', icon: Home },
         { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
         { to: '/changelog', label: 'Registro de Cambios', icon: FileText },
     ];
@@ -251,7 +251,7 @@ const DashboardLayout: React.FC = () => {
                                         onClick={() => setIsToolsExpanded(!isToolsExpanded)}
                                         className={cn(
                                             "w-full flex items-center rounded-lg text-xs font-medium transition-all",
-                                            isSidebarExpanded ? "px-2.5 py-2 gap-2.5" : "justify-center py-2",
+                                            isSidebarExpanded ? "px-2.5 py-2 gap-2.5 justify-start" : "justify-center py-2",
                                             isSidebarExpanded
                                                 ? "text-muted-foreground hover:bg-accent hover:text-foreground"
                                                 : "text-muted-foreground hover:bg-accent"
@@ -261,11 +261,11 @@ const DashboardLayout: React.FC = () => {
                                         <Wrench className="h-4 w-4 shrink-0" />
                                         {isSidebarExpanded && (
                                             <>
-                                                <span className="whitespace-nowrap truncate flex-1">Herramientas</span>
+                                                <span className="whitespace-nowrap truncate flex-1 text-left">Herramientas</span>
                                                 {isToolsExpanded ? (
-                                                    <ChevronUp className="h-3 w-3" />
+                                                    <ChevronUp className="h-3 w-3 shrink-0" />
                                                 ) : (
-                                                    <ChevronDown className="h-3 w-3" />
+                                                    <ChevronDown className="h-3 w-3 shrink-0" />
                                                 )}
                                             </>
                                         )}

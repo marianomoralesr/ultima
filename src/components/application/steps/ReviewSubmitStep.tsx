@@ -17,7 +17,6 @@ interface ReviewSubmitStepProps {
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   isSubmitting: boolean;
   submissionError: string | null;
-  setShowVehicleSelector: (show: boolean) => void;
 }
 
 const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
@@ -30,8 +29,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
   bank,
   onSubmit,
   isSubmitting,
-  submissionError,
-  setShowVehicleSelector
+  submissionError
 }) => {
   const [loanTerm, setLoanTerm] = useState(60);
   const [downPaymentRaw, setDownPaymentRaw] = useState('');
@@ -260,12 +258,12 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
               {submissionError.includes("vehículo") && (
                 <Button
                   type="button"
-                  onClick={() => setShowVehicleSelector(true)}
+                  onClick={() => stepper.goTo('vehicle-selection')}
                   variant="outline"
                   size="sm"
                   className="mt-3"
                 >
-                  Seleccionar Auto
+                  Ir a Selección de Vehículo
                 </Button>
               )}
             </div>

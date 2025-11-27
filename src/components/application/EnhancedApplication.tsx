@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Stepperize from '@stepperize/react';
 import {
   User, Building2, Users, PenSquare, CheckCircle,
@@ -24,10 +24,8 @@ import { BrevoEmailService } from '../../services/BrevoEmailService';
 import { supabase } from '../../../supabaseClient';
 import { conversionTracking } from '../../services/ConversionTrackingService';
 
-// Lazy load vehicle selector
-const VehicleSelector = lazy(() => import('../VehicleSelector'));
-
 // Import step components
+import VehicleSelectionStep from './steps/VehicleSelectionStep';
 import PersonalInfoStep from './steps/PersonalInfoStep';
 import EmploymentStep from './steps/EmploymentStep';
 import ReferencesStep from './steps/ReferencesStep';
@@ -95,6 +93,7 @@ type ApplicationFormData = z.infer<typeof baseApplicationSchema>;
 
 // Define stepper
 const { useStepper, utils } = Stepperize.defineStepper(
+  { id: 'vehicle-selection', title: 'Vehículo', description: 'Selecciona tu auto', icon: FileText },
   { id: 'personal-info', title: 'Personal', description: 'Información personal', icon: User },
   { id: 'employment', title: 'Empleo', description: 'Información laboral', icon: Building2 },
   { id: 'references', title: 'Referencias', description: 'Referencias personales', icon: Users },
@@ -115,7 +114,6 @@ const EnhancedApplication: React.FC = () => {
   const [pageStatus, setPageStatus] = useState<'initializing' | 'loading' | 'checking_profile' | 'profile_incomplete' | 'bank_profile_incomplete' | 'active_application_exists' | 'ready' | 'error' | 'success'>('initializing');
   const [pageError, setPageError] = useState<string | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const [showVehicleSelector, setShowVehicleSelector] = useState(false);
   const [applicationId, setApplicationId] = useState<string | null>(applicationIdFromUrl || null);
   const [applicationData, setApplicationData] = useState<any>(null);
   const [recommendedBank, setRecommendedBank] = useState<string | null>(null);
@@ -209,7 +207,7 @@ const EnhancedApplication: React.FC = () => {
 
           const appData = { ...(draft.application_data || {}) };
           reset(appData);
-          if (!carInfo._ordenCompra) setShowVehicleSelector(true);
+          // If no vehicle selected, user will start at vehicle-selection step
         } else {
           const pendingOrdenCompra = sessionStorage.getItem('pendingOrdenCompra');
           const finalOrdenCompra = searchParams.get('ordencompra') || pendingOrdenCompra;
@@ -235,9 +233,8 @@ const EnhancedApplication: React.FC = () => {
               setValue('ordencompra', vehicle.ordencompra);
             }
             sessionStorage.removeItem('pendingOrdenCompra');
-          } else {
-            setShowVehicleSelector(true);
           }
+          // If no vehicle selected, user will start at vehicle-selection step
 
           const newDraft = await ApplicationService.createDraftApplication(user.id, initialData);
           if (newDraft && newDraft.id) {
@@ -272,12 +269,12 @@ const EnhancedApplication: React.FC = () => {
     setVehicleInfo(carData);
     setValue('ordencompra', vehicle.ordencompra);
     await ApplicationService.saveApplicationDraft(applicationId, { car_info: carData });
-    setShowVehicleSelector(false);
   };
 
   // Save progress and move to next step
   const handleNext = async () => {
     const stepFieldsMap: Record<string, string[]> = {
+      'vehicle-selection': [], // No form fields to validate, handled in component
       'personal-info': ['time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'],
       'employment': ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'],
       'references': ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'],
@@ -329,8 +326,8 @@ const EnhancedApplication: React.FC = () => {
     }
 
     if (!vehicleInfo?._ordenCompra) {
-      setSubmissionError("Aún no has seleccionado un vehículo para tu solicitud.");
-      setShowVehicleSelector(true);
+      setSubmissionError("Aún no has seleccionado un vehículo para tu solicitud. Por favor, regresa al paso de selección.");
+      stepper.goTo('vehicle-selection');
       return;
     }
 
@@ -500,28 +497,7 @@ const EnhancedApplication: React.FC = () => {
 
   return (
     <>
-      <Suspense fallback={<div className="fixed inset-0 bg-black/50 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-white" /></div>}>
-        <VehicleSelector isOpen={showVehicleSelector} onClose={() => setShowVehicleSelector(false)} onSelect={handleVehicleSelect} />
-      </Suspense>
-
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Vehicle info banner */}
-        {vehicleInfo?._vehicleTitle && (
-          <div className="mb-6 bg-white p-4 rounded-xl shadow-sm border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-20 h-14 object-cover rounded-md" />
-                <div>
-                  <p className="text-xs text-gray-500">Solicitud para:</p>
-                  <h2 className="text-base font-bold text-gray-900">{vehicleInfo._vehicleTitle}</h2>
-                </div>
-              </div>
-              <Button onClick={() => setShowVehicleSelector(true)} variant="outline" size="sm">
-                Cambiar Auto
-              </Button>
-            </div>
-          </div>
-        )}
 
         <Card className="gap-0 p-0 md:grid md:max-lg:grid-cols-5 lg:grid-cols-4">
           {/* Sidebar navigation */}
@@ -558,6 +534,14 @@ const EnhancedApplication: React.FC = () => {
 
           {/* Step content */}
           {stepper.switch({
+            'vehicle-selection': () => (
+              <VehicleSelectionStep
+                stepper={stepper}
+                vehicleInfo={vehicleInfo}
+                onVehicleSelect={handleVehicleSelect}
+                onNext={handleNext}
+              />
+            ),
             'personal-info': () => (
               <PersonalInfoStep
                 stepper={stepper}
@@ -610,7 +594,6 @@ const EnhancedApplication: React.FC = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 isSubmitting={isSubmitting}
                 submissionError={submissionError}
-                setShowVehicleSelector={setShowVehicleSelector}
               />
             ),
             'complete': () => (

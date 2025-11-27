@@ -24,18 +24,22 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // You can also log the error to an error reporting service
-    console.error("Uncaught error:", error, errorInfo);
-    console.error("Error stack:", error.stack);
-    console.error("Component stack:", errorInfo.componentStack);
+    const isDev = import.meta.env.MODE === 'development';
 
-    // Log environment info for debugging
-    console.log("Environment:", {
-      mode: import.meta.env.MODE,
-      version: import.meta.env.VITE_APP_VERSION,
-      hasSupabaseUrl: !!import.meta.env.VITE_SUPABASE_URL,
-      hasSupabaseKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-    });
+    // Only log errors in development to avoid console noise in production
+    if (isDev) {
+      console.error("Uncaught error:", error, errorInfo);
+      console.error("Error stack:", error.stack);
+      console.error("Component stack:", errorInfo.componentStack);
+
+      // Log environment info for debugging
+      console.log("Environment:", {
+        mode: import.meta.env.MODE,
+        version: import.meta.env.VITE_APP_VERSION,
+        hasSupabaseUrl: !!import.meta.env.VITE_SUPABASE_URL,
+        hasSupabaseKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      });
+    }
 
     // Store error details in state for display
     this.setState({ error, errorInfo });

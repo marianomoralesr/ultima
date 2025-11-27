@@ -22,11 +22,14 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy source code
-COPY . .
+# Copy ONLY package files first for better layer caching
+COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies (this layer will be cached if package.json doesn't change)
+RUN npm ci --prefer-offline --no-audit
+
+# Copy source code AFTER installing dependencies
+COPY . .
 
 # Re-declare build args in this stage so they're available as ENV vars during build
 ARG VITE_SUPABASE_URL
@@ -67,28 +70,33 @@ ENV VITE_AIRTABLE_LEAD_CAPTURE_API_KEY=$VITE_AIRTABLE_LEAD_CAPTURE_API_KEY
 ENV VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID=$VITE_AIRTABLE_LEAD_CAPTURE_BASE_ID
 ENV VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID=$VITE_AIRTABLE_LEAD_CAPTURE_TABLE_ID
 
-# Build the application with environment variables
+# Build the application
 RUN npm run build
 
-# Stage 2: Serve the application from a lightweight server
+# Stage 2: Production server
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy built assets from the builder stage
+# Copy built assets from builder
 COPY --from=builder /app/dist ./dist
 
-# Copy server files
+# Copy server package files first for better caching
+COPY server/package*.json ./
+
+# Install only production dependencies for server
+RUN npm ci --only=production --prefer-offline --no-audit
+
+# Copy server code
 COPY server/server.js .
-COPY server/package.json .
-COPY server/package-lock.json .
 COPY server/config.js .
 
-# Install server dependencies
-RUN npm install --production
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/healthz', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Expose the port the server will run on
+# Expose port
 EXPOSE 8080
 
-# Start the server
+# Start server
 CMD ["node", "server.js"]

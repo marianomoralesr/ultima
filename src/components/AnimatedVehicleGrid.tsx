@@ -70,27 +70,6 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     setVisibleCount(0);
   }, [gridVehicles]);
 
-  // Calculate gradient overlay style
-  const getGradientStyle = () => {
-    if (gradientDirection === 'bottom') {
-      return {
-        background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, rgba(255,255,255,1) 100%)'
-      };
-    } else {
-      // Diagonal gradient from top-left to bottom-right
-      return {
-        background: 'linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.85) 75%, rgba(255,255,255,1) 100%)'
-      };
-    }
-  };
-
-  if (!gridVehicles.length) {
-    console.log('AnimatedVehicleGrid: Not rendering (no vehicles)');
-    return null;
-  }
-
-  console.log('AnimatedVehicleGrid: Rendering with', gridVehicles.length, 'vehicles, visibleCount:', visibleCount);
-
   // Calculate responsive transform for mobile vertical screens
   const getTransform = () => {
     if (typeof window === 'undefined') return 'rotate(-8deg) scale(1.4)';
@@ -112,6 +91,28 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Calculate gradient overlay style
+  const getGradientStyle = () => {
+    if (gradientDirection === 'bottom') {
+      return {
+        background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.7) 60%, rgba(255,255,255,1) 100%)'
+      };
+    } else {
+      // Diagonal gradient from top-left to bottom-right
+      return {
+        background: 'linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.85) 75%, rgba(255,255,255,1) 100%)'
+      };
+    }
+  };
+
+  // Fix: Check for empty vehicles AFTER all hooks are called to maintain consistent hook order
+  if (!gridVehicles.length) {
+    console.log('AnimatedVehicleGrid: Not rendering (no vehicles)');
+    return null;
+  }
+
+  console.log('AnimatedVehicleGrid: Rendering with', gridVehicles.length, 'vehicles, visibleCount:', visibleCount);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">

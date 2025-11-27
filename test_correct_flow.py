@@ -111,7 +111,18 @@ def navigate_to_vehicle_and_click_financing(page):
     print("\n🚗 NAVEGACIÓN A VEHÍCULO Y FINANCIAMIENTO")
 
     # Ir a /autos
-    page.goto('http://localhost:5173/autos', wait_until='domcontentloaded')
+    page.goto('http://localhost:5173/autos', wait_until='networkidle')
+    print("   → Esperando a que carguen los vehículos...")
+    time.sleep(3)
+
+    # Esperar a que aparezcan los vehículos (esperar a que desaparezcan los skeletons)
+    try:
+        # Esperar a que haya al menos un enlace de vehículo
+        page.wait_for_selector('a[href*="/autos/"]:not([href="/autos"])', state='visible', timeout=15000)
+        print("   ✅ Vehículos cargados")
+    except:
+        print("   ⚠️  Timeout esperando vehículos, continuando de todas formas...")
+
     time.sleep(2)
     take_screenshot(page, "02_autos_page")
 

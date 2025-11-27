@@ -11,9 +11,30 @@ Test con el flujo CORRECTO:
 from playwright.sync_api import sync_playwright
 import time
 import random
+import os
 
 TEST_EMAIL = "test.automation@trefa.test"
 TEST_PASSWORD = "TestTrefa2024!"
+
+# Generador de teléfonos únicos
+PHONE_COUNTER_FILE = ".phone_counter.txt"
+
+def get_unique_phone():
+    """Genera teléfonos únicos secuencialmente desde 8199999998"""
+    if os.path.exists(PHONE_COUNTER_FILE):
+        with open(PHONE_COUNTER_FILE, 'r') as f:
+            counter = int(f.read().strip())
+    else:
+        counter = 8199999998
+
+    # Decrementar para siguiente uso
+    next_counter = counter - 1
+    with open(PHONE_COUNTER_FILE, 'w') as f:
+        f.write(str(next_counter))
+
+    phone = str(counter)
+    print(f"   → Teléfono único generado: {phone}")
+    return phone
 
 def take_screenshot(page, name):
     filename = f"correct_{name}.png"
@@ -224,6 +245,9 @@ def complete_application_automatically(page):
     print(f"   📍 URL inicial: {current_url}")
     take_screenshot(page, "07_application_start")
 
+    # Generar teléfono único para este test
+    unique_phone = get_unique_phone()
+
     max_steps = 15
     max_retries_per_step = 3
 
@@ -260,7 +284,7 @@ def complete_application_automatically(page):
                         if input_type in ['radio', 'checkbox']:
                             continue  # Manejado más abajo
                         elif input_type == 'tel' or 'tel' in name.lower() or 'teléfono' in placeholder.lower() or 'phone' in name.lower():
-                            input_field.fill('8112345678')
+                            input_field.fill(unique_phone)
                         elif input_type == 'email' or 'email' in name.lower() or 'correo' in placeholder.lower():
                             input_field.fill('test@example.com')
                         elif 'nombre' in placeholder.lower() or 'nombre' in name.lower():
@@ -270,6 +294,8 @@ def complete_application_automatically(page):
                                 input_field.fill('Juan')
                         elif 'apellido' in placeholder.lower() or 'apellido' in name.lower():
                             input_field.fill('Pérez García')
+                        elif 'cónyuge' in placeholder.lower() or 'conyuge' in placeholder.lower() or 'esposa' in placeholder.lower() or 'esposo' in placeholder.lower() or 'spouse' in placeholder.lower():
+                            input_field.fill('María González López')
                         elif 'rfc' in name.lower() or 'rfc' in placeholder.lower():
                             input_field.fill('PEGJ900101XXX')
                         elif 'curp' in name.lower() or 'curp' in placeholder.lower():
@@ -287,9 +313,17 @@ def complete_application_automatically(page):
                         elif 'cp' in name.lower() or 'postal' in placeholder.lower() or 'código' in placeholder.lower():
                             input_field.fill('64000')
                         elif input_type == 'number' or 'monto' in placeholder.lower() or 'cantidad' in placeholder.lower():
-                            input_field.fill('100000')
-                        elif 'fecha' in placeholder.lower() or 'date' in input_type:
-                            input_field.fill('01/01/1990')
+                            # Si es un campo de fecha individual (día, mes, año)
+                            if 'día' in placeholder.lower() or 'dia' in placeholder.lower() or 'day' in placeholder.lower():
+                                input_field.fill('10')
+                            elif 'mes' in placeholder.lower() or 'month' in placeholder.lower():
+                                input_field.fill('10')
+                            elif 'año' in placeholder.lower() or 'year' in placeholder.lower():
+                                input_field.fill('1990')
+                            else:
+                                input_field.fill('100000')
+                        elif 'fecha' in placeholder.lower() or 'date' in input_type or 'nacimiento' in placeholder.lower():
+                            input_field.fill('10101990')
                         else:
                             input_field.fill('Valor de prueba')
 
@@ -344,26 +378,97 @@ def complete_application_automatically(page):
                 for group_name, group_radios in radio_groups.items():
                     try:
                         if len(group_radios) > 0:
-                            group_radios[0].check()
-                            print(f"   → Radio group '{group_name}': seleccionada primera opción")
-                            time.sleep(0.1)
+                            # Para estado civil, seleccionar "Casado" si existe, sino la primera
+                            selected_option = None
+                            if 'estado' in group_name.lower() or 'civil' in group_name.lower():
+                                for r in group_radios:
+                                    value = r.get_attribute('value') or ''
+                                    if 'casado' in value.lower() or 'married' in value.lower():
+                                        selected_option = r
+                                        print(f"   → Radio group '{group_name}': seleccionando 'Casado'")
+                                        break
+
+                            if not selected_option:
+                                selected_option = group_radios[0]
+                                print(f"   → Radio group '{group_name}': seleccionada primera opción")
+
+                            selected_option.check()
+                            time.sleep(0.3)  # Esperar que aparezcan campos dependientes
                     except:
                         continue
 
                 # Buscar botones tipo radio (button[type="button"] que funcionan como radio)
+                # Estos son comunes para género, estado civil, etc.
                 button_radios = page.locator('button[type="button"]:visible, button[role="radio"]:visible').all()
                 print(f"   → Encontrados {len(button_radios)} button-radios")
 
+                # Agrupar por contexto (buscar texto cercano para identificar el grupo)
+                processed_groups = set()
+
                 for idx, btn in enumerate(button_radios):
                     try:
+                        # Verificar si ya está seleccionado
                         aria_checked = btn.get_attribute('aria-checked')
-                        if aria_checked != 'true':  # Si no está seleccionado
+                        class_name = btn.get_attribute('class') or ''
+
+                        if aria_checked == 'true' or 'selected' in class_name:
+                            continue  # Ya está seleccionado
+
+                        # Obtener texto del botón para identificar el tipo de pregunta
+                        btn_text = btn.text_content().strip().lower()
+
+                        # Identificar el grupo/pregunta padre
+                        parent_text = ''
+                        try:
+                            parent = btn.evaluate('el => el.closest("div[role=radiogroup], fieldset, .form-group, .question")')
+                            if parent:
+                                parent_locator = page.locator(f'xpath=//button[contains(text(), "{btn_text}")]/ancestor::div[@role="radiogroup" or contains(@class, "form-group") or contains(@class, "question")][1]')
+                                parent_text = parent_locator.first.text_content() if parent_locator.count() > 0 else ''
+                        except:
+                            pass
+
+                        # Crear identificador único para el grupo
+                        group_id = f"{parent_text[:50]}_{idx // 5}"
+
+                        if group_id in processed_groups:
+                            continue  # Ya procesamos este grupo
+
+                        # Seleccionar según el tipo de pregunta
+                        should_click = False
+
+                        # Para género: seleccionar "Masculino" o primera opción
+                        if 'género' in parent_text.lower() or 'genero' in parent_text.lower() or 'sexo' in parent_text.lower():
+                            if 'masculino' in btn_text or 'hombre' in btn_text or 'male' in btn_text:
+                                should_click = True
+                                print(f"   → Género: seleccionando 'Masculino'")
+                            elif idx == 0 or not any('masculino' in b.text_content().lower() for b in button_radios):
+                                should_click = True
+                                print(f"   → Género: seleccionando primera opción")
+
+                        # Para estado civil: seleccionar "Casado"
+                        elif 'estado' in parent_text.lower() and 'civil' in parent_text.lower():
+                            if 'casado' in btn_text or 'married' in btn_text:
+                                should_click = True
+                                print(f"   → Estado civil: seleccionando 'Casado' (abrirá campo de cónyuge)")
+                            elif idx == 0 or not any('casado' in b.text_content().lower() for b in button_radios):
+                                should_click = True
+                                print(f"   → Estado civil: seleccionando primera opción")
+
+                        # Para otras preguntas: seleccionar primera opción no seleccionada
+                        else:
+                            if aria_checked != 'true':
+                                should_click = True
+                                print(f"   → Button-radio '{btn_text[:30]}': seleccionando")
+
+                        if should_click:
                             btn.click()
-                            print(f"   → Button-radio {idx + 1}: clicked")
-                            time.sleep(0.1)
-                            break  # Solo uno por grupo
-                    except:
+                            time.sleep(0.3)  # Esperar animaciones/campos dependientes
+                            processed_groups.add(group_id)
+
+                    except Exception as e:
+                        print(f"   ⚠️  Error con button-radio {idx}: {str(e)[:50]}")
                         continue
+
             except Exception as e:
                 print(f"   ⚠️  Error en radios: {str(e)[:50]}")
 

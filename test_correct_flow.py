@@ -323,7 +323,11 @@ def complete_application_automatically(page):
                             else:
                                 input_field.fill('100000')
                         elif 'fecha' in placeholder.lower() or 'date' in input_type or 'nacimiento' in placeholder.lower():
-                            input_field.fill('10101990')
+                            # Intentar con formato de fecha apropiado
+                            if input_type == 'date':
+                                input_field.fill('1990-10-10')  # Formato YYYY-MM-DD para campos date
+                            else:
+                                input_field.fill('10/10/1990')  # Formato DD/MM/YYYY para texto
                         else:
                             input_field.fill('Valor de prueba')
 

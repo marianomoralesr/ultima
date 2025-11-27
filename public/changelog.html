@@ -192,6 +192,41 @@
         <div class="content">
 
 
+            <!-- VERSIÓN v1.11.7 - 27 de Noviembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.7</span>
+                    <span class="version-date">27 de Noviembre, 2025</span>
+                    <span class="badge badge-fix">Correcciones Críticas</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🐛 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Corregir validación UUID y redirección en formulario de financiamientos</strong> - Reordenar navigate() para ejecutarse antes de setSubmissionStatus, asegurando redirección inmediata a /escritorio/profile después de verificar OTP. Tracking de ConversionLandingPage y captura de UTM ya implementados. <span class="commit-hash">05f827b</span></li>
+                        <li class="change-item"><strong>Validar applicationId desde URL para prevenir UUID inválido</strong> - Filtrar valores inválidos como "undefined" y "null" del parámetro de URL en Application.tsx y EnhancedApplication.tsx. Previene error "invalid input syntax for type uuid". <span class="commit-hash">420aba8</span></li>
+                        <li class="change-item"><strong>Prevenir que RFC se borre cuando campos están temporalmente vacíos</strong> - Eliminar lógica que limpiaba el RFC en useEffect cuando los campos requeridos estaban vacíos. El RFC ahora persiste correctamente durante el llenado del formulario. <span class="commit-hash">572ac50</span></li>
+                        <li class="change-item"><strong>Eliminar llamadas a setIsSubmitting inexistente en PerfilacionBancariaPage</strong> - Remover setIsSubmitting() que no existe (isSubmitting viene de formState de react-hook-form). Corrige botón de guardar que no funcionaba. <span class="commit-hash">e26e245</span></li>
+                        <li class="change-item"><strong>Corregir problema de directorio images en Docker build</strong> - Agregar paso COPY para directorio images/ en Dockerfile para prevenir errores ENOENT durante el build. <span class="commit-hash">2c14ad6</span></li>
+                        <li class="change-item"><strong>Corregir error boundary en homepage y mejorar gestión de errores</strong> - Implementar manejo robusto de errores en componentes de la página principal. <span class="commit-hash">95b0204</span></li>
+                        <li class="change-item"><strong>Resolver error boundary en homepage causado por window.innerWidth en render</strong> - Mover acceso a window.innerWidth a useEffect y pasar isMobile como prop para evitar errores de SSR/hidratación. <span class="commit-hash">a06bb4f</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-improvement">🔧 MEJORAS TÉCNICAS</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Validación de UUID en SeguimientoDetailPage</strong> - Agregar userId como parámetro y validar que id no sea "undefined" antes de llamar a getApplicationById.</li>
+                        <li class="change-item"><strong>Optimización de redirección en landing de financiamientos</strong> - Mejorar flujo de navegación post-OTP para reducir tiempo de redirección y mejorar UX.</li>
+                        <li class="change-item"><strong>Persistencia de datos en formularios</strong> - Asegurar que el número de teléfono, email y nombre se guarden correctamente en el profile desde /financiamientos.</li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- VERSIÓN v1.11.6 - 27 de Noviembre, 2025 -->
             <div class="version">
                 <div class="version-header">

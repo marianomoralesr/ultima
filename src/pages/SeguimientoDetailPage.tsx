@@ -33,11 +33,18 @@ const SeguimientoDetailPage: React.FC = () => {
 
   useEffect(() => {
     const loadApplication = async () => {
-      if (!user || !id) return;
+      // Validate id is a valid UUID (not "undefined" or "null" strings)
+      if (!user || !id || id === 'undefined' || id === 'null') {
+        if (id === 'undefined' || id === 'null') {
+          setError('ID de solicitud inválido');
+          setLoading(false);
+        }
+        return;
+      }
 
       try {
         setLoading(true);
-        const app = await ApplicationService.getApplicationById(id);
+        const app = await ApplicationService.getApplicationById(user.id, id);
 
         if (app.user_id !== user.id) {
           setError('No tienes permiso para ver esta solicitud');

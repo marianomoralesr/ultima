@@ -584,13 +584,15 @@ const FinanciamientosPage: React.FC = () => {
         console.warn('⚠️ Webhook notification failed (non-critical):', webhookError);
       }
 
-      setSubmissionStatus('success');
       reset();
       setFormDataCache(null);
 
       // Redirect to profile page immediately with URL parameters preserved (client-side navigation)
       const redirectPath = `/escritorio/profile${urlParams ? `?${urlParams}` : ''}`;
       navigate(redirectPath, { replace: true });
+
+      // Set success status AFTER navigation starts (for any loading state feedback)
+      setSubmissionStatus('success');
 
     } catch (error) {
       console.error('Error verifying OTP:', error);

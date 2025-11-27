@@ -38,7 +38,7 @@ const statusMap: Record<string, { text: string; icon: any; color: string; bgColo
 };
 
 const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ application }) => {
-    const { text, icon: Icon, color, bgColor } = statusMap[application.status] || statusMap.draft;
+    const { text, icon: Icon, color, bgColor } = statusMap[application.status] || statusMap[APPLICATION_STATUS.FALTAN_DOCUMENTOS];
     const profile = application.personal_info_snapshot || {};
     const carInfo = application.car_info || {};
     const [showPrintablePreview, setShowPrintablePreview] = useState(true);
@@ -180,6 +180,29 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
                     </div>
 
                     <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-24">
+                        {/* Assigned Advisor Card */}
+                        {profile.asesor_asignado_name && (
+                            <Card className="bg-blue-50 border-blue-200">
+                                <CardHeader>
+                                    <h3 className="text-base sm:text-lg font-bold text-blue-900 flex items-center gap-2">
+                                        <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        Tu Asesor Asignado
+                                    </h3>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                                            <User className="w-6 h-6 text-blue-700" />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-blue-900">{profile.asesor_asignado_name}</p>
+                                            <p className="text-xs text-blue-700">Asesor de Ventas</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
                         <Card>
                             <CardHeader>
                                 <h3 className="text-base sm:text-lg font-bold text-gray-900">Acciones</h3>
@@ -312,7 +335,7 @@ const SeguimientoPage: React.FC = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Borradores</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {drafts.map(app => {
-                                const status = statusMap[app.status] || statusMap.draft;
+                                const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.DRAFT];
                                 return (
                                   <Link
                                     key={app.id}
@@ -367,7 +390,7 @@ const SeguimientoPage: React.FC = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Enviadas</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {submitted.map(app => {
-                                const status = statusMap[app.status] || statusMap.draft;
+                                const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.FALTAN_DOCUMENTOS];
                                 return (
                                   <Link
                                     key={app.id}

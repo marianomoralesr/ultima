@@ -127,8 +127,18 @@ def navigate_to_vehicle_and_click_financing(page):
             full_url = f"http://localhost:5173{vehicle_href}" if vehicle_href.startswith('/') else vehicle_href
             print(f"   → Navegando a: {full_url}")
 
-            page.goto(full_url, wait_until='domcontentloaded')
-            time.sleep(3)
+            page.goto(full_url, wait_until='networkidle')
+            print("   → Esperando a que la página cargue completamente...")
+            time.sleep(5)
+
+            # Esperar a que desaparezca el spinner de carga
+            try:
+                page.wait_for_selector('[class*="spinner"], [class*="loading"], .animate-spin', state='hidden', timeout=15000)
+                print("   ✅ Spinner de carga desapareció")
+            except:
+                print("   → No se detectó spinner o ya desapareció")
+
+            time.sleep(2)
             take_screenshot(page, "03_vehicle_detail")
 
             # Buscar botón de financiamiento
@@ -137,13 +147,15 @@ def navigate_to_vehicle_and_click_financing(page):
                 'button:has-text("Comprar con financiamiento")',
                 'a:has-text("Comprar con financiamiento")',
                 'button:has-text("Solicitar financiamiento")',
-                'a:has-text("Solicitar financiamiento")'
+                'a:has-text("Solicitar financiamiento")',
+                'button:has-text("Financiamiento")',
+                'a:has-text("Financiamiento")'
             ]
 
             for selector in financing_selectors:
                 try:
                     btn = page.locator(selector).first
-                    if btn.is_visible(timeout=3000):
+                    if btn.is_visible(timeout=10000):
                         print(f"   → Haciendo clic en: {selector}")
                         btn.click()
                         page.wait_for_load_state('networkidle')

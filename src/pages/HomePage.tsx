@@ -943,7 +943,7 @@ const HomePage: React.FC = () => {
         </div>
       ) : (
         <>
-          <HeroTrefa />
+          <HeroTrefa isMobile={isMobile} />
           <WallOfLove />
           <WhyChooseTrefaSection />
           <CarroceriaCarouselSection content={content.carroceriaCarousel} />

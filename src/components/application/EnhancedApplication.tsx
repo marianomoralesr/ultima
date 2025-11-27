@@ -117,7 +117,12 @@ const EnhancedApplication: React.FC = () => {
   const [pageStatus, setPageStatus] = useState<'initializing' | 'loading' | 'checking_profile' | 'profile_incomplete' | 'bank_profile_incomplete' | 'active_application_exists' | 'ready' | 'error' | 'success'>('initializing');
   const [pageError, setPageError] = useState<string | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const [applicationId, setApplicationId] = useState<string | null>(applicationIdFromUrl || null);
+  // Validate applicationId from URL - filter out invalid values like "undefined"
+  const [applicationId, setApplicationId] = useState<string | null>(
+    applicationIdFromUrl && applicationIdFromUrl !== 'undefined' && applicationIdFromUrl !== 'null'
+      ? applicationIdFromUrl
+      : null
+  );
   const [applicationData, setApplicationData] = useState<any>(null);
   const [recommendedBank, setRecommendedBank] = useState<string | null>(null);
   const [vehicleInfo, setVehicleInfo] = useState<any>(null);

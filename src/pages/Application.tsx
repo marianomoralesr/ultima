@@ -86,12 +86,17 @@ const Application: React.FC = () => {
     const { vehicles } = useVehicles();
     const [searchParams] = useSearchParams();
     const { id: applicationIdFromUrl } = useParams<{ id: string }>();
-    
+
     const [pageStatus, setPageStatus] = useState<'initializing' | 'loading' | 'checking_profile' | 'profile_incomplete' | 'bank_profile_incomplete' | 'active_application_exists' | 'ready' | 'error' | 'success'>('initializing');
     const [pageError, setPageError] = useState<string | null>(null);
     const [submissionError, setSubmissionError] = useState<string | null>(null);
     const [showVehicleSelector, setShowVehicleSelector] = useState(false);
-    const [applicationId, setApplicationId] = useState<string | null>(applicationIdFromUrl || null);
+    // Validate applicationId from URL - filter out invalid values like "undefined"
+    const [applicationId, setApplicationId] = useState<string | null>(
+        applicationIdFromUrl && applicationIdFromUrl !== 'undefined' && applicationIdFromUrl !== 'null'
+            ? applicationIdFromUrl
+            : null
+    );
     const [applicationData, setApplicationData] = useState<any>(null);
     const [currentStep, setCurrentStep] = useState(0);
     const [recommendedBank, setRecommendedBank] = useState<string | null>(null);

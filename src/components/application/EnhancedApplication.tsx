@@ -239,7 +239,7 @@ const EnhancedApplication: React.FC = () => {
           const newDraft = await ApplicationService.createDraftApplication(user.id, initialData);
           if (newDraft && newDraft.id) {
             setApplicationId(newDraft.id);
-            navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });
+            navigate(`/escritorio/nueva-solicitud/${newDraft.id}`, { replace: true });
           } else {
             throw new Error('No pudimos crear el borrador de tu solicitud.');
           }

@@ -215,9 +215,8 @@ const ProfilePage: React.FC = () => {
       if (rfc) {
         setCalculatedRfc(rfc);
       }
-    } else {
-      setCalculatedRfc('');
     }
+    // Don't clear RFC when fields are empty - it should persist
   }, [firstName, lastName, motherLastName, birthDate, homoclave]);
 
   useEffect(() => {

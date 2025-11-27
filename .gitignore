@@ -75,7 +75,19 @@ test-*.html
 test-*.js
 test-*.ts
 test-*.sh
+test_*.py
+test-*.log
+test_*.log
 debug-*.sql
+
+# Test screenshots and artifacts (pueden contener información sensible)
+correct_*.png
+prod_*.png
+*_step_*.png
+
+# Test data files
+.phone_counter.txt
+create_new_test_user.py
 
 # Google Sheets Credentials
 google-credentials.json

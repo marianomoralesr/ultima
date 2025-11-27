@@ -97,7 +97,7 @@ const { useStepper, utils } = Stepperize.defineStepper(
   { id: 'vehicle-financing', title: 'Vehículo', description: 'Auto y financiamiento', icon: FileText },
   { id: 'personal-info', title: 'Personal', description: 'Información personal', icon: User },
   { id: 'employment', title: 'Empleo', description: 'Información laboral', icon: Building2 },
-  { id: 'additional-details', title: 'Detalles', description: 'Info complementaria', icon: PenSquare },
+  { id: 'additional-details', title: 'Historial', description: 'Historial complementario', icon: PenSquare },
   { id: 'references', title: 'Referencias', description: 'Referencias personales', icon: Users },
   { id: 'consent', title: 'Consentimiento', description: 'Términos y condiciones', icon: CheckCircle },
   { id: 'review', title: 'Revisión', description: 'Revisar y enviar', icon: FileText },
@@ -505,9 +505,10 @@ const EnhancedApplication: React.FC = () => {
 
         <Card className="gap-0 p-0 md:grid md:max-lg:grid-cols-5 lg:grid-cols-4">
           {/* Sidebar navigation */}
-          <CardContent className="col-span-5 p-6 max-md:border-b md:border-r md:max-lg:col-span-2 lg:col-span-1">
+          <CardContent className="col-span-5 p-3 sm:p-4 md:p-6 max-md:border-b md:border-r md:max-lg:col-span-2 lg:col-span-1">
             <nav aria-label="Pasos de la solicitud">
-              <ol className="flex flex-col justify-between gap-x-2 gap-y-4">
+              {/* Mobile: Horizontal scrollable stepper */}
+              <ol className="flex md:flex-col overflow-x-auto md:overflow-visible gap-2 md:gap-y-4 pb-2 md:pb-0 -mx-3 px-3 md:mx-0 md:px-0">
                 {stepper.all
                   .filter(step => step.id !== 'complete')
                   .map((step, index) => {
@@ -516,11 +517,13 @@ const EnhancedApplication: React.FC = () => {
                     const isClickable = index <= currentStep; // Can click current and previous steps
 
                     return (
-                      <li key={step.id}>
+                      <li key={step.id} className="flex-shrink-0 md:flex-shrink">
                         <Button
                           variant="ghost"
                           className={cn(
-                            "h-auto w-full shrink-0 justify-start gap-3 rounded !bg-transparent p-2 transition-all",
+                            "h-auto shrink-0 gap-2 md:gap-3 rounded !bg-transparent p-2 transition-all",
+                            "md:w-full md:justify-start",
+                            "w-auto justify-center flex-col md:flex-row",
                             isClickable ? "cursor-pointer hover:bg-accent" : "cursor-not-allowed opacity-50"
                           )}
                           onClick={() => isClickable && stepper.goTo(step.id)}
@@ -540,14 +543,14 @@ const EnhancedApplication: React.FC = () => {
                             )}
                           </div>
                           {/* Step Info */}
-                          <div className="flex flex-col items-start flex-1 min-w-0">
+                          <div className="flex flex-col items-center md:items-start flex-1 min-w-0">
                             <span className={cn(
-                              "font-medium truncate w-full",
+                              "font-medium text-xs md:text-sm truncate w-full text-center md:text-left",
                               isActive && "text-primary"
                             )}>
                               {step.title}
                             </span>
-                            <span className="text-muted-foreground text-xs truncate w-full">
+                            <span className="text-muted-foreground text-xs truncate w-full hidden md:block">
                               {step.description}
                             </span>
                           </div>

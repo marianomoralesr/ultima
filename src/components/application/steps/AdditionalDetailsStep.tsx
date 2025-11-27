@@ -22,13 +22,13 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
   return (
     <CardContent className="col-span-5 flex flex-col gap-6 p-6 md:col-span-3">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Detalles Adicionales</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Historial Complementario</h2>
         <p className="text-sm text-gray-600">Información complementaria para evaluar tu solicitud.</p>
       </div>
 
       <div className="space-y-6">
         {/* Time at Address */}
-        <div className="bg-white rounded-xl p-6 border">
+        <div>
           <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
             <Home className="w-4 h-4 mr-2 text-primary-600" />
             Información de Vivienda
@@ -86,7 +86,7 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
         </div>
 
         {/* Dependents */}
-        <div className="bg-white rounded-xl p-6 border">
+        <div>
           <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
             <Users className="w-4 h-4 mr-2 text-primary-600" />
             Información Familiar
@@ -120,7 +120,7 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
         </div>
 
         {/* Education Level */}
-        <div className="bg-white rounded-xl p-6 border">
+        <div>
           <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
             <GraduationCap className="w-4 h-4 mr-2 text-primary-600" />
             Nivel de Estudios

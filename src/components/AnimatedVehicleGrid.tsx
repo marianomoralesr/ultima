@@ -38,9 +38,12 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     return 6; // Desktop: 6 columns
   };
 
-  const [cols, setCols] = useState(getGridColumns);
+  const [cols, setCols] = useState(6);
 
   useEffect(() => {
+    // Set initial value
+    setCols(getGridColumns());
+
     const handleResize = () => setCols(getGridColumns());
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -99,9 +102,12 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     return 'rotate(-8deg) scale(1.4)';
   };
 
-  const [transform, setTransform] = useState(getTransform);
+  const [transform, setTransform] = useState('rotate(-8deg) scale(1.4)');
 
   useEffect(() => {
+    // Set initial value
+    setTransform(getTransform());
+
     const handleResize = () => setTransform(getTransform());
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);

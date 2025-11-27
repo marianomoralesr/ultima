@@ -890,6 +890,7 @@ const HomePage: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useSEO({
     title: 'Autos Seminuevos Certificados y con Financiamiento | TREFA',
@@ -920,6 +921,17 @@ const HomePage: React.FC = () => {
     };
 
     loadContent();
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Move the loading check AFTER all hooks to ensure consistent hook call order

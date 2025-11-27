@@ -25,9 +25,10 @@ import { supabase } from '../../../supabaseClient';
 import { conversionTracking } from '../../services/ConversionTrackingService';
 
 // Import step components
-import VehicleSelectionStep from './steps/VehicleSelectionStep';
-import PersonalInfoStep from './steps/PersonalInfoStep';
+import VehicleFinancingStep from './steps/VehicleFinancingStep';
+import PersonalInfoStepSimplified from './steps/PersonalInfoStepSimplified';
 import EmploymentStep from './steps/EmploymentStep';
+import AdditionalDetailsStep from './steps/AdditionalDetailsStep';
 import ReferencesStep from './steps/ReferencesStep';
 import ConsentStep from './steps/ConsentStep';
 import ReviewSubmitStep from './steps/ReviewSubmitStep';
@@ -93,11 +94,12 @@ type ApplicationFormData = z.infer<typeof baseApplicationSchema>;
 
 // Define stepper
 const { useStepper, utils } = Stepperize.defineStepper(
-  { id: 'vehicle-selection', title: 'Vehículo', description: 'Selecciona tu auto', icon: FileText },
+  { id: 'vehicle-financing', title: 'Vehículo', description: 'Auto y financiamiento', icon: FileText },
   { id: 'personal-info', title: 'Personal', description: 'Información personal', icon: User },
   { id: 'employment', title: 'Empleo', description: 'Información laboral', icon: Building2 },
+  { id: 'additional-details', title: 'Detalles', description: 'Info complementaria', icon: PenSquare },
   { id: 'references', title: 'Referencias', description: 'Referencias personales', icon: Users },
-  { id: 'consent', title: 'Consentimiento', description: 'Términos y condiciones', icon: PenSquare },
+  { id: 'consent', title: 'Consentimiento', description: 'Términos y condiciones', icon: CheckCircle },
   { id: 'review', title: 'Revisión', description: 'Revisar y enviar', icon: FileText },
   { id: 'complete', title: 'Completado', description: 'Solicitud enviada', icon: CheckCircle }
 );
@@ -274,9 +276,10 @@ const EnhancedApplication: React.FC = () => {
   // Save progress and move to next step
   const handleNext = async () => {
     const stepFieldsMap: Record<string, string[]> = {
-      'vehicle-selection': [], // No form fields to validate, handled in component
-      'personal-info': ['time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'],
+      'vehicle-financing': [], // Validation handled in component
+      'personal-info': [], // Address validation handled in component
       'employment': ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'],
+      'additional-details': ['time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'],
       'references': ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'],
       'consent': ['terms_and_conditions'],
       'review': []
@@ -376,6 +379,7 @@ const EnhancedApplication: React.FC = () => {
         car_info: vehicleInfo,
         application_data: data,
         selected_banks: [recommendedBank],
+        status: 'pending_documents',
       };
 
       const updatedApp = await ApplicationService.updateApplication(applicationId, payload);
@@ -534,16 +538,18 @@ const EnhancedApplication: React.FC = () => {
 
           {/* Step content */}
           {stepper.switch({
-            'vehicle-selection': () => (
-              <VehicleSelectionStep
+            'vehicle-financing': () => (
+              <VehicleFinancingStep
                 stepper={stepper}
                 vehicleInfo={vehicleInfo}
+                control={control}
+                setValue={setValue}
                 onVehicleSelect={handleVehicleSelect}
                 onNext={handleNext}
               />
             ),
             'personal-info': () => (
-              <PersonalInfoStep
+              <PersonalInfoStepSimplified
                 stepper={stepper}
                 control={control}
                 errors={errors}
@@ -560,6 +566,14 @@ const EnhancedApplication: React.FC = () => {
                 control={control}
                 errors={errors}
                 setValue={setValue}
+                onNext={handleNext}
+              />
+            ),
+            'additional-details': () => (
+              <AdditionalDetailsStep
+                stepper={stepper}
+                control={control}
+                errors={errors}
                 onNext={handleNext}
               />
             ),

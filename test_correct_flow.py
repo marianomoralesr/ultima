@@ -344,13 +344,26 @@ def complete_application_automatically(page):
                         if not sel.is_visible():
                             continue
 
+                        # Scroll into view
+                        sel.scroll_into_view_if_needed()
+                        time.sleep(0.2)
+
                         options = sel.locator('option').all()
                         if len(options) > 1:
                             # Seleccionar la primera opción válida (no placeholder)
-                            sel.select_option(index=1)
+                            # Intentar por valor primero, luego por index
+                            try:
+                                first_value = options[1].get_attribute('value')
+                                if first_value:
+                                    sel.select_option(value=first_value)
+                                else:
+                                    sel.select_option(index=1)
+                            except:
+                                sel.select_option(index=1)
+
                             selected = sel.input_value()
                             print(f"   → Select {idx + 1}: seleccionado opción con valor={selected}")
-                            time.sleep(0.1)
+                            time.sleep(0.3)
                     except Exception as e:
                         print(f"   ⚠️  Error en select {idx + 1}: {str(e)[:50]}")
                         continue
@@ -470,8 +483,12 @@ def complete_application_automatically(page):
                                 print(f"   → Button-radio '{btn_text[:30]}': seleccionando")
 
                         if should_click:
-                            btn.click()
-                            time.sleep(0.3)  # Esperar animaciones/campos dependientes
+                            # Scroll into view y esperar
+                            btn.scroll_into_view_if_needed()
+                            time.sleep(0.2)
+                            # Click con force para asegurar
+                            btn.click(force=True)
+                            time.sleep(0.5)  # Esperar animaciones/campos dependientes
                             processed_groups.add(group_id)
 
                     except Exception as e:
@@ -585,7 +602,8 @@ def main():
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
-        context = browser.new_context(viewport={'width': 1920, 'height': 1080})
+        # Tamaño ajustado para MacBook 14" - ventana más pequeña
+        context = browser.new_context(viewport={'width': 1280, 'height': 800})
         page = context.new_page()
         page.set_default_timeout(90000)
 

@@ -32,12 +32,17 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
   const logoUrl = `${SUPABASE_URL}/storage/v1/object/public/public-assets/logoblanco.png`;
   const baseUrl = SUPABASE_URL.replace('.supabase.co', '');
   const applicationUrl = `${baseUrl}/escritorio/mis-solicitudes`;
+  const profileUrl = `${baseUrl}/escritorio/perfil`;
 
-  // Status-specific templates
+  // Generate upload link if token exists
+  const uploadLink = data.publicUploadToken
+    ? `${baseUrl}/documentos/${data.publicUploadToken}`
+    : applicationUrl;
+
   switch (status) {
     case 'Faltan Documentos':
       return {
-        subject: 'Autos TREFA | Documentos Faltantes - Acción Requerida',
+        subject: '📄 Autos TREFA | Falta un paso para completar tu solicitud',
         html: `
           <!DOCTYPE html>
           <html>
@@ -48,30 +53,41 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
               </div>
               <div class="content">
-                <h1 class="title">📄 Faltan Documentos para tu Solicitud</h1>
-                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, para continuar con tu solicitud de financiamiento necesitamos algunos documentos adicionales.</p>
+                <h1 class="title">¡Casi llegamos! 📄</h1>
+                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, tu solicitud está casi lista. Solo necesitamos algunos documentos.</p>
 
                 ${data.vehicleTitle ? `
                 <div class="card">
-                  <p style="font-size: 14px; font-weight: 600; color: #556675; margin-bottom: 8px;">VEHÍCULO DE INTERÉS</p>
+                  <p style="font-size: 14px; font-weight: 600; color: #556675; margin-bottom: 8px;">TU AUTO</p>
                   <p style="font-size: 18px; font-weight: 600; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
                 </div>
                 ` : ''}
 
-                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">¿Qué necesitas hacer?</h2>
+                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">📋 Documentos que necesitamos:</h2>
                 <ul>
-                  <li><strong>Verifica los documentos faltantes</strong> en tu panel de solicitud</li>
-                  <li><strong>Sube los documentos requeridos</strong> en formato PDF o imagen</li>
-                  <li><strong>Confirma que sean legibles</strong> y contengan toda la información necesaria</li>
+                  <li><strong>INE</strong> (frente y reverso)</li>
+                  <li><strong>Comprobante de domicilio</strong> (no mayor a 3 meses)</li>
+                  <li><strong>Comprobantes de ingresos</strong> (últimos 3 meses)</li>
+                  <li><strong>Constancia de Situación Fiscal</strong></li>
                 </ul>
 
+                <div style="background: #E0F2FE; border-left: 4px solid #0369A1; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                  <p style="margin: 0; color: #0C4A6E; font-size: 15px; line-height: 1.6;">
+                    <strong>✨ Súper fácil:</strong> Puedes subir tus documentos desde tu celular. Solo toma fotos claras y súbelas directamente desde el enlace de abajo.
+                  </p>
+                </div>
+
                 <div style="text-align: center; margin: 32px 0;">
-                  <a href="${applicationUrl}" class="button">Subir Documentos</a>
+                  <a href="${uploadLink}" class="button">📱 Subir Documentos Ahora</a>
                 </div>
 
                 <p style="font-size: 14px; color: #556675; background: #FEF3C7; padding: 16px; border-radius: 8px; border-left: 4px solid #F59E0B;">
-                  💡 <strong>¿Necesitas ayuda?</strong><br>
-                  Si tienes dudas sobre qué documentos subir, contáctanos por WhatsApp o responde este correo.
+                  <strong>💡 ¿Necesitas ayuda?</strong><br>
+                  Si tienes dudas sobre qué documentos subir, contáctanos por WhatsApp o responde este email. ¡Estamos para ayudarte!
+                </p>
+
+                <p style="font-size: 15px; color: #374151; text-align: center; margin: 32px 0;">
+                  Tu auto está esperando por ti 🚗💨
                 </p>
               </div>
               <div class="footer">
@@ -86,7 +102,7 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
 
     case 'Completa':
       return {
-        subject: 'Autos TREFA | Solicitud Completa - En Proceso de Revisión',
+        subject: '✅ Autos TREFA | ¡Solicitud Completa! - Estamos revisándola',
         html: `
           <!DOCTYPE html>
           <html>
@@ -97,30 +113,35 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
               </div>
               <div class="content">
-                <h1 class="title">✅ Tu Solicitud está Completa</h1>
-                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, tu solicitud de financiamiento está completa y lista para ser revisada.</p>
+                <h1 class="title">¡Excelente! Todo está en orden ✅</h1>
+                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, recibimos toda tu documentación. Ahora viene lo emocionante.</p>
 
                 ${data.vehicleTitle ? `
-                <div class="card">
-                  <p style="font-size: 14px; font-weight: 600; color: #556675; margin-bottom: 8px;">VEHÍCULO DE INTERÉS</p>
-                  <p style="font-size: 18px; font-weight: 600; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
+                <div class="card" style="background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%); border-left-color: #16A34A;">
+                  <p style="font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 8px;">TU AUTO</p>
+                  <p style="font-size: 20px; font-weight: 700; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
                 </div>
                 ` : ''}
 
-                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">¿Qué sigue?</h2>
+                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">🎯 ¿Qué sigue ahora?</h2>
                 <ul>
-                  <li><strong>Revisión de Documentos:</strong> Nuestro equipo verificará toda tu información</li>
-                  <li><strong>Análisis de Crédito:</strong> Evaluaremos tu solicitud con nuestras instituciones bancarias</li>
-                  <li><strong>Respuesta Rápida:</strong> Recibirás una actualización en las próximas 24-48 horas</li>
+                  <li><strong>Revisión de documentos:</strong> Nuestro equipo verificará toda tu información (1-2 días hábiles)</li>
+                  <li><strong>Análisis crediticio:</strong> Evaluaremos tu solicitud con el banco (2-3 días hábiles)</li>
+                  <li><strong>Te contactaremos:</strong> Te avisaremos en cuanto tengamos noticias</li>
                 </ul>
 
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="${applicationUrl}" class="button">Ver mi Solicitud</a>
+                <div style="background: #DCFCE7; border-left: 4px solid #16A34A; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                  <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.6;">
+                    <strong>⏱️ Respuesta rápida:</strong> El 95% de nuestros clientes reciben una respuesta en menos de 48 horas hábiles. ¡Mantente al pendiente!
+                  </p>
                 </div>
 
-                <p style="font-size: 14px; color: #556675; background: #DCFCE7; padding: 16px; border-radius: 8px; border-left: 4px solid #16A34A;">
-                  ✅ <strong>Solicitud en proceso</strong><br>
-                  Te notificaremos por correo cuando tengamos novedades.
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${applicationUrl}" class="button">📊 Ver mi Solicitud</a>
+                </div>
+
+                <p style="font-size: 15px; color: #374151; text-align: center; margin: 32px 0; line-height: 1.8;">
+                  ¡Estamos muy emocionados de ayudarte a conseguir tu auto! 🎉
                 </p>
               </div>
               <div class="footer">
@@ -135,7 +156,7 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
 
     case 'En Revisión':
       return {
-        subject: 'Autos TREFA | Solicitud En Revisión',
+        subject: '🔍 Autos TREFA | Tu solicitud está en revisión',
         html: `
           <!DOCTYPE html>
           <html>
@@ -146,30 +167,35 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
               </div>
               <div class="content">
-                <h1 class="title">🔍 Tu Solicitud está En Revisión</h1>
-                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, tu solicitud de financiamiento está siendo revisada por nuestro equipo.</p>
+                <h1 class="title">¡Estamos trabajando en tu solicitud! 🔍</h1>
+                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, tu solicitud está siendo revisada por nuestro equipo y el banco.</p>
 
                 ${data.vehicleTitle ? `
-                <div class="card">
-                  <p style="font-size: 14px; font-weight: 600; color: #556675; margin-bottom: 8px;">VEHÍCULO DE INTERÉS</p>
-                  <p style="font-size: 18px; font-weight: 600; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
+                <div class="card" style="background: linear-gradient(135deg, #E0E7FF 0%, #EEF2FF 100%); border-left-color: #6366F1;">
+                  <p style="font-size: 14px; font-weight: 600; color: #4338CA; margin-bottom: 8px;">TU AUTO</p>
+                  <p style="font-size: 20px; font-weight: 700; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
                 </div>
                 ` : ''}
 
-                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">Proceso de Revisión</h2>
+                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">📝 Proceso de Revisión</h2>
                 <ul>
-                  <li><strong>Análisis Detallado:</strong> Estamos revisando cuidadosamente tu información</li>
-                  <li><strong>Verificación Bancaria:</strong> Trabajamos con las instituciones financieras</li>
+                  <li><strong>Análisis detallado:</strong> Estamos revisando cuidadosamente tu información</li>
+                  <li><strong>Verificación bancaria:</strong> Trabajamos con las instituciones financieras</li>
                   <li><strong>Pronto tendrás noticias:</strong> Te contactaremos para actualizar tu estado</li>
                 </ul>
 
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="${applicationUrl}" class="button">Ver mi Solicitud</a>
+                <div style="background: #EEF2FF; border-left: 4px solid #6366F1; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                  <p style="margin: 0; color: #4338CA; font-size: 15px; line-height: 1.6;">
+                    <strong>💪 Mantente tranquilo:</strong> Este es un paso normal del proceso. Si necesitamos algo adicional, te contactaremos de inmediato.
+                  </p>
                 </div>
 
-                <p style="font-size: 14px; color: #556675; background: #E0F2FE; padding: 16px; border-radius: 8px; border-left: 4px solid #0369A1;">
-                  💡 <strong>Mantente atento</strong><br>
-                  Un asesor se pondrá en contacto contigo si necesitamos información adicional.
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${applicationUrl}" class="button">📊 Ver Estado</a>
+                </div>
+
+                <p style="font-size: 15px; color: #374151; text-align: center; margin: 32px 0;">
+                  Cada día estás más cerca de tu auto 🚗✨
                 </p>
               </div>
               <div class="footer">
@@ -184,7 +210,7 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
 
     case 'Aprobada':
       return {
-        subject: '🎉 Autos TREFA | ¡Felicidades! Tu Crédito fue Aprobado',
+        subject: '🎉 ¡FELICIDADES! Tu crédito fue aprobado - Autos TREFA',
         html: `
           <!DOCTYPE html>
           <html>
@@ -195,30 +221,38 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
               </div>
               <div class="content">
-                <h1 class="title">🎉 ¡Felicidades! Tu Crédito fue Aprobado</h1>
-                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, tenemos excelentes noticias. Tu solicitud de financiamiento ha sido <strong style="color: #16A34A;">APROBADA</strong>.</p>
+                <h1 class="title">🎉 ¡FELICIDADES! ¡Tu crédito fue aprobado!</h1>
+                <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, tenemos noticias increíbles. Tu solicitud ha sido <strong style="color: #16A34A;">APROBADA</strong>.</p>
 
                 ${data.vehicleTitle ? `
-                <div class="card" style="border-left-color: #16A34A; background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%);">
-                  <p style="font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 8px;">TU VEHÍCULO APROBADO</p>
-                  <p style="font-size: 20px; font-weight: 700; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
+                <div class="card" style="border-left-color: #16A34A; background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%); border: 2px solid #16A34A;">
+                  <p style="font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 8px;">🏆 TU AUTO APROBADO</p>
+                  <p style="font-size: 24px; font-weight: 700; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
                 </div>
                 ` : ''}
 
-                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">Próximos Pasos</h2>
+                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">🚀 Próximos Pasos</h2>
                 <ul>
-                  <li><strong>Agenda tu Visita:</strong> Reserva una cita para conocer tu vehículo en persona</li>
-                  <li><strong>Firma de Contrato:</strong> Completaremos los últimos detalles del financiamiento</li>
-                  <li><strong>¡Estrena tu Auto!</strong> En poco tiempo estarás manejando tu nuevo vehículo</li>
+                  <li><strong>Agenda tu visita:</strong> Reserva una cita para conocer tu auto en persona</li>
+                  <li><strong>Firma de contrato:</strong> Completaremos los últimos detalles del financiamiento</li>
+                  <li><strong>¡Estrena tu auto!</strong> En poco tiempo estarás manejándolo</li>
                 </ul>
 
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="${baseUrl}/agendar-cita" class="button">Agendar mi Cita</a>
+                <div style="background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%); border-left: 4px solid #16A34A; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center;">
+                  <p style="margin: 0 0 16px 0; color: #166534; font-size: 18px; line-height: 1.6; font-weight: 600;">
+                    🎊 ¡Estás a UN PASO de tu nuevo auto! 🎊
+                  </p>
+                  <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.6;">
+                    Nuestro equipo se pondrá en contacto contigo en las próximas 24 horas para coordinar todo.
+                  </p>
                 </div>
 
-                <p style="font-size: 14px; color: #556675; background: #DCFCE7; padding: 16px; border-radius: 8px; border-left: 4px solid: #16A34A;">
-                  ✅ <strong>¡Estás a un paso de tu nuevo auto!</strong><br>
-                  Nuestro equipo se pondrá en contacto contigo para coordinar los detalles finales.
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${baseUrl}/agendar-cita" class="button">📅 Agendar mi Cita</a>
+                </div>
+
+                <p style="font-size: 16px; color: #374151; text-align: center; margin: 32px 0; line-height: 1.8;">
+                  ¡Gracias por confiar en nosotros! 🙌
                 </p>
               </div>
               <div class="footer">
@@ -233,7 +267,7 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
 
     case 'Rechazada':
       return {
-        subject: 'Autos TREFA | Actualización sobre tu Solicitud',
+        subject: 'Autos TREFA | Actualización sobre tu solicitud',
         html: `
           <!DOCTYPE html>
           <html>
@@ -244,31 +278,36 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 <img src="${logoUrl}" alt="Autos TREFA" class="logo" />
               </div>
               <div class="content">
-                <h1 class="title">Actualización sobre tu Solicitud</h1>
+                <h1 class="title">Actualización sobre tu solicitud</h1>
                 <p class="subtitle">Hola <span class="highlight">${data.clientName}</span>, lamentamos informarte que en este momento no pudimos aprobar tu solicitud de financiamiento.</p>
 
                 ${data.vehicleTitle ? `
                 <div class="card">
-                  <p style="font-size: 14px; font-weight: 600; color: #556675; margin-bottom: 8px;">VEHÍCULO SOLICITADO</p>
+                  <p style="font-size: 14px; font-weight: 600; color: #556675; margin-bottom: 8px;">AUTO SOLICITADO</p>
                   <p style="font-size: 18px; font-weight: 600; color: #0B2540; margin: 0;">${data.vehicleTitle}</p>
                 </div>
                 ` : ''}
 
-                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">¿Qué opciones tienes?</h2>
+                <h2 style="font-size: 20px; color: #0B2540; font-weight: 600; margin-top: 32px;">💪 No te desanimes, hay opciones</h2>
                 <ul>
-                  <li><strong>Consulta Personalizada:</strong> Agenda una cita con uno de nuestros asesores financieros</li>
-                  <li><strong>Opciones Alternativas:</strong> Podemos explorar otras formas de financiamiento</li>
-                  <li><strong>Mejora tu Perfil:</strong> Te orientamos para fortalecer tu solicitud futura</li>
-                  <li><strong>Vehículos Accesibles:</strong> Conoce opciones con diferentes planes de pago</li>
+                  <li><strong>Consulta personalizada:</strong> Agenda una cita con uno de nuestros asesores financieros</li>
+                  <li><strong>Opciones alternativas:</strong> Podemos explorar otras formas de financiamiento</li>
+                  <li><strong>Mejora tu perfil:</strong> Te orientamos para fortalecer tu solicitud futura</li>
+                  <li><strong>Autos accesibles:</strong> Conoce opciones con diferentes planes de pago</li>
                 </ul>
 
-                <div style="text-align: center; margin: 32px 0;">
-                  <a href="${baseUrl}/agendar-cita" class="button">Hablar con un Asesor</a>
+                <div style="background: #E0F2FE; border-left: 4px solid #0369A1; padding: 20px; border-radius: 12px; margin: 24px 0;">
+                  <p style="margin: 0; color: #0C4A6E; font-size: 15px; line-height: 1.6;">
+                    <strong>💙 Estamos contigo:</strong> No te rindas. Hay opciones para ti y queremos ayudarte a encontrar la mejor solución. Contáctanos y exploremos alternativas juntos.
+                  </p>
                 </div>
 
-                <p style="font-size: 14px; color: #556675; background: #E0F2FE; padding: 16px; border-radius: 8px; border-left: 4px solid #0369A1;">
-                  💡 <strong>No te desanimes</strong><br>
-                  Estamos aquí para ayudarte a encontrar la mejor solución para ti. Contáctanos y exploremos otras opciones juntos.
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${baseUrl}/agendar-cita" class="button">💬 Hablar con un Asesor</a>
+                </div>
+
+                <p style="font-size: 15px; color: #374151; text-align: center; margin: 32px 0;">
+                  Siempre habrá una manera. ¡No te rindas! 💪
                 </p>
               </div>
               <div class="footer">
@@ -324,7 +363,6 @@ const sendBrevoEmail = async (to: string, toName: string, subject: string, htmlC
 };
 
 serve(async (req) => {
-  // CORS headers
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -335,7 +373,6 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request body (comes from database trigger)
     const { record, old_record } = await req.json();
 
     if (!record) {
@@ -350,7 +387,7 @@ serve(async (req) => {
 
     console.log(`Status change detected: ${oldStatus} -> ${newStatus} for application ${record.id}`);
 
-    // Only send emails for specific status changes
+    // Only send emails for specific status changes (using modern status values)
     const notifiableStatuses = ['Faltan Documentos', 'Completa', 'En Revisión', 'Aprobada', 'Rechazada'];
 
     if (!notifiableStatuses.includes(newStatus)) {
@@ -386,11 +423,13 @@ serve(async (req) => {
     // Prepare email data
     const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Cliente';
     const vehicleTitle = record.car_info?._vehicleTitle || record.car_info?.vehicleTitle || null;
+    const publicUploadToken = record.public_upload_token || null;
 
     // Get email template
     const { subject, html } = getEmailTemplate(newStatus, {
       clientName,
-      vehicleTitle
+      vehicleTitle,
+      publicUploadToken
     });
 
     // Send email

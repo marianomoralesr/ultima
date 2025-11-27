@@ -47,6 +47,14 @@ export default function UnifiedAdminDashboard() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Pagination states
+  const [sourcesPage, setSourcesPage] = useState(1);
+  const [vehiclesPage, setVehiclesPage] = useState(1);
+  const [unavailablePage, setUnavailablePage] = useState(1);
+  const sourcesPerPage = 10;
+  const vehiclesPerPage = 10;
+  const unavailablePerPage = 10;
+
   const [dateRange, setDateRange] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
@@ -279,6 +287,54 @@ export default function UnifiedAdminDashboard() {
             </CardContent>
           </Card>
 
+          {/* Leads Registered vs Applications Submitted */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Leads Registrados vs Aplicaciones Enviadas</CardTitle>
+              <CardDescription>Comparación de registros vs conversiones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsBarChart
+                  data={[
+                    {
+                      name: 'Leads',
+                      registrados: marketing.funnel.registrations,
+                      aplicaciones: marketing.funnel.application_submissions,
+                    },
+                  ]}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="registrados" fill={COLORS[1]} name="Leads Registrados" />
+                  <Bar dataKey="aplicaciones" fill={COLORS[2]} name="Aplicaciones Enviadas" />
+                </RechartsBarChart>
+              </ResponsiveContainer>
+              <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">Registrados</p>
+                  <p className="text-2xl font-bold">{formatNumber(marketing.funnel.registrations)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Aplicaciones</p>
+                  <p className="text-2xl font-bold">{formatNumber(marketing.funnel.application_submissions)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Tasa de Conversión</p>
+                  <p className="text-2xl font-bold">
+                    {calculateConversionRate(
+                      marketing.funnel.application_submissions,
+                      marketing.funnel.registrations
+                    )}%
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Quick Actions */}
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
@@ -375,28 +431,58 @@ export default function UnifiedAdminDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Métricas por Fuente</CardTitle>
-              <CardDescription>Eventos, conversiones y tasas por fuente de tráfico</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Métricas por Fuente</CardTitle>
+                  <CardDescription>Eventos, conversiones y tasas por fuente de tráfico</CardDescription>
+                </div>
+                <Badge variant="secondary">{marketing.sources.length} fuentes</Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {marketing.sources.map((source) => (
-                  <div key={source.source} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{source.source}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {source.users} usuarios • {source.sessions} sesiones
-                      </p>
+                {marketing.sources
+                  .slice((sourcesPage - 1) * sourcesPerPage, sourcesPage * sourcesPerPage)
+                  .map((source) => (
+                    <div key={source.source} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{source.source}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {source.users} usuarios • {source.sessions} sesiones
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{source.count} eventos</p>
+                        <p className="text-sm text-green-600">
+                          {source.conversions} conv. ({source.conversionRate.toFixed(1)}%)
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{source.count} eventos</p>
-                      <p className="text-sm text-green-600">
-                        {source.conversions} conv. ({source.conversionRate.toFixed(1)}%)
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
+              {marketing.sources.length > sourcesPerPage && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSourcesPage((p) => Math.max(1, p - 1))}
+                    disabled={sourcesPage === 1}
+                  >
+                    Anterior
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Página {sourcesPage} de {Math.ceil(marketing.sources.length / sourcesPerPage)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSourcesPage((p) => Math.min(Math.ceil(marketing.sources.length / sourcesPerPage), p + 1))}
+                    disabled={sourcesPage >= Math.ceil(marketing.sources.length / sourcesPerPage)}
+                  >
+                    Siguiente
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -477,18 +563,43 @@ export default function UnifiedAdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {business.unavailableVehicleApplications.slice(0, 5).map((app) => (
-                    <div key={app.applicationId} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium">{app.vehicleTitle}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {app.applicantName} • {app.applicantEmail}
-                        </p>
+                  {business.unavailableVehicleApplications
+                    .slice((unavailablePage - 1) * unavailablePerPage, unavailablePage * unavailablePerPage)
+                    .map((app) => (
+                      <div key={app.applicationId} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium">{app.vehicleTitle}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {app.applicantName} • {app.applicantEmail}
+                          </p>
+                        </div>
+                        <Badge variant="destructive">No disponible</Badge>
                       </div>
-                      <Badge variant="destructive">No disponible</Badge>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+                {business.unavailableVehicleApplications.length > unavailablePerPage && (
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUnavailablePage((p) => Math.max(1, p - 1))}
+                      disabled={unavailablePage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      Página {unavailablePage} de {Math.ceil(business.unavailableVehicleApplications.length / unavailablePerPage)}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUnavailablePage((p) => Math.min(Math.ceil(business.unavailableVehicleApplications.length / unavailablePerPage), p + 1))}
+                      disabled={unavailablePage >= Math.ceil(business.unavailableVehicleApplications.length / unavailablePerPage)}
+                    >
+                      Siguiente
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -496,19 +607,26 @@ export default function UnifiedAdminDashboard() {
           {/* Top Vehicles */}
           <Card>
             <CardHeader>
-              <CardTitle>Vehículos con Más Solicitudes</CardTitle>
-              <CardDescription>Top 10 vehículos más solicitados</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Vehículos con Más Solicitudes</CardTitle>
+                  <CardDescription>Vehículos más solicitados</CardDescription>
+                </div>
+                <Badge variant="secondary">
+                  {business.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length} vehículos
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {business.inventoryVehiclesWithApplications
                   .filter(v => v.ongoingApplications > 0)
                   .sort((a, b) => b.ongoingApplications - a.ongoingApplications)
-                  .slice(0, 10)
+                  .slice((vehiclesPage - 1) * vehiclesPerPage, vehiclesPage * vehiclesPerPage)
                   .map((vehicle, idx) => (
                     <div key={vehicle.vehicleId} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Badge variant="outline">{idx + 1}</Badge>
+                        <Badge variant="outline">{(vehiclesPage - 1) * vehiclesPerPage + idx + 1}</Badge>
                         <div>
                           <p className="font-medium">{vehicle.vehicleTitle}</p>
                           <p className="text-xs text-muted-foreground">
@@ -523,6 +641,29 @@ export default function UnifiedAdminDashboard() {
                     </div>
                   ))}
               </div>
+              {business.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length > vehiclesPerPage && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setVehiclesPage((p) => Math.max(1, p - 1))}
+                    disabled={vehiclesPage === 1}
+                  >
+                    Anterior
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Página {vehiclesPage} de {Math.ceil(business.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length / vehiclesPerPage)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setVehiclesPage((p) => Math.min(Math.ceil(business.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length / vehiclesPerPage), p + 1))}
+                    disabled={vehiclesPage >= Math.ceil(business.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length / vehiclesPerPage)}
+                  >
+                    Siguiente
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -25,7 +25,6 @@ backups/
 docs/
 scripts/
 .claude/
-images/
 tree/
 google-credentials.json
 correct_*.png

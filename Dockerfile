@@ -31,6 +31,10 @@ RUN npm ci --prefer-offline --no-audit
 # Copy source code AFTER installing dependencies
 COPY . .
 
+# Fix symlink: Copy images directory and recreate symlink for public/images
+# The symlink in public/ points to ../images, so we need the actual images directory
+COPY images/ ./images/
+
 # Re-declare build args in this stage so they're available as ENV vars during build
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY

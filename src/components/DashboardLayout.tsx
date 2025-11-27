@@ -60,14 +60,15 @@ const DashboardLayout: React.FC = () => {
     const getNavItems = () => {
         if (isAdmin) {
             return [
-                { to: '/escritorio/dashboard', label: 'Dashboard General', icon: LayoutDashboard, end: true },
-                { to: '/escritorio/admin/marketing-analytics', label: 'Métricas e Indicadores', icon: BarChart3 },
-                { to: '/escritorio/admin/crm', label: 'Leads (CRM)', icon: Users },
-                { to: '/escritorio/admin/marketing', label: 'Configuraciones', icon: Settings },
-                { to: '/escritorio/admin/usuarios', label: 'Asesores (Usuarios)', icon: Users },
-                { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
+                { to: '/escritorio/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
+                { to: '/escritorio', label: 'Escritorio', icon: Home },
+                { to: '/escritorio/admin/marketing-analytics', label: 'Marketing', icon: BarChart3 },
+                { to: '/escritorio/admin/business-analytics', label: 'Indicadores', icon: TrendingUp },
+                { to: '/escritorio/admin/marketing', label: 'Secciones', icon: Settings },
+                { to: '/escritorio/admin/usuarios', label: 'Asesores', icon: Users },
                 { to: '/escritorio/admin/compras', label: 'Compras', icon: DollarSign },
-                { to: '/changelog', label: 'Documentación', icon: FileText },
+                { to: '/escritorio/admin/customer-journeys', label: 'Customer Journeys', icon: Route },
+                { to: '/escritorio/intel', label: 'Intel Interna', icon: Database },
             ];
         } else if (isSales) {
             return [
@@ -80,14 +81,14 @@ const DashboardLayout: React.FC = () => {
     };
 
     const toolsItems = [
+        { to: '/car-studio', label: 'Car Studio API', icon: Camera },
+        { to: '/escritorio/admin/vacantes', label: 'Vacantes', icon: ClipboardCheck },
+        { to: '/escritorio/admin/aprobar-cuentas', label: 'Aprobar Cuentas', icon: UserCheck },
+        { to: '/escritorio/admin/survey-analytics', label: 'Resultados de Encuesta', icon: MessageSquare },
         { to: '/escritorio/admin/landing-pages', label: 'Landing Pages', icon: Palette },
         { to: '/escritorio/admin/homepage-editor', label: 'Editor de Página de Inicio', icon: Home },
-        { to: '/car-studio', label: 'Car Studio API', icon: Camera },
-        { to: '/escritorio/admin/survey-analytics', label: 'Resultados de Encuestas', icon: ClipboardCheck },
-        { to: '/escritorio/admin/aprobar-cuentas', label: 'Aprobar Cuentas', icon: UserCheck },
-        { to: '/changelog', label: 'Registro de Cambios', icon: FileText },
         { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
-        { to: '/escritorio/admin/logs', label: 'Logs', icon: Activity },
+        { to: '/changelog', label: 'Registro de Cambios', icon: FileText },
     ];
 
     const navItems = getNavItems();
@@ -275,7 +276,7 @@ const DashboardLayout: React.FC = () => {
                                         <div className="ml-4 space-y-0.5 border-l-2 border-border pl-2">
                                             {toolsItems.map((tool) => {
                                                 const ToolIcon = tool.icon;
-                                                const activeTool = isActiveLink(tool.to, false);
+                                                const isActiveTool = isActiveLink(tool.to, false);
 
                                                 return (
                                                     <Link
@@ -283,7 +284,7 @@ const DashboardLayout: React.FC = () => {
                                                         to={tool.to}
                                                         className={cn(
                                                             "flex items-center rounded-lg text-xs font-medium transition-all px-2 py-1.5 gap-2",
-                                                            activeTool
+                                                            isActiveTool
                                                                 ? "bg-accent text-accent-foreground"
                                                                 : "text-muted-foreground hover:bg-accent hover:text-foreground"
                                                         )}

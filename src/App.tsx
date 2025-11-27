@@ -174,12 +174,13 @@ function App(): React.JSX.Element {
                 <Route index element={<DashboardSidebarPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
-                <Route path="aplicacion" element={<Application />} />
-                <Route path="aplicacion/:id" element={<Application />} />
+                {/* Enhanced Application - New Multi-Step Form (now at /aplicacion for GTM/FB tracking) */}
+                <Route path="aplicacion" element={<EnhancedApplication />} />
+                <Route path="aplicacion/:id" element={<EnhancedApplication />} />
                 <Route path="aplicacion/:id/confirmacion" element={<ApplicationConfirmationPage />} />
-                {/* Enhanced Application - New Multi-Step Form */}
-                <Route path="nueva-solicitud" element={<EnhancedApplication />} />
-                <Route path="nueva-solicitud/:id" element={<EnhancedApplication />} />
+                {/* Legacy Application Form (moved to /nueva-solicitud) */}
+                <Route path="nueva-solicitud" element={<Application />} />
+                <Route path="nueva-solicitud/:id" element={<Application />} />
                 <Route path="seguimiento" element={<SeguimientoPage />} />
                 <Route path="seguimiento/:id" element={<SeguimientoPage />} />
                 <Route path="favoritos" element={<FavoritesPage />} />

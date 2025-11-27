@@ -237,7 +237,7 @@ const Application: React.FC = () => {
                         setApplicationId(newDraft.id);
 
                         // Navigate to the new URL (this will trigger the effect to reload the full draft)
-                        navigate(`/escritorio/aplicacion/${newDraft.id}`, { replace: true });
+                        navigate(`/escritorio/nueva-solicitud/${newDraft.id}`, { replace: true });
                     } else {
                         throw new Error('No pudimos crear el borrador de tu solicitud. Por favor, intenta nuevamente. Si el problema persiste, contacta con soporte.');
                     }

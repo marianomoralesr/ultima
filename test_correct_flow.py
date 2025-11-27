@@ -213,6 +213,7 @@ def complete_application_automatically(page):
     """
     Completar la aplicación sin manipular URLs
     Dejar que la app redirija automáticamente
+    Mejorado: Llena TODOS los campos, maneja múltiples opciones y errores
     """
     print("\n📝 COMPLETANDO APLICACIÓN (SIN MANIPULAR URL)")
 
@@ -220,102 +221,228 @@ def complete_application_automatically(page):
     print(f"   📍 URL inicial: {current_url}")
     take_screenshot(page, "07_application_start")
 
-    max_steps = 10
+    max_steps = 15
+    max_retries_per_step = 3
+
     for step in range(max_steps):
         print(f"\n   → Paso {step + 1}")
 
-        # Llenar campos visibles
-        try:
-            inputs = page.locator('input[type="text"]:visible, input[type="tel"]:visible, input[type="email"]:visible').all()
-            for input_field in inputs[:10]:
-                try:
-                    if not input_field.is_visible():
+        for retry in range(max_retries_per_step):
+            if retry > 0:
+                print(f"   ⚠️  Reintento {retry + 1}/{max_retries_per_step}")
+
+            # 1. LLENAR TODOS LOS INPUTS DE TEXTO
+            try:
+                all_inputs = page.locator('input:visible').all()
+                print(f"   → Encontrados {len(all_inputs)} inputs visibles")
+
+                for idx, input_field in enumerate(all_inputs):
+                    try:
+                        if not input_field.is_visible():
+                            continue
+
+                        # Verificar si ya tiene valor
+                        current_value = input_field.input_value()
+                        if current_value and len(current_value) > 0:
+                            continue
+
+                        input_type = input_field.get_attribute('type') or 'text'
+                        placeholder = input_field.get_attribute('placeholder') or ''
+                        name = input_field.get_attribute('name') or ''
+                        id_attr = input_field.get_attribute('id') or ''
+
+                        print(f"   → Llenando input {idx + 1}: type={input_type}, name={name}, placeholder={placeholder[:30]}")
+
+                        # Determinar valor basado en contexto
+                        if input_type in ['radio', 'checkbox']:
+                            continue  # Manejado más abajo
+                        elif input_type == 'tel' or 'tel' in name.lower() or 'teléfono' in placeholder.lower() or 'phone' in name.lower():
+                            input_field.fill('8112345678')
+                        elif input_type == 'email' or 'email' in name.lower() or 'correo' in placeholder.lower():
+                            input_field.fill('test@example.com')
+                        elif 'nombre' in placeholder.lower() or 'nombre' in name.lower():
+                            if 'completo' in placeholder.lower() or 'completo' in name.lower():
+                                input_field.fill('Juan Pérez García')
+                            else:
+                                input_field.fill('Juan')
+                        elif 'apellido' in placeholder.lower() or 'apellido' in name.lower():
+                            input_field.fill('Pérez García')
+                        elif 'rfc' in name.lower() or 'rfc' in placeholder.lower():
+                            input_field.fill('PEGJ900101XXX')
+                        elif 'curp' in name.lower() or 'curp' in placeholder.lower():
+                            input_field.fill('PEGJ900101HNLRRN09')
+                        elif 'calle' in placeholder.lower() or 'calle' in name.lower():
+                            input_field.fill('Av. Insurgentes')
+                        elif 'número' in placeholder.lower() or 'numero' in placeholder.lower():
+                            input_field.fill('123')
+                        elif 'colonia' in placeholder.lower() or 'colonia' in name.lower():
+                            input_field.fill('Centro')
+                        elif 'ciudad' in placeholder.lower() or 'ciudad' in name.lower():
+                            input_field.fill('Monterrey')
+                        elif 'estado' in placeholder.lower() or 'estado' in name.lower():
+                            input_field.fill('Nuevo León')
+                        elif 'cp' in name.lower() or 'postal' in placeholder.lower() or 'código' in placeholder.lower():
+                            input_field.fill('64000')
+                        elif input_type == 'number' or 'monto' in placeholder.lower() or 'cantidad' in placeholder.lower():
+                            input_field.fill('100000')
+                        elif 'fecha' in placeholder.lower() or 'date' in input_type:
+                            input_field.fill('01/01/1990')
+                        else:
+                            input_field.fill('Valor de prueba')
+
+                        time.sleep(0.1)
+                    except Exception as e:
+                        print(f"   ⚠️  Error llenando input {idx + 1}: {str(e)[:50]}")
                         continue
+            except Exception as e:
+                print(f"   ⚠️  Error en inputs: {str(e)[:50]}")
 
-                    placeholder = input_field.get_attribute('placeholder') or ''
-                    name = input_field.get_attribute('name') or ''
+            # 2. SELECCIONAR TODAS LAS OPCIONES DE SELECT/DROPDOWN
+            try:
+                selects = page.locator('select:visible').all()
+                print(f"   → Encontrados {len(selects)} selects visibles")
 
-                    if 'tel' in name.lower() or 'teléfono' in placeholder.lower():
-                        input_field.fill('8112345678')
-                    elif 'email' in name.lower() or 'correo' in placeholder.lower():
-                        input_field.fill('test@example.com')
-                    elif 'nombre' in placeholder.lower():
-                        input_field.fill('Juan Pérez García')
-                    elif 'rfc' in name.lower():
-                        input_field.fill('PEGJ900101XXX')
-                    else:
-                        input_field.fill('Valor de prueba')
+                for idx, sel in enumerate(selects):
+                    try:
+                        if not sel.is_visible():
+                            continue
 
-                    time.sleep(0.2)
-                except:
-                    continue
-        except:
-            pass
-
-        # Seleccionar opciones de select
-        try:
-            selects = page.locator('select:visible').all()
-            for sel in selects[:5]:
-                try:
-                    if sel.is_visible():
                         options = sel.locator('option').all()
                         if len(options) > 1:
+                            # Seleccionar la primera opción válida (no placeholder)
                             sel.select_option(index=1)
-                            time.sleep(0.2)
-                except:
-                    continue
-        except:
-            pass
+                            selected = sel.input_value()
+                            print(f"   → Select {idx + 1}: seleccionado opción con valor={selected}")
+                            time.sleep(0.1)
+                    except Exception as e:
+                        print(f"   ⚠️  Error en select {idx + 1}: {str(e)[:50]}")
+                        continue
+            except Exception as e:
+                print(f"   ⚠️  Error en selects: {str(e)[:50]}")
 
-        # Hacer clic en radio buttons
-        try:
-            radios = page.locator('button[type="button"]:visible').all()
-            if len(radios) > 0:
-                try:
-                    radios[0].click()
-                    time.sleep(0.3)
-                except:
-                    pass
-        except:
-            pass
-
-        take_screenshot(page, f"08_step_{step + 1}")
-
-        # Buscar botón "Siguiente" o "Enviar"
-        next_buttons = [
-            'button:has-text("Siguiente")',
-            'button:has-text("Continuar")',
-            'button:has-text("Enviar Solicitud")',
-            'button:has-text("Enviar")',
-            'button[type="submit"]:has-text("Enviar")'
-        ]
-
-        found_button = False
-        for selector in next_buttons:
+            # 3. HACER CLIC EN RADIO BUTTONS Y OPCIONES MÚLTIPLES
             try:
-                btn = page.locator(selector).first
-                if btn.is_visible(timeout=2000) and not btn.is_disabled():
-                    print(f"   → Haciendo clic en: {selector}")
-                    btn.click()
-                    page.wait_for_load_state('networkidle')
-                    time.sleep(3)
-                    found_button = True
+                # Buscar grupos de radio buttons por nombre
+                radio_groups = {}
+                radios = page.locator('input[type="radio"]:visible').all()
+                print(f"   → Encontrados {len(radios)} radio buttons")
 
-                    current_url = page.url
-                    print(f"   📍 URL actual: {current_url}")
+                for radio in radios:
+                    try:
+                        name = radio.get_attribute('name')
+                        if name:
+                            if name not in radio_groups:
+                                radio_groups[name] = []
+                            radio_groups[name].append(radio)
+                    except:
+                        continue
 
-                    # Verificar si llegamos a confirmación
-                    if '/confirmacion' in current_url:
-                        print("\n   🎉 ¡LLEGAMOS A CONFIRMACIÓN!")
-                        take_screenshot(page, "09_confirmation")
-                        return True
+                # Seleccionar primera opción de cada grupo
+                for group_name, group_radios in radio_groups.items():
+                    try:
+                        if len(group_radios) > 0:
+                            group_radios[0].check()
+                            print(f"   → Radio group '{group_name}': seleccionada primera opción")
+                            time.sleep(0.1)
+                    except:
+                        continue
 
-                    break
-            except:
-                continue
+                # Buscar botones tipo radio (button[type="button"] que funcionan como radio)
+                button_radios = page.locator('button[type="button"]:visible, button[role="radio"]:visible').all()
+                print(f"   → Encontrados {len(button_radios)} button-radios")
 
-        if not found_button:
-            print("   ℹ️  No se encontró botón siguiente, fin del formulario")
+                for idx, btn in enumerate(button_radios):
+                    try:
+                        aria_checked = btn.get_attribute('aria-checked')
+                        if aria_checked != 'true':  # Si no está seleccionado
+                            btn.click()
+                            print(f"   → Button-radio {idx + 1}: clicked")
+                            time.sleep(0.1)
+                            break  # Solo uno por grupo
+                    except:
+                        continue
+            except Exception as e:
+                print(f"   ⚠️  Error en radios: {str(e)[:50]}")
+
+            # 4. CHECKBOXES
+            try:
+                checkboxes = page.locator('input[type="checkbox"]:visible').all()
+                print(f"   → Encontrados {len(checkboxes)} checkboxes")
+
+                for idx, cb in enumerate(checkboxes):
+                    try:
+                        if not cb.is_checked():
+                            cb.check()
+                            print(f"   → Checkbox {idx + 1}: checked")
+                            time.sleep(0.1)
+                    except:
+                        continue
+            except Exception as e:
+                print(f"   ⚠️  Error en checkboxes: {str(e)[:50]}")
+
+            time.sleep(0.5)
+            take_screenshot(page, f"08_step_{step + 1}_attempt_{retry + 1}")
+
+            # 5. INTENTAR HACER CLIC EN "SIGUIENTE"
+            next_buttons = [
+                'button:has-text("Siguiente")',
+                'button:has-text("Continuar")',
+                'button:has-text("Guardar y continuar")',
+                'button:has-text("Enviar Solicitud")',
+                'button:has-text("Enviar")',
+                'button[type="submit"]:visible'
+            ]
+
+            button_clicked = False
+            for selector in next_buttons:
+                try:
+                    btn = page.locator(selector).first
+                    if btn.is_visible(timeout=2000) and not btn.is_disabled():
+                        print(f"   → Haciendo clic en: {selector}")
+                        btn.click()
+                        page.wait_for_load_state('networkidle')
+                        time.sleep(2)
+                        button_clicked = True
+
+                        current_url = page.url
+                        print(f"   📍 URL actual: {current_url}")
+
+                        # Verificar si hay errores
+                        error_messages = page.locator('.error, [class*="error"], [role="alert"]').all()
+                        if len(error_messages) > 0:
+                            print(f"   ⚠️  Detectados {len(error_messages)} errores en la página")
+                            for i, err in enumerate(error_messages[:3]):
+                                try:
+                                    text = err.text_content()
+                                    if text and len(text.strip()) > 0:
+                                        print(f"      Error {i + 1}: {text[:100]}")
+                                except:
+                                    pass
+                            # No romper el loop, volver a llenar
+                            break
+
+                        # Verificar si llegamos a confirmación
+                        if '/confirmacion' in current_url:
+                            print("\n   🎉 ¡LLEGAMOS A CONFIRMACIÓN!")
+                            take_screenshot(page, "09_confirmation")
+                            return True
+
+                        # Si avanzamos a nueva página, salir del retry loop
+                        return complete_application_automatically(page)  # Llamada recursiva para siguiente paso
+                except Exception as e:
+                    print(f"   ⚠️  Error con botón {selector}: {str(e)[:50]}")
+                    continue
+
+            if button_clicked:
+                break  # Salir del retry loop si clickeamos botón
+
+            if retry == max_retries_per_step - 1:
+                print("   ❌ No se pudo avanzar después de 3 intentos")
+                break
+
+        # Si no encontramos botón después de todos los reintentos
+        if not button_clicked:
+            print("   ℹ️  No se encontró botón siguiente")
             current_url = page.url
             if '/confirmacion' in current_url:
                 print("\n   🎉 ¡LLEGAMOS A CONFIRMACIÓN!")

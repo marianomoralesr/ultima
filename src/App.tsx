@@ -31,6 +31,7 @@ const EnhancedApplication = lazy(() => import('./components/application/Enhanced
 const ApplicationConfirmationPage = lazy(() => import('./pages/ApplicationConfirmationPage'));
 const UserApplicationsPage = lazy(() => import('./pages/UserApplicationsPage'));
 const SeguimientoPage = lazy(() => import('./pages/SeguimientoPage'));
+const SeguimientoDetailPage = lazy(() => import('./pages/SeguimientoDetailPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const PerfilacionBancariaPage = lazy(() => import('./pages/PerfilacionBancariaPage'));
@@ -182,7 +183,7 @@ function App(): React.JSX.Element {
                 <Route path="nueva-solicitud" element={<Application />} />
                 <Route path="nueva-solicitud/:id" element={<Application />} />
                 <Route path="seguimiento" element={<SeguimientoPage />} />
-                <Route path="seguimiento/:id" element={<SeguimientoPage />} />
+                <Route path="seguimiento/:id" element={<SeguimientoDetailPage />} />
                 <Route path="favoritos" element={<FavoritesPage />} />
                 <Route path="beta-v.0.1" element={<BetaPollPage />} />
                 <Route path="encuesta" element={<SurveyPage />} />

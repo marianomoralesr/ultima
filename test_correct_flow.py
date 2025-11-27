@@ -17,8 +17,11 @@ TEST_PASSWORD = "TestTrefa2024!"
 
 def take_screenshot(page, name):
     filename = f"correct_{name}.png"
-    page.screenshot(path=filename, full_page=True)
-    print(f"   📸 {filename}")
+    try:
+        page.screenshot(path=filename, timeout=10000)
+        print(f"   📸 {filename}")
+    except Exception as e:
+        print(f"   ⚠️  Error screenshot {filename}: {str(e)[:50]}")
 
 def hard_reset(page):
     """Limpieza completa"""

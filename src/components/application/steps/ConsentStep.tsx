@@ -5,6 +5,7 @@ import { Button } from '../../ui/button';
 import { CardContent } from '../../ui/card';
 import { Label } from '../../ui/label';
 import { Checkbox } from '../../ui/checkbox';
+import SignatureCanvas from '../SignatureCanvas';
 import type { StepperType } from '../EnhancedApplication';
 
 const declarations = [
@@ -81,6 +82,22 @@ const ConsentStep: React.FC<ConsentStepProps> = ({
         />
       </div>
 
+      {/* Digital Signature */}
+      <div className="bg-white rounded-xl p-6 border-2 border-primary-200">
+        <Controller
+          name="digital_signature"
+          control={control}
+          rules={{ required: 'La firma digital es obligatoria para enviar tu solicitud' }}
+          render={({ field }) => (
+            <SignatureCanvas
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.digital_signature?.message}
+            />
+          )}
+        />
+      </div>
+
       {/* Survey Consent (Optional) */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
         <Controller
@@ -110,7 +127,7 @@ const ConsentStep: React.FC<ConsentStepProps> = ({
       {/* Important Notice */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <p className="text-sm text-yellow-800">
-          <strong>Nota Importante:</strong> Al hacer clic en "Siguiente", confirmas que toda la información proporcionada es verídica y aceptas los términos mencionados anteriormente.
+          <strong>Nota Importante:</strong> Al hacer clic en "Siguiente", confirmas que toda la información proporcionada es verídica, aceptas los términos mencionados anteriormente y que tu firma digital tiene validez legal.
         </p>
       </div>
 

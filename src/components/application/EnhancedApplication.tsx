@@ -86,6 +86,7 @@ const baseApplicationSchema = z.object({
   terms_and_conditions: z.boolean().refine(val => val === true, {
     message: "Debes aceptar los términos y condiciones para continuar."
   }),
+  digital_signature: z.string().min(1, "La firma digital es obligatoria para enviar tu solicitud"),
   consent_survey: z.boolean().optional(),
   ordencompra: z.string().optional(),
 });
@@ -281,7 +282,7 @@ const EnhancedApplication: React.FC = () => {
       'employment': ['fiscal_classification', 'company_name', 'company_phone', 'supervisor_name', 'company_address', 'company_industry', 'job_title', 'job_seniority', 'net_monthly_income'],
       'additional-details': ['time_at_address', 'housing_type', 'dependents', 'grado_de_estudios'],
       'references': ['friend_reference_name', 'friend_reference_phone', 'friend_reference_relationship', 'family_reference_name', 'family_reference_phone', 'parentesco'],
-      'consent': ['terms_and_conditions'],
+      'consent': ['terms_and_conditions', 'digital_signature'],
       'review': []
     };
 
@@ -379,7 +380,7 @@ const EnhancedApplication: React.FC = () => {
         car_info: vehicleInfo,
         application_data: data,
         selected_banks: [recommendedBank],
-        status: 'pending_documents',
+        status: 'Faltan Documentos', // Changed from 'pending_documents' to match APPLICATION_STATUS.FALTAN_DOCUMENTOS
       };
 
       const updatedApp = await ApplicationService.updateApplication(applicationId, payload);

@@ -114,6 +114,33 @@ export const ApplicationService = {
       throw new Error('No se pudo enviar la solicitud.');
     }
 
+    // Enviar email si el status cambió
+    if (data && newStatus !== currentStatus) {
+      const notifiableStatuses = ['Faltan Documentos', 'Completa', 'En Revisión', 'Aprobada', 'Rechazada'];
+      if (notifiableStatuses.includes(newStatus)) {
+        try {
+          await supabase.functions.invoke('brevo-status-change-emails', {
+            body: {
+              record: {
+                id: data.id,
+                status: newStatus,
+                user_id: data.user_id,
+                car_info: data.car_info,
+                public_upload_token: data.public_upload_token,
+              },
+              old_record: {
+                status: currentStatus
+              }
+            }
+          });
+          console.log(`Email enviado para status change: ${currentStatus} → ${newStatus}`);
+        } catch (emailError) {
+          console.error('Error enviando email de status change:', emailError);
+          // No fallar la operación si el email falla
+        }
+      }
+    }
+
     return data;
   },
 
@@ -148,7 +175,7 @@ export const ApplicationService = {
   async updateApplicationStatus(applicationId: string, status: string) {
     const { data: current, error: readErr } = await supabase
       .from('financing_applications')
-      .select('status')
+      .select('status, user_id, car_info, public_upload_token')
       .eq('id', applicationId)
       .maybeSingle();
 
@@ -158,6 +185,8 @@ export const ApplicationService = {
     }
     if (!current || current.status === status) return;
 
+    const oldStatus = current.status;
+
     const { error } = await supabase
       .from('financing_applications')
       .update({ status })
@@ -166,6 +195,31 @@ export const ApplicationService = {
     if (error) {
       console.error('Error updating application status:', error.message, { code: error.code, details: error.details });
       throw new Error('Could not update application status.');
+    }
+
+    // Enviar email automáticamente cuando el status cambia a ciertos valores
+    const notifiableStatuses = ['Faltan Documentos', 'Completa', 'En Revisión', 'Aprobada', 'Rechazada'];
+    if (notifiableStatuses.includes(status) && oldStatus !== status) {
+      try {
+        await supabase.functions.invoke('brevo-status-change-emails', {
+          body: {
+            record: {
+              id: applicationId,
+              status: status,
+              user_id: current.user_id,
+              car_info: current.car_info,
+              public_upload_token: current.public_upload_token,
+            },
+            old_record: {
+              status: oldStatus
+            }
+          }
+        });
+        console.log(`Email enviado para status change: ${oldStatus} → ${status}`);
+      } catch (emailError) {
+        console.error('Error enviando email de status change:', emailError);
+        // No fallar la operación si el email falla
+      }
     }
   },
 

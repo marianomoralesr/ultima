@@ -26,7 +26,16 @@ import {
     Camera,
     ClipboardCheck,
     UserCheck,
-    Activity
+    Activity,
+    LayoutList,
+    Megaphone,
+    Image,
+    Facebook,
+    BarChart2,
+    FileBarChart,
+    ScrollText,
+    Upload,
+    Smartphone
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -50,6 +59,7 @@ const DashboardLayout: React.FC = () => {
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true); // Default abierta
     const [isToolsExpanded, setIsToolsExpanded] = useState(false); // Dropdown de Herramientas
+    const [isOtherPagesExpanded, setIsOtherPagesExpanded] = useState(false); // Dropdown de Otras Páginas
 
     // Toggle sidebar manually
     const toggleSidebar = () => {
@@ -91,6 +101,24 @@ const DashboardLayout: React.FC = () => {
         { to: '/escritorio/marketing/homepage-editor', label: 'Editor de Página de Inicio', icon: Home },
         { to: '/escritorio/admin/valuation', label: 'Valuación', icon: TrendingUp },
         { to: '/changelog', label: 'Registro de Cambios', icon: FileText },
+    ];
+
+    const otherPagesItems = [
+        { to: '/escritorio/admin/crm', label: 'CRM Unificado', icon: Users },
+        { to: '/escritorio/admin/solicitudes', label: 'Analytics de Solicitudes', icon: FileBarChart },
+        { to: '/escritorio/admin/documentos-analytics', label: 'Analytics de Documentos', icon: Upload },
+        { to: '/escritorio/admin/facebook-catalogue', label: 'Catálogo de Facebook', icon: Facebook },
+        { to: '/escritorio/admin/tracking-analytics', label: 'Analytics de Tracking', icon: Activity },
+        { to: '/escritorio/admin/marketing-config', label: 'Config de Marketing', icon: Settings },
+        { to: '/escritorio/admin/r2-images', label: 'Gestor de Imágenes R2', icon: Image },
+        { to: '/escritorio/admin/logs', label: 'Logs del Sistema', icon: ScrollText },
+        { to: '/escritorio/admin/config', label: 'Configuración Admin', icon: Settings },
+        { to: '/escritorio/admin/airtable', label: 'Config de Airtable', icon: Database },
+        { to: '/escritorio/admin/inspections', label: 'Inspecciones', icon: ClipboardCheck },
+        { to: '/escritorio/aplicacion', label: 'Aplicación de Financiamiento', icon: FileText },
+        { to: '/escritorio/seguimiento', label: 'Seguimiento de Solicitudes', icon: LayoutList },
+        { to: '/escritorio/profile', label: 'Perfil de Usuario', icon: UserCheck },
+        { to: '/escritorio/ejemplo', label: 'Dashboard Ejemplo', icon: Smartphone },
     ];
 
     const navItems = getNavItems();
@@ -324,6 +352,61 @@ const DashboardLayout: React.FC = () => {
                                     )}
                                 </div>
                             )}
+
+                            {/* Otras Páginas Dropdown (solo para admin) */}
+                            {isAdmin && (
+                                <div className="space-y-0.5">
+                                    <button
+                                        onClick={() => setIsOtherPagesExpanded(!isOtherPagesExpanded)}
+                                        className={cn(
+                                            "w-full flex items-center rounded-lg text-xs font-medium transition-all",
+                                            isSidebarExpanded ? "px-2.5 py-2 gap-2.5 justify-start" : "justify-center py-2",
+                                            isSidebarExpanded
+                                                ? "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                                : "text-muted-foreground hover:bg-accent"
+                                        )}
+                                        title={!isSidebarExpanded ? "Otras Páginas" : undefined}
+                                    >
+                                        <LayoutList className="h-4 w-4 shrink-0" />
+                                        {isSidebarExpanded && (
+                                            <>
+                                                <span className="whitespace-nowrap truncate flex-1 text-left">Otras Páginas</span>
+                                                {isOtherPagesExpanded ? (
+                                                    <ChevronUp className="h-3 w-3 shrink-0" />
+                                                ) : (
+                                                    <ChevronDown className="h-3 w-3 shrink-0" />
+                                                )}
+                                            </>
+                                        )}
+                                    </button>
+
+                                    {/* Submenu de Otras Páginas */}
+                                    {isOtherPagesExpanded && isSidebarExpanded && (
+                                        <div className="ml-4 space-y-0.5 border-l-2 border-border pl-2 max-h-64 overflow-y-auto">
+                                            {otherPagesItems.map((page) => {
+                                                const PageIcon = page.icon;
+                                                const isActivePage = isActiveLink(page.to, false);
+
+                                                return (
+                                                    <Link
+                                                        key={page.to}
+                                                        to={page.to}
+                                                        className={cn(
+                                                            "flex items-center rounded-lg text-xs font-medium transition-all px-2 py-1.5 gap-2",
+                                                            isActivePage
+                                                                ? "bg-accent text-accent-foreground"
+                                                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                                        )}
+                                                    >
+                                                        <PageIcon className="h-3.5 w-3.5 shrink-0" />
+                                                        <span className="whitespace-nowrap truncate text-[11px]">{page.label}</span>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <Separator className={cn(!isSidebarExpanded && isAdmin ? "bg-white/20" : "")} />
@@ -517,6 +600,83 @@ const DashboardLayout: React.FC = () => {
                                         </Link>
                                     );
                                 })}
+
+                                {/* Portal Bancario (mobile - solo admin) */}
+                                {isAdmin && (
+                                    <Link
+                                        to={portalBancarioItem.to}
+                                        onClick={() => setIsMobileSidebarOpen(false)}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                            isActiveLink(portalBancarioItem.to)
+                                                ? "bg-accent text-accent-foreground"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        )}
+                                    >
+                                        <Building2 className="h-4 w-4" />
+                                        {portalBancarioItem.label}
+                                    </Link>
+                                )}
+
+                                {/* Herramientas (mobile - solo admin) */}
+                                {isAdmin && (
+                                    <>
+                                        <div className="pt-2 pb-1 px-3">
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Herramientas</p>
+                                        </div>
+                                        {toolsItems.map((tool) => {
+                                            const ToolIcon = tool.icon;
+                                            const isActiveTool = isActiveLink(tool.to, false);
+
+                                            return (
+                                                <Link
+                                                    key={tool.to}
+                                                    to={tool.to}
+                                                    onClick={() => setIsMobileSidebarOpen(false)}
+                                                    className={cn(
+                                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                                        isActiveTool
+                                                            ? "bg-accent text-accent-foreground"
+                                                            : "text-muted-foreground hover:text-foreground"
+                                                    )}
+                                                >
+                                                    <ToolIcon className="h-4 w-4" />
+                                                    {tool.label}
+                                                </Link>
+                                            );
+                                        })}
+                                    </>
+                                )}
+
+                                {/* Otras Páginas (mobile - solo admin) */}
+                                {isAdmin && (
+                                    <>
+                                        <div className="pt-2 pb-1 px-3">
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Otras Páginas</p>
+                                        </div>
+                                        {otherPagesItems.map((page) => {
+                                            const PageIcon = page.icon;
+                                            const isActivePage = isActiveLink(page.to, false);
+
+                                            return (
+                                                <Link
+                                                    key={page.to}
+                                                    to={page.to}
+                                                    onClick={() => setIsMobileSidebarOpen(false)}
+                                                    className={cn(
+                                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
+                                                        isActivePage
+                                                            ? "bg-accent text-accent-foreground"
+                                                            : "text-muted-foreground hover:text-foreground"
+                                                    )}
+                                                >
+                                                    <PageIcon className="h-4 w-4" />
+                                                    {page.label}
+                                                </Link>
+                                            );
+                                        })}
+                                    </>
+                                )}
                             </div>
 
                             <Separator />

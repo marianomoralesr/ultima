@@ -12,7 +12,7 @@ const PublicUploadLinkCard: React.FC<PublicUploadLinkCardProps> = ({ token, comp
   const [showQR, setShowQR] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
-  const publicUrl = `${window.location.origin}/documentos/${token}`;
+  const publicUrl = `https://trefa.mx/documentos/${token}`;
 
   const handleCopy = async () => {
     try {

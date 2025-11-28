@@ -142,7 +142,7 @@ const ApplicationConfirmationPage: React.FC = () => {
   }, [id, user?.id, isFirstSubmit, navigate, location.state]);
 
   const publicUrl = application?.public_upload_token
-    ? `${window.location.origin}/documentos/${application.public_upload_token}`
+    ? `https://trefa.mx/documentos/${application.public_upload_token}`
     : null;
 
   const handleCopyLink = () => {
@@ -181,10 +181,10 @@ const ApplicationConfirmationPage: React.FC = () => {
   const vehicleInfo = application.car_info;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-3 sm:py-6 md:py-8 px-2 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         {/* Success Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 mb-4 sm:mb-6 text-center">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 md:p-8 mb-3 sm:mb-4 md:mb-6 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full mb-3 sm:mb-4">
             <CheckCircle className="w-7 h-7 sm:w-10 sm:h-10 text-green-600" />
           </div>
@@ -198,11 +198,11 @@ const ApplicationConfirmationPage: React.FC = () => {
 
         {/* Vehicle Info */}
         {vehicleInfo?._vehicleTitle && (
-          <Card className="mb-4 sm:mb-6">
-            <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Vehículo de Interés</CardTitle>
+          <Card className="mb-3 sm:mb-4 md:mb-6">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="text-sm sm:text-base md:text-lg">Vehículo de Interés</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
               <div className="flex items-center gap-3 sm:gap-4">
                 <img
                   src={vehicleInfo._featureImage}
@@ -221,14 +221,14 @@ const ApplicationConfirmationPage: React.FC = () => {
         )}
 
         {/* Next Steps */}
-        <Card className="mb-4 sm:mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+        <Card className="mb-3 sm:mb-4 md:mb-6">
+          <CardHeader className="p-3 sm:p-4 md:p-6">
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base md:text-lg">
               <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
               Próximos Pasos
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 sm:space-y-5">
+          <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3 sm:space-y-4 md:space-y-5">
             <div className="flex gap-3">
               <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary-100 text-primary-600 font-bold flex items-center justify-center text-xs sm:text-sm">
                 1
@@ -275,14 +275,14 @@ const ApplicationConfirmationPage: React.FC = () => {
 
         {/* Document Upload Section */}
         {publicUrl && (
-          <Card className="mb-4 sm:mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Card className="mb-3 sm:mb-4 md:mb-6">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base md:text-lg">
                 <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
                 Liga para Carga de Documentos
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3 sm:space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
                 <p className="text-xs sm:text-sm text-blue-900 mb-2 sm:mb-3">
                   <strong>📧 Te enviamos esta liga por correo electrónico</strong>
@@ -337,7 +337,7 @@ const ApplicationConfirmationPage: React.FC = () => {
         )}
 
         {/* Single Call to Action */}
-        <div className="mt-2 sm:mt-4">
+        <div className="mt-3 sm:mt-4">
           <Link
             to={`/escritorio/seguimiento/${id}`}
             className="block w-full"

@@ -69,24 +69,24 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
     return (
         <>
             {/* --- ON-SCREEN VIEW --- */}
-            <div className="space-y-4 sm:space-y-6 no-print">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 no-print">
                 {/* Status Header - BIG AND BOLD */}
                 <Card className={`${bgColor} border-none shadow-lg`}>
-                    <CardContent className="p-6 sm:p-8 text-center">
+                    <CardContent className="p-4 sm:p-6 md:p-8 text-center">
                         <Icon className={`w-16 h-16 sm:w-20 sm:h-20 ${color} mx-auto mb-3 sm:mb-4`} />
                         <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black ${color} mb-1 sm:mb-2`}>{text}</h1>
                         <p className="text-base sm:text-lg text-gray-600">Solicitud #{application.id.substring(0, 8)}</p>
                     </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                    <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-6">
                         {/* Next Steps / Summary */}
                         <Card>
-                            <CardHeader>
-                                <h3 className="text-lg sm:text-xl font-bold text-gray-900">Resumen y Próximos Pasos</h3>
+                            <CardHeader className="p-3 sm:p-4 md:p-6">
+                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Resumen y Próximos Pasos</h3>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                                 <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{getStatusDescription()}</p>
                             </CardContent>
                         </Card>
@@ -94,13 +94,13 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
                         {/* Vehicle Info */}
                         {carInfo._vehicleTitle && (
                             <Card>
-                                <CardHeader>
-                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <CardHeader className="p-3 sm:p-4 md:p-6">
+                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
                                         <Car className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
                                         Vehículo en tu Solicitud
                                     </h3>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                                     <div className="flex items-center gap-3 sm:gap-4">
                                         <img src={carInfo._featureImage} alt={carInfo._vehicleTitle} className="w-24 h-18 sm:w-32 sm:h-24 object-cover rounded-lg flex-shrink-0 shadow-sm" />
                                         <div>
@@ -117,13 +117,13 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
 
                         {/* Document Upload Instructions & Widget */}
                         <Card className="border-2 border-primary-200 bg-primary-50/30">
-                            <CardHeader>
-                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                            <CardHeader className="p-3 sm:p-4 md:p-6">
+                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
                                     <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" />
                                     Carga de Documentos
                                 </h3>
                             </CardHeader>
-                            <CardContent className="space-y-3 sm:space-y-4">
+                            <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3 sm:space-y-4">
                                 <div className="bg-white rounded-lg p-3 sm:p-4 border border-primary-200">
                                     <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Documentos Requeridos:</h4>
                                     <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
@@ -157,8 +157,8 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
 
                         {/* Printable Application Preview - Open on Page Load */}
                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <h3 className="text-base sm:text-xl font-bold text-gray-900">Vista Previa de tu Solicitud</h3>
+                            <CardHeader className="flex flex-row items-center justify-between p-3 sm:p-4 md:p-6">
+                                <h3 className="text-sm sm:text-base md:text-xl font-bold text-gray-900">Vista Previa de tu Solicitud</h3>
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -170,7 +170,7 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
                                 </Button>
                             </CardHeader>
                             {showPrintablePreview && (
-                                <CardContent>
+                                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                                     <div className="border-2 border-gray-200 rounded-lg p-2 sm:p-4 bg-white max-h-[600px] sm:max-h-[800px] overflow-y-auto">
                                         <PrintableApplication application={application} />
                                     </div>
@@ -179,17 +179,17 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
                         </Card>
                     </div>
 
-                    <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-24">
+                    <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:sticky lg:top-24">
                         {/* Assigned Advisor Card */}
                         {profile.asesor_asignado_name && (
                             <Card className="bg-blue-50 border-blue-200">
-                                <CardHeader>
-                                    <h3 className="text-base sm:text-lg font-bold text-blue-900 flex items-center gap-2">
+                                <CardHeader className="p-3 sm:p-4 md:p-6">
+                                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-blue-900 flex items-center gap-2">
                                         <User className="w-4 h-4 sm:w-5 sm:h-5" />
                                         Tu Asesor Asignado
                                     </h3>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
                                             <User className="w-6 h-6 text-blue-700" />
@@ -204,10 +204,10 @@ const ApplicationDetailView: React.FC<{ application: ApplicationData }> = ({ app
                         )}
 
                         <Card>
-                            <CardHeader>
-                                <h3 className="text-base sm:text-lg font-bold text-gray-900">Acciones</h3>
+                            <CardHeader className="p-3 sm:p-4 md:p-6">
+                                <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900">Acciones</h3>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3">
                                 <a href={`https://wa.me/5218187049079?text=Hola,%20quisiera%20dar%20seguimiento%20a%20mi%20solicitud%20${application.id.substring(0,8)}`}
                                 target="_blank" rel="noopener noreferrer"
                                 className="w-full flex items-center justify-center gap-2 px-4 py-3 min-h-[48px] bg-green-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-sm hover:shadow-md touch-manipulation">
@@ -293,8 +293,8 @@ const SeguimientoPage: React.FC = () => {
   const currentApplication = applicationIdFromUrl ? applications.find(a => a.id === applicationIdFromUrl) : null;
 
   return (
-      <div className="max-w-7xl mx-auto">
-          <div className="space-y-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          <div className="space-y-4 sm:space-y-6 md:space-y-8">
           {applicationIdFromUrl ? (
               <div>
                   <Link to="/escritorio/seguimiento" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 font-semibold no-print">
@@ -332,8 +332,8 @@ const SeguimientoPage: React.FC = () => {
                         {/* Borradores Section */}
                         {drafts.length > 0 && (
                           <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Borradores</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Borradores</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                               {drafts.map(app => {
                                 const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.DRAFT];
                                 return (
@@ -387,8 +387,8 @@ const SeguimientoPage: React.FC = () => {
                         {/* Solicitudes Enviadas Section */}
                         {submitted.length > 0 && (
                           <div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">Solicitudes Enviadas</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Solicitudes Enviadas</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                               {submitted.map(app => {
                                 const status = statusMap[app.status] || statusMap[APPLICATION_STATUS.FALTAN_DOCUMENTOS];
                                 return (

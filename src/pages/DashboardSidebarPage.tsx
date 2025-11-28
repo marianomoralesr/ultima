@@ -187,8 +187,7 @@ const DashboardSidebarPage: React.FC = () => {
 
         // Generar link público
         if (latestApp.public_upload_token) {
-          const baseUrl = window.location.origin;
-          setPublicUploadLink(`${baseUrl}/documentos/${latestApp.public_upload_token}`);
+          setPublicUploadLink(`https://trefa.mx/documentos/${latestApp.public_upload_token}`);
         }
       }
 
@@ -376,9 +375,9 @@ const DashboardSidebarPage: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
-        <header className="bg-background border-b px-4 py-3">
+        <header className="bg-background border-b px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">
+            <h1 className="text-lg sm:text-xl font-semibold">
               Panel de Control
             </h1>
             <div className="flex items-center gap-3">
@@ -391,8 +390,8 @@ const DashboardSidebarPage: React.FC = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto bg-gray-50">
-          <div className="space-y-4 sm:space-y-6">
+        <main className="flex-1 px-2 py-3 sm:p-4 md:p-6 overflow-y-auto bg-gray-50">
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
             {/* Limit Warning */}
             {stats.enviadas > 1 && (
               <Card className="border-2 border-yellow-500 bg-yellow-50">
@@ -413,14 +412,14 @@ const DashboardSidebarPage: React.FC = () => {
             )}
 
             {/* Stats Cards Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
               {/* Borradores - Clickable */}
               <div
                 className="cursor-pointer touch-manipulation"
                 onClick={() => setShowDrafts(!showDrafts)}
               >
                 <Card className="hover:shadow-md transition-all hover:scale-[1.02]">
-                  <CardContent className="p-3 sm:p-4">
+                  <CardContent className="p-2.5 sm:p-3 md:p-4">
                     <div className="text-center">
                       <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-gray-600 mx-auto mb-1 sm:mb-2" />
                       <p className="text-xs sm:text-sm text-gray-600 font-medium">Borradores</p>
@@ -441,7 +440,7 @@ const DashboardSidebarPage: React.FC = () => {
                 onClick={() => setShowSubmitted(!showSubmitted)}
               >
                 <Card className="hover:shadow-md transition-all hover:scale-[1.02]">
-                  <CardContent className="p-3 sm:p-4">
+                  <CardContent className="p-2.5 sm:p-3 md:p-4">
                     <div className="text-center">
                       <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mx-auto mb-1 sm:mb-2" />
                       <p className="text-xs sm:text-sm text-gray-600 font-medium">Enviadas</p>
@@ -458,7 +457,7 @@ const DashboardSidebarPage: React.FC = () => {
 
               {/* Docs Pendientes */}
               <Card className={`${docsComplete ? 'bg-green-50 border-green-200' : ''}`}>
-                <CardContent className="p-3 sm:p-4">
+                <CardContent className="p-2.5 sm:p-3 md:p-4">
                   <div className="text-center">
                     {docsComplete ? (
                       <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 mx-auto mb-1 sm:mb-2" />
@@ -475,7 +474,7 @@ const DashboardSidebarPage: React.FC = () => {
 
               {/* Estado de Solicitud */}
               <Card className={statusConfig.bgColor}>
-                <CardContent className="p-3 sm:p-4">
+                <CardContent className="p-2.5 sm:p-3 md:p-4">
                   <div className="text-center">
                     <MapPin className={`w-6 h-6 sm:w-8 sm:h-8 ${statusConfig.textColor} mx-auto mb-1 sm:mb-2`} />
                     <p className={`text-xs sm:text-sm ${statusConfig.textColor} opacity-90 font-medium`}>Estado</p>
@@ -556,7 +555,7 @@ const DashboardSidebarPage: React.FC = () => {
 
             {/* Progress Bar with Motivational Message */}
             <Card>
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-3 sm:p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-2 sm:gap-4 mb-4">
                   <div className="flex-1">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
@@ -575,13 +574,13 @@ const DashboardSidebarPage: React.FC = () => {
             </Card>
 
             {/* Action Cards Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
               {/* Mi Perfil con check sutil */}
               <Link to="/escritorio/profile" className="touch-manipulation">
                 <Card className={`hover:shadow-md transition-all hover:scale-[1.02] h-full ${
                   stats.profileComplete ? 'border-green-200 bg-green-50' : ''
                 }`}>
-                  <CardContent className="p-4 sm:p-6">
+                  <CardContent className="p-3 sm:p-4 md:p-6">
                     <div className="flex items-center gap-3">
                       {stats.profileComplete ? (
                         <div className="relative flex-shrink-0">
@@ -607,7 +606,7 @@ const DashboardSidebarPage: React.FC = () => {
                 <Card className={`hover:shadow-md transition-all hover:scale-[1.02] h-full ${
                   stats.bankProfileComplete ? 'border-green-200 bg-green-50' : ''
                 }`}>
-                  <CardContent className="p-4 sm:p-6">
+                  <CardContent className="p-3 sm:p-4 md:p-6">
                     <div className="flex items-center gap-3">
                       {stats.bankProfileComplete ? (
                         <div className="relative flex-shrink-0">
@@ -632,7 +631,7 @@ const DashboardSidebarPage: React.FC = () => {
               {selectedVehicle ? (
                 <Link to={`/autos/${selectedVehicle.slug || selectedVehicle.id}`} className="touch-manipulation">
                   <Card className="hover:shadow-md transition-all hover:scale-[1.02] h-full">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3 sm:p-4">
                       <div className="flex items-center gap-3">
                         {selectedVehicle.feature_image || selectedVehicle.fotos_exterior_url?.[0] ? (
                           <img
@@ -657,7 +656,7 @@ const DashboardSidebarPage: React.FC = () => {
               ) : (
                 <Link to="/autos" className="touch-manipulation">
                   <Card className="border-2 border-dashed hover:border-primary-500 transition-colors cursor-pointer h-full">
-                    <CardContent className="p-6">
+                    <CardContent className="p-3 sm:p-4 md:p-6">
                       <div className="flex items-center gap-3">
                         <Car className="w-8 h-8 text-gray-400" />
                         <div>
@@ -754,7 +753,7 @@ const DashboardSidebarPage: React.FC = () => {
             {/* Dropzone Section with QR and Link */}
             {publicUploadLink && latestApplication && (
               <Card className="border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-4 md:p-6">
                   <div className="flex flex-col md:flex-row items-start gap-6">
                     {/* QR Code */}
                     <div className="flex-shrink-0 mx-auto md:mx-0">

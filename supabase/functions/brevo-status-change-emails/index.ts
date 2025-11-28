@@ -30,9 +30,9 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
   `;
 
   const logoUrl = `${SUPABASE_URL}/storage/v1/object/public/public-assets/logoblanco.png`;
-  const baseUrl = SUPABASE_URL.replace('.supabase.co', '');
-  const applicationUrl = `${baseUrl}/escritorio/mis-solicitudes`;
-  const profileUrl = `${baseUrl}/escritorio/perfil`;
+  const baseUrl = 'https://trefa.mx';
+  const applicationUrl = `${baseUrl}/escritorio/seguimiento`;
+  const profileUrl = `${baseUrl}/escritorio/profile`;
 
   // Generate upload link if token exists
   const uploadLink = data.publicUploadToken
@@ -248,7 +248,7 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 </div>
 
                 <div style="text-align: center; margin: 32px 0;">
-                  <a href="${baseUrl}/agendar-cita" class="button">📅 Agendar mi Cita</a>
+                  <a href="${baseUrl}/contacto" class="button">📅 Contactar para Agendar</a>
                 </div>
 
                 <p style="font-size: 16px; color: #374151; text-align: center; margin: 32px 0; line-height: 1.8;">
@@ -303,7 +303,7 @@ const getEmailTemplate = (status: string, data: Record<string, any>): { subject:
                 </div>
 
                 <div style="text-align: center; margin: 32px 0;">
-                  <a href="${baseUrl}/agendar-cita" class="button">💬 Hablar con un Asesor</a>
+                  <a href="${baseUrl}/contacto" class="button">💬 Hablar con un Asesor</a>
                 </div>
 
                 <p style="font-size: 15px; color: #374151; text-align: center; margin: 32px 0;">

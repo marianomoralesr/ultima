@@ -5,6 +5,7 @@ import type { VehicleFilters } from '../types/types';
 import { useVehicles } from '../context/VehicleContext';
 import { useFilters } from '../context/FilterContext';
 import VehicleService from '../services/VehicleService';
+import { facebookPixelService } from '../services/FacebookPixelService';
 import VehicleCard from '../components/VehicleCard';
 import VehicleCardSkeleton from '../components/VehicleCardSkeleton';
 import VehicleGridCard from '../components/VehicleGridCard';
@@ -312,6 +313,26 @@ const VehicleListPage: React.FC = () => {
   useEffect(() => {
     handleFiltersChange({ search: debouncedSearchTerm || undefined });
   }, [debouncedSearchTerm]);
+
+  // 🎯 FACEBOOK PIXEL: Track Search events when filters change
+  useEffect(() => {
+    // Skip tracking on initial mount
+    if (isInitialMount.current) return;
+
+    // Build search query from active filters
+    const searchParts: string[] = [];
+    if (filters.search) searchParts.push(filters.search);
+    if (filters.marca) searchParts.push(...filters.marca);
+    if (filters.carroceria) searchParts.push(...filters.carroceria);
+    if (filters.ubicacion) searchParts.push(...filters.ubicacion);
+    if (filters.transmision) searchParts.push(...filters.transmision);
+
+    const searchQuery = searchParts.join(' ') || 'browse_inventory';
+
+    // Track the search with filters
+    facebookPixelService.trackSearch(searchQuery, filters)
+      .catch(err => console.warn('[FB Pixel] Error tracking Search:', err));
+  }, [filters]);
 
   useEffect(() => {
     // Prevent body scroll when sheet is open

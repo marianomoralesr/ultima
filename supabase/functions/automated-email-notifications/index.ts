@@ -47,7 +47,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
   `;
 
   const logoUrl = `${SUPABASE_URL}/storage/v1/object/public/public-assets/logoblanco.png`;
-  const unsubscribeLink = `${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/perfil?unsubscribe=true`;
+  const unsubscribeLink = `https://trefa.mx/escritorio/profile?unsubscribe=true`;
 
   switch (type) {
     case 'incomplete_application':
@@ -214,7 +214,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               </ul>
 
               <div style="text-align: center; margin: 32px 0;">
-                <a href="${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/admin/compras/${data.leadId}" class="button">Contactar a mi Asesor</a>
+                <a href="https://trefa.mx/escritorio/admin/compras/${data.leadId}" class="button">Contactar a mi Asesor</a>
               </div>
 
               <p style="font-size: 14px; color: #556675; background: #FEF3C7; padding: 16px; border-radius: 8px; border-left: 4px solid #F59E0B;">
@@ -286,7 +286,7 @@ const getEmailTemplate = (type: string, data: Record<string, any>): string => {
               </ul>
 
               <div style="text-align: center; margin: 32px 0;">
-                <a href="${SUPABASE_URL.replace('.supabase.co', '')}/vende-tu-auto" class="button">Continuar con la Venta</a>
+                <a href="https://trefa.mx/vender-mi-auto" class="button">Continuar con la Venta</a>
               </div>
 
               <p style="font-size: 14px; color: #556675; background: #DBEAFE; padding: 16px; border-radius: 8px; border-left: 4px solid #3B82F6;">
@@ -552,7 +552,7 @@ serve(async (req) => {
               clientName,
               vehicleTitle: app.car_info?._vehicleTitle || null,
               createdAt: app.created_at,
-              applicationUrl: `${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/solicitar-financiamiento`,
+              applicationUrl: `https://trefa.mx/escritorio/aplicacion`,
               vehicles
             });
 
@@ -627,7 +627,7 @@ serve(async (req) => {
               clientName,
               vehicleTitle: app.car_info?._vehicleTitle || null,
               createdAt: app.created_at,
-              applicationUrl: `${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/mis-solicitudes`
+              applicationUrl: `https://trefa.mx/escritorio/seguimiento`
             });
 
             await sendBrevoEmail(
@@ -675,7 +675,7 @@ serve(async (req) => {
             const clientName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Cliente';
             const htmlContent = getEmailTemplate('incomplete_profile', {
               clientName,
-              profileUrl: `${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/perfil`,
+              profileUrl: `https://trefa.mx/escritorio/profile`,
               vehicles
             });
 
@@ -930,7 +930,7 @@ serve(async (req) => {
         const htmlContent = getEmailTemplate('sales_agent_digest', {
           pendingLeads: pendingLeadsData,
           incompleteApplications: incompleteAppsData,
-          crmUrl: `${SUPABASE_URL.replace('.supabase.co', '')}/escritorio/admin/crm`
+          crmUrl: `https://trefa.mx/escritorio/admin/crm`
         });
 
         await sendBrevoEmail(

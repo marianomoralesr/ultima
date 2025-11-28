@@ -68,19 +68,19 @@ interface InventarioRow {
   autoano: number | null;
   vin: string | null;
   feature_image_url: string | null;
-  fotos_exterior_url: any;
-  fotos_interior_url: any;
+  fotos_exterior_url: any; // JSONB array
+  fotos_interior_url: any; // JSONB array
   additional_image_link: string | null;
   slug: string | null;
   ordenstatus: string | null;
   vendido: boolean | null;
   separado: boolean | null;
-  carroceria: string | null;
-  combustible: string | null;
-  autotransmision: string | null;
-  kilometraje: any;
-  ubicacion: string | null;
-  clasificacionid: string | null;
+  carroceria: any; // JSONB array or string
+  combustible: any; // JSONB array or string
+  transmision: any; // JSONB array or string (NOT autotransmision)
+  kilometraje: any; // JSONB object or number
+  ubicacion: any; // JSONB array or string
+  clasificacionid: any; // JSONB array or string
 }
 
 interface FacebookProduct {
@@ -140,6 +140,97 @@ function formatPrice(precio: number | null, currency = "MXN"): string {
   return `${precio.toFixed(2)} ${currency}`;
 }
 
+/**
+ * Normaliza el tipo de carrocería para custom labels
+ * Útil para segmentación en Facebook Ads
+ */
+function normalizeCarroceria(carroceria: string | null): string {
+  if (!carroceria) return "Otros";
+
+  const normalized = carroceria.toLowerCase().trim();
+
+  // Mapear variaciones a categorías estándar
+  if (normalized.includes("suv") || normalized.includes("crossover")) return "SUV";
+  if (normalized.includes("pick") || normalized.includes("pickup")) return "Pick Up";
+  if (normalized.includes("sedán") || normalized.includes("sedan")) return "Sedán";
+  if (normalized.includes("hatchback") || normalized.includes("hatch")) return "Hatchback";
+  if (normalized.includes("coupé") || normalized.includes("coupe")) return "Coupé";
+  if (normalized.includes("camioneta")) return "Camioneta";
+  if (normalized.includes("convertible")) return "Convertible";
+  if (normalized.includes("van") || normalized.includes("minivan")) return "Van";
+
+  // Capitalizar primera letra si no coincide con ninguna categoría
+  return carroceria.charAt(0).toUpperCase() + carroceria.slice(1).toLowerCase();
+}
+
+/**
+ * Normaliza el tipo de transmisión
+ */
+function normalizeTransmision(transmision: string | null): string {
+  if (!transmision) return "Desconocida";
+
+  const normalized = transmision.toLowerCase().trim();
+
+  if (normalized.includes("automá") || normalized.includes("auto")) return "Automática";
+  if (normalized.includes("manual") || normalized.includes("std")) return "Manual";
+  if (normalized.includes("cvt")) return "CVT";
+  if (normalized.includes("dual") || normalized.includes("dct")) return "Dual Clutch";
+
+  return "Automática"; // Default para la mayoría de vehículos
+}
+
+/**
+ * Normaliza el tipo de combustible
+ */
+function normalizeCombustible(combustible: string | null): string {
+  if (!combustible) return "Gasolina";
+
+  const normalized = combustible.toLowerCase().trim();
+
+  if (normalized.includes("gasolina") || normalized.includes("gas")) return "Gasolina";
+  if (normalized.includes("diesel") || normalized.includes("diésel")) return "Diesel";
+  if (normalized.includes("híbrido") || normalized.includes("hybrid")) return "Híbrido";
+  if (normalized.includes("eléctrico") || normalized.includes("electric")) return "Eléctrico";
+  if (normalized.includes("flex")) return "Flex";
+
+  return "Gasolina"; // Default
+}
+
+/**
+ * Extrae el primer elemento de un campo JSONB array o devuelve como string
+ * Consistente con VehicleService.normalizeVehicleData()
+ */
+function getFirstOrString(field: any): string {
+  if (Array.isArray(field)) return field[0] || '';
+  if (typeof field === 'string') {
+    // Try to parse as JSON first (for JSONB fields)
+    try {
+      const parsed = JSON.parse(field);
+      if (Array.isArray(parsed)) {
+        return parsed[0] || '';
+      }
+    } catch {
+      // If JSON parse fails, return as is
+      return field;
+    }
+  }
+  return field || '';
+}
+
+/**
+ * Determina el rango de precio para segmentación
+ */
+function getPriceRange(precio: number | null): string {
+  if (!precio) return "Sin precio";
+
+  if (precio < 150000) return "< 150K";
+  if (precio < 250000) return "150K - 250K";
+  if (precio < 350000) return "250K - 350K";
+  if (precio < 500000) return "350K - 500K";
+  if (precio < 750000) return "500K - 750K";
+  return "> 750K";
+}
+
 function extractAdditionalImages(
   fotosExterior: any,
   fotosInterior: any,
@@ -193,8 +284,8 @@ function transformToFacebookProduct(row: InventarioRow): FacebookProduct {
     condition: "used", // All vehicles are used/pre-owned
     price: formatPrice(row.precio),
     link: row.slug
-      ? `${BASE_URL}/inventario/${row.slug}`
-      : `${BASE_URL}/inventario/${row.id}`,
+      ? `${BASE_URL}/autos/${row.slug}`
+      : `${BASE_URL}/autos/${row.id}`,
     image_link: convertToCdnUrl(
       row.feature_image_url ||
       getPlaceholderImage(row.clasificacionid, row.carroceria)
@@ -227,22 +318,27 @@ function transformToFacebookProduct(row: InventarioRow): FacebookProduct {
       .replace(/\s+/g, "-");
   }
 
-  // Custom labels for additional categorization
-  if (row.carroceria) product.custom_label_0 = row.carroceria;
-  if (row.combustible) product.custom_label_1 = row.combustible;
-  if (row.autotransmision) product.custom_label_2 = row.autotransmision;
-  if (row.ubicacion) product.custom_label_3 = row.ubicacion;
+  // Custom labels optimizados para segmentación en Facebook Ads
+  // Usar getFirstOrString() para manejar campos JSONB consistentemente con VehicleService
 
-  // Add mileage to custom label if available
-  if (row.kilometraje) {
-    let km = "";
-    if (typeof row.kilometraje === "object" && row.kilometraje?.value) {
-      km = `${row.kilometraje.value} km`;
-    } else if (typeof row.kilometraje === "number") {
-      km = `${row.kilometraje} km`;
-    }
-    if (km) product.custom_label_4 = km;
-  }
+  // custom_label_0: Tipo de Carrocería (SUV, Sedán, Pick Up, etc.)
+  const carroceria = getFirstOrString(row.carroceria || row.clasificacionid);
+  product.custom_label_0 = normalizeCarroceria(carroceria);
+
+  // custom_label_1: Tipo de Transmisión (Automática, Manual)
+  const transmision = getFirstOrString(row.transmision);
+  product.custom_label_1 = normalizeTransmision(transmision);
+
+  // custom_label_2: Tipo de Combustible (Gasolina, Diesel, Híbrido)
+  const combustible = getFirstOrString(row.combustible);
+  product.custom_label_2 = normalizeCombustible(combustible);
+
+  // custom_label_3: Ubicación (para targeting geográfico)
+  const ubicacion = getFirstOrString(row.ubicacion);
+  product.custom_label_3 = ubicacion || "Todas las sucursales";
+
+  // custom_label_4: Rango de Precio (para segmentar por poder adquisitivo)
+  product.custom_label_4 = getPriceRange(row.precio);
 
   return product;
 }
@@ -322,13 +418,15 @@ async function generateCsv(): Promise<string> {
       separado,
       carroceria,
       combustible,
-      autotransmision,
+      transmision,
       kilometraje,
       ubicacion,
       clasificacionid
     `
     )
-    .eq("ordenstatus", "Comprado") // Only include purchased inventory
+    .eq("ordenstatus", "Comprado") // Solo vehículos comprados (en inventario)
+    .eq("vendido", false) // Solo vehículos NO vendidos
+    .or("separado.eq.false,separado.is.null") // Solo vehículos NO separados (false o null)
     .order("id", { ascending: true });
 
   if (error) {
@@ -353,7 +451,27 @@ async function generateCsv(): Promise<string> {
 }
 
 Deno.serve(async (req: Request) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+  }
+
   const url = new URL(req.url);
+
+  // Accept both /facebook-inventory-feed and /facebook-inventory-feed.csv
+  const pathname = url.pathname.replace(/\/+$/, '');
+  if (!pathname.endsWith('/facebook-inventory-feed') &&
+      !pathname.endsWith('/facebook-inventory-feed.csv')) {
+    return new Response('Not Found', { status: 404 });
+  }
+
   const forceRefresh = url.searchParams.get("force") === "true";
 
   try {

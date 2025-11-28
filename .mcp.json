@@ -1,80 +1,8 @@
 {
   "mcpServers": {
     "supabase": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
-        "--read-only",
-        "--project-ref=<project-ref>"
-      ],
-      "env": {
-        "SUPABASE_ACCESS_TOKEN": "<personal-access-token>"
-      }
-    },
-    "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp"
-      ]
-    },
-    "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ]
-    },
-    "executeautomation-playwright-server": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@executeautomation/playwright-mcp-server"
-      ]
-    },
-    "fetch": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-fetch"
-      ]
-    },
-    "postgresql": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres"
-      ],
-      "env": {
-        "POSTGRES_CONNECTION_STRING": "postgresql://user:password@localhost:5432/dbname"
-      }
-    },
-    "Figma Dev Mode MCP": {
-      "url": "http://127.0.0.1:3845/mcp"
-    },
-    "fb-ads-mcp-server": {
-      "command": "python",
-      "args": [
-        "/path/to/your/fb-ads-mcp-server/server.py",
-        "--fb-token",
-        "YOUR_META_ACCESS_TOKEN"
-      ]
-    },
-    "browser-server": {
-      "command": "browser-use-mcp-server",
-      "args": [
-        "run",
-        "server",
-        "--port",
-        "8000",
-        "--stdio",
-        "--proxy-port",
-        "9000"
-      ],
-      "env": {
-        "OPENAI_API_KEY": "your-api-key"
-      }
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=jjepfehmuybpctdzipnu&features=docs%2Cdatabase%2Caccount%2Cdevelopment%2Cdebugging%2Cfunctions%2Cbranching%2Cstorage"
     }
   }
 }

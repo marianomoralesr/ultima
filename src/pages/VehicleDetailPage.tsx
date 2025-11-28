@@ -35,6 +35,7 @@ import { useAuth } from '../context/AuthContext';
 import InspectionReport from '../components/InspectionReport';
 import { InspectionService } from '../services/InspectionService';
 import { FavoritesService } from '../services/FavoritesService';
+import { facebookPixelService } from '../services/FacebookPixelService';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import AuthBenefitsBlock from '../components/AuthBenefitsBlock';
 import TestimonialCta from '../components/TestimonialCta';
@@ -233,7 +234,8 @@ const TitlePriceActionsBlock: React.FC<{
     isToggling: boolean;
     onToggleFavorite: () => void;
     onFinancingClick: () => void;
-}> = React.memo(({ vehicle, financeData, favoriteCount, isFavorite, isToggling, onToggleFavorite, onFinancingClick }) => (
+    onWhatsAppClick?: () => void;
+}> = React.memo(({ vehicle, financeData, favoriteCount, isFavorite, isToggling, onToggleFavorite, onFinancingClick, onWhatsAppClick }) => (
     <div className={cardStyle}>
         <div>
             {vehicle.ordencompra && (
@@ -262,7 +264,15 @@ const TitlePriceActionsBlock: React.FC<{
 
         <div className="mt-4 sm:mt-6 flex flex-col gap-2 sm:gap-3">
             <button data-gtm-id="detail-page-finance" onClick={onFinancingClick} className="w-full text-center bg-primary-600 text-white font-bold py-2.5 sm:py-3.5 px-4 sm:px-6 rounded-lg hover:bg-primary-700 text-sm sm:text-base lg:text-lg shadow-md transition-all"> Comprar con financiamiento </button>
-            <a href={`https://wa.me/5218187049079?text=${encodeURIComponent(`Hola, me interesa el ${vehicle.titulo}`)}`} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 sm:gap-3 bg-green-500 text-white font-bold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-green-600 text-sm sm:text-base lg:text-lg shadow-md transition-all"> <WhatsAppIcon className="w-5 h-5 sm:w-6 sm:h-6" /> Contactar por WhatsApp </a>
+            <a
+                href={`https://wa.me/5218187049079?text=${encodeURIComponent(`Hola, me interesa el ${vehicle.titulo}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onWhatsAppClick}
+                className="w-full flex items-center justify-center gap-2 sm:gap-3 bg-green-500 text-white font-bold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-green-600 text-sm sm:text-base lg:text-lg shadow-md transition-all"
+            >
+                <WhatsAppIcon className="w-5 h-5 sm:w-6 sm:h-6" /> Contactar por WhatsApp
+            </a>
             <button data-gtm-id="detail-page-favorite" onClick={onToggleFavorite} disabled={isToggling} className="w-full flex items-center justify-center gap-2 sm:gap-3 bg-white text-gray-700 font-bold py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-gray-100 border-2 border-gray-300 text-sm sm:text-base lg:text-lg shadow-sm transition-all disabled:opacity-50"> {isFavorite ? <SolidHeartIcon className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" /> : <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" />} {isFavorite ? 'Guardado' : 'Añadir a favoritos'} ({favoriteCount}) </button>
         </div>
         <ShareButtons url={window.location.href} title={vehicle.titulo} className="mt-6 justify-center" />
@@ -547,7 +557,7 @@ const VehicleDetailLocation: React.FC<{ vehicle: WordPressVehicle }> = React.mem
 
 const TabsSection: React.FC<{
     activeTab: 'specs' | 'calculator' | 'inspection';
-    setActiveTab: (tab: 'specs' | 'calculator' | 'inspection') => void;
+    onTabChange: (tab: 'specs' | 'calculator' | 'inspection') => void;
     isAdmin: boolean;
     vehicleId: number;
     specifications: { label: string; value: string | number }[];
@@ -559,11 +569,11 @@ const TabsSection: React.FC<{
     inspectionLoading: boolean;
     inspectionData: InspectionReportData | null;
     onSeeFullReport: () => void;
-}> = React.memo(({ activeTab, setActiveTab, isAdmin, vehicleId, specifications, financeData, downPayment, setDownPayment, loanTerm, setLoanTerm, inspectionLoading, inspectionData, onSeeFullReport }) => (
+}> = React.memo(({ activeTab, onTabChange, isAdmin, vehicleId, specifications, financeData, downPayment, setDownPayment, loanTerm, setLoanTerm, inspectionLoading, inspectionData, onSeeFullReport }) => (
     <div className={cardStyle}>
         <div className="flex border-b">
             {TABS.map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'border-b-2 border-trefa-dark-blue text-trefa-dark-blue' : 'text-gray-500 hover:text-gray-800'}`}>
+                <button key={tab.id} onClick={() => onTabChange(tab.id as any)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'border-b-2 border-trefa-dark-blue text-trefa-dark-blue' : 'text-gray-500 hover:text-gray-800'}`}>
                     <tab.icon className="w-4 h-4" /> {tab.label}
                 </button>
             ))}
@@ -683,9 +693,56 @@ const VehicleDetailPage: React.FC = () => {
 
     const handleFinancingClick = () => {
         if (!vehicle) return;
+
+        // 🎯 FACEBOOK PIXEL: Tracking InitiateCheckout
+        facebookPixelService.trackInitiateCheckout({
+            id: vehicle.record_id || vehicle.id,
+            title: vehicle.titulo,
+            price: vehicle.autoprecio,
+            brand: vehicle.automarca,
+            model: vehicle.autosubmarcaversion,
+            year: vehicle.autoano,
+            category: vehicle.carroceria,
+            slug: vehicle.slug,
+        }).catch(err => console.warn('[FB Pixel] Error tracking InitiateCheckout:', err));
+
         const financingUrl = session ? '/escritorio/aplicacion' : '/acceder';
         const urlWithParams = vehicle.ordencompra ? `${financingUrl}?ordencompra=${vehicle.ordencompra}` : financingUrl;
         navigate(urlWithParams);
+    };
+
+    const handleWhatsAppClick = () => {
+        if (!vehicle) return;
+
+        // 🎯 FACEBOOK PIXEL: Tracking AddToCart (WhatsApp interaction)
+        facebookPixelService.trackAddToCart({
+            id: vehicle.record_id || vehicle.id,
+            title: vehicle.titulo,
+            price: vehicle.autoprecio,
+            brand: vehicle.automarca,
+            model: vehicle.autosubmarcaversion,
+            year: vehicle.autoano,
+            category: vehicle.carroceria,
+            slug: vehicle.slug,
+        }, 'whatsapp').catch(err => console.warn('[FB Pixel] Error tracking AddToCart:', err));
+    };
+
+    const handleTabChange = (tab: 'specs' | 'calculator' | 'inspection') => {
+        setActiveTab(tab);
+
+        // 🎯 FACEBOOK PIXEL: Tracking AddToCart when calculator tab is clicked
+        if (tab === 'calculator' && vehicle) {
+            facebookPixelService.trackAddToCart({
+                id: vehicle.record_id || vehicle.id,
+                title: vehicle.titulo,
+                price: vehicle.autoprecio,
+                brand: vehicle.automarca,
+                model: vehicle.autosubmarcaversion,
+                year: vehicle.autoano,
+                category: vehicle.carroceria,
+                slug: vehicle.slug,
+            }, 'calculator').catch(err => console.warn('[FB Pixel] Error tracking AddToCart:', err));
+        }
     };
 
     useEffect(() => {
@@ -703,6 +760,20 @@ const VehicleDetailPage: React.FC = () => {
                 const vehicleData = await VehicleService.getAndRecordVehicleView(slug);
                 if (vehicleData) {
                     setVehicle(vehicleData);
+
+                    // 🎯 FACEBOOK PIXEL: Tracking ViewContent
+                    facebookPixelService.trackViewContent({
+                        id: vehicleData.record_id || vehicleData.id,
+                        title: vehicleData.titulo,
+                        price: vehicleData.autoprecio,
+                        brand: vehicleData.automarca,
+                        model: vehicleData.autosubmarcaversion,
+                        year: vehicleData.autoano,
+                        category: vehicleData.carroceria,
+                        slug: vehicleData.slug,
+                        image_url: getVehicleImage(vehicleData),
+                    }).catch(err => console.warn('[FB Pixel] Error tracking ViewContent:', err));
+
                     setInspectionLoading(true);
                     try {
                         const [inspectionResult, favoriteCountResult] = await Promise.allSettled([
@@ -862,22 +933,22 @@ const VehicleDetailPage: React.FC = () => {
             <MediaGallery mediaItems={mediaItems} activeMedia={activeMedia} setActiveMedia={setActiveMedia} handleOpenLightbox={handleOpenLightbox} vehicleTitle={vehicle.titulo} promociones={vehicle.promociones}/>
 
             <div className="lg:hidden space-y-4 sm:space-y-6 lg:space-y-8">
-              <TitlePriceActionsBlock vehicle={vehicle} financeData={financeData} favoriteCount={favoriteCount} isFavorite={isFavorite(vehicle.id)} isToggling={isToggling === vehicle.id} onToggleFavorite={() => toggleFavorite(vehicle.id)} onFinancingClick={handleFinancingClick} />
+              <TitlePriceActionsBlock vehicle={vehicle} financeData={financeData} favoriteCount={favoriteCount} isFavorite={isFavorite(vehicle.id)} isToggling={isToggling === vehicle.id} onToggleFavorite={() => toggleFavorite(vehicle.id)} onFinancingClick={handleFinancingClick} onWhatsAppClick={handleWhatsAppClick} />
             </div>
 
             <FeatureFinancingSection vehicle={vehicle} inspectionData={inspectionData} />
             <DescriptionSection content={vehicle.description || vehicle.descripcion} />
 
 
-                          <div className="lg:hidden space-y-4 sm:space-y-6 lg:space-y-8">              <TabsSection activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} vehicleId={vehicle.id} specifications={specifications} financeData={financeData} downPayment={downPayment} setDownPayment={setDownPayment} loanTerm={loanTerm} setLoanTerm={setLoanTerm} inspectionLoading={inspectionLoading} inspectionData={inspectionData} onSeeFullReport={() => setIsLightboxOpen(true)} />
+                          <div className="lg:hidden space-y-4 sm:space-y-6 lg:space-y-8">              <TabsSection activeTab={activeTab} onTabChange={handleTabChange} isAdmin={isAdmin} vehicleId={vehicle.id} specifications={specifications} financeData={financeData} downPayment={downPayment} setDownPayment={setDownPayment} loanTerm={loanTerm} setLoanTerm={setLoanTerm} inspectionLoading={inspectionLoading} inspectionData={inspectionData} onSeeFullReport={() => setIsLightboxOpen(true)} />
               <VehicleDetailLocation vehicle={vehicle} />
             </div>
           </div>
 
           <aside className="hidden lg:block lg:col-span-2">
             <div className="sticky top-28 space-y-6">
-              <TitlePriceActionsBlock vehicle={vehicle} financeData={financeData} favoriteCount={favoriteCount} isFavorite={isFavorite(vehicle.id)} isToggling={isToggling === vehicle.id} onToggleFavorite={() => toggleFavorite(vehicle.id)} onFinancingClick={handleFinancingClick} />
-              <TabsSection activeTab={activeTab} setActiveTab={setActiveTab} isAdmin={isAdmin} vehicleId={vehicle.id} specifications={specifications} financeData={financeData} downPayment={downPayment} setDownPayment={setDownPayment} loanTerm={loanTerm} setLoanTerm={setLoanTerm} inspectionLoading={inspectionLoading} inspectionData={inspectionData} onSeeFullReport={() => setIsLightboxOpen(true)} />
+              <TitlePriceActionsBlock vehicle={vehicle} financeData={financeData} favoriteCount={favoriteCount} isFavorite={isFavorite(vehicle.id)} isToggling={isToggling === vehicle.id} onToggleFavorite={() => toggleFavorite(vehicle.id)} onFinancingClick={handleFinancingClick} onWhatsAppClick={handleWhatsAppClick} />
+              <TabsSection activeTab={activeTab} onTabChange={handleTabChange} isAdmin={isAdmin} vehicleId={vehicle.id} specifications={specifications} financeData={financeData} downPayment={downPayment} setDownPayment={setDownPayment} loanTerm={loanTerm} setLoanTerm={setLoanTerm} inspectionLoading={inspectionLoading} inspectionData={inspectionData} onSeeFullReport={() => setIsLightboxOpen(true)} />
               <VehicleDetailLocation vehicle={vehicle} />
               {!session && <AuthBenefitsBlock />}
             </div>

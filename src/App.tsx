@@ -69,6 +69,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const BrandsPage = lazy(() => import('./pages/BrandsPage'));
 const AdminConfigPage = lazy(() => import('./pages/AdminConfigPage'));
 const MarketingHubPage = lazy(() => import('./pages/MarketingHubPage'));
+const FacebookCatalogueDashboard = lazy(() => import('./pages/FacebookCatalogueDashboard'));
 const AdminComprasDashboardPage = lazy(() => import('./pages/AdminComprasDashboardPage'));
 const AutosConOfertaPage = lazy(() => import('./pages/AutosConOfertaPage'));
 const UnifiedCRMPage = lazy(() => import('./pages/UnifiedCRMPage'));
@@ -225,6 +226,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/marketing" element={<MarketingHubPage />} />
                   <Route path="admin/marketing-config" element={<MarketingConfigPage />} />
                   <Route path="admin/marketing-analytics" element={<MarketingAnalyticsDashboardPage />} />
+                  <Route path="admin/facebook-catalogue" element={<FacebookCatalogueDashboard />} />
                   <Route path="admin/customer-journeys" element={<CustomerJourneysPage />} />
                   <Route path="admin/survey-analytics" element={<SurveyAnalyticsDashboard />} />
                   <Route path="admin/tracking-analytics" element={<UnifiedTrackingDashboard />} />

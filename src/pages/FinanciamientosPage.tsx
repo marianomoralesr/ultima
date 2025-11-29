@@ -487,6 +487,17 @@ const FinanciamientosPage: React.FC = () => {
       // Parse full name into first_name, last_name, mother_last_name
       const { firstName, lastName, motherLastName } = parseFullName(formDataCache.fullName);
 
+      // Get URL parameters for tracking
+      const params = new URLSearchParams(window.location.search);
+      const ordencompra = params.get('ordencompra') || params.get('orden_compra') || undefined;
+      const utmSource = params.get('utm_source') || undefined;
+      const utmMedium = params.get('utm_medium') || undefined;
+      const utmCampaign = params.get('utm_campaign') || undefined;
+      const utmTerm = params.get('utm_term') || undefined;
+      const utmContent = params.get('utm_content') || undefined;
+      const referrerUrl = document.referrer || undefined;
+      const landingPage = window.location.href;
+
       const profileData = {
         nombre: formDataCache.fullName, // Keep full name for reference
         first_name: firstName,
@@ -494,7 +505,18 @@ const FinanciamientosPage: React.FC = () => {
         mother_last_name: motherLastName,
         email: formDataCache.email,
         telefono: formDataCache.phone,
-        phone: formDataCache.phone // Save phone to the phone field as well
+        phone: formDataCache.phone, // Save phone to the phone field as well
+        // Tracking data
+        ordencompra: ordencompra,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_term: utmTerm,
+        utm_content: utmContent,
+        referrer: referrerUrl,
+        landing_page: landingPage,
+        lead_source: leadSource,
+        first_visit_at: new Date().toISOString()
       };
 
       const { error: profileError } = await supabase

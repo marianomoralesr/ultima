@@ -30,6 +30,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
+import { SlidersHorizontal } from 'lucide-react';
 
 const VehicleListPage: React.FC = () => {
   const { activeUsers } = useRealtimeVisitors();
@@ -451,7 +452,27 @@ const VehicleListPage: React.FC = () => {
   
   return (
     <>
-      <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+      {/* Mobile Fixed Filter Bar - Below MobileHeader */}
+      <div className="lg:hidden fixed top-16 left-0 right-0 z-20 bg-white border-b border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between px-3 py-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <h1 className="text-sm font-semibold truncate">
+              {resultsDisplay}
+            </h1>
+          </div>
+          <Button
+            onClick={openSheet}
+            size="sm"
+            className="flex items-center gap-1.5 bg-[#FF6801] hover:bg-[#E55E01] text-white flex-shrink-0"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Filtros</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Add top padding on mobile to account for fixed headers (MobileHeader 64px + FilterBar ~44px) */}
+      <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8 pt-16 lg:pt-4">
         <div className="grid grid-cols-1 lg:grid-cols-[384px_1fr] gap-8 items-start">
           <aside className="hidden lg:block">
             <StickySidebar topOffset={120}>
@@ -631,42 +652,23 @@ const VehicleListPage: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="lg:hidden mb-6">
-              <CardContent className="pt-6 pb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h1 className="text-sm font-semibold">
-                      {resultsDisplay}
-                    </h1>
-                    <p className="text-xs text-muted-foreground mt-0.5">Toca para filtrar</p>
-                  </div>
-                  <Button onClick={openSheet} size="sm">
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                    Filtros
-                  </Button>
+            {/* Mobile visitor counter - compact version below fixed filter bar */}
+            <div className="lg:hidden flex items-center gap-1.5 text-xs text-gray-600 bg-gradient-to-r from-orange-50 to-transparent px-3 py-2 rounded-md mb-4">
+              <div className="flex -space-x-1">
+                <img src="https://randomuser.me/api/portraits/thumb/women/44.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                <img src="https://randomuser.me/api/portraits/thumb/men/32.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                <img src="https://randomuser.me/api/portraits/thumb/women/68.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                <div className="w-4 h-4 rounded-full bg-orange-500 border border-white flex items-center justify-center">
+                  <span className="text-[7px] font-bold text-white">+{Math.max(0, activeUsers - 3)}</span>
                 </div>
-
-                {/* Mobile compact visitor counter */}
-                <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gradient-to-r from-orange-50 to-transparent px-2 py-1.5 rounded-md">
-                  <div className="flex -space-x-1">
-                    <img src="https://randomuser.me/api/portraits/thumb/women/44.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
-                    <img src="https://randomuser.me/api/portraits/thumb/men/32.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
-                    <img src="https://randomuser.me/api/portraits/thumb/women/68.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
-                    <div className="w-4 h-4 rounded-full bg-orange-500 border border-white flex items-center justify-center">
-                      <span className="text-[7px] font-bold text-white">+{Math.max(0, activeUsers - 3)}</span>
-                    </div>
-                  </div>
-                  <span className="text-orange-600 font-bold transition-all duration-300">{activeUsers}</span>
-                  <span>explorando ahora</span>
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+              <span className="text-orange-600 font-bold transition-all duration-300">{activeUsers}</span>
+              <span>explorando ahora</span>
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+              </span>
+            </div>
 
             {/* Mobile Favorites Slider */}
             <div className="lg:hidden mb-6">

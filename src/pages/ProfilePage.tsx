@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { ProfileService } from '../services/profileService';
+import { supabase } from '../../supabaseClient';
 import { User, ArrowLeft, CheckCircle, Loader2, Info, ChevronRight, ChevronLeft } from 'lucide-react';
 import type { Profile } from '../types/types';
 import { calculateRFC } from '../utils/rfcCalculator';
@@ -81,6 +82,7 @@ const ProfilePage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [calculatedRfc, setCalculatedRfc] = useState('');
   const [hasPriorAdvisor, setHasPriorAdvisor] = useState<string>('no');
   const [selectedSalesAgentId, setSelectedSalesAgentId] = useState<string>('');
@@ -116,9 +118,12 @@ const ProfilePage: React.FC = () => {
       formInitialized.current = true;
 
       const isComplete = !!(profile.first_name && profile.last_name && profile.mother_last_name &&
-                           profile.phone && profile.birth_date && profile.homoclave);
+                           profile.phone && profile.birth_date && profile.homoclave && profile.fiscal_situation);
 
-      if (!isComplete) {
+      if (isComplete) {
+        setIsProfileComplete(true);
+        setCurrentStep(3); // Set to last step so progress shows 100%
+      } else {
         setIsFirstTimeUser(true);
       }
 
@@ -299,6 +304,31 @@ const ProfilePage: React.FC = () => {
         asesorAutorizado: hasPriorAdvisor === 'yes' || !!profile?.asesor_asignado_id
       });
 
+      // If user already had a complete profile, just show success without redirecting
+      if (isProfileComplete) {
+        toast.success('¡Perfil actualizado correctamente!');
+        setIsProfileComplete(true);
+        await reloadProfile();
+        return;
+      }
+
+      // Check if user already has an ongoing application
+      const { data: existingApplications } = await supabase
+        .from('financing_applications')
+        .select('id, status')
+        .eq('user_id', user?.id)
+        .not('status', 'eq', 'cancelled')
+        .limit(1);
+
+      if (existingApplications && existingApplications.length > 0) {
+        // User has an existing application, don't redirect to perfilacion bancaria
+        toast.success('¡Perfil actualizado! Ya tienes una solicitud en proceso.');
+        setIsProfileComplete(true);
+        await reloadProfile();
+        navigate('/escritorio');
+        return;
+      }
+
       toast.success('¡Perfil completado! Redirigiendo a perfilación bancaria...');
 
       // Reload profile context and redirect
@@ -319,7 +349,8 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const progress = (currentStep / STEPS.length) * 100;
+  // Show 100% progress if profile is complete, otherwise based on current step
+  const progress = isProfileComplete ? 100 : (currentStep / STEPS.length) * 100;
 
   if (loading) {
     return (
@@ -338,6 +369,22 @@ const ProfilePage: React.FC = () => {
         <ArrowLeft className="w-4 h-4 mr-2" />
         Volver al Dashboard
       </Link>
+
+      {isProfileComplete && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 lg:p-5 mb-4 lg:mb-6 rounded-r-lg">
+          <div className="flex items-center">
+            <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mr-3 flex-shrink-0" />
+            <div>
+              <h3 className="font-bold text-gray-900 text-sm sm:text-base lg:text-lg">
+                ¡Perfil completo!
+              </h3>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-700 mt-1">
+                Tu información de perfil está completa. Puedes editarla si es necesario.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isFirstTimeUser && (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 lg:p-5 mb-4 lg:mb-6 rounded-r-lg">

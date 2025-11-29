@@ -57,7 +57,7 @@ const UploadedDocumentsCard: React.FC<UploadedDocumentsCardProps> = ({
         for (const doc of data) {
           if (doc.content_type.startsWith('image/')) {
             const { data: urlData } = await supabase.storage
-              .from('financing-documents')
+              .from('application-documents')
               .createSignedUrl(doc.file_path, 3600); // 1 hora
 
             if (urlData?.signedUrl) {

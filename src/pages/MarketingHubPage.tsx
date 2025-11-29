@@ -19,6 +19,12 @@ interface SummaryMetrics {
     percentage: number;
     direction: 'up' | 'down' | 'stable';
   };
+  registros24h: {
+    count: number;
+    previousCount: number;
+    changePercentage: number;
+    direction: 'up' | 'down' | 'stable';
+  };
 }
 
 const MarketingHubPage: React.FC = () => {
@@ -28,7 +34,13 @@ const MarketingHubPage: React.FC = () => {
     totalLeads: 0,
     totalSolicitudes: 0,
     totalTraffic: 0,
-    trend24h: { percentage: 0, direction: 'stable' }
+    trend24h: { percentage: 0, direction: 'stable' },
+    registros24h: {
+      count: 0,
+      previousCount: 0,
+      changePercentage: 0,
+      direction: 'stable'
+    }
   });
 
   useEffect(() => {
@@ -86,6 +98,42 @@ const MarketingHubPage: React.FC = () => {
         percentage = 100;
       }
 
+      // Calculate registros últimas 24 horas (new profile registrations)
+      let registros24hCount = 0;
+      let registrosPrevCount = 0;
+      let registrosChangePercentage = 0;
+      let registrosDirection: 'up' | 'down' | 'stable' = 'stable';
+
+      try {
+        // Get profiles registered in last 24h
+        const { count: recentRegistros } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', last24h.toISOString());
+
+        // Get profiles registered in previous 24h
+        const { count: prevRegistros } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', previous24h.toISOString())
+          .lt('created_at', last24h.toISOString());
+
+        registros24hCount = recentRegistros || 0;
+        registrosPrevCount = prevRegistros || 0;
+
+        // Calculate change percentage
+        if (registrosPrevCount > 0) {
+          registrosChangePercentage = ((registros24hCount - registrosPrevCount) / registrosPrevCount) * 100;
+          if (registrosChangePercentage > 5) registrosDirection = 'up';
+          else if (registrosChangePercentage < -5) registrosDirection = 'down';
+        } else if (registros24hCount > 0) {
+          registrosDirection = 'up';
+          registrosChangePercentage = 100;
+        }
+      } catch (registrosError) {
+        console.error('Error calculating registros 24h:', registrosError);
+      }
+
       setSummaryMetrics({
         totalLeads: leadsCount || 0,
         totalSolicitudes: solicitudesCount || 0,
@@ -93,6 +141,12 @@ const MarketingHubPage: React.FC = () => {
         trend24h: {
           percentage: Math.abs(Math.round(percentage)),
           direction
+        },
+        registros24h: {
+          count: registros24hCount,
+          previousCount: registrosPrevCount,
+          changePercentage: Math.round(registrosChangePercentage),
+          direction: registrosDirection
         }
       });
     } catch (error) {
@@ -203,7 +257,8 @@ const MarketingHubPage: React.FC = () => {
       </div>
 
       {/* Summary Metrics Row */}
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-5">
+        {/* 1. Total Leads */}
         <Card className="bg-blue-50/50 border-blue-100">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -218,6 +273,41 @@ const MarketingHubPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* 2. Registros últimas 24 horas */}
+        <Card className={`${
+          summaryMetrics.registros24h.direction === 'up' ? 'bg-cyan-50/50 border-cyan-100' :
+          summaryMetrics.registros24h.direction === 'down' ? 'bg-orange-50/50 border-orange-100' : 'bg-slate-50/50 border-slate-100'
+        }`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Registros 24h</p>
+                <p className="text-2xl font-bold mt-1">{summaryMetrics.registros24h.count}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {summaryMetrics.registros24h.direction === 'up' && (
+                    <span className="text-cyan-600">+{summaryMetrics.registros24h.changePercentage}% vs ayer</span>
+                  )}
+                  {summaryMetrics.registros24h.direction === 'down' && (
+                    <span className="text-orange-600">{summaryMetrics.registros24h.changePercentage}% vs ayer</span>
+                  )}
+                  {summaryMetrics.registros24h.direction === 'stable' && (
+                    <span className="text-slate-500">~{summaryMetrics.registros24h.changePercentage}% vs ayer</span>
+                  )}
+                </p>
+              </div>
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+                summaryMetrics.registros24h.direction === 'up' ? 'bg-cyan-100' :
+                summaryMetrics.registros24h.direction === 'down' ? 'bg-orange-100' : 'bg-slate-100'
+              }`}>
+                {summaryMetrics.registros24h.direction === 'up' && <ArrowUp className="h-5 w-5 text-cyan-600" />}
+                {summaryMetrics.registros24h.direction === 'down' && <ArrowDown className="h-5 w-5 text-orange-600" />}
+                {summaryMetrics.registros24h.direction === 'stable' && <Minus className="h-5 w-5 text-slate-500" />}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 3. Solicitudes Enviadas */}
         <Card className="bg-green-50/50 border-green-100">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -232,6 +322,7 @@ const MarketingHubPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* 4. Total Tráfico */}
         <Card className="bg-purple-50/50 border-purple-100">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -246,6 +337,7 @@ const MarketingHubPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* 5. Tendencia 24h */}
         <Card className={`${
           summaryMetrics.trend24h.direction === 'up' ? 'bg-green-50/50 border-green-100' :
           summaryMetrics.trend24h.direction === 'down' ? 'bg-red-50/50 border-red-100' : 'bg-gray-50/50 border-gray-100'

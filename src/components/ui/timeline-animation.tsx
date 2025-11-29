@@ -1,6 +1,6 @@
 "use client";
-import { type HTMLMotionProps, motion, useInView } from "motion/react";
-import type { Variants } from "motion/react";
+import { type HTMLMotionProps, motion, useInView } from "framer-motion";
+import type { Variants } from "framer-motion";
 import type React from "react";
 
 type TimelineContentProps<T extends keyof HTMLElementTagNameMap> = {

@@ -93,7 +93,7 @@ const Header: React.FC = () => {
                       </Button>
                    </>
                 ) : (
-                  <Button asChild size="sm" className="bg-orange-600 hover:bg-orange-700">
+                  <Button asChild size="sm" className="bg-[#FF6801] hover:bg-[#E55E01] text-white">
                       <Link to="/acceder" data-gtm-id="header-login-button">
                           Iniciar Sesión
                       </Link>

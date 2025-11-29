@@ -299,11 +299,12 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Eventos</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{metrics.total_events.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-600">ConversionLandingPage</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">{metrics.funnelMetrics.registrations.toLocaleString()}</p>
+                <p className="text-xs text-gray-500 mt-1">Registros en /financiamientos</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-blue-600" />
+                <MousePointerClick className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>

@@ -242,6 +242,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     const currentUser = session?.user ?? null;
                     setUser(currentUser);
                     if (currentUser) {
+                        // Update last_sign_in_at in profiles table
+                        await supabase
+                            .from('profiles')
+                            .update({ last_sign_in_at: new Date().toISOString() })
+                            .eq('id', currentUser.id);
                         await fetchProfile(currentUser.id);
                     }
                 } else if (event === 'SIGNED_OUT') {

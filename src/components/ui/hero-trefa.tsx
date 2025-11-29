@@ -3,7 +3,7 @@
 import { TimelineContent } from "./timeline-animation";
 import { Button } from "./button";
 import { ChevronRight, Shield, Star } from "lucide-react";
-import { motion, useAnimationControls } from "motion/react";
+import { motion, useAnimationControls } from "framer-motion";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -105,80 +105,92 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout | null = null;
+    let startDelayId: NodeJS.Timeout | null = null;
 
     const animationSequence = async () => {
       if (!isMounted) return;
 
-      // Step 1: Animate first div from left 0% to 100% - slower and smoother
-      await firstDivControls.start({
-        left: "95%",
-        transition: { duration: 8, ease: [0.25, 0.1, 0.25, 1] },
-      });
+      try {
+        // Step 1: Animate first div from left 0% to 100% - slower and smoother
+        await firstDivControls.start({
+          left: "95%",
+          transition: { duration: 8, ease: [0.25, 0.1, 0.25, 1] },
+        });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      // Step 2: Fade out first div gently
-      await firstDivControls.start({
-        opacity: 0,
-        transition: { duration: 1, ease: "easeOut" },
-      });
+        // Step 2: Fade out first div gently
+        await firstDivControls.start({
+          opacity: 0,
+          transition: { duration: 1, ease: "easeOut" },
+        });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      // Step 3: Reset first div position (instantly)
-      firstDivControls.set({ left: "0%" });
+        // Step 3: Reset first div position (instantly)
+        firstDivControls.set({ left: "0%" });
 
-      // Step 4: Show second div gently
-      await secondDivControls.start({
-        opacity: 1,
-        transition: { duration: 1, ease: "easeIn" },
-      });
+        // Step 4: Show second div gently
+        await secondDivControls.start({
+          opacity: 1,
+          transition: { duration: 1, ease: "easeIn" },
+        });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      // Step 5: Animate second div from left 0% to 100% - slower and smoother
-      await secondDivControls.start({
-        left: "95%",
-        transition: { duration: 8, ease: [0.25, 0.1, 0.25, 1] },
-      });
+        // Step 5: Animate second div from left 0% to 100% - slower and smoother
+        await secondDivControls.start({
+          left: "95%",
+          transition: { duration: 8, ease: [0.25, 0.1, 0.25, 1] },
+        });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      // Step 6: Fade out second div gently
-      await secondDivControls.start({
-        opacity: 0,
-        transition: { duration: 1, ease: "easeOut" },
-      });
+        // Step 6: Fade out second div gently
+        await secondDivControls.start({
+          opacity: 0,
+          transition: { duration: 1, ease: "easeOut" },
+        });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      // Step 7: Reset second div position (instantly)
-      secondDivControls.set({ left: "0%" });
+        // Step 7: Reset second div position (instantly)
+        secondDivControls.set({ left: "0%" });
 
-      // Step 8: Show first div again gently
-      await firstDivControls.start({
-        opacity: 1,
-        transition: { duration: 1, ease: "easeIn" },
-      });
+        // Step 8: Show first div again gently
+        await firstDivControls.start({
+          opacity: 1,
+          transition: { duration: 1, ease: "easeIn" },
+        });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      // Longer delay before restarting the sequence
-      timeoutId = setTimeout(() => {
-        if (isMounted) {
-          animationSequence();
-        }
-      }, 1000);
+        // Longer delay before restarting the sequence
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            animationSequence();
+          }
+        }, 1000);
+      } catch (error) {
+        // Animation was cancelled or component unmounted, ignore
+      }
     };
 
-    // Start the animation sequence
-    animationSequence();
+    // Start the animation sequence after a small delay to ensure mount
+    startDelayId = setTimeout(() => {
+      if (isMounted) {
+        animationSequence();
+      }
+    }, 100);
 
     // Cleanup function to prevent memory leaks
     return () => {
       isMounted = false;
       if (timeoutId) {
         clearTimeout(timeoutId);
+      }
+      if (startDelayId) {
+        clearTimeout(startDelayId);
       }
       // Stop all ongoing animations
       firstDivControls.stop();

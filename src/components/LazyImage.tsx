@@ -105,7 +105,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
         }`}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
-        fetchPriority={priority ? "high" : "auto"}
+        fetchpriority={priority ? "high" : "auto"}
         crossOrigin="anonymous"
         onLoad={() => setIsLoaded(true)}
         onError={handleError}

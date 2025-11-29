@@ -28,7 +28,7 @@ const ReviewCard: React.FC<{ review: Review, index: number }> = ({ review, index
                         <p className="font-bold text-gray-800">{review.name}</p>
                         <div className="flex items-center mt-1">
                             {Array.from({ length: 5 }).map((_, i) => (
-                                <StarIcon key={i} filled={true} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 fill-gray-300'}`} />
+                                <StarIcon key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 fill-gray-300'}`} />
                             ))}
                         </div>
                     </div>

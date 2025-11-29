@@ -115,7 +115,7 @@ const AdminUserManagementPage: React.FC = () => {
     const getStatusBadge = (user: SalesUser) => {
         if (!user.is_active) {
             return (
-                <Badge variant="secondary" className="gap-1">
+                <Badge variant="secondary" className="gap-1 bg-gray-500 text-white hover:bg-gray-600">
                     <XCircle className="w-3 h-3" />
                     Inactivo
                 </Badge>
@@ -123,14 +123,14 @@ const AdminUserManagementPage: React.FC = () => {
         }
         if (user.is_overloaded) {
             return (
-                <Badge variant="destructive" className="gap-1">
+                <Badge variant="destructive" className="gap-1 bg-red-600 text-white hover:bg-red-700">
                     <AlertCircle className="w-3 h-3" />
                     Sobrecargado
                 </Badge>
             );
         }
         return (
-            <Badge variant="default" className="gap-1">
+            <Badge variant="default" className="gap-1 bg-green-600 text-white hover:bg-green-700">
                 <CheckCircle className="w-3 h-3" />
                 Activo
             </Badge>
@@ -139,7 +139,7 @@ const AdminUserManagementPage: React.FC = () => {
 
     const getActivityBadge = (lastSignIn: string | null) => {
         if (!lastSignIn) return (
-            <Badge variant="outline">Sin actividad</Badge>
+            <Badge variant="outline" className="bg-gray-100 text-gray-700 border-gray-300">Sin actividad</Badge>
         );
 
         const date = new Date(lastSignIn);
@@ -147,13 +147,13 @@ const AdminUserManagementPage: React.FC = () => {
         const diffDays = Math.ceil((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
         if (diffDays <= 1) {
-            return <Badge variant="default">En línea</Badge>;
+            return <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">En línea</Badge>;
         } else if (diffDays <= 7) {
-            return <Badge variant="secondary">Activo</Badge>;
+            return <Badge className="bg-blue-500 text-white hover:bg-blue-600">Activo</Badge>;
         } else if (diffDays <= 30) {
-            return <Badge variant="outline">Poco activo</Badge>;
+            return <Badge className="bg-amber-500 text-white hover:bg-amber-600">Poco activo</Badge>;
         } else {
-            return <Badge variant="destructive">Inactivo</Badge>;
+            return <Badge className="bg-red-500 text-white hover:bg-red-600">Inactivo</Badge>;
         }
     };
 
@@ -186,7 +186,7 @@ const AdminUserManagementPage: React.FC = () => {
     }
 
     return (
-        <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
+        <div className="flex-1 space-y-4 pt-2">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>

@@ -6,8 +6,7 @@ import ScrollToTop from './components/ScrollToTop';
 import AuthHandler from './components/AuthHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
-import DashboardLayout from './components/DashboardLayout';
-import UserDashboardLayout from './components/UserDashboardLayout';
+import UnifiedDashboardLayout from './components/UnifiedDashboardLayout';
 import AdminRoute from './components/AdminRoute';
 import SalesRoute from './components/SalesRoute';
 import RedirectManager from './components/RedirectManager';
@@ -104,6 +103,7 @@ import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
 import BankRoute from './components/BankRoute';
 import BankDashboardLayout from './components/BankDashboardLayout';
+import SalesInactivityLogout from './components/SalesInactivityLogout';
 
 function App(): React.JSX.Element {
   // Disabled: Table setup should be done via migrations, not on page load
@@ -127,6 +127,7 @@ function App(): React.JSX.Element {
       <AuthHandler />
       <RedirectManager />
       <ScrollToTop />
+      <SalesInactivityLogout />
       <Suspense fallback={loadingSpinner}>
         <Routes>
           {/* Standalone Explorar page (no layout) */}
@@ -171,8 +172,9 @@ function App(): React.JSX.Element {
             </Route>
 
             <Route path="/escritorio" element={<ProtectedRoute />}>
-              {/* User routes with UserDashboardLayout */}
-              <Route element={<UserDashboardLayout />}>
+              {/* All dashboard routes with UnifiedDashboardLayout */}
+              <Route element={<UnifiedDashboardLayout />}>
+                {/* Common user routes */}
                 <Route index element={<DashboardSidebarPage />} />
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="perfilacion-bancaria" element={<PerfilacionBancariaPage />} />
@@ -195,10 +197,6 @@ function App(): React.JSX.Element {
                 <Route path="solicitudes" element={<UserApplicationsPage />} />
                 <Route path="vende-tu-auto" element={<SellMyCarPage />} />
                 <Route path="ejemplo" element={<DashboardExample />} />
-              </Route>
-
-              {/* Admin/Sales routes WITH DashboardLayout */}
-              <Route element={<DashboardLayout />}>
 
                 {/* Admin-only routes nested under protected dashboard */}
                 <Route element={<AdminRoute />}>
@@ -232,6 +230,7 @@ function App(): React.JSX.Element {
                   <Route path="admin/tracking-analytics" element={<UnifiedTrackingDashboard />} />
                   <Route path="admin/r2-images" element={<R2ImageManagerPage />} />
                   <Route path="admin/bancos" element={<AdminBankManagementPage />} />
+                  <Route path="admin/intel" element={<IntelPage />} />
                   <Route path="marketing" element={<MarketingHubPage />} />
                   <Route path="marketing/constructor" element={<ConstructorPage />} />
                   <Route path="marketing/homepage-editor" element={<HomePageEditorPage />} />

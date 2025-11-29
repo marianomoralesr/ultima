@@ -205,7 +205,7 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
     >
       {/* Animated Vehicle Grid Background - optimized for fast loading */}
       <AnimatedVehicleGrid maxVehicles={isMobile ? 9 : 18} gradientDirection="diagonal" />
-      <section className="w-full pt-16 pb-28 md:grid md:grid-cols-2 flex flex-col md:items-start max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
+      <section className="w-full pt-12 pb-16 md:pt-10 md:pb-20 md:grid md:grid-cols-2 flex flex-col md:items-start max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
         <article className="space-y-5 flex-col flex justify-start text-left pb-10 md:pt-12">
           <Link
             to="/financiamientos"
@@ -341,9 +341,9 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
               >
                 Financiamiento Digital
               </h1>
-              <div className="p-4 px-8">
-                <figure className="flex gap-3">
-                  <div className="xl:w-28 xl:h-28 w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center flex-shrink-0">
+              <div className="p-3 px-6">
+                <figure className="flex gap-2">
+                  <div className="xl:w-20 xl:h-20 w-16 h-16 sm:w-18 sm:h-18 flex items-center justify-center flex-shrink-0">
                     <img
                       src="/images/fer-help.png"
                       alt="Asesor TREFA"
@@ -351,28 +351,28 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
                     />
                   </div>
                   <article>
-                    <h1 className="font-semibold xl:text-lg text-sm">
+                    <h1 className="font-semibold xl:text-base text-sm">
                       Aplica desde tu celular
                     </h1>
-                    <p className="text-gray-900 xl:text-sm text-xs">
+                    <p className="text-gray-900 xl:text-xs text-xs">
                       100% en línea
                     </p>
                     <span
-                      className={`mt-2 inline-block xl:text-sm text-xs transition-all duration-1000 ${
+                      className={`mt-1 inline-block xl:text-xs text-xs transition-all duration-1000 ${
                         steps[2].completed
                           ? "bg-green-100 text-green-600"
                           : "bg-orange-100 text-orange-600"
-                      } px-3 font-semibold py-1 rounded-full`}
+                      } px-2 font-semibold py-0.5 rounded-full`}
                     >
                       {steps[2].completed ? "Aprobado" : "En Proceso"}
                     </span>
                   </article>
                 </figure>
               </div>
-              <div className="px-8 p-4">
-                <div className="relative flex items-center justify-center py-4 -mt-4 md:-mt-9">
-                  {/* Circular Timeline Container */}
-                  <div className="relative w-full max-w-[260px] sm:max-w-[300px] md:max-w-[340px] aspect-square mx-auto">
+              <div className="px-6 p-3">
+                <div className="relative flex items-center justify-center py-2 -mt-2 md:-mt-4">
+                  {/* Circular Timeline Container - Compact for better viewport fit */}
+                  <div className="relative w-full max-w-[200px] sm:max-w-[220px] md:max-w-[260px] aspect-square mx-auto">
                     {/* Circular Progress Background */}
                     <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
                       {/* Background Circle */}
@@ -425,9 +425,9 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
                               transitionDelay: `${index * 150}ms`
                             }}
                           >
-                            {/* Numbered Circle */}
+                            {/* Numbered Circle - Compact */}
                             <div
-                              className={`w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full border-3 flex items-center justify-center transition-all duration-500 font-bold text-base sm:text-lg shadow-lg ${
+                              className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full border-2 flex items-center justify-center transition-all duration-500 font-bold text-sm sm:text-base shadow-md ${
                                 step.completed || step.active
                                   ? steps[2].completed
                                     ? "bg-green-500 border-green-600 text-white"
@@ -436,7 +436,7 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
                               }`}
                             >
                               {step.completed ? (
-                                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                               ) : (
@@ -447,13 +447,13 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
                             {/* Label - positioned based on circle position */}
                             <div
                               className={`text-center transition-all duration-500 ${
-                                index === 0 ? 'mt-2' : // Top
-                                index === 1 ? 'ml-14 sm:ml-16' : // Right
-                                index === 2 ? 'mt-2' : // Bottom
-                                '-ml-14 sm:-ml-16' // Left
+                                index === 0 ? 'mt-1' : // Top
+                                index === 1 ? 'ml-12 sm:ml-14' : // Right
+                                index === 2 ? 'mt-1' : // Bottom
+                                '-ml-12 sm:-ml-14' // Left
                               }`}
                               style={{
-                                minWidth: index === 1 || index === 3 ? '90px' : '70px'
+                                minWidth: index === 1 || index === 3 ? '80px' : '60px'
                               }}
                             >
                               <div className={`text-[9px] sm:text-[10px] font-bold transition-colors duration-500 whitespace-nowrap ${
@@ -476,11 +476,11 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
                       );
                     })}
 
-                    {/* Center Content - Dynamic Emoji */}
+                    {/* Center Content - Dynamic Emoji - Compact 0.5x */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center flex flex-col items-center">
                         {/* Dynamic Step Emoji */}
-                        <div className="text-6xl sm:text-7xl md:text-8xl transition-all duration-500">
+                        <div className="text-2xl sm:text-3xl md:text-4xl transition-all duration-500">
                           {currentStep === 0 && '👩🏻‍💻'}
                           {currentStep === 1 && '📤'}
                           {currentStep === 2 && '🕑'}

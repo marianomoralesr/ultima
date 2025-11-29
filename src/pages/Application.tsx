@@ -56,7 +56,7 @@ const baseApplicationObject = z.object({
   company_industry: z.string().min(2, "Por favor, indica a qué industria o sector pertenece tu empresa"),
   job_title: z.string().min(2, "Por favor, ingresa tu puesto o cargo en la empresa"),
   job_seniority: z.string().min(1, "Por favor, indica cuánto tiempo llevas trabajando en tu puesto actual"),
-  net_monthly_income: z.string().min(1, "Por favor, ingresa tu ingreso mensual neto (después de impuestos)"),
+  net_monthly_income: z.string().min(1, "Por favor, ingresa tu ingreso mensual bruto (antes de impuestos)"),
 
   // Step 3: References
   parentesco: z.string().min(3, "Por favor, especifica tu parentesco o relación con la referencia familiar"),
@@ -1048,7 +1048,7 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
                             inputMode="numeric"
                         />
                     </div>
-                    <p className="text-xs text-muted-foreground">Ingresa tu salario neto mensual (después de impuestos)</p>
+                    <p className="text-xs text-muted-foreground">Ingresa tu salario bruto mensual (antes de impuestos)</p>
                     {errors.net_monthly_income && <p className="text-destructive text-sm">{errors.net_monthly_income.message}</p>}
                 </div>
             </div>
@@ -1256,7 +1256,7 @@ const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, veh
                 <SummarySection title="Datos Laborales" icon={Building2}>
                     <ReviewItem label="Empresa" value={applicationData.company_name} />
                     <ReviewItem label="Puesto" value={applicationData.job_title} />
-                    <ReviewItem label="Ingreso Neto" value={applicationData.net_monthly_income} />
+                    <ReviewItem label="Ingreso Bruto" value={applicationData.net_monthly_income} />
                     <ReviewItem label="Antigüedad" value={applicationData.job_seniority} />
                 </SummarySection>
             </div>

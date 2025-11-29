@@ -15,7 +15,7 @@ const getSessionId = () => {
 };
 
 export const useRealtimeVisitors = () => {
-  const [activeUsers, setActiveUsers] = useState<number>(3); // Default fallback before first fetch (minimum 3)
+  const [activeUsers, setActiveUsers] = useState<number>(16); // Default fallback before first fetch (minimum 16)
   const [isLoading, setIsLoading] = useState(true);
 
   // Send heartbeat to track this session

@@ -345,25 +345,27 @@ export default function AdminBusinessAnalyticsDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <RechartsPieChart>
-                                <Pie
-                                    data={metrics.priceRangeInsights}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={(entry) => `${entry.range}: ${entry.count}`}
-                                    outerRadius={80}
-                                    fill="#f97316"
-                                    dataKey="count"
-                                >
-                                    {metrics.priceRangeInsights.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                            </RechartsPieChart>
-                        </ResponsiveContainer>
+                        <div style={{ width: '100%', height: 300 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                              <RechartsPieChart>
+                                  <Pie
+                                      data={metrics.priceRangeInsights}
+                                      cx="50%"
+                                      cy="50%"
+                                      labelLine={false}
+                                      label={(entry) => `${entry.range}: ${entry.count}`}
+                                      outerRadius={80}
+                                      fill="#f97316"
+                                      dataKey="count"
+                                  >
+                                      {metrics.priceRangeInsights.map((entry, index) => (
+                                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                      ))}
+                                  </Pie>
+                                  <Tooltip />
+                              </RechartsPieChart>
+                          </ResponsiveContainer>
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -375,16 +377,18 @@ export default function AdminBusinessAnalyticsDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <RechartsBarChart data={metrics.priceRangeInsights}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} className="text-xs" />
-                                <YAxis className="text-xs" />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="avgApplications" fill="#f97316" name="Promedio de Solicitudes" />
-                            </RechartsBarChart>
-                        </ResponsiveContainer>
+                        <div style={{ width: '100%', height: 300 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                              <RechartsBarChart data={metrics.priceRangeInsights}>
+                                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                  <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} className="text-xs" />
+                                  <YAxis className="text-xs" />
+                                  <Tooltip />
+                                  <Legend />
+                                  <Bar dataKey="avgApplications" fill="#f97316" name="Promedio de Solicitudes" />
+                              </RechartsBarChart>
+                          </ResponsiveContainer>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -433,16 +437,18 @@ export default function AdminBusinessAnalyticsDashboard() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={metrics.conversionRateByPrice}>
-                            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                            <XAxis dataKey="range" className="text-xs" />
-                            <YAxis className="text-xs" />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="rate" stroke="#f97316" strokeWidth={2} name="Tasa de Conversión" />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    <div style={{ width: '100%', height: 300 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={metrics.conversionRateByPrice}>
+                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                              <XAxis dataKey="range" className="text-xs" />
+                              <YAxis className="text-xs" />
+                              <Tooltip />
+                              <Legend />
+                              <Line type="monotone" dataKey="rate" stroke="#f97316" strokeWidth={2} name="Tasa de Conversión" />
+                          </LineChart>
+                      </ResponsiveContainer>
+                    </div>
                 </CardContent>
             </Card>
         </div>

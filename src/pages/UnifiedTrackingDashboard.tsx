@@ -130,7 +130,39 @@ const UnifiedTrackingDashboard: React.FC = () => {
     );
   }
 
-  const { conversionMetrics, funnelData, campaignMetrics, timeSeriesMetrics, sourcePerformance, forecast, recommendations } = metrics;
+  const { conversionMetrics, funnelData: rawFunnelData, campaignMetrics, timeSeriesMetrics, sourcePerformance, forecast, recommendations } = metrics;
+
+  // Process funnel data to cap any step that exceeds its previous step
+  // This handles cases where test users create multiple entries
+  const funnelData = rawFunnelData.reduce((acc, stage, index) => {
+    if (index === 0) {
+      acc.push(stage);
+      return acc;
+    }
+
+    const previousStage = acc[index - 1]; // Use already-capped previous stage
+    const initialCount = rawFunnelData[0]?.count || 1;
+
+    // If this stage count exceeds previous, cap it
+    if (stage.count > previousStage.count) {
+      const cappedCount = previousStage.count;
+      const cappedPercentage = initialCount > 0
+        ? Math.round((cappedCount / initialCount) * 1000) / 10
+        : 0;
+
+      acc.push({
+        ...stage,
+        count: cappedCount,
+        percentage: cappedPercentage,
+        conversionRate: 99.9, // Cap at 99.9%
+        dropOffRate: 0.1
+      });
+    } else {
+      acc.push(stage);
+    }
+
+    return acc;
+  }, [] as typeof rawFunnelData);
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -187,7 +219,7 @@ const UnifiedTrackingDashboard: React.FC = () => {
               <div className="text-sm flex items-center gap-1">
                 <TrendingUp className="h-3 w-3 text-green-600" />
                 <span className="text-green-600 font-semibold">
-                  {conversionMetrics.visitToRegistrationRate}%
+                  {Math.min(conversionMetrics.visitToRegistrationRate, 99.9)}%
                 </span>
                 <span className="text-slate-600">conversión</span>
               </div>
@@ -206,7 +238,7 @@ const UnifiedTrackingDashboard: React.FC = () => {
               <div className="text-sm flex items-center gap-1">
                 <TrendingUp className="h-3 w-3 text-green-600" />
                 <span className="text-green-600 font-semibold">
-                  {conversionMetrics.registrationToProfileRate}%
+                  {Math.min(conversionMetrics.registrationToProfileRate, 99.9)}%
                 </span>
                 <span className="text-slate-600">de registros</span>
               </div>
@@ -225,7 +257,7 @@ const UnifiedTrackingDashboard: React.FC = () => {
               <div className="text-sm flex items-center gap-1">
                 <TrendingUp className="h-3 w-3 text-green-600" />
                 <span className="text-green-600 font-semibold">
-                  {conversionMetrics.overallConversionRate}%
+                  {Math.min(conversionMetrics.overallConversionRate, 99.9)}%
                 </span>
                 <span className="text-slate-600">conversión total</span>
               </div>
@@ -239,7 +271,7 @@ const UnifiedTrackingDashboard: React.FC = () => {
                 Tasa de Conversión
               </CardDescription>
               <CardTitle className="text-4xl text-blue-900">
-                {conversionMetrics.overallConversionRate}%
+                {Math.min(conversionMetrics.overallConversionRate, 99.9)}%
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -280,36 +312,44 @@ const UnifiedTrackingDashboard: React.FC = () => {
                   <CardTitle>Tendencia de Conversiones (Últimos 30 días)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={timeSeriesMetrics}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="visits"
-                        stroke={COLORS.primary}
-                        name="Visitas"
-                        strokeWidth={2}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="registrations"
-                        stroke={COLORS.success}
-                        name="Registros"
-                        strokeWidth={2}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="applications"
-                        stroke={COLORS.purple}
-                        name="Solicitudes"
-                        strokeWidth={2}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  {timeSeriesMetrics && timeSeriesMetrics.length > 0 ? (
+                    <div style={{ width: '100%', height: 350, minHeight: 350 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={timeSeriesMetrics}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Line
+                            type="monotone"
+                            dataKey="visits"
+                            stroke={COLORS.primary}
+                            name="Visitas"
+                            strokeWidth={2}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="registrations"
+                            stroke={COLORS.success}
+                            name="Registros"
+                            strokeWidth={2}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="applications"
+                            stroke={COLORS.purple}
+                            name="Solicitudes"
+                            strokeWidth={2}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-[350px] text-slate-400">
+                      <p>No hay datos disponibles para este período</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -319,22 +359,30 @@ const UnifiedTrackingDashboard: React.FC = () => {
                   <CardTitle>Tasa de Conversión Diaria</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={timeSeriesMetrics}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip formatter={(value: number) => `${value}%`} />
-                      <Area
-                        type="monotone"
-                        dataKey="conversionRate"
-                        stroke={COLORS.success}
-                        fill={COLORS.success}
-                        fillOpacity={0.3}
-                        name="Conversión %"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {timeSeriesMetrics && timeSeriesMetrics.length > 0 ? (
+                    <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={timeSeriesMetrics}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip formatter={(value: number) => `${value}%`} />
+                          <Area
+                            type="monotone"
+                            dataKey="conversionRate"
+                            stroke={COLORS.success}
+                            fill={COLORS.success}
+                            fillOpacity={0.3}
+                            name="Conversión %"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-[300px] text-slate-400">
+                      <p>No hay datos disponibles</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -366,7 +414,7 @@ const UnifiedTrackingDashboard: React.FC = () => {
 
           {/* Funnel Tab */}
           <TabsContent value="funnel" className="space-y-6">
-            {/* Visual Funnel Chart */}
+            {/* Visual Funnel Chart - Clean Design */}
             <Card className="border-2">
               <CardHeader>
                 <CardTitle className="text-2xl">Embudo de Conversión Completo</CardTitle>
@@ -374,60 +422,92 @@ const UnifiedTrackingDashboard: React.FC = () => {
                   Flujo de usuarios desde visita en landing page hasta solicitud enviada
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-1">
+              <CardContent className="pt-4">
+                {/* Funnel Visual - Full Width Bars */}
+                <div className="flex flex-col gap-3 mb-8">
                   {funnelData.map((stage, index) => {
-                    const maxCount = funnelData[0]?.count || 1;
-                    const widthPercentage = (stage.count / maxCount) * 100;
-                    const stageIcons = ['🏠', '📝', '👤', '📄', '✅'];
-                    const stageColors = [
-                      'from-blue-500 to-blue-600',
-                      'from-indigo-500 to-indigo-600',
-                      'from-purple-500 to-purple-600',
-                      'from-pink-500 to-pink-600',
-                      'from-green-500 to-green-600'
+                    const gradients = [
+                      'from-blue-700 to-blue-600',
+                      'from-indigo-700 to-indigo-600',
+                      'from-violet-700 to-violet-600',
+                      'from-fuchsia-700 to-fuchsia-600',
+                      'from-emerald-700 to-emerald-600'
                     ];
 
                     return (
-                      <div key={stage.stage} className="space-y-1">
-                        {/* Funnel Bar */}
-                        <div className="flex items-center gap-3">
-                          <div className="w-32 flex-shrink-0 text-right">
-                            <div className="text-sm font-medium text-slate-700 flex items-center justify-end gap-2">
-                              <span>{stageIcons[index]}</span>
-                              <span>{stage.stageName}</span>
+                      <div key={stage.stage} className="w-full">
+                        {/* Funnel Bar - Full Width */}
+                        <div
+                          className={`w-full bg-gradient-to-r ${gradients[index]} rounded-xl py-5 px-6 flex items-center justify-between shadow-lg hover:shadow-xl transition-all duration-300`}
+                        >
+                          {/* Left: Step number and name */}
+                          <div className="flex items-center gap-4">
+                            <span className="bg-white text-slate-800 rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold shadow">
+                              {index + 1}
+                            </span>
+                            <div>
+                              <div className="font-bold text-white text-lg">{stage.stageName}</div>
+                              <div className="text-white text-sm font-medium">{stage.percentage}% del total inicial</div>
                             </div>
                           </div>
-                          <div className="flex-1">
-                            <div
-                              className={`bg-gradient-to-r ${stageColors[index]} rounded-r-full h-14 flex items-center justify-between px-4 text-white shadow-md transition-all hover:shadow-lg`}
-                              style={{ width: `${Math.max(widthPercentage, 5)}%` }}
-                            >
-                              <span className="font-bold text-lg">{stage.count.toLocaleString()}</span>
+
+                          {/* Right: Numbers */}
+                          <div className="flex items-center gap-8">
+                            {/* Conversion rate from previous */}
+                            {index > 0 && (
                               <div className="text-right">
-                                <div className="text-sm font-semibold">{stage.percentage}% del total</div>
-                                {index > 0 && (
-                                  <div className="text-xs opacity-90">
-                                    {stage.conversionRate}% desde anterior
-                                  </div>
-                                )}
+                                <div className={`text-2xl font-bold ${stage.conversionRate > 50 ? 'text-green-300' : 'text-yellow-300'}`}>
+                                  {stage.conversionRate}%
+                                </div>
+                                <div className="text-white text-sm font-medium">conversión</div>
                               </div>
+                            )}
+                            {/* Count */}
+                            <div className="text-right min-w-[120px]">
+                              <div className="text-3xl font-bold text-white">{stage.count.toLocaleString()}</div>
+                              <div className="text-white text-sm font-medium">usuarios</div>
                             </div>
                           </div>
                         </div>
 
                         {/* Drop-off Indicator */}
-                        {index < funnelData.length - 1 && stage.dropOffRate > 0 && (
-                          <div className="flex items-center gap-3 pl-32 py-1">
-                            <div className="w-1 h-6 bg-red-300"></div>
-                            <div className="text-xs text-red-600 font-medium bg-red-50 px-2 py-1 rounded">
-                              ⚠️ Pérdida de {stage.dropOffRate}% ({(funnelData[index].count - funnelData[index + 1].count).toLocaleString()} usuarios)
+                        {index < funnelData.length - 1 && (
+                          <div className="flex items-center justify-center py-2">
+                            <div className="flex items-center gap-2 px-4 py-1 bg-red-50 rounded-full border border-red-200">
+                              <TrendingDown className="h-4 w-4 text-red-500" />
+                              <span className="text-sm font-semibold text-red-600">
+                                -{stage.dropOffRate}% · {(funnelData[index].count - funnelData[index + 1].count).toLocaleString()} perdidos
+                              </span>
                             </div>
                           </div>
                         )}
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Summary Stats Row */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t">
+                  <div className="text-center p-4 bg-slate-50 rounded-lg">
+                    <div className="text-3xl font-bold text-slate-900">{Math.min(conversionMetrics.overallConversionRate, 99.9)}%</div>
+                    <div className="text-sm text-slate-600 mt-1">Conversión Total</div>
+                    <div className="text-xs text-slate-400">Visita → Solicitud</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-700">{Math.min(conversionMetrics.visitToRegistrationRate, 99.9)}%</div>
+                    <div className="text-sm text-slate-600 mt-1">Tasa de Registro</div>
+                    <div className="text-xs text-slate-400">De visitas</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-3xl font-bold text-purple-700">{Math.min(conversionMetrics.registrationToProfileRate, 99.9)}%</div>
+                    <div className="text-sm text-slate-600 mt-1">Completan Perfil</div>
+                    <div className="text-xs text-slate-400">De registros</div>
+                  </div>
+                  <div className="text-center p-4 bg-emerald-50 rounded-lg">
+                    <div className="text-3xl font-bold text-emerald-700">{Math.min(conversionMetrics.bankProfilingToApplicationRate, 99.9)}%</div>
+                    <div className="text-sm text-slate-600 mt-1">Envían Solicitud</div>
+                    <div className="text-xs text-slate-400">De perfiles completos</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -508,28 +588,28 @@ const UnifiedTrackingDashboard: React.FC = () => {
                   <div className="text-center">
                     <div className="text-sm text-slate-600 mb-1">Tasa Global</div>
                     <div className="text-2xl font-bold text-blue-600">
-                      {conversionMetrics.overallConversionRate}%
+                      {Math.min(conversionMetrics.overallConversionRate, 99.9)}%
                     </div>
                     <div className="text-xs text-slate-500">Visita → Solicitud</div>
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-slate-600 mb-1">Registro</div>
                     <div className="text-2xl font-bold text-indigo-600">
-                      {conversionMetrics.visitToRegistrationRate}%
+                      {Math.min(conversionMetrics.visitToRegistrationRate, 99.9)}%
                     </div>
                     <div className="text-xs text-slate-500">De visitas</div>
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-slate-600 mb-1">Perfil</div>
                     <div className="text-2xl font-bold text-purple-600">
-                      {conversionMetrics.registrationToProfileRate}%
+                      {Math.min(conversionMetrics.registrationToProfileRate, 99.9)}%
                     </div>
                     <div className="text-xs text-slate-500">De registros</div>
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-slate-600 mb-1">Finalización</div>
                     <div className="text-2xl font-bold text-green-600">
-                      {conversionMetrics.bankProfilingToApplicationRate}%
+                      {Math.min(conversionMetrics.bankProfilingToApplicationRate, 99.9)}%
                     </div>
                     <div className="text-xs text-slate-500">Completan solicitud</div>
                   </div>
@@ -590,15 +670,23 @@ const UnifiedTrackingDashboard: React.FC = () => {
                   <CardTitle>Rendimiento por Fuente</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={sourcePerformance.slice(0, 10)}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="source" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="conversionRate" fill={COLORS.primary} name="Conversión %" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {sourcePerformance && sourcePerformance.length > 0 ? (
+                    <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={sourcePerformance.slice(0, 10)}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="source" angle={-45} textAnchor="end" height={80} />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar dataKey="conversionRate" fill={COLORS.primary} name="Conversión %" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-[300px] text-slate-400">
+                      <p>No hay datos de fuentes disponibles</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -634,43 +722,51 @@ const UnifiedTrackingDashboard: React.FC = () => {
                 <CardDescription>Basado en tendencias históricas</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={[...timeSeriesMetrics.slice(-7), ...forecast]}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="visits"
-                      stroke={COLORS.primary}
-                      name="Visitas (Real)"
-                      strokeDasharray="5 5"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="predictedVisits"
-                      stroke={COLORS.primary}
-                      name="Visitas (Pronóstico)"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="applications"
-                      stroke={COLORS.success}
-                      name="Conversiones (Real)"
-                      strokeDasharray="5 5"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="predictedConversions"
-                      stroke={COLORS.success}
-                      name="Conversiones (Pronóstico)"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                {(timeSeriesMetrics?.length > 0 || forecast?.length > 0) ? (
+                  <div style={{ width: '100%', height: 400, minHeight: 400 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={[...timeSeriesMetrics.slice(-7), ...forecast]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="visits"
+                          stroke={COLORS.primary}
+                          name="Visitas (Real)"
+                          strokeDasharray="5 5"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="predictedVisits"
+                          stroke={COLORS.primary}
+                          name="Visitas (Pronóstico)"
+                          strokeWidth={2}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="applications"
+                          stroke={COLORS.success}
+                          name="Conversiones (Real)"
+                          strokeDasharray="5 5"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="predictedConversions"
+                          stroke={COLORS.success}
+                          name="Conversiones (Pronóstico)"
+                          strokeWidth={2}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-[400px] text-slate-400">
+                    <p>No hay datos disponibles para el pronóstico</p>
+                  </div>
+                )}
                 <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-900">
                     <strong>Proyección:</strong> Basado en las tendencias actuales, se esperan aproximadamente{' '}

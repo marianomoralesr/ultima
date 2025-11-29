@@ -79,36 +79,38 @@ const SourcePieChart: React.FC<SourcePieChartProps> = ({ data, height = 300 }) =
     };
 
     return (
-        <ResponsiveContainer width="100%" height={height}>
-            <PieChart>
-                <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderCustomLabel}
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="value"
-                    animationDuration={1000}
-                    animationBegin={0}
-                >
-                    {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                    verticalAlign="bottom"
-                    height={40}
-                    iconType="circle"
-                    formatter={(value, entry: any) => {
-                        const item = chartData.find(d => d.name === value);
-                        return `${value} (${item?.value || 0})`;
-                    }}
-                />
-            </PieChart>
-        </ResponsiveContainer>
+        <div style={{ width: '100%', height, minHeight: height }}>
+          <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                  <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomLabel}
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="value"
+                      animationDuration={1000}
+                      animationBegin={0}
+                  >
+                      {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                      verticalAlign="bottom"
+                      height={40}
+                      iconType="circle"
+                      formatter={(value, entry: any) => {
+                          const item = chartData.find(d => d.name === value);
+                          return `${value} (${item?.value || 0})`;
+                      }}
+                  />
+              </PieChart>
+          </ResponsiveContainer>
+        </div>
     );
 };
 

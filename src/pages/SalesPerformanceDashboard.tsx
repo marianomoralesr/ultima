@@ -305,25 +305,27 @@ const SalesPerformanceDashboard: React.FC = () => {
                                 Distribución por Estado
                             </h3>
                             {statusChartData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <RechartsPieChart>
-                                        <Pie
-                                            data={statusChartData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            label={({ name, value }) => `${name}: ${value}`}
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                        >
-                                            {statusChartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS] || COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip />
-                                    </RechartsPieChart>
-                                </ResponsiveContainer>
+                                <div style={{ width: '100%', height: 250 }}>
+                                  <ResponsiveContainer width="100%" height="100%">
+                                      <RechartsPieChart>
+                                          <Pie
+                                              data={statusChartData}
+                                              cx="50%"
+                                              cy="50%"
+                                              labelLine={false}
+                                              label={({ name, value }) => `${name}: ${value}`}
+                                              outerRadius={80}
+                                              fill="#8884d8"
+                                              dataKey="value"
+                                          >
+                                              {statusChartData.map((entry, index) => (
+                                                  <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS] || COLORS[index % COLORS.length]} />
+                                              ))}
+                                          </Pie>
+                                          <Tooltip />
+                                      </RechartsPieChart>
+                                  </ResponsiveContainer>
+                                </div>
                             ) : (
                                 <p className="text-gray-500 text-center py-8">No hay datos disponibles</p>
                             )}
@@ -334,17 +336,19 @@ const SalesPerformanceDashboard: React.FC = () => {
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">
                                 Desempeño vs Objetivo
                             </h3>
-                            <ResponsiveContainer width="100%" height={250}>
-                                <RechartsBarChart data={performanceData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={11} />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="value" fill="#f97316" name="Actual %" />
-                                    <Bar dataKey="target" fill="#22c55e" name="Objetivo %" />
-                                </RechartsBarChart>
-                            </ResponsiveContainer>
+                            <div style={{ width: '100%', height: 250 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                  <RechartsBarChart data={performanceData}>
+                                      <CartesianGrid strokeDasharray="3 3" />
+                                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={11} />
+                                      <YAxis />
+                                      <Tooltip />
+                                      <Legend />
+                                      <Bar dataKey="value" fill="#f97316" name="Actual %" />
+                                      <Bar dataKey="target" fill="#22c55e" name="Objetivo %" />
+                                  </RechartsBarChart>
+                              </ResponsiveContainer>
+                            </div>
                         </div>
                     </div>
 

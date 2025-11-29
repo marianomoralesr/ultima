@@ -98,9 +98,72 @@ body {
   position: relative;
 }
 
-/* Prevent horizontal scroll globally */
-* {
+/* Prevent horizontal scroll globally - exclude SVG elements for recharts compatibility */
+*:not(svg):not(svg *) {
   max-width: 100%;
+}
+
+/* Ensure recharts containers render properly */
+.recharts-responsive-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 200px !important;
+  min-width: 200px !important;
+}
+
+.recharts-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  min-height: 200px !important;
+}
+
+/* Force recharts surface to be visible */
+.recharts-surface {
+  overflow: visible !important;
+  min-width: 100px !important;
+  min-height: 100px !important;
+}
+
+/* Ensure SVG elements in recharts are not hidden */
+.recharts-wrapper svg {
+  overflow: visible !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Fix for recharts legend and tooltip positioning */
+.recharts-legend-wrapper {
+  position: relative !important;
+}
+
+.recharts-tooltip-wrapper {
+  z-index: 1000 !important;
+}
+
+/* Chart container helper - ensures proper dimensions */
+[style*="height"] > .recharts-responsive-container {
+  min-height: inherit !important;
+}
+
+/* Ensure card content has proper dimensions for charts */
+[class*="CardContent"] > div[style*="height"],
+.card-content > div[style*="height"] {
+  display: block !important;
+  position: relative !important;
+}
+
+/* Fix for tabs content - ensure charts get proper dimensions */
+[data-state="active"] .recharts-responsive-container,
+[data-state="active"] .recharts-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Force recalculation when tab becomes active */
+[data-radix-collection-item][data-state="active"] ~ [role="tabpanel"] .recharts-wrapper {
+  transform: translateZ(0);
 }
 
 /* Add bottom padding for mobile pages to prevent bottom nav overlap */

@@ -197,7 +197,7 @@ const EmploymentStep: React.FC<EmploymentStepProps> = ({
 
         {/* Monthly Income */}
         <div>
-          <Label htmlFor="net_monthly_income">Ingreso Mensual Neto *</Label>
+          <Label htmlFor="net_monthly_income">Ingreso Mensual Bruto *</Label>
           <div className="relative mt-1">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-semibold">$</span>
             <input
@@ -208,7 +208,7 @@ const EmploymentStep: React.FC<EmploymentStepProps> = ({
               inputMode="numeric"
             />
           </div>
-          <p className="text-xs text-gray-500 mt-2">Ingresa tu salario neto mensual (después de impuestos)</p>
+          <p className="text-xs text-gray-500 mt-2">Ingresa tu salario bruto mensual (antes de impuestos)</p>
           {errors.net_monthly_income && <p className="text-red-600 text-sm mt-1">{errors.net_monthly_income.message}</p>}
         </div>
       </div>

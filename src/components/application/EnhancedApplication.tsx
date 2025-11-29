@@ -68,7 +68,7 @@ const baseApplicationSchema = z.object({
   company_industry: z.string().min(2, "Por favor, indica a qué industria pertenece tu empresa"),
   job_title: z.string().min(2, "Por favor, ingresa tu puesto en la empresa"),
   job_seniority: z.string().min(1, "Por favor, indica cuánto tiempo llevas en tu puesto"),
-  net_monthly_income: z.string().min(1, "Por favor, ingresa tu ingreso mensual neto"),
+  net_monthly_income: z.string().min(1, "Por favor, ingresa tu ingreso mensual bruto"),
 
   // Step 3: References
   parentesco: z.string().min(3, "Por favor, especifica tu parentesco con la referencia familiar"),

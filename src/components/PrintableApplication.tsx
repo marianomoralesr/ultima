@@ -330,7 +330,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <DataRow label="Antigüedad en el Puesto" value={appData.job_seniority} />
                     <DataRow label="Dirección de la Empresa" value={appData.company_address} />
                     <DataRow label="Teléfono (Empresa)" value={appData.company_phone} />
-                    <DataRow label="Ingreso Mensual Neto" value={formatCurrency(appData.net_monthly_income)} />
+                    <DataRow label="Ingreso Mensual Bruto" value={formatCurrency(appData.net_monthly_income)} />
                 </div>
 
                 {/* Banking Profile - From Perfilación Bancaria */}

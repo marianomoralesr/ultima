@@ -151,7 +151,7 @@ const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
               <p className="font-semibold text-gray-800">{applicationData.job_title || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Ingreso Neto Mensual</p>
+              <p className="text-xs text-gray-500">Ingreso Bruto Mensual</p>
               <p className="font-semibold text-gray-800">${applicationData.net_monthly_income || 'N/A'}</p>
             </div>
             <div>

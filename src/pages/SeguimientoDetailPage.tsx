@@ -78,7 +78,7 @@ const SeguimientoDetailPage: React.FC = () => {
   const copyUploadLink = async () => {
     if (!application?.public_upload_token) return;
 
-    const link = `${window.location.origin}/upload/${application.public_upload_token}`;
+    const link = `${window.location.origin}/documentos/${application.public_upload_token}`;
     await navigator.clipboard.writeText(link);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
@@ -116,7 +116,7 @@ const SeguimientoDetailPage: React.FC = () => {
   const carInfo = application.car_info || {};
   const appData = application.application_data || {};
   const uploadLink = application.public_upload_token
-    ? `${window.location.origin}/upload/${application.public_upload_token}`
+    ? `${window.location.origin}/documentos/${application.public_upload_token}`
     : null;
 
   return (
@@ -241,7 +241,7 @@ const SeguimientoDetailPage: React.FC = () => {
                       )}
 
                       <Link
-                        to={`/upload/${application.public_upload_token}`}
+                        to={`/documentos/${application.public_upload_token}`}
                         target="_blank"
                         className="block"
                       >

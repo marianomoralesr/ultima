@@ -604,20 +604,27 @@ const VehicleListPage: React.FC = () => {
                   </div>
                   {/* Live browsing counter with avatars */}
                   <div className="flex items-center gap-2">
-                    {/* Stacked mini avatars */}
-                    <div className="flex -space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
+                    {/* Stacked mini person avatars */}
+                    <div className="flex -space-x-1.5">
+                      <img src="https://randomuser.me/api/portraits/thumb/women/44.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
+                      <img src="https://randomuser.me/api/portraits/thumb/men/32.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
+                      <img src="https://randomuser.me/api/portraits/thumb/women/68.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
+                      <img src="https://randomuser.me/api/portraits/thumb/men/75.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
+                      <div className="w-6 h-6 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center">
+                        <span className="text-[9px] font-bold text-white">+{Math.max(0, activeUsers - 4)}</span>
+                      </div>
                     </div>
 
-                    {/* Counter text with animated dots */}
+                    {/* Counter text with animated dot */}
                     <div className="flex items-center gap-1 text-sm">
                       <span className="text-orange-600 font-bold transition-all duration-300">
                         {activeUsers}
                       </span>
                       <span className="text-gray-600">personas explorando</span>
-                      <span className="text-orange-600 font-bold animate-pulse">...</span>
+                      <span className="relative flex h-2 w-2 ml-1">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -644,12 +651,19 @@ const VehicleListPage: React.FC = () => {
                 {/* Mobile compact visitor counter */}
                 <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gradient-to-r from-orange-50 to-transparent px-2 py-1.5 rounded-md">
                   <div className="flex -space-x-1">
-                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border border-white"></div>
-                    <div className="w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-green-600 border border-white"></div>
+                    <img src="https://randomuser.me/api/portraits/thumb/women/44.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                    <img src="https://randomuser.me/api/portraits/thumb/men/32.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                    <img src="https://randomuser.me/api/portraits/thumb/women/68.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                    <div className="w-4 h-4 rounded-full bg-orange-500 border border-white flex items-center justify-center">
+                      <span className="text-[7px] font-bold text-white">+{Math.max(0, activeUsers - 3)}</span>
+                    </div>
                   </div>
                   <span className="text-orange-600 font-bold transition-all duration-300">{activeUsers}</span>
                   <span>explorando ahora</span>
-                  <span className="text-orange-600 animate-pulse">•</span>
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                  </span>
                 </div>
               </CardContent>
             </Card>

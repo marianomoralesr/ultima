@@ -304,27 +304,29 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                   <CardTitle>Response Trend (Last 30 Days)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={timeSeriesData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="responses"
-                        stroke={COLORS.primary}
-                        name="Daily Responses"
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="cumulativeResponses"
-                        stroke={COLORS.success}
-                        name="Cumulative"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <div style={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={timeSeriesData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="responses"
+                          stroke={COLORS.primary}
+                          name="Daily Responses"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="cumulativeResponses"
+                          stroke={COLORS.success}
+                          name="Cumulative"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -334,29 +336,31 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                   <CardTitle>NPS Distribution</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Promoters', value: metrics?.npsScore?.promoters || 0 },
-                          { name: 'Passives', value: metrics?.npsScore?.passives || 0 },
-                          { name: 'Detractors', value: metrics?.npsScore?.detractors || 0 }
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {NPS_COLORS.map((color, index) => (
-                          <Cell key={`cell-${index}`} fill={color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <div style={{ width: '100%', height: 300 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'Promoters', value: metrics?.npsScore?.promoters || 0 },
+                            { name: 'Passives', value: metrics?.npsScore?.passives || 0 },
+                            { name: 'Detractors', value: metrics?.npsScore?.detractors || 0 }
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {NPS_COLORS.map((color, index) => (
+                            <Cell key={`cell-${index}`} fill={color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -367,15 +371,17 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                 <CardTitle>Section Average Scores</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={sectionAnalytics.filter(s => s.averageScore)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="section" angle={-45} textAnchor="end" height={120} />
-                    <YAxis domain={[0, 5]} />
-                    <Tooltip />
-                    <Bar dataKey="averageScore" fill={COLORS.purple} name="Average Score" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div style={{ width: '100%', height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={sectionAnalytics.filter(s => s.averageScore)}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="section" angle={-45} textAnchor="end" height={120} />
+                      <YAxis domain={[0, 5]} />
+                      <Tooltip />
+                      <Bar dataKey="averageScore" fill={COLORS.purple} name="Average Score" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -436,15 +442,17 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                     }));
 
                     return (
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={chartData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="value" fill={COLORS.primary} name="Count" />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      <div style={{ width: '100%', height: 300 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="value" fill={COLORS.primary} name="Count" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     );
                   })()}
                 </CardContent>

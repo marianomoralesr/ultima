@@ -356,15 +356,23 @@ export default function UnifiedAdminDashboard() {
               <CardDescription>De visita a lead completo</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <RechartsBarChart data={funnelData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill={COLORS[0]} />
-                </RechartsBarChart>
-              </ResponsiveContainer>
+              {funnelData && funnelData.length > 0 ? (
+                <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsBarChart data={funnelData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="value" fill={COLORS[0]} />
+                    </RechartsBarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                  <p>No hay datos disponibles</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -375,25 +383,27 @@ export default function UnifiedAdminDashboard() {
               <CardDescription>Comparación de registros vs conversiones</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <RechartsBarChart
-                  data={[
-                    {
-                      name: 'Leads',
-                      registrados: marketing.funnel.registrations,
-                      aplicaciones: marketing.funnel.application_submissions,
-                    },
-                  ]}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="registrados" fill={COLORS[1]} name="Leads Registrados" />
-                  <Bar dataKey="aplicaciones" fill={COLORS[2]} name="Aplicaciones Enviadas" />
-                </RechartsBarChart>
-              </ResponsiveContainer>
+              <div style={{ width: '100%', height: 300, minHeight: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsBarChart
+                    data={[
+                      {
+                        name: 'Leads',
+                        registrados: marketing.funnel.registrations,
+                        aplicaciones: marketing.funnel.application_submissions,
+                      },
+                    ]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="registrados" fill={COLORS[1]} name="Leads Registrados" />
+                    <Bar dataKey="aplicaciones" fill={COLORS[2]} name="Aplicaciones Enviadas" />
+                  </RechartsBarChart>
+                </ResponsiveContainer>
+              </div>
               <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                 <div>
                   <p className="text-sm text-muted-foreground">Registrados</p>

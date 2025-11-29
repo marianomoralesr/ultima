@@ -9,6 +9,11 @@ import { Profile } from '../types/types';
 import { Building2, User, Loader2, CheckCircle, Info } from 'lucide-react';
 import Confetti from '../components/Confetti';
 import { conversionTracking } from '../services/ConversionTrackingService';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { toast } from 'sonner';
 
 const bankProfileSchema = z.object({
   trabajo_tiempo: z.string().min(1, 'Por favor, selecciona cuánto tiempo llevas en tu empleo actual'),
@@ -376,43 +381,85 @@ const PerfilacionBancariaPage: React.FC = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pb-24 md:pb-8">
-            <div className="mb-8 text-center">
-                <Building2 className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-gray-900">Perfilamiento Bancario</h1>
-                <p className="text-gray-600 mt-1">Completa este formulario para encontrar la mejor opción de crédito para ti.</p>
-            </div>
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 pb-24 md:pb-8">
+            <Card className="mb-6 border-0 shadow-none bg-transparent">
+                <CardHeader className="text-center pb-2">
+                    <Building2 className="w-12 h-12 text-primary-600 mx-auto mb-4" />
+                    <CardTitle className="text-2xl font-bold text-gray-900">Perfilamiento Bancario</CardTitle>
+                    <CardDescription className="text-gray-600">Completa este formulario para encontrar la mejor opción de crédito para ti.</CardDescription>
+                </CardHeader>
+            </Card>
 
-             <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-6 rounded-r-lg">
+            <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 mb-6 rounded-r-lg">
                 <h3 className="font-bold flex items-center"><Info className="w-5 h-5 mr-2" />¿Para qué es esto?</h3>
                 <p className="text-sm mt-1">Tus respuestas nos ayudan a determinar qué banco tiene la mayor probabilidad de aprobar tu crédito, ahorrándote tiempo y mejorando tus posibilidades de éxito.</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-8">
-                 <RadioField control={control} name="trabajo_tiempo" label="Antigüedad en tu empleo actual" options={['Menos de 6 meses', 'De 6 meses a 1 año', 'De 1 a 2 años', 'Más de 2 años']} error={errors.trabajo_tiempo?.message} />
-                 <RadioFieldWithHelper
-                    control={control}
-                    name="cuenta_bancaria"
-                    label="¿En qué banco tienes tu cuenta bancaria principal?"
-                    helper="Aplica para nómina, cuenta empresarial, cuenta de cheques o cuenta personal donde manejas tus ingresos"
-                    options={["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco", "Otro banco", "No tengo cuenta bancaria"]}
-                    error={errors.cuenta_bancaria?.message}
-                 />
-                 <RadioField control={control} name="historial_crediticio" label="¿Cómo es tu historial crediticio?" options={["Excelente", "Bueno", "Regular", "Malo", "Sin historial crediticio"]} error={errors.historial_crediticio?.message} />
-                 <RadioField control={control} name="creditos_vigentes" label="¿Tienes otros créditos vigentes?" options={["Ninguno", "1 o 2", "3 o más (regularizados)", "Varios pagos pendientes"]} error={errors.creditos_vigentes?.message} />
-                 <RadioField control={control} name="atrasos_12_meses" label="¿Has tenido atrasos en pagos en los últimos 12 meses?" options={["Ninguno", "Sí, pero lo regularicé", "Más de 1 mes", "Varios pagos sin regularizar"]} error={errors.atrasos_12_meses?.message} />
-                 <RadioField control={control} name="enganche" label="¿Qué porcentaje de enganche planeas dar?" options={["Menos del 25%", "Enganche mínimo (25%)", "Más del mínimo (30% a 35%)", "Enganche recomendado (35% o más)"]} error={errors.enganche?.message} />
-                 <RadioField control={control} name="prioridad_financiamiento" label="¿Cuál es tu prioridad en el financiamiento?" options={["Tasa de interés más baja", "Pagos mensuales fijos", "Rapidez en la aprobación", "Proceso digital con pocos trámites"]} error={errors.prioridad_financiamiento?.message} />
-                 <IncomeRadioField control={control} name="ingreso_mensual" label="Ingresos mensuales comprobables" options={["Menos de $15,000", "$15,000 - $25,000", "$25,001 - $40,000"]} error={errors.ingreso_mensual?.message} />
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pb-8">
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioField control={control} name="trabajo_tiempo" label="Antigüedad en tu empleo actual" options={['Menos de 6 meses', 'De 6 meses a 1 año', 'De 1 a 2 años', 'Más de 2 años']} error={errors.trabajo_tiempo?.message} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioFieldWithHelper
+                            control={control}
+                            name="cuenta_bancaria"
+                            label="¿En qué banco tienes tu cuenta bancaria principal?"
+                            helper="Aplica para nómina, cuenta empresarial, cuenta de cheques o cuenta personal donde manejas tus ingresos"
+                            options={["Scotiabank", "BBVA", "Banorte", "Banregio", "Afirme", "Hey Banco", "Otro banco", "No tengo cuenta bancaria"]}
+                            error={errors.cuenta_bancaria?.message}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioField control={control} name="historial_crediticio" label="¿Cómo es tu historial crediticio?" options={["Excelente", "Bueno", "Regular", "Malo", "Sin historial crediticio"]} error={errors.historial_crediticio?.message} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioField control={control} name="creditos_vigentes" label="¿Tienes otros créditos vigentes?" options={["Ninguno", "1 o 2", "3 o más (regularizados)", "Varios pagos pendientes"]} error={errors.creditos_vigentes?.message} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioField control={control} name="atrasos_12_meses" label="¿Has tenido atrasos en pagos en los últimos 12 meses?" options={["Ninguno", "Sí, pero lo regularicé", "Más de 1 mes", "Varios pagos sin regularizar"]} error={errors.atrasos_12_meses?.message} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioField control={control} name="enganche" label="¿Qué porcentaje de enganche planeas dar?" options={["Menos del 25%", "Enganche mínimo (25%)", "Más del mínimo (30% a 35%)", "Enganche recomendado (35% o más)"]} error={errors.enganche?.message} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <RadioField control={control} name="prioridad_financiamiento" label="¿Cuál es tu prioridad en el financiamiento?" options={["Tasa de interés más baja", "Pagos mensuales fijos", "Rapidez en la aprobación", "Proceso digital con pocos trámites"]} error={errors.prioridad_financiamiento?.message} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <IncomeRadioField control={control} name="ingreso_mensual" label="Ingresos mensuales comprobables" options={["Menos de $15,000", "$15,000 - $25,000", "$25,001 - $40,000"]} error={errors.ingreso_mensual?.message} />
+                    </CardContent>
+                </Card>
 
                 <div className="pt-4 flex justify-end">
-                    <button
+                    <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="inline-flex items-center justify-center py-4 px-10 border border-transparent shadow-sm text-base font-bold rounded-lg text-white bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer select-none active:scale-[0.98] transition-transform min-h-[56px]"
+                        size="lg"
+                        className="bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 min-h-[56px] px-10 text-base font-bold"
                     >
                         {isSubmitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Guardando...</> : 'Guardar y Analizar Perfil'}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>
@@ -439,7 +486,7 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
             field.onChange(option);
         }
     };
-    
+
     const formatNumberWithCommas = (value: string): string => {
         const numericValue = value.replace(/[^0-9]/g, '');
         if (numericValue === '') return '';
@@ -450,19 +497,19 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
         const formattedValue = formatNumberWithCommas(e.target.value);
         field.onChange(`$${formattedValue}`);
     };
-    
+
     const customIncomeDisplayValue = isOtherSelected ? (field.value || '').replace(/^\$/, '') : '';
 
     return (
-        <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">{label}</h3>
+        <div className="space-y-4">
+            <Label className="text-lg font-semibold text-gray-800">{label}</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {allOptions.map(opt => {
                     const isSelected = (opt === OTHER_OPTION && isOtherSelected) || field.value === opt;
                     return (
                         <label
                             key={opt}
-                            className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
+                            className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
                                 ${isSelected
                                     ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                     : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -483,35 +530,35 @@ const IncomeRadioField: React.FC<{ control: any, name: any, label: string, optio
                 })}
             </div>
             {isOtherSelected && (
-                <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700">Monto exacto (mayor a $40,000)</label>
-                    <div className="relative mt-1">
+                <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Monto exacto (mayor a $40,000)</Label>
+                    <div className="relative">
                         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
-                        <input 
+                        <Input
                             value={customIncomeDisplayValue}
                             onChange={handleCustomIncomeChange}
                             placeholder="55,000"
-                            className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7"
+                            className="pl-7"
                             inputMode="numeric"
                         />
                     </div>
                 </div>
             )}
-            {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+            {error && <p className="text-destructive text-sm mt-2">{error}</p>}
         </div>
     );
 };
 
 const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, helper?: string, options: string[], error?: React.ReactNode }> = ({ control, name, label, helper, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-200 transition-all focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-200/50">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">{label}</h3>
-            {helper && <p className="text-sm text-gray-600 mb-4 flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-500" />{helper}</p>}
+        <div className="space-y-4">
+            <Label className="text-lg font-semibold text-gray-800">{label}</Label>
+            {helper && <p className="text-sm text-gray-600 flex items-start gap-2"><Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-500" />{helper}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {options.map(opt => (
                     <label
                         key={opt}
-                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -530,20 +577,20 @@ const RadioFieldWithHelper: React.FC<{ control: any, name: any, label: string, h
                     </label>
                 ))}
             </div>
-            {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+            {error && <p className="text-destructive text-sm mt-2">{error}</p>}
         </div>
     )} />
 );
 
 const RadioField: React.FC<{ control: any, name: any, label: string, options: string[], error?: React.ReactNode }> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">{label}</h3>
+        <div className="space-y-4">
+            <Label className="text-lg font-semibold text-gray-800">{label}</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {options.map(opt => (
                     <label
                         key={opt}
-                        className={`w-full flex items-center justify-between text-left p-5 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-lg border-2 font-semibold transition-colors cursor-pointer select-none min-h-[56px] touch-manipulation
                             ${field.value === opt
                                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                                 : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:bg-primary-100'
@@ -562,7 +609,7 @@ const RadioField: React.FC<{ control: any, name: any, label: string, options: st
                     </label>
                 ))}
             </div>
-            {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+            {error && <p className="text-destructive text-sm mt-2">{error}</p>}
         </div>
     )} />
 );

@@ -21,6 +21,9 @@ import { supabase } from '../../supabaseClient';
 import { conversionTracking } from '../services/ConversionTrackingService';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Checkbox } from '../components/ui/checkbox';
 
 const VehicleSelector = lazy(() => import('../components/VehicleSelector'));
 
@@ -628,33 +631,37 @@ const Application: React.FC = () => {
                         <Suspense fallback={<div className="fixed inset-0 bg-black/50 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-white" /></div>}>
                             <VehicleSelector isOpen={showVehicleSelector} onClose={() => setShowVehicleSelector(false)} onSelect={handleVehicleSelect} />
                         </Suspense>
-                        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 text-gray-900">
+                        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8 text-gray-900">
 
                             {vehicleInfo?._vehicleTitle ? (
-                                <div className="mb-6 lg:mb-8 bg-white p-4 lg:p-6 rounded-xl shadow-sm border">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                        <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
-                                            <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-20 h-14 lg:w-24 lg:h-16 object-cover rounded-md flex-shrink-0" />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs lg:text-sm text-gray-500">Solicitud de financiamiento para:</p>
-                                                <h1 className="text-base lg:text-lg font-bold text-gray-900 truncate">{vehicleInfo._vehicleTitle}</h1>
+                                <Card className="mb-6 lg:mb-8">
+                                    <CardContent className="p-4 lg:p-6">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                            <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
+                                                <img src={vehicleInfo._featureImage} alt={vehicleInfo._vehicleTitle} className="w-20 h-14 lg:w-24 lg:h-16 object-cover rounded-md flex-shrink-0" />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs lg:text-sm text-muted-foreground">Solicitud de financiamiento para:</p>
+                                                    <h1 className="text-base lg:text-lg font-bold text-foreground truncate">{vehicleInfo._vehicleTitle}</h1>
+                                                </div>
                                             </div>
+                                            <Button variant="outline" onClick={() => setShowVehicleSelector(true)} className="flex items-center justify-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                                                <Edit className="w-4 h-4" />
+                                                Cambiar Auto
+                                            </Button>
                                         </div>
-                                        <button onClick={() => setShowVehicleSelector(true)} className="flex items-center justify-center gap-2 text-sm font-semibold text-primary-600 bg-primary-50 px-4 py-2 rounded-md hover:bg-primary-100 flex-shrink-0 w-full sm:w-auto">
-                                            <Edit className="w-4 h-4" />
-                                            Cambiar Auto
-                                        </button>
-                                    </div>
-                                </div>
+                                    </CardContent>
+                                </Card>
                             ) : (
                                 !showVehicleSelector && (
-                                    <div className="mb-6 lg:mb-8 p-4 lg:p-6 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
-                                        <h1 className="text-base lg:text-lg font-bold text-yellow-800">No has seleccionado un auto</h1>
-                                        <p className="text-sm text-yellow-700 mt-1 mb-4">Tu solicitud se guardará como un borrador general.</p>
-                                        <button onClick={() => setShowVehicleSelector(true)} className="text-sm font-semibold text-white bg-primary-600 px-5 py-2.5 rounded-lg hover:bg-primary-700 w-full sm:w-auto">
-                                            Seleccionar Auto
-                                        </button>
-                                    </div>
+                                    <Card className="mb-6 lg:mb-8 bg-yellow-50 border-yellow-200">
+                                        <CardContent className="p-4 lg:p-6 text-center">
+                                            <h1 className="text-base lg:text-lg font-bold text-yellow-800">No has seleccionado un auto</h1>
+                                            <p className="text-sm text-yellow-700 mt-1 mb-4">Tu solicitud se guardará como un borrador general.</p>
+                                            <Button onClick={() => setShowVehicleSelector(true)} className="w-full sm:w-auto">
+                                                Seleccionar Auto
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
                                 )
                             )}
                             
@@ -664,8 +671,8 @@ const Application: React.FC = () => {
 
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <input type="hidden" {...form.register('ordencompra')} />
-                                <Card className="shadow-sm border-0">
-                                    <CardContent className="p-4 sm:p-6 lg:p-8">
+                                <Card>
+                                    <CardContent className="p-4 sm:p-6">
                                         {currentStep === 0 && <PersonalInfoStep control={control} errors={errors} isMarried={isMarried} profile={profile} setValue={setValue} trigger={trigger} />}
                                         {currentStep === 1 && <EmploymentStep control={control} errors={errors} setValue={setValue} />}
                                         {currentStep === 2 && <ReferencesStep control={control} errors={errors} profile={profile} getValues={getValues} />}
@@ -916,52 +923,46 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
         </div>
 
         {/* Address Section */}
-        <div className="bg-white rounded-xl p-6">
-            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">Domicilio Actual</h3>
+        <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Domicilio Actual</h3>
 
-            <div className="space-y-4">
-                <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                        <input
-                            id="use_different_address_checkbox"
-                            type="checkbox"
-                            checked={useDifferentAddress}
-                            onChange={(e) => setUseDifferentAddress(e.target.checked)}
-                            className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
-                        />
-                    </div>
-                    <div className="ml-3 text-sm">
-                        <label htmlFor="use_different_address_checkbox" className="font-medium text-gray-700">
-                            Usar una dirección diferente a la de mi perfil
-                        </label>
-                        <p className="text-xs text-gray-500 mt-1">Esta debe ser la dirección de tu domicilio actual donde recibes correspondencia.</p>
-                        {errors.current_address && useDifferentAddress && (
-                            <p className="text-red-600 text-xs mt-1">⚠️ Tu dirección parece incompleta. Por favor, revisa todos los campos.</p>
-                        )}
-                    </div>
+            <div className="flex items-start space-x-3">
+                <Checkbox
+                    id="use_different_address_checkbox"
+                    checked={useDifferentAddress}
+                    onCheckedChange={(checked) => setUseDifferentAddress(checked === true)}
+                />
+                <div className="space-y-1 leading-none">
+                    <Label htmlFor="use_different_address_checkbox">
+                        Usar una dirección diferente a la de mi perfil
+                    </Label>
+                    <p className="text-xs text-muted-foreground">Esta debe ser la dirección de tu domicilio actual donde recibes correspondencia.</p>
+                    {errors.current_address && useDifferentAddress && (
+                        <p className="text-destructive text-xs">⚠️ Tu dirección parece incompleta. Por favor, revisa todos los campos.</p>
+                    )}
                 </div>
-
-                {useDifferentAddress ? (
-                    <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
-                        <FormInput control={control} name="current_address" label="Calle y Número" error={errors.current_address?.message} />
-                        <FormInput control={control} name="current_colony" label="Colonia o Fraccionamiento" error={errors.current_colony?.message} />
-                        <FormInput control={control} name="current_city" label="Ciudad o Municipio" error={errors.current_city?.message} />
-                        <FormSelect control={control} name="current_state" label="Estado" options={MEXICAN_STATES} error={errors.current_state?.message} />
-                        <FormInput control={control} name="current_zip_code" label="Código Postal" error={errors.current_zip_code?.message} />
-                    </div>
-                ) : (
-                    <div className="pt-4 border-t bg-gray-50 p-4 rounded-lg">
-                        <p className="text-xs text-gray-500 mb-2">Dirección registrada en tu perfil:</p>
-                        <p className="text-sm font-semibold text-gray-900">
-                            {profile?.address}, {profile?.colony}, {profile?.city}, {profile?.state} C.P. {profile?.zip_code}
-                        </p>
-                    </div>
-                )}
             </div>
+
+            {useDifferentAddress ? (
+                <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                    <FormInput control={control} name="current_address" label="Calle y Número" error={errors.current_address?.message} />
+                    <FormInput control={control} name="current_colony" label="Colonia o Fraccionamiento" error={errors.current_colony?.message} />
+                    <FormInput control={control} name="current_city" label="Ciudad o Municipio" error={errors.current_city?.message} />
+                    <FormSelect control={control} name="current_state" label="Estado" options={MEXICAN_STATES} error={errors.current_state?.message} />
+                    <FormInput control={control} name="current_zip_code" label="Código Postal" error={errors.current_zip_code?.message} />
+                </div>
+            ) : (
+                <div className="pt-4 border-t bg-muted p-4 rounded-lg">
+                    <p className="text-xs text-muted-foreground mb-2">Dirección registrada en tu perfil:</p>
+                    <p className="text-sm font-semibold">
+                        {profile?.address}, {profile?.colony}, {profile?.city}, {profile?.state} C.P. {profile?.zip_code}
+                    </p>
+                </div>
+            )}
         </div>
 
         {/* Housing & Personal Info */}
-        <div className="bg-white rounded-xl p-6 space-y-6">
+        <div className="space-y-6">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Información del Hogar</h3>
 
             <FormRadio
@@ -1035,20 +1036,20 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
                 <FormInput control={control} name="job_title" label="Nombre de tu Puesto" error={errors.job_title?.message} />
                 <FormRadio control={control} name="job_seniority" label="Antigüedad en el Puesto" options={['Menos de 1 año', '1-3 años', '3-5 años', 'Más de 5 años']} error={errors.job_seniority?.message} />
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Ingreso Mensual Neto</label>
+                <div className="space-y-2">
+                    <Label>Ingreso Mensual Neto</Label>
                     <div className="relative">
-                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-semibold">$</span>
-                        <input
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground font-semibold">$</span>
+                        <Input
                             value={incomeDisplayValue}
                             onChange={handleIncomeChange}
                             placeholder="25,000"
-                            className="block w-full px-4 py-2 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7 font-semibold"
+                            className="pl-7 font-semibold"
                             inputMode="numeric"
                         />
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Ingresa tu salario neto mensual (después de impuestos)</p>
-                    {errors.net_monthly_income && <p className="text-red-600 text-sm mt-1">{errors.net_monthly_income.message}</p>}
+                    <p className="text-xs text-muted-foreground">Ingresa tu salario neto mensual (después de impuestos)</p>
+                    {errors.net_monthly_income && <p className="text-destructive text-sm">{errors.net_monthly_income.message}</p>}
                 </div>
             </div>
         </div>
@@ -1268,48 +1269,50 @@ const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, veh
 
 const FormInput: React.FC<{control: any, name: any, label: string, error?: string}> = ({ control, name, label, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
-            <input {...field} className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500" />
-            {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+        <div className="space-y-2">
+            <Label htmlFor={name}>{label}</Label>
+            <Input id={name} {...field} />
+            {error && <p className="text-destructive text-sm">{error}</p>}
         </div>
     )} />
 );
 const FormSelect: React.FC<{ control: any, name: any, label: string, options: string[], error?: string }> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
-            <select {...field} className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500">
+        <div className="space-y-2">
+            <Label htmlFor={name}>{label}</Label>
+            <select id={name} {...field} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <option value="">Seleccionar...</option>
                 {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>
-            {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+            {error && <p className="text-destructive text-sm">{error}</p>}
         </div>
     )} />
 );
 const FormRadio: React.FC<{control: any, name: any, label: string, options: string[], error?: string}> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+        <div className="space-y-2">
+            <Label>{label}</Label>
             <div className="flex flex-wrap gap-2 lg:gap-3">
                 {options.map(opt => (
                     <button type="button" key={opt} onClick={() => field.onChange(opt)} className={`px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm font-semibold rounded-full border-2 transition-colors ${field.value === opt ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'}`}>{opt}</button>
                 ))}
             </div>
-            {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+            {error && <p className="text-destructive text-sm">{error}</p>}
         </div>
     )} />
 );
 const FormCheckbox: React.FC<{ control: any, name: any, label: string, error?: string, onChange?: (e: any) => void, checked?: boolean, disabled?: boolean }> = ({ control, name, label, error, onChange, checked, disabled }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div className="flex items-start">
-            <div className="flex items-center h-5">
-                
-                <input id={name} type="checkbox" checked={checked ?? (field.value || false)} onChange={onChange ?? field.onChange} disabled={disabled} className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded disabled:opacity-50" />
-            </div>
-            <div className="ml-3 text-sm">
-                <label htmlFor={name} className={`font-medium ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>{label}{error && <span className="text-red-500">*</span>}</label>
-                {error && <p className="text-red-600 mt-1">{error}</p>}
+        <div className="flex items-start space-x-3">
+            <Checkbox
+                id={name}
+                checked={checked ?? (field.value || false)}
+                onCheckedChange={onChange ?? field.onChange}
+                disabled={disabled}
+            />
+            <div className="space-y-1 leading-none">
+                <Label htmlFor={name} className={`${disabled ? 'text-muted-foreground' : ''}`}>{label}{error && <span className="text-destructive">*</span>}</Label>
+                {error && <p className="text-destructive text-sm">{error}</p>}
             </div>
         </div>
     )} />
@@ -1411,36 +1414,29 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
 
             <div className="grid md:grid-cols-2 gap-6">
                 {/* Loan Term Selection */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Plazo del Crédito (meses)
-                    </label>
+                <div className="space-y-3">
+                    <Label>Plazo del Crédito (meses)</Label>
                     <div className="grid grid-cols-3 gap-2">
                         {termOptions.map(term => (
-                            <button
+                            <Button
                                 key={term}
                                 type="button"
+                                variant={loanTerm === term ? "default" : "outline"}
                                 onClick={() => setLoanTerm(term)}
-                                className={`px-4 py-3 text-sm font-semibold rounded-lg border-2 transition-all ${
-                                    loanTerm === term
-                                        ? 'bg-primary-600 border-primary-600 text-white shadow-md'
-                                        : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'
-                                }`}
+                                className="py-3"
                             >
                                 {term}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
 
                 {/* Down Payment Input with Real-time Currency Formatting */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Enganche
-                    </label>
+                <div className="space-y-2">
+                    <Label>Enganche</Label>
                     <div className="relative">
-                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
-                        <input
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">$</span>
+                        <Input
                             type="text"
                             value={downPaymentRaw}
                             onChange={(e) => {
@@ -1448,19 +1444,21 @@ const FinancingPreferencesSection: React.FC<{ control: any; vehicleInfo: any; se
                                 setDownPaymentRaw(formatted);
                             }}
                             placeholder="0"
-                            className="block w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 pl-7"
+                            className="pl-7"
                         />
                     </div>
-                    <div className="mt-3 flex gap-2">
-                        <button
+                    <div className="flex gap-2">
+                        <Button
                             type="button"
+                            variant="outline"
+                            size="sm"
                             onClick={() => setDownPaymentRaw(formatNumber(recommendedDownPayment))}
-                            className="flex-1 px-3 py-2 bg-primary-50 border-2 border-primary-200 text-primary-700 rounded-lg text-xs font-semibold hover:bg-primary-100 transition-colors"
+                            className="flex-1 text-xs"
                         >
                             Usar Recomendado (40%): {formatCurrency(recommendedDownPayment)}
-                        </button>
+                        </Button>
                     </div>
-                    <p className="mt-2 text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                         Mínimo permitido: {formatCurrency(minDownPayment)} (25%)
                     </p>
                 </div>

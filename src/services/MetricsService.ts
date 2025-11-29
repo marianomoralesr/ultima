@@ -863,6 +863,89 @@ class MetricsServiceClass {
       meta_user_ids: [],
     };
   }
+
+  /**
+   * OPTIMIZED: Get funnel metrics using RPC function (much faster than fetching all events)
+   * Uses database-side aggregation instead of client-side processing
+   */
+  async getFunnelMetricsOptimized(startDate?: string, endDate?: string): Promise<FunnelMetrics> {
+    try {
+      console.log('[MetricsService] Using optimized RPC for funnel metrics');
+
+      const { data, error } = await supabase.rpc('get_tracking_funnel_metrics', {
+        p_start_date: startDate ? `${startDate}T00:00:00Z` : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        p_end_date: endDate ? `${endDate}T23:59:59Z` : new Date().toISOString()
+      });
+
+      if (error) {
+        console.error('[MetricsService] RPC error, falling back to standard method:', error);
+        return this.getFunnelMetrics(startDate, endDate);
+      }
+
+      if (!data || data.length === 0) {
+        return this.getEmptyMetrics();
+      }
+
+      const row = data[0];
+
+      return {
+        landing_page_views: row.landing_page_views || 0,
+        registrations: row.registrations || 0,
+        profile_completes: row.profile_completes || 0,
+        bank_profiling_completes: row.bank_profiling_completes || 0,
+        application_starts: row.application_starts || 0,
+        application_submissions: row.application_submits || 0,
+        lead_completes: row.application_submits || 0,
+        landing_user_ids: [],
+        registered_user_ids: [],
+        profile_complete_user_ids: [],
+        bank_profile_user_ids: [],
+        application_start_user_ids: [],
+        lead_complete_user_ids: [],
+      };
+    } catch (error) {
+      console.error('[MetricsService] Error in getFunnelMetricsOptimized:', error);
+      return this.getFunnelMetrics(startDate, endDate);
+    }
+  }
+
+  /**
+   * OPTIMIZED: Get global dashboard metrics using RPC function
+   */
+  async getGlobalDashboardMetrics() {
+    try {
+      const { data, error } = await supabase.rpc('get_global_dashboard_metrics');
+
+      if (error) {
+        console.error('[MetricsService] Error fetching global metrics:', error);
+        throw error;
+      }
+
+      return data?.[0] || null;
+    } catch (error) {
+      console.error('[MetricsService] Error in getGlobalDashboardMetrics:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * OPTIMIZED: Get business analytics metrics using RPC function
+   */
+  async getBusinessMetricsOptimized() {
+    try {
+      const { data, error } = await supabase.rpc('get_business_analytics_metrics');
+
+      if (error) {
+        console.error('[MetricsService] Error fetching business metrics:', error);
+        throw error;
+      }
+
+      return data?.[0] || null;
+    } catch (error) {
+      console.error('[MetricsService] Error in getBusinessMetricsOptimized:', error);
+      throw error;
+    }
+  }
 }
 
 export const MetricsService = new MetricsServiceClass();

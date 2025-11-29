@@ -81,7 +81,7 @@ const MarketingAnalyticsDashboardPage: React.FC = () => {
         totalVisits,
         uniqueVisitors
       ] = await Promise.all([
-        MetricsService.getFunnelMetrics(filters.startDate, filters.endDate),
+        MetricsService.getFunnelMetricsOptimized(filters.startDate, filters.endDate),
         MetricsService.getMetaFunnelMetrics(filters.startDate, filters.endDate),
         MetricsService.getSourceMetrics(filters.startDate, filters.endDate, filters.utmCampaign),
         MetricsService.getCampaignMetrics(filters.startDate, filters.endDate, filters.utmSource),

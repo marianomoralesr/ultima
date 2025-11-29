@@ -19,6 +19,7 @@ import { ApplicationService } from '../services/ApplicationService';
 import { BankProfilingService } from '../services/BankProfilingService';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 
 const CELLPHONE_COMPANIES = [
   'Telcel',
@@ -456,7 +457,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
       <Link
         to="/escritorio"
         className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 lg:mb-6 transition-colors touch-manipulation min-h-[44px] -ml-2 pl-2 pr-3 py-2 rounded-lg hover:bg-gray-100"
@@ -482,42 +483,45 @@ const ProfilePage: React.FC = () => {
         {/* Main Content - Form */}
         <div className="lg:col-span-2 space-y-6">
           {/* Progress Bar */}
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
-                <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
-                Completa tu perfil
-              </h2>
-              <span className={`text-sm font-medium ${isProfileComplete ? 'text-green-600 font-bold' : 'text-gray-600'}`}>
-                {isProfileComplete ? '100% - ¡Perfil completado!' : `Paso ${currentStep} de ${STEPS.length}`}
-              </span>
-            </div>
-            <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-500' : ''}`} />
-            <div className="flex justify-between mt-2">
-              {STEPS.map((step) => (
-                <div
-                  key={step.id}
-                  className={`text-xs text-center flex-1 ${
-                    isProfileComplete
-                      ? step.id === currentStep
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardContent className="p-0">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center">
+                  <User className="w-5 h-5 mr-2 sm:mr-3 text-primary-600" />
+                  Completa tu perfil
+                </h2>
+                <span className={`text-sm font-medium ${isProfileComplete ? 'text-green-600 font-bold' : 'text-gray-600'}`}>
+                  {isProfileComplete ? '100% - ¡Perfil completado!' : `Paso ${currentStep} de ${STEPS.length}`}
+                </span>
+              </div>
+              <Progress value={progress} className={`h-2 ${isProfileComplete ? '[&>div]:bg-green-500' : ''}`} />
+              <div className="flex justify-between mt-2">
+                {STEPS.map((step) => (
+                  <div
+                    key={step.id}
+                    className={`text-xs text-center flex-1 ${
+                      isProfileComplete
+                        ? step.id === currentStep
+                          ? 'text-green-700 font-bold'
+                          : 'text-green-500 font-medium'
+                        : step.id === currentStep
                         ? 'text-green-700 font-bold'
-                        : 'text-green-500 font-medium'
-                      : step.id === currentStep
-                      ? 'text-green-700 font-bold'
-                      : step.id < currentStep
-                      ? 'text-green-500 font-medium'
-                      : 'text-gray-400'
-                  }`}
-                >
-                  {step.title}
-                </div>
-              ))}
-            </div>
-          </div>
+                        : step.id < currentStep
+                        ? 'text-green-500 font-medium'
+                        : 'text-gray-400'
+                    }`}
+                  >
+                    {step.title}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
       {/* Multi-Step Form */}
       <form onSubmit={(e) => e.preventDefault()} className="text-gray-900">
-        <div className="bg-white border rounded-xl p-4 sm:p-6 mb-6 min-h-[400px]">
+        <Card className="mb-6">
+          <CardContent className="p-4 sm:p-6 min-h-[400px]">
 
           {/* Step 1: Contact Information + Advisor */}
           {currentStep === 1 && (
@@ -793,7 +797,8 @@ const ProfilePage: React.FC = () => {
             </div>
           )}
 
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center gap-4">
@@ -842,66 +847,69 @@ const ProfilePage: React.FC = () => {
         {/* Sidebar - Profile Picture & Summary */}
         <div className="lg:col-span-1 space-y-6">
           {/* Profile Picture & Summary en Sidebar */}
-          <div className="bg-white border rounded-xl p-4 sm:p-5 sticky top-6">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 text-center">Foto de Perfil</h3>
+          <Card className="sticky top-6">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base sm:text-lg text-center">Foto de Perfil</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center">
+                <label htmlFor="profile-picture-upload" className="cursor-pointer group inline-block">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all">
+                    {previewUrl ? (
+                      <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-12 h-12 sm:w-14 sm:h-14 text-gray-400" />
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600 block">Cambiar foto</span>
+                </label>
+                <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handlePictureChange} />
+              </div>
 
-            <div className="text-center mb-4">
-              <label htmlFor="profile-picture-upload" className="cursor-pointer group inline-block">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-offset-2 ring-primary-500/50 group-hover:ring-primary-500/80 transition-all">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-12 h-12 sm:w-14 sm:h-14 text-gray-400" />
+              {profile && (
+                <div className="space-y-2 text-xs sm:text-sm text-gray-600 bg-muted p-3 rounded-lg">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Nombre:</span>
+                    <span className="text-right">{normalizeNameToTitleCase(profile.first_name || '')} {normalizeNameToTitleCase(profile.last_name || '')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Email:</span>
+                    <span className="text-right truncate ml-2">{profile.email}</span>
+                  </div>
+                  {calculatedRfc && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">RFC:</span>
+                      <span className="font-mono font-bold text-primary-600">{calculatedRfc}</span>
+                    </div>
+                  )}
+                  {profile.phone && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Teléfono:</span>
+                      <span className="text-right">+52 {profile.phone}</span>
+                    </div>
+                  )}
+                  {profile.birth_date && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Fecha de Nac.:</span>
+                      <span className="text-right">{new Date(profile.birth_date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    </div>
+                  )}
+                  {profile.civil_status && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Estado Civil:</span>
+                      <span className="text-right">{profile.civil_status}</span>
+                    </div>
+                  )}
+                  {profile.fiscal_situation && (
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Situación Fiscal:</span>
+                      <span className="text-right">{profile.fiscal_situation}</span>
+                    </div>
                   )}
                 </div>
-                <span className="text-xs font-semibold text-gray-500 mt-2 group-hover:text-primary-600 block">Cambiar foto</span>
-              </label>
-              <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handlePictureChange} />
-            </div>
-
-            {profile && (
-              <div className="space-y-2 text-xs sm:text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Nombre:</span>
-                  <span className="text-right">{normalizeNameToTitleCase(profile.first_name || '')} {normalizeNameToTitleCase(profile.last_name || '')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Email:</span>
-                  <span className="text-right truncate ml-2">{profile.email}</span>
-                </div>
-                {calculatedRfc && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">RFC:</span>
-                    <span className="font-mono font-bold text-primary-600">{calculatedRfc}</span>
-                  </div>
-                )}
-                {profile.phone && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Teléfono:</span>
-                    <span className="text-right">+52 {profile.phone}</span>
-                  </div>
-                )}
-                {profile.birth_date && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Fecha de Nac.:</span>
-                    <span className="text-right">{new Date(profile.birth_date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                  </div>
-                )}
-                {profile.civil_status && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Estado Civil:</span>
-                    <span className="text-right">{profile.civil_status}</span>
-                  </div>
-                )}
-                {profile.fiscal_situation && (
-                  <div className="flex justify-between">
-                    <span className="font-medium text-gray-700">Situación Fiscal:</span>
-                    <span className="text-right">{profile.fiscal_situation}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

@@ -45,8 +45,12 @@ export function calculateFunnelData(
     const userId = event.user_id || event.session_id;
     if (!userId) return;
 
-    // Stage 1: Viewed landing page /financiamientos
-    if (event.event_type === 'PageView' && event.page_url?.includes('/financiamientos')) {
+    // Stage 1: Viewed landing page /financiamientos (check metadata.page, referrer, or event_name)
+    if (event.event_type === 'PageView' && (
+      event.metadata?.page?.includes('/financiamientos') ||
+      event.referrer?.includes('/financiamientos') ||
+      event.event_name?.includes('financiamientos')
+    )) {
       usersByStage.viewedLanding.add(userId);
     }
 
@@ -177,8 +181,12 @@ export function calculateCampaignMetrics(events: TrackingEvent[]): CampaignMetri
 
     const metrics = campaignMap.get(key)!;
 
-    // Track visits to landing page
-    if (event.event_type === 'PageView' && event.page_url?.includes('/financiamientos')) {
+    // Track visits to landing page (check metadata.page, referrer, or event_name)
+    if (event.event_type === 'PageView' && (
+      event.metadata?.page?.includes('/financiamientos') ||
+      event.referrer?.includes('/financiamientos') ||
+      event.event_name?.includes('financiamientos')
+    )) {
       metrics.visits.add(userId);
     }
 
@@ -250,8 +258,12 @@ export function calculateTimeSeriesMetrics(
     const userId = event.user_id || event.session_id;
     if (!userId) return;
 
-    // Track landing page visits
-    if (event.event_type === 'PageView' && event.page_url?.includes('/financiamientos')) {
+    // Track landing page visits (check metadata.page, referrer, or event_name)
+    if (event.event_type === 'PageView' && (
+      event.metadata?.page?.includes('/financiamientos') ||
+      event.referrer?.includes('/financiamientos') ||
+      event.event_name?.includes('financiamientos')
+    )) {
       metrics.visits.add(userId);
     }
     // Track registrations (ConversionLandingPage only)
@@ -358,11 +370,12 @@ export function generateForecast(
   const visitsTrend = calculateLinearRegression(timeSeriesData.map(d => d.visits));
   const conversionsTrend = calculateLinearRegression(timeSeriesData.map(d => d.applications));
 
-  const lastDate = parseISO(timeSeriesData[timeSeriesData.length - 1].date + ' 2024');
+  // Use current date as base for forecast (safer than parsing formatted date strings)
+  const now = new Date();
   const forecastData: ForecastData[] = [];
 
   for (let i = 1; i <= daysToForecast; i++) {
-    const futureDate = addDays(lastDate, i);
+    const futureDate = addDays(now, i);
     const index = timeSeriesData.length + i;
 
     forecastData.push({

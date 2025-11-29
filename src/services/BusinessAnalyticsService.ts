@@ -1,5 +1,6 @@
 import { supabase } from '../../supabaseClient';
 import { config } from '../pages/config';
+import { GlobalMetricsService } from './GlobalMetricsService';
 
 export interface VehicleInsight {
     id: string;
@@ -442,16 +443,20 @@ export class BusinessAnalyticsService {
 
     /**
      * Get comprehensive business metrics
+     * Uses optimized RPC for basic counts while fetching detailed analytics in parallel
      */
     static async getBusinessMetrics(): Promise<BusinessMetrics> {
         try {
+            // Use GlobalMetricsService for basic counts (uses optimized RPC with caching)
             const [
+                globalBusinessMetrics,
                 vehicleInsights,
                 priceRangeInsights,
                 leadPersonaInsights,
                 unavailableVehicleApplications,
                 inventoryVehiclesWithApplications
             ] = await Promise.all([
+                GlobalMetricsService.getBusinessAnalyticsMetrics(),
                 this.getVehicleInsights(20),
                 this.getPriceRangeInsights(),
                 this.getLeadPersonaInsights(),
@@ -459,17 +464,11 @@ export class BusinessAnalyticsService {
                 this.getInventoryVehiclesWithApplications(50)
             ]);
 
-            // Get total applications count from database (all non-draft applications)
-            const { count: totalActiveApplications, error: countError } = await supabase
-                .from('financing_applications')
-                .select('*', { count: 'exact', head: true })
-                .neq('status', 'draft');
-
-            if (countError) {
-                console.error('[BusinessAnalytics] Error counting applications:', countError);
-            }
-
-            console.log('[BusinessAnalytics] Total active applications:', totalActiveApplications);
+            console.log('[BusinessAnalytics] Metrics from optimized RPC:', {
+                totalActiveApplications: globalBusinessMetrics.totalActiveApplications,
+                vehiclesWithApplications: globalBusinessMetrics.vehiclesWithApplications,
+                totalInventory: globalBusinessMetrics.totalInventoryVehicles
+            });
 
             // Calculate conversion rate by price range
             const conversionRateByPrice = priceRangeInsights.map(insight => ({
@@ -483,7 +482,7 @@ export class BusinessAnalyticsService {
                 leadPersonaInsights,
                 unavailableVehicleApplications,
                 inventoryVehiclesWithApplications,
-                totalActiveApplications: totalActiveApplications || 0,
+                totalActiveApplications: globalBusinessMetrics.totalActiveApplications,
                 conversionRateByPrice
             };
         } catch (error) {

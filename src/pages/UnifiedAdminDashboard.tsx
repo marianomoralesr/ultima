@@ -80,8 +80,9 @@ export default function UnifiedAdminDashboard() {
       const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const previous7d = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
+      // Use optimized RPC functions for better performance
       const [funnelMetrics, metaFunnelMetrics, sourceMetrics, totalVisits, uniqueVisitors, businessMetrics] = await Promise.all([
-        MetricsService.getFunnelMetrics(dateRange.startDate, dateRange.endDate),
+        MetricsService.getFunnelMetricsOptimized(dateRange.startDate, dateRange.endDate),
         MetricsService.getMetaFunnelMetrics(dateRange.startDate, dateRange.endDate),
         MetricsService.getSourceMetrics(dateRange.startDate, dateRange.endDate),
         MetricsService.getTotalSiteVisits(dateRange.startDate, dateRange.endDate),

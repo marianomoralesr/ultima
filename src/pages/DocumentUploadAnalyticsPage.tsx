@@ -63,16 +63,18 @@ const DocumentUploadAnalyticsPage: React.FC = () => {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'incomplete' | 'active'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   useEffect(() => {
-    loadMetrics();
-  }, []);
+    loadMetrics(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
-  const loadMetrics = async () => {
+  const loadMetrics = async (page: number = 1, size: number = 25) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await DocumentUploadAnalyticsService.getMetrics();
+      const data = await DocumentUploadAnalyticsService.getMetrics({ page, pageSize: size });
       setMetrics(data);
     } catch (err) {
       console.error('Error loading metrics:', err);
@@ -80,6 +82,15 @@ const DocumentUploadAnalyticsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   const handleCopyToken = (token: string) => {
@@ -252,28 +263,39 @@ const DocumentUploadAnalyticsPage: React.FC = () => {
               <CardDescription>Evolución de cargas de documentos</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={metrics.documentsUploadedOverTime}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(value) => format(new Date(value), 'd MMM', { locale: es })}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(value) => format(new Date(value), 'd MMMM yyyy', { locale: es })}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    name="Documentos"
-                    stroke={COLORS.primary}
-                    strokeWidth={2}
-                    dot={{ fill: COLORS.primary }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {metrics.documentsUploadedOverTime && metrics.documentsUploadedOverTime.length > 0 ? (
+                <div style={{ width: '100%', height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={metrics.documentsUploadedOverTime}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(value) => format(new Date(value), 'd MMM', { locale: es })}
+                        fontSize={12}
+                      />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip
+                        labelFormatter={(value) => format(new Date(value), 'd MMMM yyyy', { locale: es })}
+                        formatter={(value: number) => [value, 'Documentos']}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="count"
+                        name="Documentos"
+                        stroke={COLORS.primary}
+                        strokeWidth={2}
+                        dot={{ fill: COLORS.primary, r: 3 }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-gray-500">
+                  No hay datos de documentos subidos
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -284,23 +306,39 @@ const DocumentUploadAnalyticsPage: React.FC = () => {
               <CardDescription>Documentos más subidos</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={metrics.documentTypeStats}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="document_type"
-                    tickFormatter={(value) => DOCUMENT_LABELS[value] || value}
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(value) => DOCUMENT_LABELS[value] || value}
-                  />
-                  <Bar dataKey="total_uploaded" name="Total Subidos" fill={COLORS.primary} />
-                </BarChart>
-              </ResponsiveContainer>
+              {metrics.documentTypeStats && metrics.documentTypeStats.length > 0 &&
+               metrics.documentTypeStats.some((stat: any) => stat.total_uploaded > 0) ? (
+                <div style={{ width: '100%', height: 300 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={metrics.documentTypeStats} margin={{ bottom: 60 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="document_type"
+                        tickFormatter={(value) => DOCUMENT_LABELS[value] || value}
+                        angle={-35}
+                        textAnchor="end"
+                        fontSize={11}
+                        interval={0}
+                      />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip
+                        labelFormatter={(value) => DOCUMENT_LABELS[value] || value}
+                        formatter={(value: number) => [value, 'Total Subidos']}
+                      />
+                      <Bar
+                        dataKey="total_uploaded"
+                        name="Total Subidos"
+                        fill={COLORS.primary}
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-gray-500">
+                  No hay datos de tipos de documentos
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -477,6 +515,92 @@ const DocumentUploadAnalyticsPage: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Pagination Controls */}
+            {metrics?.pagination && metrics.pagination.totalPages > 0 && (
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">
+                    Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, metrics.pagination.totalCount)} de {metrics.pagination.totalCount} solicitudes
+                  </span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value={10}>10 por página</option>
+                    <option value={25}>25 por página</option>
+                    <option value={50}>50 por página</option>
+                    <option value={100}>100 por página</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1 || loading}
+                  >
+                    Primera
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1 || loading}
+                  >
+                    Anterior
+                  </Button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, metrics.pagination.totalPages) }, (_, i) => {
+                      let pageNum;
+                      const totalPages = metrics.pagination.totalPages;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className="w-9"
+                          onClick={() => handlePageChange(pageNum)}
+                          disabled={loading}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === metrics.pagination.totalPages || loading}
+                  >
+                    Siguiente
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(metrics.pagination.totalPages)}
+                    disabled={currentPage === metrics.pagination.totalPages || loading}
+                  >
+                    Última
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

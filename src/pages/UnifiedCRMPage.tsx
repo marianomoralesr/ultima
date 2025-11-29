@@ -466,7 +466,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {/* Filters */}
+                    {/* Filters - Available for both admins and sales */}
                     <div className="flex flex-wrap gap-2 mb-4 p-3 bg-muted rounded-lg">
                         <div className="flex items-center gap-2">
                             <Filter className="w-4 h-4 text-muted-foreground" />
@@ -524,6 +524,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                         <div className="ml-auto flex items-center gap-3">
                             <span className="text-sm text-muted-foreground">
                                 {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length !== 1 ? 's' : ''}
+                                {!isAdmin && ' asignados'}
                             </span>
                             <select
                                 value={pageSize}

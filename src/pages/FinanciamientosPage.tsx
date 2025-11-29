@@ -498,14 +498,15 @@ const FinanciamientosPage: React.FC = () => {
       const referrerUrl = document.referrer || undefined;
       const landingPage = window.location.href;
 
+      // Clean phone number - extract only digits and take last 10
+      const cleanPhone = formDataCache.phone.replace(/\D/g, '').slice(-10);
+
       const profileData = {
-        nombre: formDataCache.fullName, // Keep full name for reference
         first_name: firstName,
         last_name: lastName,
         mother_last_name: motherLastName,
         email: formDataCache.email,
-        telefono: formDataCache.phone,
-        phone: formDataCache.phone, // Save phone to the phone field as well
+        phone: cleanPhone, // Only save 10 digits without country code
         // Tracking data
         ordencompra: ordencompra,
         utm_source: utmSource,

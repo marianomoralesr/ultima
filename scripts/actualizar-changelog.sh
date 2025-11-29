@@ -50,6 +50,8 @@ CHANGELOG_HTML="public/changelog.html"
 TEMP_FILE=$(mktemp)
 TEMP_HTML=$(mktemp)
 TEMP_COMMITS=$(mktemp)
+TEMP_EXISTING=$(mktemp)
+TEMP_NEW=$(mktemp)
 
 echo "📋 Actualizando changelog con commits de los últimos $DIAS días..."
 
@@ -59,14 +61,54 @@ if [ ! -f "$CHANGELOG_HTML" ]; then
     exit 1
 fi
 
+# Extraer hashes de commits ya existentes en el changelog
+grep -oE '<span class="commit-hash">[a-f0-9]+</span>' "$CHANGELOG_HTML" | \
+    sed 's/<span class="commit-hash">//g;s/<\/span>//g' | \
+    sort -u > "$TEMP_EXISTING"
+
+EXISTING_COUNT=$(wc -l < "$TEMP_EXISTING" | tr -d ' ')
+echo "📊 Commits ya registrados en changelog: $EXISTING_COUNT"
+
 # Obtener commits recientes
 git log --all --since="$DIAS days ago" --pretty=format:"%h|%s|%D" > "$TEMP_FILE"
 
 if [ ! -s "$TEMP_FILE" ]; then
     echo "⚠️  No se encontraron commits en los últimos $DIAS días"
-    rm "$TEMP_FILE"
+    rm -f "$TEMP_FILE" "$TEMP_EXISTING" "$TEMP_NEW"
     exit 0
 fi
+
+# Filtrar commits que ya existen en el changelog
+> "$TEMP_NEW"
+while IFS='|' read -r hash mensaje ramas; do
+    # Verificar si el hash ya existe en el changelog
+    if ! grep -q "^$hash$" "$TEMP_EXISTING" 2>/dev/null; then
+        echo "$hash|$mensaje|$ramas" >> "$TEMP_NEW"
+    fi
+done < "$TEMP_FILE"
+
+# Verificar si hay commits nuevos
+if [ ! -s "$TEMP_NEW" ]; then
+    TOTAL_FOUND=$(wc -l < "$TEMP_FILE" | tr -d ' ')
+    echo ""
+    echo "✅ Todos los $TOTAL_FOUND commits de los últimos $DIAS días ya están en el changelog"
+    echo "   No hay commits nuevos para agregar."
+    rm -f "$TEMP_FILE" "$TEMP_EXISTING" "$TEMP_NEW"
+    exit 0
+fi
+
+NEW_COUNT=$(wc -l < "$TEMP_NEW" | tr -d ' ')
+TOTAL_FOUND=$(wc -l < "$TEMP_FILE" | tr -d ' ')
+SKIPPED=$((TOTAL_FOUND - NEW_COUNT))
+
+echo ""
+echo "📦 Commits encontrados: $TOTAL_FOUND"
+echo "   ✅ Nuevos para agregar: $NEW_COUNT"
+echo "   ⏭️  Ya existentes (omitidos): $SKIPPED"
+echo ""
+
+# Usar los commits filtrados
+mv "$TEMP_NEW" "$TEMP_FILE"
 
 echo ""
 echo "Commits encontrados:"
@@ -293,6 +335,6 @@ echo "   4. Push al repositorio"
 echo ""
 
 # Limpiar
-rm -f "$TEMP_FILE" "$TEMP_HTML" "$TEMP_COMMITS".*
+rm -f "$TEMP_FILE" "$TEMP_HTML" "$TEMP_COMMITS".* "$TEMP_EXISTING" "$TEMP_NEW"
 
 exit 0

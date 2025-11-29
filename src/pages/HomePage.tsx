@@ -889,7 +889,6 @@ const HomePage: React.FC = () => {
     branches: null,
   });
 
-  const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   useSEO({
@@ -915,8 +914,6 @@ const HomePage: React.FC = () => {
         });
       } catch (error) {
         console.error('Error loading homepage content:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -934,27 +931,20 @@ const HomePage: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Fix: Always render components to maintain consistent hook call order
-  // Use CSS to show/hide loading state instead of conditional rendering
+  // Optimized: Show critical above-the-fold content immediately
+  // Database content loads in parallel without blocking initial render
   return (
     <main className="relative z-10 scroll-smooth">
-      {/* Loading overlay - shown on top while loading */}
-      {loading && (
-        <div className="fixed inset-0 z-50 flex justify-center items-center bg-white">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
-        </div>
-      )}
+      {/* Immediately visible sections - no loading dependency */}
+      <HeroTrefa isMobile={isMobile} />
+      <WallOfLove />
+      <WhyChooseTrefaSection />
 
-      {/* Always render content to keep hooks consistent */}
-      <div className={loading ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-300'}>
-        <HeroTrefa isMobile={isMobile} />
-        <WallOfLove />
-        <WhyChooseTrefaSection />
-        <CarroceriaCarouselSection content={content.carroceriaCarousel} />
-        <YouTubeVSLSection content={content.youtubeVSL} />
-        <BranchesSection content={content.branches} />
-        <TestimonioSeparator content={content.testimonial} />
-      </div>
+      {/* Sections that use database content - shown with graceful loading */}
+      <CarroceriaCarouselSection content={content.carroceriaCarousel} />
+      <YouTubeVSLSection content={content.youtubeVSL} />
+      <BranchesSection content={content.branches} />
+      <TestimonioSeparator content={content.testimonial} />
     </main>
   );
 };

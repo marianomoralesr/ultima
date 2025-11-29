@@ -9,12 +9,12 @@ interface AnimatedVehicleGridProps {
 }
 
 const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
-  maxVehicles = 30,
+  maxVehicles = 20, // Reduced default for faster initial load
   gradientDirection = 'diagonal'
 }) => {
   const { vehicles } = useVehicles();
   const [visibleCount, setVisibleCount] = useState(0);
-  const [animationSpeed, setAnimationSpeed] = useState(400); // Start at 400ms
+  const [animationSpeed, setAnimationSpeed] = useState(150); // Start faster at 150ms
 
   // Select random vehicles and prepare grid
   const gridVehicles = useMemo(() => {
@@ -54,8 +54,8 @@ const AnimatedVehicleGrid: React.FC<AnimatedVehicleGridProps> = ({
     if (visibleCount >= gridVehicles.length) return;
 
     // Calculate speed based on current iteration to avoid circular dependency
-    // Start at 400ms, reduce by 8ms per vehicle, minimum 50ms
-    const currentSpeed = Math.max(50, 400 - (visibleCount * 8));
+    // Start at 150ms, reduce by 5ms per vehicle, minimum 30ms for faster loading
+    const currentSpeed = Math.max(30, 150 - (visibleCount * 5));
 
     const timer = setTimeout(() => {
       setVisibleCount(prev => Math.min(prev + 1, gridVehicles.length));

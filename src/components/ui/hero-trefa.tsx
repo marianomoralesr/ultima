@@ -203,8 +203,8 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
       className="min-h-screen relative overflow-x-hidden bg-neutral-100"
       ref={heroRef}
     >
-      {/* Animated Vehicle Grid Background */}
-      <AnimatedVehicleGrid maxVehicles={isMobile ? 12 : 30} gradientDirection="diagonal" />
+      {/* Animated Vehicle Grid Background - optimized for fast loading */}
+      <AnimatedVehicleGrid maxVehicles={isMobile ? 9 : 18} gradientDirection="diagonal" />
       <section className="w-full pt-16 pb-28 md:grid md:grid-cols-2 flex flex-col md:items-start max-w-screen-xl xl:px-0 md:px-10 px-4 mx-auto text-black">
         <article className="space-y-5 flex-col flex justify-start text-left pb-10 md:pt-12">
           <Link

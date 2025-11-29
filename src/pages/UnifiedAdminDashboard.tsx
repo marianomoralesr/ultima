@@ -28,7 +28,7 @@ import {
   Legend
 } from 'recharts';
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+const COLORS = ['#e2673d', '#2a9d8f', '#264653', '#e9c46a', '#f4a261'];
 
 interface DashboardData {
   marketing: {

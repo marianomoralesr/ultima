@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.916.0",
     "@google/genai": "^1.27.0",
-    "@hookform/resolvers": "^3.3.4",
+    "@hookform/resolvers": "^3.10.0",
     "@microsoft/clarity": "^1.0.0",
     "@netlify/functions": "^5.0.0",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -62,17 +62,17 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.3.8",
-    "react-hook-form": "^7.51.4",
+    "react-hook-form": "^7.67.0",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.23.1",
     "react-spring": "^10.0.3",
-    "recharts": "^3.3.0",
+    "recharts": "^2.12.7",
     "serverless-http": "^4.0.0",
     "sonner": "^1.4.41",
     "styled-components": "^6.1.19",
     "tailwind-merge": "^3.4.0",
     "vaul": "^1.1.2",
-    "zod": "^3.23.8"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.7",

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid, Line, LineChart } from 'recharts';
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+const COLORS = ['#e2673d', '#2a9d8f', '#264653', '#e9c46a', '#f4a261'];
 
 export default function AdminBusinessAnalyticsDashboard() {
     const { user, profile } = useAuth();
@@ -354,7 +354,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                     labelLine={false}
                                     label={(entry) => `${entry.range}: ${entry.count}`}
                                     outerRadius={80}
-                                    fill="hsl(var(--primary))"
+                                    fill="#f97316"
                                     dataKey="count"
                                 >
                                     {metrics.priceRangeInsights.map((entry, index) => (
@@ -382,7 +382,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 <YAxis className="text-xs" />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="avgApplications" fill="hsl(var(--primary))" name="Promedio de Solicitudes" />
+                                <Bar dataKey="avgApplications" fill="#f97316" name="Promedio de Solicitudes" />
                             </RechartsBarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -440,7 +440,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                             <YAxis className="text-xs" />
                             <Tooltip />
                             <Legend />
-                            <Line type="monotone" dataKey="rate" stroke="hsl(var(--primary))" strokeWidth={2} name="Promedio de Solicitudes" />
+                            <Line type="monotone" dataKey="rate" stroke="#f97316" strokeWidth={2} name="Tasa de Conversión" />
                         </LineChart>
                     </ResponsiveContainer>
                 </CardContent>

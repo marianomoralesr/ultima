@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Home,
   MapPin,
@@ -19,7 +19,9 @@ import {
   Phone,
   MessageCircle,
   Heart,
-  TrendingUp
+  TrendingUp,
+  Loader2,
+  FileUp
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -28,6 +30,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '../../supabaseClient';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
+import { DocumentService } from '../services/documentService';
+import { conversionTracking } from '../services/ConversionTrackingService';
 
 const SALES_AGENTS = [
   { id: 'd21e808e-083c-48fd-be78-d52ee7837146', name: 'Anahi Garza Garcia', phone: '+52 81 8704 9079' },
@@ -58,7 +62,7 @@ const getMotivationalMessage = (progress: number): string => {
 };
 
 const DashboardSidebarPage: React.FC = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
 
   // Close sidebar on mobile by default
   const [isOpen, setIsOpen] = useState(() => {
@@ -72,6 +76,7 @@ const DashboardSidebarPage: React.FC = () => {
     enviadas: 0,
     documentosPendientes: 0,
     status: 'draft' as 'draft' | 'submitted' | 'approved' | 'rejected' | 'pending',
+    displayStatus: 'draft' as string, // Computed display status
     progreso: 0,
     profileComplete: false,
     bankProfileComplete: false
@@ -87,6 +92,11 @@ const DashboardSidebarPage: React.FC = () => {
   const [sidebarVehicles, setSidebarVehicles] = useState<any[]>([]);
   const [vehiclesLabel, setVehiclesLabel] = useState('');
   const location = useLocation();
+
+  // Dropzone state
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const dropzoneRef = useRef<HTMLDivElement>(null);
 
   const loadStats = useCallback(async () => {
     try {
@@ -212,11 +222,25 @@ const DashboardSidebarPage: React.FC = () => {
         progress += ((4 - documentosPendientes) / 4) * 25;
       }
 
+      // Compute display status based on application status and documents
+      const baseStatus = activeApp?.status || latestApp?.status || 'draft';
+      let displayStatus = baseStatus;
+
+      // If application is submitted/pending but missing documents, show "Faltan Documentos"
+      if ((baseStatus === 'submitted' || baseStatus === 'pending') && documentosPendientes > 0) {
+        displayStatus = 'faltan_documentos';
+      }
+      // If application is submitted/pending and all docs are complete, show "En Revisión"
+      else if ((baseStatus === 'submitted' || baseStatus === 'pending') && documentosPendientes === 0) {
+        displayStatus = 'en_revision';
+      }
+
       setStats({
         borradores,
         enviadas,
         documentosPendientes,
-        status: activeApp?.status || latestApp?.status || 'draft',
+        status: baseStatus,
+        displayStatus,
         progreso: Math.min(Math.round(progress), 100),
         profileComplete,
         bankProfileComplete
@@ -366,9 +390,113 @@ const DashboardSidebarPage: React.FC = () => {
     });
   };
 
-  const statusConfig = getStatusConfig(stats.status);
+  const statusConfig = getStatusConfig(stats.displayStatus);
   const docsComplete = stats.documentosPendientes === 0;
   const motivationalMessage = getMotivationalMessage(stats.progreso);
+
+  // Dropzone handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!latestApplication || !publicUploadLink) return;
+    setIsDragging(true);
+  }, [latestApplication, publicUploadLink]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set dragging to false if we're leaving the dropzone entirely
+    if (dropzoneRef.current && !dropzoneRef.current.contains(e.relatedTarget as Node)) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (!latestApplication || !user?.id) {
+      toast.error('No hay una solicitud activa para subir documentos');
+      return;
+    }
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    // Filter only valid file types
+    const validFiles = files.filter(file => {
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+      return validTypes.includes(file.type);
+    });
+
+    if (validFiles.length === 0) {
+      toast.error('Solo se permiten archivos JPG, PNG, WebP o PDF');
+      return;
+    }
+
+    setIsUploading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const file of validFiles) {
+      try {
+        // Determine document type based on file name hints
+        let documentType = 'proof_income'; // Default
+        const fileName = file.name.toLowerCase();
+
+        if (fileName.includes('ine') || fileName.includes('credencial')) {
+          if (fileName.includes('front') || fileName.includes('frente')) {
+            documentType = 'ine_front';
+          } else if (fileName.includes('back') || fileName.includes('rever') || fileName.includes('atras')) {
+            documentType = 'ine_back';
+          } else {
+            documentType = 'ine_front'; // Default to front
+          }
+        } else if (fileName.includes('domicilio') || fileName.includes('address') || fileName.includes('comprobante')) {
+          documentType = 'proof_address';
+        } else if (fileName.includes('ingreso') || fileName.includes('income') || fileName.includes('nomina') || fileName.includes('estado')) {
+          documentType = 'proof_income';
+        }
+
+        await DocumentService.uploadDocument(file, latestApplication.id, documentType, user.id);
+        successCount++;
+      } catch (error) {
+        console.error('Error uploading file:', file.name, error);
+        errorCount++;
+      }
+    }
+
+    setIsUploading(false);
+
+    if (successCount > 0) {
+      toast.success(`${successCount} documento(s) subido(s) exitosamente`);
+
+      // Track document upload event
+      try {
+        await conversionTracking.track('DocumentUpload', 'Document Upload', {
+          applicationId: latestApplication.id,
+          userId: user.id,
+          documentCount: successCount,
+          page: '/escritorio'
+        });
+      } catch (trackError) {
+        console.error('Error tracking document upload:', trackError);
+      }
+
+      // Reload stats to update document count
+      loadStats();
+    }
+
+    if (errorCount > 0) {
+      toast.error(`${errorCount} documento(s) no se pudieron subir`);
+    }
+  }, [latestApplication, user?.id, loadStats]);
 
   return (
     <div className="flex min-h-screen w-full bg-gray-50">
@@ -752,9 +880,41 @@ const DashboardSidebarPage: React.FC = () => {
 
             {/* Dropzone Section with QR and Link */}
             {publicUploadLink && latestApplication && (
-              <Card className="border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white">
-                <CardContent className="p-3 sm:p-4 md:p-6">
-                  <div className="flex flex-col md:flex-row items-start gap-6">
+              <Card
+                ref={dropzoneRef}
+                className={`border-2 transition-all duration-200 ${
+                  isDragging
+                    ? 'border-primary-500 bg-primary-100 scale-[1.02] shadow-lg'
+                    : 'border-primary-300 bg-gradient-to-br from-primary-50 to-white'
+                }`}
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <CardContent className="p-3 sm:p-4 md:p-6 relative">
+                  {/* Drag overlay */}
+                  {isDragging && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary-100/90 rounded-lg z-10">
+                      <div className="text-center">
+                        <FileUp className="w-12 h-12 text-primary-600 mx-auto mb-2 animate-bounce" />
+                        <p className="text-lg font-bold text-primary-700">Suelta tus documentos aquí</p>
+                        <p className="text-sm text-primary-600">JPG, PNG, WebP o PDF</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Uploading overlay */}
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg z-10">
+                      <div className="text-center">
+                        <Loader2 className="w-10 h-10 text-primary-600 mx-auto mb-2 animate-spin" />
+                        <p className="text-lg font-semibold text-gray-700">Subiendo documentos...</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col md:flex-row items-start gap-6 relative">
                     {/* QR Code */}
                     <div className="flex-shrink-0 mx-auto md:mx-0">
                       <div className="bg-white p-4 rounded-lg shadow-md">
@@ -785,9 +945,20 @@ const DashboardSidebarPage: React.FC = () => {
                             Carga de Documentos
                           </h3>
                           <p className="text-sm text-gray-600">
-                            Comparte este link para recibir documentos
+                            Arrastra documentos aquí o comparte el link
                           </p>
                         </div>
+                      </div>
+
+                      {/* Dropzone hint */}
+                      <div className="mb-3 p-4 border-2 border-dashed border-primary-300 rounded-lg bg-primary-50/50 text-center cursor-pointer hover:bg-primary-100/50 transition-colors">
+                        <FileUp className="w-6 h-6 text-primary-500 mx-auto mb-1" />
+                        <p className="text-sm font-medium text-primary-700">
+                          Arrastra aquí tus documentos
+                        </p>
+                        <p className="text-xs text-primary-600">
+                          INE, comprobante de domicilio, comprobante de ingresos
+                        </p>
                       </div>
 
                       {/* Link con botón copiar */}

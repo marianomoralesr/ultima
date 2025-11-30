@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ProfileService } from '../services/profileService';
 import { supabase } from '../../supabaseClient';
 import { User, ArrowLeft, CheckCircle, Loader2, Info, ChevronRight, ChevronLeft } from 'lucide-react';
@@ -77,6 +77,7 @@ const STEPS = [
 const ProfilePage: React.FC = () => {
   const { user, profile, loading, reloadProfile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const formInitialized = useRef(false);
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -325,7 +326,15 @@ const ProfilePage: React.FC = () => {
         toast.success('¡Perfil actualizado! Ya tienes una solicitud en proceso.');
         setIsProfileComplete(true);
         await reloadProfile();
-        navigate('/escritorio');
+
+        // Check if there's a return path with ordencompra
+        const returnTo = searchParams.get('returnTo');
+        const ordencompra = searchParams.get('ordencompra');
+        if (returnTo && ordencompra) {
+          navigate(`${returnTo}?ordencompra=${ordencompra}`);
+        } else {
+          navigate('/escritorio');
+        }
         return;
       }
 
@@ -334,7 +343,16 @@ const ProfilePage: React.FC = () => {
       // Reload profile context and redirect
       await reloadProfile();
       setTimeout(() => {
-        navigate('/escritorio/perfilacion-bancaria');
+        // Preserve ordencompra and returnTo when redirecting to bank profiling
+        const returnTo = searchParams.get('returnTo');
+        const ordencompra = searchParams.get('ordencompra');
+        let redirectPath = '/escritorio/perfilacion-bancaria';
+
+        if (returnTo && ordencompra) {
+          redirectPath = `${redirectPath}?returnTo=${returnTo}&ordencompra=${ordencompra}`;
+        }
+
+        navigate(redirectPath);
       }, 1000);
     } else {
       toast.info('Progreso guardado. Algunos campos obligatorios están pendientes.');

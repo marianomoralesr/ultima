@@ -131,26 +131,35 @@ const Application: React.FC = () => {
 
             setPageStatus('checking_profile');
             try {
+                // Preserve ordencompra from URL or sessionStorage
+                const ordenCompraFromUrl = searchParams.get('ordencompra');
+                const pendingOrdenCompra = sessionStorage.getItem('pendingOrdenCompra');
+                const currentOrdenCompra = ordenCompraFromUrl || pendingOrdenCompra;
+
+                // Save ordencompra to sessionStorage if present in URL
+                if (ordenCompraFromUrl) {
+                    sessionStorage.setItem('pendingOrdenCompra', ordenCompraFromUrl);
+                }
+
                 // Address fields (address, city, state, zip_code) are now part of the application form, not profile requirements
                 const requiredFields: (keyof Profile)[] = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
                 const isProfileComplete = requiredFields.every(field => profile[field] && String(profile[field]).trim() !== '');
-                
+
                 if (!isProfileComplete) {
-                    const ordenCompraFromUrl = searchParams.get('ordencompra');
-                    if (ordenCompraFromUrl) {
-                        sessionStorage.setItem('pendingOrdenCompra', ordenCompraFromUrl);
-                    }
+                    console.log('[Application] Profile incomplete, redirecting to profile page');
                     setPageStatus('profile_incomplete');
                     return;
                 }
-                
+
                 const bankProfile = await BankProfilingService.getUserBankProfile(user.id);
                 console.log('[Application] Bank profile check:', {
                     bankProfile,
                     is_complete: bankProfile?.is_complete,
                     banco_recomendado: bankProfile?.banco_recomendado
                 });
-                if (!bankProfile?.is_complete || !bankProfile.banco_recomendado) {
+
+                // Only check bank profile if it's truly incomplete
+                if (!bankProfile || !bankProfile.is_complete || !bankProfile.banco_recomendado) {
                     console.log('[Application] Bank profile incomplete or missing recommended bank');
                     setPageStatus('bank_profile_incomplete');
                     return;
@@ -165,7 +174,7 @@ const Application: React.FC = () => {
                         return;
                     }
                 }
-                
+
                 setPageStatus('ready');
             } catch (error: any) {
                 console.error("Error during application pre-flight checks:", error);
@@ -177,7 +186,7 @@ const Application: React.FC = () => {
         if (pageStatus === 'initializing') {
             checkUserProfile();
         }
-    }, [user, profile, authLoading, applicationIdFromUrl, searchParams, pageStatus]);
+    }, [user, profile, authLoading, applicationIdFromUrl, searchParams, pageStatus, isAdmin]);
 
     useEffect(() => {
         const loadOrCreateDraft = async () => {
@@ -535,14 +544,22 @@ const Application: React.FC = () => {
         }
     };
 
-    const StatusDisplay: React.FC<{ icon: React.ElementType, title: string, message: string, linkTo: string, linkText: string }> = ({ icon: Icon, title, message, linkTo, linkText }) => (
-        <div className="max-w-xl mx-auto p-8 text-center bg-white rounded-xl shadow-sm border border-yellow-300">
-            <Icon className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-            <p className="text-gray-600 mt-2">{message}</p>
-            <Link to={linkTo} className="mt-6 inline-block bg-primary-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-primary-700">{linkText}</Link>
-        </div>
-    );
+    const StatusDisplay: React.FC<{ icon: React.ElementType, title: string, message: string, linkTo: string, linkText: string }> = ({ icon: Icon, title, message, linkTo, linkText }) => {
+        // Preserve ordencompra when redirecting
+        const ordenCompra = searchParams.get('ordencompra') || sessionStorage.getItem('pendingOrdenCompra');
+        const finalLinkTo = ordenCompra && (linkTo === '/escritorio/profile' || linkTo === '/escritorio/perfilacion-bancaria')
+            ? `${linkTo}?returnTo=/escritorio/aplicacion&ordencompra=${ordenCompra}`
+            : linkTo;
+
+        return (
+            <div className="max-w-xl mx-auto p-8 text-center bg-white rounded-xl shadow-sm border border-yellow-300">
+                <Icon className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+                <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+                <p className="text-gray-600 mt-2">{message}</p>
+                <Link to={finalLinkTo} className="mt-6 inline-block bg-primary-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-primary-700">{linkText}</Link>
+            </div>
+        );
+    };
     
     const isSubmitDisabled = form.formState.isSubmitting || !isValid;
 

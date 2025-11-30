@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, Controller, useController } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BankProfilingService, getBankColor, getBankLogo } from '../services/BankProfilingService';
 import { Profile } from '../types/types';
@@ -177,6 +177,7 @@ const BankCard: React.FC<{ bankName: string, title: string, description: string 
 const PerfilacionBancariaPage: React.FC = () => {
     const { user, profile, loading: authLoading, isAdmin, reloadProfile } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [status, setStatus] = useState<'loading' | 'profile_incomplete' | 'ready' | 'error' | 'success'>('loading');
     const [showConfetti, setShowConfetti] = useState(false);
     const [recommendedBank, setRecommendedBank] = useState<string | null>(null);
@@ -237,7 +238,21 @@ const PerfilacionBancariaPage: React.FC = () => {
     useEffect(() => {
         // Skip auto-redirect for admins - they can test the form unlimited times
         if (status === 'success' && !isAdmin) {
-            const path = localStorage.getItem('loginRedirect') || '/escritorio/aplicacion';
+            // Check for returnTo and ordencompra from searchParams
+            const returnTo = searchParams.get('returnTo');
+            const ordencompra = searchParams.get('ordencompra');
+
+            let path = '/escritorio/aplicacion';
+
+            // Priority order: searchParams > localStorage > default
+            if (returnTo) {
+                path = ordencompra ? `${returnTo}?ordencompra=${ordencompra}` : returnTo;
+            } else {
+                const storedRedirect = localStorage.getItem('loginRedirect');
+                if (storedRedirect) {
+                    path = storedRedirect;
+                }
+            }
 
             localStorage.removeItem('loginRedirect');
 
@@ -260,7 +275,7 @@ const PerfilacionBancariaPage: React.FC = () => {
 
             return () => clearTimeout(timer);
         }
-    }, [status, navigate, isAdmin, user, recommendedBank, secondRecommendedBank]);
+    }, [status, navigate, isAdmin, user, recommendedBank, secondRecommendedBank, searchParams]);
 
 
     const onSubmit = async (data: BankProfileFormData) => {

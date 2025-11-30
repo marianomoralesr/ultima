@@ -84,6 +84,53 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Ensure all primary-colored backgrounds have white text for readability */
+  .bg-primary,
+  .bg-primary-100,
+  .bg-primary-200,
+  .bg-primary-300,
+  .bg-primary-400,
+  .bg-primary-500,
+  .bg-primary-600,
+  .bg-primary-700,
+  .bg-primary-800,
+  .bg-primary-900,
+  .bg-brand-primary,
+  [class*="bg-primary"] {
+    color: white !important;
+  }
+
+  /* Override for any buttons or links with primary background */
+  button.bg-primary,
+  button[class*="bg-primary"],
+  a.bg-primary,
+  a[class*="bg-primary"],
+  .btn-primary,
+  span.bg-primary,
+  span[class*="bg-primary"],
+  div.bg-primary,
+  div[class*="bg-primary"] {
+    color: white !important;
+  }
+
+  /* Ensure badges and tags with primary background have white text */
+  [class*="badge"].bg-primary,
+  [class*="badge"][class*="bg-primary"],
+  [class*="tag"].bg-primary,
+  [class*="tag"][class*="bg-primary"] {
+    color: white !important;
+  }
+
+  /* Ensure any element with #FF6801 background color has white text */
+  [style*="background-color: #FF6801"],
+  [style*="background-color:#FF6801"],
+  [style*="background-color: rgb(255, 104, 1)"],
+  [style*="background: #FF6801"],
+  [style*="background:#FF6801"],
+  .bg-\[\#FF6801\] {
+    color: white !important;
+  }
 }
 
 html, body, #root {

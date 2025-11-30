@@ -821,6 +821,9 @@ const UnifiedDashboardLayout: React.FC = () => {
                     // Hide all text when collapsed
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]>span]:hidden",
                     "group-data-[state=collapsed]:[&_[data-sidebar=group-label]]:hidden",
+                    // Hide chevron icons in collapsed state (dropdowns don't work when collapsed)
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg.lucide-chevron-down]:hidden",
+                    "group-data-[state=collapsed]:[&_button_svg.lucide-chevron-down]:hidden",
                     // Menu sub border
                     "[&_[data-sidebar=menu-sub]]:border-gray-100/60",
                     // Font sizes and padding (desktop)

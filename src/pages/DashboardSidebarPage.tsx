@@ -499,26 +499,9 @@ const DashboardSidebarPage: React.FC = () => {
   }, [latestApplication, user?.id, loadStats]);
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-50">
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <header className="bg-background border-b px-3 py-2.5 sm:px-4 sm:py-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg sm:text-xl font-semibold">
-              Panel de Control
-            </h1>
-            <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
-              <Link to="/escritorio/profile">
-                <User className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary" />
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="flex-1 px-2 py-3 sm:p-4 md:p-6 overflow-y-auto bg-gray-50">
+    <div className="w-full h-full">
+      {/* Main Content - No duplicate header, extends to layout edges */}
+      <div className="px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
             {/* Limit Warning */}
             {stats.enviadas > 1 && (
@@ -990,7 +973,6 @@ const DashboardSidebarPage: React.FC = () => {
               </Card>
             )}
           </div>
-        </main>
       </div>
 
       {/* Sidebar - Right Side */}

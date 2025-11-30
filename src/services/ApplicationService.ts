@@ -229,6 +229,7 @@ export const ApplicationService = {
       .select('id, status')
       .eq('user_id', userId)
       .in('status', [
+        APPLICATION_STATUS.DRAFT, // Include drafts to limit to 1 application total
         APPLICATION_STATUS.COMPLETA,
         APPLICATION_STATUS.FALTAN_DOCUMENTOS,
         APPLICATION_STATUS.EN_REVISION,

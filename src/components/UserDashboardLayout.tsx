@@ -163,41 +163,70 @@ const UserDashboardLayout: React.FC = () => {
             <motion.aside
                 className={cn(
                     "fixed inset-y-0 left-0 z-10 hidden flex-col border-r shadow-sm sm:flex",
-                    !isSidebarExpanded && isAdmin ? "bg-primary" : "bg-background"
+                    !isSidebarExpanded ? "!bg-gray-800" : "bg-background"
                 )}
                 initial={false}
                 animate={{ width: isSidebarExpanded ? "256px" : "60px" }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
             >
                 <nav className="flex flex-col gap-4 px-4 py-6 h-full">
-                    {/* Logo */}
-                    <Link
-                        to="/"
-                        className="group flex h-12 items-center rounded-lg px-3 text-lg font-semibold text-foreground hover:bg-accent"
-                    >
-                        <img
-                            src="/images/trefalogo.png"
-                            alt="TREFA"
-                            className="h-8 w-auto object-contain mr-2"
-                        />
-                    </Link>
+                    {/* Toggle Button */}
+                    <div className="flex items-center justify-between h-10">
+                        <Link
+                            to="/"
+                            className={cn("flex items-center", isSidebarExpanded ? "flex-1" : "justify-center w-full")}
+                        >
+                            <img
+                                src="/images/trefalogo.png"
+                                alt="TREFA"
+                                className="h-6 w-auto object-contain"
+                            />
+                        </Link>
+                        {isSidebarExpanded && (
+                            <button
+                                onClick={toggleSidebar}
+                                className="flex items-center justify-center h-8 w-8 rounded-lg hover:bg-accent transition-colors"
+                            >
+                                <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+                            </button>
+                        )}
+                    </div>
+                    {!isSidebarExpanded && (
+                        <button
+                            onClick={toggleSidebar}
+                            className="flex items-center justify-center h-8 rounded-lg hover:bg-gray-700 transition-colors"
+                        >
+                            <ChevronRight className="h-5 w-5 text-white" />
+                        </button>
+                    )}
 
                     {/* User Profile Card */}
-                    <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-                        <Avatar className="h-10 w-10 flex-shrink-0">
-                            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                                {profile?.first_name?.[0]?.toUpperCase() || 'U'}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium leading-none truncate">
-                                {profile?.first_name || 'Usuario'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                                {profile?.email}
-                            </p>
+                    {isSidebarExpanded && (
+                        <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
+                                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                                    {profile?.first_name?.[0]?.toUpperCase() || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium leading-none truncate">
+                                    {profile?.first_name || 'Usuario'}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                    {profile?.email}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    )}
+                    {!isSidebarExpanded && (
+                        <div className="flex items-center justify-center">
+                            <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-white text-gray-800 font-semibold">
+                                    {profile?.first_name?.[0]?.toUpperCase() || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                        </div>
+                    )}
 
                     <Separator />
 
@@ -212,16 +241,26 @@ const UserDashboardLayout: React.FC = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
-                                        active
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                        !isSidebarExpanded
+                                            ? "justify-center text-white hover:bg-gray-700"
+                                            : "hover:bg-accent",
+                                        active && isSidebarExpanded
                                             ? "bg-accent text-accent-foreground"
-                                            : "text-muted-foreground hover:text-foreground"
+                                            : active && !isSidebarExpanded
+                                            ? "bg-gray-700 text-white"
+                                            : isSidebarExpanded
+                                            ? "text-muted-foreground hover:text-foreground"
+                                            : "text-white"
                                     )}
+                                    title={!isSidebarExpanded ? item.label : undefined}
                                 >
-                                    <Icon className="h-5 w-5 shrink-0" />
-                                    <span className="whitespace-nowrap">
-                                        {item.label}
-                                    </span>
+                                    <Icon className={cn("h-5 w-5 shrink-0", !isSidebarExpanded && "text-white")} />
+                                    {isSidebarExpanded && (
+                                        <span className="whitespace-nowrap">
+                                            {item.label}
+                                        </span>
+                                    )}
                                 </Link>
                             );
                         })}
@@ -240,16 +279,26 @@ const UserDashboardLayout: React.FC = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent",
-                                        active
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                        !isSidebarExpanded
+                                            ? "justify-center text-white hover:bg-gray-700"
+                                            : "hover:bg-accent",
+                                        active && isSidebarExpanded
                                             ? "bg-accent text-accent-foreground"
-                                            : "text-muted-foreground hover:text-foreground"
+                                            : active && !isSidebarExpanded
+                                            ? "bg-gray-700 text-white"
+                                            : isSidebarExpanded
+                                            ? "text-muted-foreground hover:text-foreground"
+                                            : "text-white"
                                     )}
+                                    title={!isSidebarExpanded ? item.label : undefined}
                                 >
-                                    <Icon className="h-5 w-5 shrink-0" />
-                                    <span className="whitespace-nowrap">
-                                        {item.label}
-                                    </span>
+                                    <Icon className={cn("h-5 w-5 shrink-0", !isSidebarExpanded && "text-white")} />
+                                    {isSidebarExpanded && (
+                                        <span className="whitespace-nowrap">
+                                            {item.label}
+                                        </span>
+                                    )}
                                 </Link>
                             );
                         })}
@@ -257,12 +306,20 @@ const UserDashboardLayout: React.FC = () => {
                         {/* Sign Out Button */}
                         <button
                             onClick={() => signOut()}
-                            className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent text-muted-foreground hover:text-foreground"
+                            className={cn(
+                                "w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                                !isSidebarExpanded
+                                    ? "justify-center text-white hover:bg-gray-700"
+                                    : "hover:bg-accent text-muted-foreground hover:text-foreground"
+                            )}
+                            title={!isSidebarExpanded ? "Cerrar Sesión" : undefined}
                         >
-                            <LogOut className="h-5 w-5 shrink-0" />
-                            <span className="whitespace-nowrap">
-                                Cerrar Sesión
-                            </span>
+                            <LogOut className={cn("h-5 w-5 shrink-0", !isSidebarExpanded && "text-white")} />
+                            {isSidebarExpanded && (
+                                <span className="whitespace-nowrap">
+                                    Cerrar Sesión
+                                </span>
+                            )}
                         </button>
                     </div>
                 </nav>

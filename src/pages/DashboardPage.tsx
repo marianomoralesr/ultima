@@ -472,7 +472,7 @@ const Dashboard: React.FC = () => {
                                 <div key={draft.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
                                     <div className="flex flex-col gap-3 mb-3">
                                         <div>
-                                            <p className="font-semibold text-gray-800 text-sm sm:text-base">{draft.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base">{draft.car_info?._vehicleTitle || draft.car_info?.vehicleTitle || 'Solicitud General'}</p>
                                             <p className="text-xs text-gray-500 mt-1">Creado: {new Date(draft.created_at).toLocaleDateString()}</p>
                                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
                                                 <status.icon className="w-3 h-3" />
@@ -516,7 +516,7 @@ const Dashboard: React.FC = () => {
                                 <div key={app.id} className="p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
                                     <div className="flex flex-col gap-2 mb-3">
                                         <div>
-                                            <p className="font-semibold text-gray-800 text-sm sm:text-base break-words">{app.car_info?._vehicleTitle || 'Solicitud General'}</p>
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base break-words">{app.car_info?._vehicleTitle || app.car_info?.vehicleTitle || 'Solicitud General'}</p>
                                             <p className="text-xs text-gray-500 mt-1">Enviada: {new Date(app.created_at).toLocaleDateString()}</p>
                                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-flex items-center gap-1.5 ${status.bgColor} ${status.color}`}>
                                                 <status.icon className="w-3 h-3" />
@@ -613,7 +613,7 @@ const Dashboard: React.FC = () => {
                         {drafts.map(draft => (
                             <div key={draft.id} className="bg-gray-50 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start gap-4">
                                 <div>
-                                    <p className="font-semibold text-gray-800">{draft.car_info?._vehicleTitle || 'Borrador sin auto seleccionado'}</p>
+                                    <p className="font-semibold text-gray-800">{draft.car_info?._vehicleTitle || draft.car_info?.vehicleTitle || 'Borrador sin auto seleccionado'}</p>
                                     <p className="text-xs text-gray-500 mt-1">Última modificación: {new Date(draft.updated_at).toLocaleDateString('es-MX')}</p>
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">

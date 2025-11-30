@@ -815,6 +815,9 @@ const UnifiedDashboardLayout: React.FC = () => {
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!stroke-[1.5]",
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:bg-gray-700",
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:!text-white",
+                    // Center menu items within sidebar when collapsed
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu]]:!px-0",
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:!mx-auto",
                     // Hide all text when collapsed
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]>span]:hidden",
                     "group-data-[state=collapsed]:[&_[data-sidebar=group-label]]:hidden",

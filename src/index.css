@@ -101,16 +101,40 @@
     color: white !important;
   }
 
+  /* Ensure children of primary-colored elements also have white text */
+  .bg-primary *,
+  .bg-primary-500 *,
+  .bg-primary-600 *,
+  .bg-primary-700 *,
+  .bg-brand-primary *,
+  [class*="bg-primary"] *,
+  button[class*="bg-primary"] > *,
+  button.bg-primary > * {
+    color: white !important;
+  }
+
   /* Override for any buttons or links with primary background */
   button.bg-primary,
   button[class*="bg-primary"],
+  button.bg-primary a,
+  button[class*="bg-primary"] a,
+  button.bg-primary > a,
+  button[class*="bg-primary"] > a,
   a.bg-primary,
   a[class*="bg-primary"],
   .btn-primary,
+  .btn-primary *,
   span.bg-primary,
   span[class*="bg-primary"],
   div.bg-primary,
   div[class*="bg-primary"] {
+    color: white !important;
+  }
+
+  /* Specific fix for shadcn Button component with primary variant */
+  button[class*="bg-primary"] span,
+  button.bg-primary span,
+  button:has(.bg-primary) {
     color: white !important;
   }
 

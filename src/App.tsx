@@ -9,6 +9,7 @@ import PublicRoute from './components/PublicRoute';
 import UnifiedDashboardLayout from './components/UnifiedDashboardLayout';
 import AdminRoute from './components/AdminRoute';
 import SalesRoute from './components/SalesRoute';
+import MarketingRoute from './components/MarketingRoute';
 import RedirectManager from './components/RedirectManager';
 import LeadSourceHandler from './components/LeadSourceHandler';
 import { VehicleProvider } from './context/VehicleContext';
@@ -245,6 +246,18 @@ function App(): React.JSX.Element {
                   <Route path="ventas/leads" element={<UnifiedCRMPage userRole="sales" />} />
                   <Route path="ventas/cliente/:id" element={<SalesClientProfilePage />} />
                   <Route path="ventas/clientes/:id" element={<SalesClientProfilePage />} />
+                </Route>
+
+                {/* Marketing routes - accessible by marketing and admin roles */}
+                <Route element={<MarketingRoute />}>
+                  <Route path="marketing" element={<MarketingHubPage />} />
+                  <Route path="marketing/analytics" element={<MarketingAnalyticsDashboardPage />} />
+                  <Route path="marketing/customer-journeys" element={<CustomerJourneysPage />} />
+                  <Route path="marketing/constructor" element={<ConstructorPage />} />
+                  <Route path="marketing/homepage-editor" element={<HomePageEditorPage />} />
+                  <Route path="marketing/config" element={<MarketingConfigPage />} />
+                  <Route path="marketing/crm" element={<UnifiedCRMPage userRole="marketing" />} />
+                  <Route path="documentos-analytics" element={<DocumentUploadAnalyticsPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFoundPage />} />

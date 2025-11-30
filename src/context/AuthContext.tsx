@@ -10,6 +10,7 @@ interface AuthContextType {
     loading: boolean;
     isAdmin: boolean;
     isSales: boolean;
+    isMarketing: boolean;
     signOut: () => Promise<void>;
     reloadProfile: () => Promise<Profile | null>;
 }
@@ -292,6 +293,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const isAdmin = profile?.role === 'admin';
     const isSales = profile?.role === 'sales';
+    const isMarketing = profile?.role === 'marketing';
 
     const value = {
         session,
@@ -300,6 +302,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loading,
         isAdmin,
         isSales,
+        isMarketing,
         signOut,
         reloadProfile
     };

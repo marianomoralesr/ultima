@@ -75,8 +75,8 @@ const Header: React.FC = () => {
                 {session ? (
                    <>
                       {/* Dashboard Button */}
-                      <Button asChild size="sm">
-                          <Link to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"}>
+                      <Button asChild size="sm" className="!text-white">
+                          <Link to={isSalesUser ? "/escritorio/ventas/crm" : "/escritorio"} className="!text-white">
                               Dashboard
                           </Link>
                       </Button>

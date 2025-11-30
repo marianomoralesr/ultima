@@ -167,7 +167,7 @@ const DashboardLayout: React.FC = () => {
                 <motion.aside
                     className={cn(
                         "fixed inset-y-0 left-0 z-10 hidden flex-col border-r shadow-sm sm:flex",
-                        !isSidebarExpanded && isAdmin ? "bg-primary" : "bg-background"
+                        !isSidebarExpanded ? "!bg-gray-800" : "bg-background"
                     )}
                     initial={false}
                     animate={{ width: isSidebarExpanded ? "256px" : "60px" }}
@@ -211,14 +211,14 @@ const DashboardLayout: React.FC = () => {
                                 onClick={toggleSidebar}
                                 className={cn(
                                     "p-1.5 rounded-lg transition-colors flex justify-center",
-                                    isAdmin ? "hover:bg-white/10 text-white" : "hover:bg-accent"
+                                    "hover:bg-white/10 text-white"
                                 )}
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         )}
 
-                        <Separator className={cn(!isSidebarExpanded && isAdmin ? "bg-white/20" : "")} />
+                        <Separator className={cn(!isSidebarExpanded ? "bg-white/20" : "")} />
 
                         {/* User Profile Card */}
                         {isSidebarExpanded && (
@@ -255,14 +255,10 @@ const DashboardLayout: React.FC = () => {
                                             active
                                                 ? isSidebarExpanded
                                                     ? "bg-accent text-accent-foreground"
-                                                    : isAdmin
-                                                        ? "bg-white/20 text-white"
-                                                        : "bg-accent text-accent-foreground"
+                                                    : "bg-white/20 text-white"
                                                 : isSidebarExpanded
                                                     ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                                    : isAdmin
-                                                        ? "text-white hover:bg-white/10"
-                                                        : "text-muted-foreground hover:bg-accent"
+                                                    : "text-white hover:bg-white/10"
                                         )}
                                         title={!isSidebarExpanded ? item.label : undefined}
                                     >
@@ -284,10 +280,10 @@ const DashboardLayout: React.FC = () => {
                                         isActiveLink(portalBancarioItem.to)
                                             ? isSidebarExpanded
                                                 ? "bg-accent text-accent-foreground"
-                                                : "bg-accent text-accent-foreground"
+                                                : "bg-white/20 text-white"
                                             : isSidebarExpanded
                                                 ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                                : "text-muted-foreground hover:bg-accent"
+                                                : "text-white hover:bg-white/10"
                                     )}
                                     title={!isSidebarExpanded ? portalBancarioItem.label : undefined}
                                 >
@@ -308,7 +304,7 @@ const DashboardLayout: React.FC = () => {
                                             isSidebarExpanded ? "px-2.5 py-2 gap-2.5 justify-start" : "justify-center py-2",
                                             isSidebarExpanded
                                                 ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                                : "text-muted-foreground hover:bg-accent"
+                                                : "text-white hover:bg-white/10"
                                         )}
                                         title={!isSidebarExpanded ? "Herramientas" : undefined}
                                     >
@@ -363,7 +359,7 @@ const DashboardLayout: React.FC = () => {
                                             isSidebarExpanded ? "px-2.5 py-2 gap-2.5 justify-start" : "justify-center py-2",
                                             isSidebarExpanded
                                                 ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                                : "text-muted-foreground hover:bg-accent"
+                                                : "text-white hover:bg-white/10"
                                         )}
                                         title={!isSidebarExpanded ? "Otras Páginas" : undefined}
                                     >
@@ -447,7 +443,7 @@ const DashboardLayout: React.FC = () => {
                                 isSidebarExpanded ? "px-2.5 py-2 gap-2.5" : "justify-center py-2",
                                 isSidebarExpanded
                                     ? "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                    : isAdmin ? "text-white hover:bg-white/10" : "text-muted-foreground hover:bg-accent"
+                                    : "text-white hover:bg-white/10"
                             )}
                             title={!isSidebarExpanded ? "Cerrar Sesión" : undefined}
                         >

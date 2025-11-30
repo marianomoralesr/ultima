@@ -625,12 +625,20 @@ const VehicleListPage: React.FC = () => {
                   </div>
                   {/* Live browsing counter with avatars */}
                   <div className="flex items-center gap-2">
-                    {/* Stacked mini person avatars */}
+                    {/* Stacked mini person avatars with initials */}
                     <div className="flex -space-x-1.5">
-                      <img src="https://randomuser.me/api/portraits/thumb/women/44.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
-                      <img src="https://randomuser.me/api/portraits/thumb/men/32.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
-                      <img src="https://randomuser.me/api/portraits/thumb/women/68.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
-                      <img src="https://randomuser.me/api/portraits/thumb/men/75.jpg" alt="" className="w-6 h-6 rounded-full border-2 border-white object-cover" />
+                      <div className="w-6 h-6 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
+                        <span className="text-[9px] font-bold text-white">MG</span>
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center">
+                        <span className="text-[9px] font-bold text-white">AR</span>
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-purple-500 border-2 border-white flex items-center justify-center">
+                        <span className="text-[9px] font-bold text-white">LC</span>
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-pink-500 border-2 border-white flex items-center justify-center">
+                        <span className="text-[9px] font-bold text-white">JS</span>
+                      </div>
                       <div className="w-6 h-6 rounded-full bg-orange-500 border-2 border-white flex items-center justify-center">
                         <span className="text-[9px] font-bold text-white">+{Math.max(0, activeUsers - 4)}</span>
                       </div>
@@ -655,9 +663,15 @@ const VehicleListPage: React.FC = () => {
             {/* Mobile visitor counter - compact version below fixed filter bar */}
             <div className="lg:hidden flex items-center gap-1.5 text-xs text-gray-600 bg-gradient-to-r from-orange-50 to-transparent px-3 py-2 rounded-md mb-4">
               <div className="flex -space-x-1">
-                <img src="https://randomuser.me/api/portraits/thumb/women/44.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
-                <img src="https://randomuser.me/api/portraits/thumb/men/32.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
-                <img src="https://randomuser.me/api/portraits/thumb/women/68.jpg" alt="" className="w-4 h-4 rounded-full border border-white object-cover" />
+                <div className="w-4 h-4 rounded-full bg-blue-500 border border-white flex items-center justify-center">
+                  <span className="text-[7px] font-bold text-white">MG</span>
+                </div>
+                <div className="w-4 h-4 rounded-full bg-green-500 border border-white flex items-center justify-center">
+                  <span className="text-[7px] font-bold text-white">AR</span>
+                </div>
+                <div className="w-4 h-4 rounded-full bg-purple-500 border border-white flex items-center justify-center">
+                  <span className="text-[7px] font-bold text-white">LC</span>
+                </div>
                 <div className="w-4 h-4 rounded-full bg-orange-500 border border-white flex items-center justify-center">
                   <span className="text-[7px] font-bold text-white">+{Math.max(0, activeUsers - 3)}</span>
                 </div>

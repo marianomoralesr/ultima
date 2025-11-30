@@ -101,7 +101,7 @@ interface NavGroup {
 
 // Navigation configuration
 const commonNavItems: NavItem[] = [
-    { to: '/escritorio/autos', label: 'Inventario', icon: Car, roles: ['admin', 'sales', 'user'] },
+    { to: '/autos', label: 'Inventario', icon: Car, roles: ['admin', 'sales', 'user'] },
     { to: '/escritorio/vende-tu-auto', label: 'Vender mi auto', icon: HandCoins, roles: ['admin', 'sales', 'user'] },
     { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, roles: ['admin', 'sales', 'user'] },
     { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText, roles: ['admin', 'sales', 'user'] },
@@ -219,7 +219,7 @@ const AppSidebarContent: React.FC = () => {
                 </div>
 
                 {/* User Profile Card */}
-                <div className="flex items-center gap-3 rounded-lg border border-gray-100/80 bg-gray-50/50 p-3 mx-2 mb-2">
+                <div className="flex items-center gap-3 rounded-lg border border-gray-100/80 bg-gray-50/50 p-3 mx-2 mb-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:mx-1">
                     <Avatar className="h-10 w-10 flex-shrink-0">
                         <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                             {profile?.first_name?.[0]?.toUpperCase() || 'U'}

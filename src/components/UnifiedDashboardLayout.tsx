@@ -218,14 +218,14 @@ const AppSidebarContent: React.FC = () => {
                     </Link>
                 </div>
 
-                {/* User Profile Card */}
-                <div className="flex items-center gap-3 rounded-lg border border-gray-100/80 bg-gray-50/50 p-3 mx-2 mb-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:mx-1">
+                {/* User Profile Card - Expanded */}
+                <div className="flex items-center gap-3 rounded-lg border border-gray-100/80 bg-gray-50/50 p-3 mx-2 mb-2 group-data-[collapsible=icon]:hidden">
                     <Avatar className="h-10 w-10 flex-shrink-0">
                         <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                             {profile?.first_name?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
+                    <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium leading-none truncate">
                             {profile?.first_name || 'Usuario'}
                         </p>
@@ -233,6 +233,15 @@ const AppSidebarContent: React.FC = () => {
                             {isAdmin ? 'Administrador' : isSales ? 'Ventas' : 'Usuario'}
                         </p>
                     </div>
+                </div>
+
+                {/* User Avatar - Collapsed */}
+                <div className="hidden group-data-[collapsible=icon]:flex justify-center mb-2">
+                    <Avatar className="h-10 w-10">
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                            {profile?.first_name?.[0]?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                    </Avatar>
                 </div>
             </SidebarHeader>
 

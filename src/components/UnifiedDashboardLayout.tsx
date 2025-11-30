@@ -797,12 +797,12 @@ const UnifiedDashboardLayout: React.FC = () => {
                     "border-r border-gray-100/60 transition-colors duration-300",
                     // Expanded state - subtle gray
                     "group-data-[state=expanded]:bg-gray-50/30",
-                    // Collapsed state - super pale orange
-                    "group-data-[state=collapsed]:bg-orange-50/40 group-data-[state=collapsed]:border-orange-100/60",
-                    // Collapsed state - dark orange icons
-                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:text-orange-600",
-                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:bg-orange-100/60",
-                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:text-orange-700",
+                    // Collapsed state - dark gray background with white icons
+                    "group-data-[state=collapsed]:!bg-gray-800 group-data-[state=collapsed]:border-gray-700",
+                    // Collapsed state - white icons
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!text-white",
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:bg-gray-700",
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:!text-white",
                     // Menu sub border
                     "[&_[data-sidebar=menu-sub]]:border-gray-100/60",
                     // Font sizes and padding (desktop)

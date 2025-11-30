@@ -121,7 +121,10 @@ const HeaderSearchBar: React.FC = () => {
             </li>
           ))}
            <li className="p-3 sm:p-2 bg-gray-50 border-t border-gray-200">
-                <button onClick={() => handleSubmit(new Event('submit') as any)} className="w-full text-center text-sm sm:text-sm font-semibold text-primary-600 hover:text-primary-700 active:text-primary-800 py-1.5">
+                <button onClick={() => {
+                  setIsDropdownVisible(false);
+                  navigate(`/autos?search=${encodeURIComponent(query.trim())}`);
+                }} className="w-full text-center text-sm sm:text-sm font-semibold text-primary-600 hover:text-primary-700 active:text-primary-800 py-1.5">
                     Ver todos los resultados para "{query}"
                 </button>
             </li>

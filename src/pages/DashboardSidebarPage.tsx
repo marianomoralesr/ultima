@@ -64,13 +64,6 @@ const getMotivationalMessage = (progress: number): string => {
 const DashboardSidebarPage: React.FC = () => {
   const { isAdmin, user } = useAuth();
 
-  // Close sidebar on mobile by default
-  const [isOpen, setIsOpen] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth >= 768; // md breakpoint
-    }
-    return false;
-  });
   const [stats, setStats] = useState({
     borradores: 0,
     enviadas: 0,
@@ -499,9 +492,10 @@ const DashboardSidebarPage: React.FC = () => {
   }, [latestApplication, user?.id, loadStats]);
 
   return (
-    <div className="w-full h-full">
-      {/* Main Content - No duplicate header, extends to layout edges */}
-      <div className="px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
+    <div className="px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-3">
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
             {/* Limit Warning */}
             {stats.enviadas > 1 && (
@@ -973,38 +967,12 @@ const DashboardSidebarPage: React.FC = () => {
               </Card>
             )}
           </div>
-      </div>
-
-      {/* Sidebar - Right Side */}
-      <aside
-        className={`${
-          isOpen
-            ? 'w-56 bg-background'
-            : `w-16 ${isAdmin ? 'bg-gray-800' : 'bg-[#FF6801]'} hidden md:flex`
-        } border-l transition-all duration-300 ease-in-out flex flex-col`}
-      >
-        {/* Header */}
-        <div className={`px-3 py-3 flex items-center justify-center ${isOpen ? 'border-b' : ''}`}>
-          {isOpen ? (
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1.5 hover:bg-accent rounded-md transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsOpen(true)}
-              className="p-1.5 hover:bg-white/20 rounded-md transition-colors"
-            >
-              <Menu className="w-4 h-4 text-white" />
-            </button>
-          )}
         </div>
 
-        {/* Sidebar Content */}
-        {isOpen && (
-          <div className="flex-1 px-3 py-2 overflow-y-auto space-y-2">
+        {/* Sidebar - Fixed Right Side */}
+        <div className="lg:col-span-1 space-y-4">
+          <Card className="sticky top-6">
+            <CardContent className="p-4 space-y-4">
             {/* Assigned Agent */}
             {assignedAgent && (
               <div className="bg-accent/50 p-2 rounded-lg border">
@@ -1088,22 +1056,10 @@ const DashboardSidebarPage: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {/* Collapsed State */}
-        {!isOpen && (
-          <div className="flex-1 flex flex-col items-center justify-center p-2 space-y-3">
-            {assignedAgent && (
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF6801] font-semibold text-xs shadow-sm">
-                {assignedAgent.name.charAt(0)}
-              </div>
-            )}
-            <MessageCircle className="w-5 h-5 text-white" />
-            {vehiclesLabel === 'Tus Favoritos' && <Heart className="w-4 h-4 text-white fill-white" />}
-          </div>
-        )}
-      </aside>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

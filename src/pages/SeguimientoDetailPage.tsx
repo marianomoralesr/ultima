@@ -120,9 +120,9 @@ const SeguimientoDetailPage: React.FC = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 no-print">
-      {/* Animated Status Bar */}
-      <div className={`${statusConfig.bgColor} ${statusConfig.color} h-[60px] flex items-center overflow-hidden sticky top-0 z-50 border-b-2 ${application.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ? 'border-yellow-600' : 'border-transparent'}`}>
+    <div className="min-h-screen bg-gray-50 no-print overflow-x-hidden">
+      {/* Animated Status Bar - Full Width with Negative Margins */}
+      <div className={`${statusConfig.bgColor} ${statusConfig.color} h-[60px] flex items-center overflow-hidden sticky top-0 z-50 border-b-2 ${application.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ? 'border-yellow-600' : 'border-transparent'} -mx-4 sm:-mx-6 md:-mx-8 -mt-4 sm:-mt-6 md:-mt-8 mb-6 sm:mb-8 md:mb-10`}>
         <div className="animate-marquee whitespace-nowrap flex items-center">
           <span className="text-lg font-bold px-8">
             {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)}
@@ -130,15 +130,15 @@ const SeguimientoDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content - Printable Application */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
                 onClick={() => navigate('/escritorio/seguimiento')}
-                className="text-gray-600"
+                className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver
@@ -148,6 +148,7 @@ const SeguimientoDetailPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowPrintable(!showPrintable)}
+                  className="border-gray-300 hover:bg-gray-100"
                 >
                   {showPrintable ? <X className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
                   {showPrintable ? 'Ocultar' : 'Ver Solicitud'}
@@ -156,7 +157,7 @@ const SeguimientoDetailPage: React.FC = () => {
                   variant="default"
                   size="sm"
                   onClick={handlePrint}
-                  className="bg-primary-600 hover:bg-primary-700"
+                  className="bg-primary-600 hover:bg-primary-700 text-white"
                 >
                   <Download className="w-4 h-4 mr-1" />
                   Descargar PDF
@@ -165,13 +166,9 @@ const SeguimientoDetailPage: React.FC = () => {
             </div>
 
             {showPrintable && (
-              <Card className="shadow-sm">
-                <CardContent className="p-4">
-                  <div className="bg-white rounded-lg max-h-[calc(100vh-200px)] overflow-y-auto">
-                    <PrintableApplication application={application} />
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-lg border border-gray-200 max-h-[calc(100vh-200px)] overflow-y-auto">
+                <PrintableApplication application={application} />
+              </div>
             )}
           </div>
 
@@ -203,7 +200,7 @@ const SeguimientoDetailPage: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => setUploadLinkVisible(!uploadLinkVisible)}
-                        className="w-full"
+                        className="w-full border-gray-300 hover:bg-gray-100"
                       >
                         <QrCode className="w-4 h-4 mr-2" />
                         {uploadLinkVisible ? 'Ocultar Link' : 'Mostrar Link Público'}
@@ -220,7 +217,7 @@ const SeguimientoDetailPage: React.FC = () => {
                             variant="default"
                             size="sm"
                             onClick={copyUploadLink}
-                            className="w-full"
+                            className="w-full bg-primary-600 hover:bg-primary-700 text-white"
                           >
                             {copySuccess ? (
                               <>
@@ -245,7 +242,7 @@ const SeguimientoDetailPage: React.FC = () => {
                         target="_blank"
                         className="block"
                       >
-                        <Button variant="default" size="sm" className="w-full bg-primary-600 hover:bg-primary-700">
+                        <Button variant="default" size="sm" className="w-full bg-primary-600 hover:bg-primary-700 text-white">
                           Cargar Documentos
                         </Button>
                       </Link>
@@ -299,19 +296,19 @@ const SeguimientoDetailPage: React.FC = () => {
 
             {/* Action Buttons */}
             <Card>
-              <CardContent className="p-4 space-y-2">
+              <CardContent className="p-4 space-y-3">
                 <a
                   href={`https://wa.me/5218187049079?text=Hola,%20quisiera%20dar%20seguimiento%20a%20mi%20solicitud%20${application.id.substring(0, 8)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <Button variant="default" className="w-full bg-green-600 hover:bg-green-700">
+                  <Button className="w-full bg-green-600 hover:bg-green-700 !text-white py-6">
                     Contactar por WhatsApp
                   </Button>
                 </a>
                 <Link to={`/escritorio/aplicacion/${application.id}`}>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full border-gray-300 hover:bg-gray-100">
                     Editar Solicitud
                   </Button>
                 </Link>
@@ -331,7 +328,7 @@ const SeguimientoDetailPage: React.FC = () => {
                       Responde nuestra breve encuesta y recibe un cupón de descuento exclusivo válido para tu próxima compra.
                     </p>
                     <Link to="/escritorio/encuesta">
-                      <Button variant="outline" size="sm" className="w-full border-blue-300 text-blue-700 hover:bg-blue-100">
+                      <Button variant="outline" size="sm" className="w-full border-blue-400 text-blue-700 hover:bg-blue-100 hover:border-blue-500">
                         Ir a Encuesta
                       </Button>
                     </Link>

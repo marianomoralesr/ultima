@@ -808,10 +808,11 @@ const UnifiedDashboardLayout: React.FC = () => {
                     "group-data-[state=expanded]:bg-gray-50/30",
                     // Collapsed state - dark gray background with white icons
                     "group-data-[state=collapsed]:!bg-gray-800 group-data-[state=collapsed]:border-gray-700",
-                    // Collapsed state - white icons, center them, and make them bigger
+                    // Collapsed state - white icons, center them, proper size
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!text-white",
-                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!w-6",
-                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!h-6",
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!w-5",
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!h-5",
+                    "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]_svg]:!stroke-[1.5]",
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:bg-gray-700",
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:hover:!text-white",
                     "group-data-[state=collapsed]:[&_[data-sidebar=menu-button]]:!justify-center",

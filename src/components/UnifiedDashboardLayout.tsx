@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -101,11 +101,11 @@ interface NavGroup {
 
 // Navigation configuration
 const commonNavItems: NavItem[] = [
-    { to: '/autos', label: 'Inventario', icon: Car, roles: ['admin', 'sales', 'user'] },
-    { to: '/escritorio/vende-tu-auto', label: 'Vender mi auto', icon: HandCoins, roles: ['admin', 'sales', 'user'] },
-    { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, roles: ['admin', 'sales', 'user'] },
-    { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText, roles: ['admin', 'sales', 'user'] },
-    { to: '/escritorio/aplicacion', label: 'Nueva solicitud', icon: Plus, roles: ['admin', 'sales', 'user'] },
+    { to: '/autos', label: 'Inventario', icon: Car, roles: ['admin', 'user'] },
+    { to: '/escritorio/vende-tu-auto', label: 'Vender mi auto', icon: HandCoins, roles: ['admin', 'user'] },
+    { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, roles: ['admin', 'user'] },
+    { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText, roles: ['admin', 'user'] },
+    { to: '/escritorio/aplicacion', label: 'Nueva solicitud', icon: Plus, roles: ['admin', 'user'] },
 ];
 
 const adminFirstLevelItems: NavItem[] = [
@@ -162,13 +162,11 @@ const adminAccountGroup: NavGroup = {
     ],
 };
 
-// Sales-specific navigation items
+// Sales-specific navigation items (simplified menu)
 const salesNavItems: NavItem[] = [
-    { to: '/escritorio/ventas/dashboard', label: 'Dashboard Ventas', icon: LayoutDashboard, roles: ['sales'], end: true },
-    { to: '/escritorio/ventas/solicitudes', label: 'Mis Solicitudes', icon: FileText, roles: ['sales'] },
-    { to: '/escritorio/ventas/crm', label: 'CRM Ventas', icon: Target, roles: ['sales'] },
+    { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, roles: ['sales'], end: true },
+    { to: '/escritorio/ventas/solicitudes', label: 'Solicitudes', icon: FileText, roles: ['sales'] },
     { to: '/escritorio/ventas/performance', label: 'Mi Desempeño', icon: TrendingUp, roles: ['sales'] },
-    { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, roles: ['sales'] },
 ];
 
 const secondaryNavItems: NavItem[] = [
@@ -751,26 +749,6 @@ const MobileSidebarContent: React.FC<{ onClose?: () => void }> = ({ onClose }) =
     );
 };
 
-// Component to handle auto-close sidebar
-const SidebarAutoClose: React.FC = () => {
-    const { setOpen, open } = useSidebar();
-    const hasAutoClosedRef = useRef(false);
-
-    useEffect(() => {
-        // Auto-close sidebar after 2 seconds on initial load (desktop only)
-        if (!hasAutoClosedRef.current && open && window.innerWidth >= 768) {
-            const timer = setTimeout(() => {
-                setOpen(false);
-                hasAutoClosedRef.current = true;
-            }, 2000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [open, setOpen]);
-
-    return null;
-};
-
 // Main Layout Component
 const UnifiedDashboardLayout: React.FC = () => {
     const location = useLocation();
@@ -797,8 +775,7 @@ const UnifiedDashboardLayout: React.FC = () => {
 
     return (
         <SidebarProvider defaultOpen={true}>
-            {/* Auto-close sidebar after 2 seconds */}
-            <SidebarAutoClose />
+            {/* Sidebar permanece abierto por defecto, se puede cerrar manualmente */}
 
             <Sidebar
                 collapsible="icon"

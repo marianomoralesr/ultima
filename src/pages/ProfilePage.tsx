@@ -501,17 +501,17 @@ const ProfilePage: React.FC = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Teléfono</Label>
+                        <Label htmlFor="phone" className="text-sm sm:text-base">Teléfono</Label>
                         <div className="flex">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">MX +52</span>
-                          <Input {...register('phone')} placeholder="10 dígitos" className="rounded-l-none" />
+                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm sm:text-base min-h-[44px] sm:min-h-[48px]">MX +52</span>
+                          <Input {...register('phone')} placeholder="10 dígitos" className="rounded-l-none min-h-[44px] sm:min-h-[48px] text-base" />
                         </div>
-                        {errors.phone && <p className="text-sm text-red-600">{errors.phone.message}</p>}
+                        {errors.phone && <p className="text-sm sm:text-base text-red-600">{errors.phone.message}</p>}
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="cellphone_company">Compañía Telefónica</Label>
-                        <select {...register('cellphone_company')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                        <Label htmlFor="cellphone_company" className="text-sm sm:text-base">Compañía Telefónica</Label>
+                        <select {...register('cellphone_company')} className="flex h-12 sm:h-14 w-full rounded-md border border-input bg-background px-3 py-2 text-base min-h-[44px] sm:min-h-[48px]">
                           <option value="">Seleccionar...</option>
                           {CELLPHONE_COMPANIES.map((company) => (
                             <option key={company} value={company}>{company}</option>
@@ -538,37 +538,37 @@ const ProfilePage: React.FC = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <Label>Nombre(s) *</Label>
-                        <Input {...register('first_name')} placeholder="Tu(s) nombre(s)" />
-                        {errors.first_name && <p className="text-sm text-red-600">{errors.first_name.message}</p>}
+                        <Label className="text-sm sm:text-base">Nombre(s) *</Label>
+                        <Input {...register('first_name')} placeholder="Tu(s) nombre(s)" className="min-h-[44px] sm:min-h-[48px] text-base" />
+                        {errors.first_name && <p className="text-sm sm:text-base text-red-600">{errors.first_name.message}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label>Apellido Paterno *</Label>
-                        <Input {...register('last_name')} placeholder="Apellido paterno" />
-                        {errors.last_name && <p className="text-sm text-red-600">{errors.last_name.message}</p>}
+                        <Label className="text-sm sm:text-base">Apellido Paterno *</Label>
+                        <Input {...register('last_name')} placeholder="Apellido paterno" className="min-h-[44px] sm:min-h-[48px] text-base" />
+                        {errors.last_name && <p className="text-sm sm:text-base text-red-600">{errors.last_name.message}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label>Apellido Materno *</Label>
-                        <Input {...register('mother_last_name')} placeholder="Apellido materno" />
-                        {errors.mother_last_name && <p className="text-sm text-red-600">{errors.mother_last_name.message}</p>}
+                        <Label className="text-sm sm:text-base">Apellido Materno *</Label>
+                        <Input {...register('mother_last_name')} placeholder="Apellido materno" className="min-h-[44px] sm:min-h-[48px] text-base" />
+                        {errors.mother_last_name && <p className="text-sm sm:text-base text-red-600">{errors.mother_last_name.message}</p>}
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Fecha de Nacimiento *</Label>
-                      <Input type="date" {...register('birth_date')} />
-                      {errors.birth_date && <p className="text-sm text-red-600">{errors.birth_date.message}</p>}
+                      <Label className="text-sm sm:text-base">Fecha de Nacimiento *</Label>
+                      <Input type="date" {...register('birth_date')} className="min-h-[44px] sm:min-h-[48px] text-base" />
+                      {errors.birth_date && <p className="text-sm sm:text-base text-red-600">{errors.birth_date.message}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Género</Label>
+                      <Label className="text-sm sm:text-base">Género</Label>
                       <RadioGroup value={watch('gender') || ''} onValueChange={(v) => setValue('gender', v)} className="grid grid-cols-2 gap-3">
                         {['Masculino', 'Femenino'].map((g) => (
                           <div key={g}>
                             <RadioGroupItem value={g} id={`gender-${g}`} className="peer sr-only" />
                             <Label
                               htmlFor={`gender-${g}`}
-                              className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-3 hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer"
+                              className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-3 sm:p-4 text-sm sm:text-base hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer min-h-[44px] touch-manipulation"
                             >
                               {g}
                             </Label>
@@ -578,14 +578,14 @@ const ProfilePage: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Estado Civil *</Label>
+                      <Label className="text-sm sm:text-base">Estado Civil *</Label>
                       <RadioGroup value={civilStatus || ''} onValueChange={(v) => setValue('civil_status', v)} className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {['soltero', 'casado', 'viudo', 'union', 'divorciado'].map((status) => (
                           <div key={status}>
                             <RadioGroupItem value={status} id={`civil-${status}`} className="peer sr-only" />
                             <Label
                               htmlFor={`civil-${status}`}
-                              className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-2.5 text-xs sm:text-sm hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer"
+                              className="flex items-center justify-center rounded-lg border-2 border-muted bg-popover p-3 sm:p-3.5 text-sm sm:text-base hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground cursor-pointer min-h-[44px] touch-manipulation"
                             >
                               {status === 'soltero' ? 'Soltero(a)' :
                                status === 'casado' ? 'Casado(a)' :
@@ -595,14 +595,14 @@ const ProfilePage: React.FC = () => {
                           </div>
                         ))}
                       </RadioGroup>
-                      {errors.civil_status && <p className="text-sm text-red-600">{errors.civil_status.message}</p>}
+                      {errors.civil_status && <p className="text-sm sm:text-base text-red-600">{errors.civil_status.message}</p>}
                     </div>
 
                     {isMarried && (
                       <div className="space-y-2">
-                        <Label>Nombre del Cónyuge *</Label>
-                        <Input {...register('spouse_name')} placeholder="Nombre completo del cónyuge" />
-                        {errors.spouse_name && <p className="text-sm text-red-600">{errors.spouse_name.message}</p>}
+                        <Label className="text-sm sm:text-base">Nombre del Cónyuge *</Label>
+                        <Input {...register('spouse_name')} placeholder="Nombre completo del cónyuge" className="min-h-[44px] sm:min-h-[48px] text-base" />
+                        {errors.spouse_name && <p className="text-sm sm:text-base text-red-600">{errors.spouse_name.message}</p>}
                       </div>
                     )}
                   </div>
@@ -617,20 +617,20 @@ const ProfilePage: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Homoclave (RFC) *</Label>
-                      <Input {...register('homoclave')} maxLength={3} placeholder="Últimos 3 dígitos" />
-                      {errors.homoclave && <p className="text-sm text-red-600">{errors.homoclave.message}</p>}
+                      <Label className="text-sm sm:text-base">Homoclave (RFC) *</Label>
+                      <Input {...register('homoclave')} maxLength={3} placeholder="Últimos 3 dígitos" className="min-h-[44px] sm:min-h-[48px] text-base" />
+                      {errors.homoclave && <p className="text-sm sm:text-base text-red-600">{errors.homoclave.message}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <Label>RFC Calculado</Label>
-                      <Input value={calculatedRfc} readOnly disabled className="font-mono font-bold" />
-                      <p className="text-xs text-muted-foreground">Se calcula automáticamente.</p>
+                      <Label className="text-sm sm:text-base">RFC Calculado</Label>
+                      <Input value={calculatedRfc} readOnly disabled className="font-mono font-bold min-h-[44px] sm:min-h-[48px] text-base" />
+                      <p className="text-xs sm:text-sm text-muted-foreground">Se calcula automáticamente.</p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Situación Fiscal *</Label>
-                      <select {...register('fiscal_situation')} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                      <Label className="text-sm sm:text-base">Situación Fiscal *</Label>
+                      <select {...register('fiscal_situation')} className="flex h-12 sm:h-14 w-full rounded-md border border-input bg-background px-3 py-2 text-base min-h-[44px] sm:min-h-[48px]">
                         <option value="">Seleccionar...</option>
                         <option value="asalariado">Empleado con nómina</option>
                         <option value="honorarios">Honorarios</option>
@@ -638,7 +638,7 @@ const ProfilePage: React.FC = () => {
                         <option value="pensionado">Pensionado</option>
                         <option value="actividad_empresarial">Persona Física con Actividad Empresarial</option>
                       </select>
-                      {errors.fiscal_situation && <p className="text-sm text-red-600">{errors.fiscal_situation.message}</p>}
+                      {errors.fiscal_situation && <p className="text-sm sm:text-base text-red-600">{errors.fiscal_situation.message}</p>}
                     </div>
                   </div>
                 )}

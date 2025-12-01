@@ -292,18 +292,18 @@ const AuthPage: React.FC = () => {
         );
     }
     
-    
-    const formInputClasses = "block w-full rounded-lg border border-gray-300 bg-gray-50 py-3 px-4 text-gray-900 shadow-sm placeholder:text-gray-500 focus:ring-2 focus:ring-primary-500";
-    const submitButtonClasses = "flex w-full justify-center rounded-lg bg-primary-600 px-3 py-3 text-base font-bold text-white shadow-lg hover:bg-primary-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed";
+
+    const formInputClasses = "block w-full rounded-lg border border-gray-300 bg-gray-50 py-3 sm:py-4 px-4 text-base sm:text-lg text-gray-900 shadow-sm placeholder:text-gray-500 focus:ring-2 focus:ring-primary-500 min-h-[48px] sm:min-h-[52px]";
+    const submitButtonClasses = "flex w-full justify-center rounded-lg bg-primary-600 px-4 py-4 sm:py-5 text-base sm:text-lg font-bold text-white shadow-lg hover:bg-primary-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed min-h-[52px] sm:min-h-[56px] touch-manipulation";
 
     const renderSignInView = () => (
         <div className="space-y-8">
             <div className="text-left lg:text-center">
                 <Link to="/" className="inline-block mb-8 lg:hidden">
-                    <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-8 w-auto mx-auto" />
+                    <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-10 sm:h-12 w-auto mx-auto" />
                 </Link>
-                <h1 className="text-lg lg:text-2xl font-extrabold text-gray-900 tracking-tight lg:tracking-normal">Accede o crea tu cuenta</h1>
-                <p className="mt-3 text-gray-600">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight lg:tracking-normal">Accede o crea tu cuenta</h1>
+                <p className="mt-3 text-base sm:text-lg text-gray-600">
                     Usa tu cuenta de Google o ingresa tu correo para recibir un código de acceso seguro.
                 </p>
             </div>
@@ -341,9 +341,9 @@ const AuthPage: React.FC = () => {
                         type="button"
                         onClick={handleGoogleSignIn}
                         disabled={loading}
-                        className="flex w-full items-center justify-center gap-3 rounded-md border-2 border-gray-300 bg-white px-3 py-3 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                        className="flex w-full items-center justify-center gap-3 rounded-md border-2 border-gray-300 bg-white px-4 py-4 sm:py-5 text-base sm:text-lg font-semibold text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 transition-colors min-h-[52px] sm:min-h-[56px] touch-manipulation"
                     >
-                        <GoogleIcon className="h-5 w-5" />
+                        <GoogleIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                         <span>Iniciar sesión con Google</span>
                     </button>
                 </div>
@@ -353,10 +353,10 @@ const AuthPage: React.FC = () => {
 
     const renderVerifyOtpView = () => (
          <div className="space-y-6 text-center">
-            <CheckCircleIcon className="w-12 h-12 text-green-500 mx-auto" />
-            <h2 className="mt-2 text-2xl font-bold text-gray-900">Verifica tu correo</h2>
-            <p className="text-gray-600">Hemos enviado un código de 6 dígitos a <strong>{email}</strong>. <br/><span className="mt-1 text-xs text-gray-500">(Revisa tu buzón de correo no deseado)</span></p>
-            {error && <p className="text-red-600 text-sm p-3 rounded-md mt-4 bg-red-50 border border-red-200">{error}</p>}
+            <CheckCircleIcon className="w-14 h-14 sm:w-16 sm:h-16 text-green-500 mx-auto" />
+            <h2 className="mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Verifica tu correo</h2>
+            <p className="text-base sm:text-lg text-gray-600">Hemos enviado un código de 6 dígitos a <strong>{email}</strong>. <br/><span className="mt-1 text-xs sm:text-sm text-gray-500">(Revisa tu buzón de correo no deseado)</span></p>
+            {error && <p className="text-red-600 text-sm sm:text-base p-3 rounded-md mt-4 bg-red-50 border border-red-200">{error}</p>}
             <div className="mt-4">
                  <form onSubmit={handleOtpSubmit} className="space-y-4">
                     <div>
@@ -369,7 +369,7 @@ const AuthPage: React.FC = () => {
                             value={otp}
                             onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
                             required
-                            className={`${formInputClasses} text-center tracking-[0.5em] font-mono text-2xl`}
+                            className={`${formInputClasses} text-center tracking-[0.5em] font-mono text-2xl sm:text-3xl`}
                         />
                     </div>
                     <div>
@@ -380,9 +380,9 @@ const AuthPage: React.FC = () => {
                  </form>
                  <button
                     onClick={() => { setView('signIn'); setError(null); }}
-                    className="mt-6 text-sm text-gray-500 hover:text-primary-600"
+                    className="mt-6 text-base sm:text-lg text-gray-500 hover:text-primary-600 min-h-[44px] touch-manipulation inline-flex items-center justify-center"
                  >
-                    Cambiar de correo 
+                    Cambiar de correo
                  </button>
             </div>
         </div>
@@ -412,33 +412,33 @@ const AuthPage: React.FC = () => {
                 </Link>
 
                 <div className="flex-1 flex flex-col justify-center py-6">
-                    <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
                         Crea tu cuenta <span className="text-primary-600">gratis</span> y sin compromisos
                     </h2>
-                    <p className="mt-3 text-base text-gray-600">Al registrarte podrás:</p>
+                    <p className="mt-3 text-base lg:text-lg text-gray-600">Al registrarte podrás:</p>
                                             <ul className="mt-6 space-y-4">
                                                 <li>
                                                     <div>
-                                                        <h3 className="font-semibold text-gray-900 text-sm">Guardar tus autos favoritos ❤️</h3>
-                                                        <p className="text-xs text-gray-600 mt-0.5">No pierdas de vista los autos que te interesan.</p>
+                                                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Guardar tus autos favoritos ❤️</h3>
+                                                        <p className="text-xs lg:text-sm text-gray-600 mt-0.5">No pierdas de vista los autos que te interesan.</p>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div>
-                                                        <h3 className="font-semibold text-gray-900 text-sm">Aplicar a financiamiento en línea 📄</h3>
-                                                        <p className="text-xs text-gray-600 mt-0.5">Inicia tu solicitud 100% digital.</p>
+                                                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Aplicar a financiamiento en línea 📄</h3>
+                                                        <p className="text-xs lg:text-sm text-gray-600 mt-0.5">Inicia tu solicitud 100% digital.</p>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div>
-                                                        <h3 className="font-semibold text-gray-900 text-sm">Recibir notificaciones de precios 🔔</h3>
-                                                        <p className="text-xs text-gray-600 mt-0.5">Te avisaremos si el precio baja.</p>
+                                                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Recibir notificaciones de precios 🔔</h3>
+                                                        <p className="text-xs lg:text-sm text-gray-600 mt-0.5">Te avisaremos si el precio baja.</p>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div>
-                                                        <h3 className="font-semibold text-gray-900 text-sm">Agendar visitas y pruebas de manejo 🗓️</h3>
-                                                        <p className="text-xs text-gray-600 mt-0.5">Coordina tu visita de forma fácil.</p>
+                                                        <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Agendar visitas y pruebas de manejo 🗓️</h3>
+                                                        <p className="text-xs lg:text-sm text-gray-600 mt-0.5">Coordina tu visita de forma fácil.</p>
                                                     </div>
                                                 </li>
                                             </ul>                </div>
@@ -457,7 +457,7 @@ const AuthPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-8 md:p-12 flex flex-col justify-center">
+            <div className="bg-white p-6 sm:p-8 md:p-12 flex flex-col justify-center">
                 {view === 'signIn' ? renderSignInView() : renderVerifyOtpView()}
             </div>
         </div>

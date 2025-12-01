@@ -744,11 +744,11 @@ const Application: React.FC = () => {
                                             Guardar y continuar después
                                         </Button>
                                         {currentStep < steps.length - 1 ? (
-                                            <Button type="button" onClick={handleNext} size="lg">
+                                            <Button type="button" onClick={handleNext} size="lg" className="text-white">
                                                 Siguiente <ArrowRight className="w-4 h-4" />
                                             </Button>
                                         ) : (
-                                            <Button type="submit" disabled={isSubmitDisabled} size="lg" className="bg-green-600 hover:bg-green-700">
+                                            <Button type="submit" disabled={isSubmitDisabled} size="lg" className="bg-green-600 hover:bg-green-700 text-white">
                                                 {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                                                 {form.formState.isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
                                             </Button>
@@ -768,11 +768,11 @@ const Application: React.FC = () => {
                                         Guardar y continuar después
                                     </Button>
                                     {currentStep < steps.length - 1 ? (
-                                        <Button type="button" onClick={handleNext} size="lg" className="w-full">
+                                        <Button type="button" onClick={handleNext} size="lg" className="w-full text-white">
                                             Siguiente <ArrowRight className="w-4 h-4 ml-2" />
                                         </Button>
                                     ) : (
-                                        <Button type="submit" disabled={isSubmitDisabled} size="lg" className="w-full bg-green-600 hover:bg-green-700">
+                                        <Button type="submit" disabled={isSubmitDisabled} size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white">
                                             {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle className="w-4 h-4 mr-2" />}
                                             {form.formState.isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}
                                         </Button>
@@ -892,8 +892,8 @@ const PersonalInfoStep: React.FC<{ control: any, errors: any, isMarried: boolean
     return (
     <div className="space-y-8">
         <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Información Personal</h2>
-            <p className="text-sm text-gray-600">Confirma que tu información personal esté correcta y actualizada.</p>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Información Personal</h2>
+            <p className="text-sm sm:text-base text-gray-600">Confirma que tu información personal esté correcta y actualizada.</p>
         </div>
 
         {/* Profile Information Summary */}
@@ -1039,7 +1039,7 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
 
     return (
         <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Información Laboral</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold">Información Laboral</h2>
             <FormRadio control={control} name="fiscal_classification" label="Clasificación Fiscal" options={['Empleado del sector privado', 'Física con actividad empresarial', 'Empleado del sector público', 'Pensionado']} error={errors.fiscal_classification?.message} />
             <div className="grid md:grid-cols-2 gap-6">
                 <FormInput control={control} name="company_name" label="Nombre de la Empresa" error={errors.company_name?.message} />
@@ -1054,19 +1054,19 @@ const EmploymentStep: React.FC<{ control: any, errors: any, setValue: any }> = (
                 <FormRadio control={control} name="job_seniority" label="Antigüedad en el Puesto" options={['Menos de 1 año', '1-3 años', '3-5 años', 'Más de 5 años']} error={errors.job_seniority?.message} />
 
                 <div className="space-y-2">
-                    <Label>Ingreso Mensual Neto</Label>
+                    <Label className="text-sm sm:text-base">Ingreso Mensual Neto</Label>
                     <div className="relative">
-                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground font-semibold">$</span>
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground font-semibold text-base sm:text-lg">$</span>
                         <Input
                             value={incomeDisplayValue}
                             onChange={handleIncomeChange}
                             placeholder="25,000"
-                            className="pl-7 font-semibold"
+                            className="pl-7 sm:pl-8 font-semibold min-h-[44px] sm:min-h-[48px] text-base"
                             inputMode="numeric"
                         />
                     </div>
-                    <p className="text-xs text-muted-foreground">Ingresa tu salario bruto mensual (antes de impuestos)</p>
-                    {errors.net_monthly_income && <p className="text-destructive text-sm">{errors.net_monthly_income.message}</p>}
+                    <p className="text-xs sm:text-sm text-muted-foreground">Ingresa tu salario bruto mensual (antes de impuestos)</p>
+                    {errors.net_monthly_income && <p className="text-destructive text-sm sm:text-base">{errors.net_monthly_income.message}</p>}
                 </div>
             </div>
         </div>
@@ -1138,7 +1138,7 @@ const ReferencesStep: React.FC<{ control: any, errors: any, profile: Profile | n
         <div className="space-y-8">
             {profile?.spouse_name && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                    <p className="text-sm sm:text-base text-blue-800">
                         <strong>Importante:</strong> Tu cónyuge ({profile.spouse_name}) no puede ser usado como referencia familiar o de amistad.
                     </p>
                 </div>
@@ -1146,14 +1146,14 @@ const ReferencesStep: React.FC<{ control: any, errors: any, profile: Profile | n
 
             {spouseWarning && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-800 font-semibold">
+                    <p className="text-sm sm:text-base text-red-800 font-semibold">
                         ⚠️ {spouseWarning}
                     </p>
                 </div>
             )}
 
             <div>
-                <h2 className="text-lg font-semibold">Referencia de Amistad</h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold">Referencia de Amistad</h2>
                 <div className="grid md:grid-cols-3 gap-6 mt-4">
                     <FormInput control={control} name="friend_reference_name" label="Nombre Completo" error={errors.friend_reference_name?.message} />
                     <FormInput control={control} name="friend_reference_phone" label="Teléfono" error={errors.friend_reference_phone?.message} />
@@ -1161,7 +1161,7 @@ const ReferencesStep: React.FC<{ control: any, errors: any, profile: Profile | n
                 </div>
             </div>
             <div>
-                <h2 className="text-lg font-semibold">Referencia Familiar</h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold">Referencia Familiar</h2>
                 <div className="grid md:grid-cols-3 gap-6 mt-4">
                     <FormInput control={control} name="family_reference_name" label="Nombre Completo" error={errors.family_reference_name?.message} />
                     <FormInput control={control} name="family_reference_phone" label="Teléfono" error={errors.family_reference_phone?.message} />
@@ -1205,25 +1205,25 @@ const declarations = [
 
 const ConsentStep: React.FC<{ control: any, errors: any, setValue: any }> = ({ control, errors}) => (
     <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Declaraciones Finales</h2>
-        <p className="text-sm text-gray-600">Al continuar, expreso y certifico haber leído, aceptado o estar de acuerdo con cada una de las siguientes cláusulas:</p>
-        <ul className="space-y-3 list-disc list-inside text-gray-700 text-sm pl-4">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold">Declaraciones Finales</h2>
+        <p className="text-sm sm:text-base text-gray-600">Al continuar, expreso y certifico haber leído, aceptado o estar de acuerdo con cada una de las siguientes cláusulas:</p>
+        <ul className="space-y-3 list-disc list-inside text-gray-700 text-sm sm:text-base pl-4">
             {declarations.map((declaration, index) => (
                 <li key={index}>{declaration}</li>
             ))}
         </ul>
         <hr className="my-6"/>
-        <FormCheckbox 
-            control={control} 
-            name="terms_and_conditions" 
-            label="He leído y estoy de acuerdo con los términos y condiciones" 
-            error={errors.terms_and_conditions?.message} 
+        <FormCheckbox
+            control={control}
+            name="terms_and_conditions"
+            label="He leído y estoy de acuerdo con los términos y condiciones"
+            error={errors.terms_and_conditions?.message}
         />
         <hr className="my-6"/>
-        <FormCheckbox 
-            control={control} 
-            name="consent_survey" 
-            label="Sí, me gustaría recibir un cupón promocional a cambio de responder una breve encuesta por correo electrónico después de enviar mi solicitud." 
+        <FormCheckbox
+            control={control}
+            name="consent_survey"
+            label="Sí, me gustaría recibir un cupón promocional a cambio de responder una breve encuesta por correo electrónico después de enviar mi solicitud."
         />
     </div>
 );
@@ -1242,7 +1242,7 @@ const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, veh
 
     return (
         <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-center">Revisa y Envía tu Solicitud</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-center">Revisa y Envía tu Solicitud</h2>
 
             {/* Compact vehicle info banner */}
             <div className="bg-gradient-to-r from-primary-50 to-orange-50 rounded-lg p-4 border border-primary-200">
@@ -1287,49 +1287,50 @@ const SummaryStep: React.FC<{ applicationData: any, profile: Profile | null, veh
 const FormInput: React.FC<{control: any, name: any, label: string, error?: string}> = ({ control, name, label, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
         <div className="space-y-2">
-            <Label htmlFor={name}>{label}</Label>
-            <Input id={name} {...field} />
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            <Label htmlFor={name} className="text-sm sm:text-base">{label}</Label>
+            <Input id={name} {...field} className="min-h-[44px] sm:min-h-[48px] text-base" />
+            {error && <p className="text-destructive text-sm sm:text-base">{error}</p>}
         </div>
     )} />
 );
 const FormSelect: React.FC<{ control: any, name: any, label: string, options: string[], error?: string }> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
         <div className="space-y-2">
-            <Label htmlFor={name}>{label}</Label>
-            <select id={name} {...field} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Label htmlFor={name} className="text-sm sm:text-base">{label}</Label>
+            <select id={name} {...field} className="flex h-12 sm:h-14 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] sm:min-h-[48px]">
                 <option value="">Seleccionar...</option>
                 {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {error && <p className="text-destructive text-sm sm:text-base">{error}</p>}
         </div>
     )} />
 );
 const FormRadio: React.FC<{control: any, name: any, label: string, options: string[], error?: string}> = ({ control, name, label, options, error }) => (
     <Controller name={name} control={control} render={({ field }) => (
         <div className="space-y-2">
-            <Label>{label}</Label>
+            <Label className="text-sm sm:text-base">{label}</Label>
             <div className="flex flex-wrap gap-2 lg:gap-3">
                 {options.map(opt => (
-                    <button type="button" key={opt} onClick={() => field.onChange(opt)} className={`px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm font-semibold rounded-full border-2 transition-colors ${field.value === opt ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'}`}>{opt}</button>
+                    <button type="button" key={opt} onClick={() => field.onChange(opt)} className={`px-4 py-3 sm:px-5 sm:py-3 lg:px-4 lg:py-2 text-sm sm:text-base lg:text-sm font-semibold rounded-full border-2 transition-colors min-h-[44px] touch-manipulation ${field.value === opt ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'}`}>{opt}</button>
                 ))}
             </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {error && <p className="text-destructive text-sm sm:text-base">{error}</p>}
         </div>
     )} />
 );
 const FormCheckbox: React.FC<{ control: any, name: any, label: string, error?: string, onChange?: (e: any) => void, checked?: boolean, disabled?: boolean }> = ({ control, name, label, error, onChange, checked, disabled }) => (
     <Controller name={name} control={control} render={({ field }) => (
-        <div className="flex items-start space-x-3">
+        <div className="flex items-start space-x-3 min-h-[44px] touch-manipulation">
             <Checkbox
                 id={name}
                 checked={checked ?? (field.value || false)}
                 onCheckedChange={onChange ?? field.onChange}
                 disabled={disabled}
+                className="mt-1 min-w-[20px] min-h-[20px]"
             />
-            <div className="space-y-1 leading-none">
-                <Label htmlFor={name} className={`${disabled ? 'text-muted-foreground' : ''}`}>{label}{error && <span className="text-destructive">*</span>}</Label>
-                {error && <p className="text-destructive text-sm">{error}</p>}
+            <div className="space-y-1 leading-none flex-1">
+                <Label htmlFor={name} className={`text-sm sm:text-base cursor-pointer ${disabled ? 'text-muted-foreground' : ''}`}>{label}{error && <span className="text-destructive">*</span>}</Label>
+                {error && <p className="text-destructive text-sm sm:text-base">{error}</p>}
             </div>
         </div>
     )} />

@@ -24,7 +24,10 @@ const REQUIRED_DOCUMENTS = [
   { id: 'ine_back', name: 'INE (Reverso)', required: true },
   { id: 'proof_address', name: 'Comprobante de Domicilio', required: true },
   { id: 'proof_income', name: 'Comprobante de Ingresos', required: true },
-  { id: 'constancia_fiscal', name: 'Constancia de Situación Fiscal', required: true },
+];
+
+const OPTIONAL_DOCUMENTS = [
+  { id: 'constancia_fiscal', name: 'Constancia de Situación Fiscal', required: false },
 ];
 
 const PublicDocumentUploadPage: React.FC = () => {
@@ -38,6 +41,7 @@ const PublicDocumentUploadPage: React.FC = () => {
   const [compressing, setCompressing] = useState(false);
   const [tokenExpired, setTokenExpired] = useState(false);
   const [expirationMessage, setExpirationMessage] = useState<string>('');
+  const [hasBusinessActivity, setHasBusinessActivity] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   // Cargar información de la aplicación y documentos
@@ -274,8 +278,11 @@ const PublicDocumentUploadPage: React.FC = () => {
     );
   }
 
-  const uploadedCount = REQUIRED_DOCUMENTS.filter(doc => getDocumentStatus(doc.id).uploaded).length;
-  const progress = (uploadedCount / REQUIRED_DOCUMENTS.length) * 100;
+  const allDocsToCheck = hasBusinessActivity
+    ? [...REQUIRED_DOCUMENTS, ...OPTIONAL_DOCUMENTS]
+    : REQUIRED_DOCUMENTS;
+  const uploadedCount = allDocsToCheck.filter(doc => getDocumentStatus(doc.id).uploaded).length;
+  const progress = (uploadedCount / allDocsToCheck.length) * 100;
 
   return (
     <div className="min-h-screen bg-background">
@@ -310,7 +317,7 @@ const PublicDocumentUploadPage: React.FC = () => {
           <p className="text-muted-foreground">
             {uploadedCount === 0
               ? 'Esperando archivos...'
-              : uploadedCount < REQUIRED_DOCUMENTS.length
+              : uploadedCount < allDocsToCheck.length
               ? 'Sube los documentos faltantes'
               : '¡Todos los documentos recibidos!'}
           </p>
@@ -319,7 +326,7 @@ const PublicDocumentUploadPage: React.FC = () => {
           <div className="max-w-md mx-auto mt-6">
             <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
               <span>Progreso</span>
-              <span className="font-medium">{uploadedCount} de {REQUIRED_DOCUMENTS.length}</span>
+              <span className="font-medium">{uploadedCount} de {allDocsToCheck.length}</span>
             </div>
             <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
               <div
@@ -347,29 +354,74 @@ const PublicDocumentUploadPage: React.FC = () => {
               Documentos Requeridos
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Todos los documentos son obligatorios para procesar tu solicitud
+              Los siguientes documentos son necesarios para procesar tu solicitud
             </p>
           </div>
 
-          <div className="p-6 space-y-4">
-            {REQUIRED_DOCUMENTS.map((doc) => {
-              const status = getDocumentStatus(doc.id);
-              const isUploading = uploading === doc.id;
-              const currentProgress = uploadProgress[doc.id];
+          <div className="p-6">
+            {/* Grid layout para documentos requeridos - 4 columnas en desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {REQUIRED_DOCUMENTS.map((doc) => {
+                const status = getDocumentStatus(doc.id);
+                const isUploading = uploading === doc.id;
+                const currentProgress = uploadProgress[doc.id];
 
-              return (
-                <DocumentDropzone
-                  key={doc.id}
-                  doc={doc}
-                  status={status}
-                  isUploading={isUploading}
-                  currentProgress={currentProgress}
-                  onFileSelect={(file) => handleFileUpload(doc.id, file)}
-                  fileInputRef={(el) => fileInputRefs.current[doc.id] = el}
-                  tokenExpired={tokenExpired}
+                return (
+                  <DocumentDropzone
+                    key={doc.id}
+                    doc={doc}
+                    status={status}
+                    isUploading={isUploading}
+                    currentProgress={currentProgress}
+                    onFileSelect={(file) => handleFileUpload(doc.id, file)}
+                    fileInputRef={(el) => fileInputRefs.current[doc.id] = el}
+                    tokenExpired={tokenExpired}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Checkbox para persona con actividad empresarial */}
+            <div className="mb-4 p-4 bg-muted/30 rounded-lg border">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hasBusinessActivity}
+                  onChange={(e) => setHasBusinessActivity(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
                 />
-              );
-            })}
+                <span className="text-sm font-medium">
+                  Soy persona con actividad empresarial
+                </span>
+              </label>
+              <p className="text-xs text-muted-foreground mt-2 ml-8">
+                Selecciona esta opción si eres persona física con actividad empresarial para habilitar la carga de la Constancia de Situación Fiscal
+              </p>
+            </div>
+
+            {/* Documento opcional: Constancia de Situación Fiscal */}
+            {hasBusinessActivity && (
+              <div className="space-y-4">
+                {OPTIONAL_DOCUMENTS.map((doc) => {
+                  const status = getDocumentStatus(doc.id);
+                  const isUploading = uploading === doc.id;
+                  const currentProgress = uploadProgress[doc.id];
+
+                  return (
+                    <DocumentDropzone
+                      key={doc.id}
+                      doc={doc}
+                      status={status}
+                      isUploading={isUploading}
+                      currentProgress={currentProgress}
+                      onFileSelect={(file) => handleFileUpload(doc.id, file)}
+                      fileInputRef={(el) => fileInputRefs.current[doc.id] = el}
+                      tokenExpired={tokenExpired}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Información de seguridad */}
@@ -397,7 +449,7 @@ const PublicDocumentUploadPage: React.FC = () => {
         </div>
 
         {/* Mensaje de completado */}
-        {uploadedCount === REQUIRED_DOCUMENTS.length && (
+        {uploadedCount === allDocsToCheck.length && uploadedCount > 0 && (
           <div className="mt-6 bg-green-500 dark:bg-green-600 rounded-lg border shadow-sm p-6 text-white text-center">
             <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
               <CheckCircle className="w-8 h-8" />

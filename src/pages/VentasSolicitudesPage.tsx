@@ -17,7 +17,9 @@ import {
   AlertTriangle,
   Upload,
   Filter,
-  Search
+  Search,
+  FileSpreadsheet,
+  FileDown
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -32,6 +34,7 @@ import {
 } from '../components/ui/select';
 import { toast } from 'sonner';
 import { supabase } from '../../supabaseClient';
+import * as XLSX from 'xlsx';
 
 const BUCKET_NAME = 'application-documents';
 
@@ -51,6 +54,8 @@ interface LeadApplication {
     last_name: string;
     email: string;
     phone: string;
+    asesor_asignado_id?: string;
+    asesor_nombre?: string;
   };
   documents_count?: number;
 }
@@ -62,7 +67,11 @@ const VentasSolicitudesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [asesorFilter, setAsesorFilter] = useState<string>('all');
+  const [dateFromFilter, setDateFromFilter] = useState<string>('');
+  const [dateToFilter, setDateToFilter] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [asesores, setAsesores] = useState<Array<{ id: string; nombre: string }>>([]);
 
   // Stats
   const [stats, setStats] = useState({
@@ -74,24 +83,38 @@ const VentasSolicitudesPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (user && profile?.role === 'sales') {
+    if (user && (profile?.role === 'sales' || profile?.role === 'admin')) {
       loadApplications();
     }
   }, [user, profile]);
 
   useEffect(() => {
     filterApplications();
-  }, [searchTerm, statusFilter, applications]);
+  }, [searchTerm, statusFilter, asesorFilter, dateFromFilter, dateToFilter, applications]);
 
   const loadApplications = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Obtener todos los leads asignados al asesor
-      const leads = await SalesService.getAssignedLeads(user!.id);
+      let leads: any[] = [];
+
+      if (profile?.role === 'admin') {
+        // Si es admin, obtener TODOS los leads
+        const { data: allLeads, error: leadsError } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name, email, phone, asesor_asignado_id')
+          .not('asesor_asignado_id', 'is', null);
+
+        if (leadsError) throw leadsError;
+        leads = allLeads || [];
+      } else {
+        // Si es asesor, obtener solo sus leads asignados
+        leads = await SalesService.getAssignedLeads(user!.id);
+      }
 
       // Para cada lead, obtener sus solicitudes
       const allApplications: LeadApplication[] = [];
+      const asesorSet = new Set<string>();
 
       for (const lead of leads) {
         try {
@@ -107,6 +130,21 @@ const VentasSolicitudesPage: React.FC = () => {
           }
 
           if (leadApplications && leadApplications.length > 0) {
+            // Obtener información del asesor si existe
+            let asesorNombre = '';
+            if (lead.asesor_asignado_id) {
+              const { data: asesorData } = await supabase
+                .from('profiles')
+                .select('first_name, last_name')
+                .eq('id', lead.asesor_asignado_id)
+                .single();
+
+              if (asesorData) {
+                asesorNombre = `${asesorData.first_name} ${asesorData.last_name}`;
+                asesorSet.add(JSON.stringify({ id: lead.asesor_asignado_id, nombre: asesorNombre }));
+              }
+            }
+
             // Para cada aplicación, contar documentos
             for (const app of leadApplications) {
               const { count } = await supabase
@@ -122,6 +160,8 @@ const VentasSolicitudesPage: React.FC = () => {
                   last_name: lead.last_name || '',
                   email: lead.email || '',
                   phone: lead.phone || '',
+                  asesor_asignado_id: lead.asesor_asignado_id,
+                  asesor_nombre: asesorNombre,
                 },
                 documents_count: count || 0,
               });
@@ -131,6 +171,10 @@ const VentasSolicitudesPage: React.FC = () => {
           console.error(`Error processing lead ${lead.id}:`, err);
         }
       }
+
+      // Convertir el Set de asesores a array
+      const asesoresArray = Array.from(asesorSet).map(str => JSON.parse(str as string));
+      setAsesores(asesoresArray);
 
       setApplications(allApplications);
       calculateStats(allApplications);
@@ -188,6 +232,32 @@ const VentasSolicitudesPage: React.FC = () => {
       filtered = filtered.filter(app => app.status === statusFilter);
     }
 
+    // Filtro de asesor (solo para admins)
+    if (asesorFilter !== 'all' && profile?.role === 'admin') {
+      filtered = filtered.filter(app => app.lead.asesor_asignado_id === asesorFilter);
+    }
+
+    // Filtro de fecha desde
+    if (dateFromFilter) {
+      const fromDate = new Date(dateFromFilter);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(app => {
+        const appDate = new Date(app.created_at);
+        appDate.setHours(0, 0, 0, 0);
+        return appDate >= fromDate;
+      });
+    }
+
+    // Filtro de fecha hasta
+    if (dateToFilter) {
+      const toDate = new Date(dateToFilter);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(app => {
+        const appDate = new Date(app.created_at);
+        return appDate <= toDate;
+      });
+    }
+
     setFilteredApplications(filtered);
   };
 
@@ -226,6 +296,109 @@ const VentasSolicitudesPage: React.FC = () => {
     } catch (error) {
       console.error('Error downloading PDF:', error);
       toast.error('Error al descargar el PDF');
+    }
+  };
+
+  const exportToCSV = () => {
+    try {
+      if (filteredApplications.length === 0) {
+        toast.error('No hay datos para exportar');
+        return;
+      }
+
+      // Preparar los datos para CSV
+      const csvData = filteredApplications.map(app => {
+        const statusConfig = getStatusConfigLocal(app.status);
+        return {
+          'ID Solicitud': app.id,
+          'Nombre Cliente': `${app.lead.first_name} ${app.lead.last_name}`,
+          'Email': app.lead.email,
+          'Teléfono': app.lead.phone,
+          'Vehículo': app.car_info?._vehicleTitle || 'Sin vehículo',
+          'Estatus': statusConfig.text,
+          'Documentos': app.documents_count || 0,
+          'Asesor': app.lead.asesor_nombre || 'Sin asignar',
+          'Fecha Creación': new Date(app.created_at).toLocaleDateString('es-MX'),
+          'Fecha Actualización': new Date(app.updated_at).toLocaleDateString('es-MX'),
+        };
+      });
+
+      // Convertir a CSV
+      const headers = Object.keys(csvData[0]).join(',');
+      const rows = csvData.map(row =>
+        Object.values(row).map(val => `"${val}"`).join(',')
+      );
+      const csv = [headers, ...rows].join('\n');
+
+      // Descargar archivo
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `solicitudes_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`${filteredApplications.length} solicitudes exportadas a CSV`);
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      toast.error('Error al exportar a CSV');
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      if (filteredApplications.length === 0) {
+        toast.error('No hay datos para exportar');
+        return;
+      }
+
+      // Preparar los datos para Excel
+      const excelData = filteredApplications.map(app => {
+        const statusConfig = getStatusConfigLocal(app.status);
+        return {
+          'ID Solicitud': app.id,
+          'Nombre Cliente': `${app.lead.first_name} ${app.lead.last_name}`,
+          'Email': app.lead.email,
+          'Teléfono': app.lead.phone,
+          'Vehículo': app.car_info?._vehicleTitle || 'Sin vehículo',
+          'Estatus': statusConfig.text,
+          'Documentos': app.documents_count || 0,
+          'Asesor': app.lead.asesor_nombre || 'Sin asignar',
+          'Fecha Creación': new Date(app.created_at).toLocaleDateString('es-MX'),
+          'Fecha Actualización': new Date(app.updated_at).toLocaleDateString('es-MX'),
+        };
+      });
+
+      // Crear workbook y worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Solicitudes');
+
+      // Ajustar anchos de columnas
+      const colWidths = [
+        { wch: 35 }, // ID Solicitud
+        { wch: 25 }, // Nombre Cliente
+        { wch: 30 }, // Email
+        { wch: 15 }, // Teléfono
+        { wch: 40 }, // Vehículo
+        { wch: 20 }, // Estatus
+        { wch: 12 }, // Documentos
+        { wch: 25 }, // Asesor
+        { wch: 15 }, // Fecha Creación
+        { wch: 15 }, // Fecha Actualización
+      ];
+      ws['!cols'] = colWidths;
+
+      // Descargar archivo
+      XLSX.writeFile(wb, `solicitudes_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      toast.success(`${filteredApplications.length} solicitudes exportadas a Excel`);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      toast.error('Error al exportar a Excel');
     }
   };
 
@@ -318,33 +491,103 @@ const VentasSolicitudesPage: React.FC = () => {
       {/* Filters */}
       <Card className="mb-6">
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Buscar por nombre, email, teléfono o vehículo..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="space-y-4">
+            {/* Primera fila: Búsqueda y Estatus */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Buscar por nombre, email, teléfono o vehículo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-400" />
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por estatus" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los estatus</SelectItem>
+                    <SelectItem value={APPLICATION_STATUS.DRAFT}>Borrador</SelectItem>
+                    <SelectItem value={APPLICATION_STATUS.COMPLETA}>Completa</SelectItem>
+                    <SelectItem value={APPLICATION_STATUS.FALTAN_DOCUMENTOS}>Faltan Documentos</SelectItem>
+                    <SelectItem value={APPLICATION_STATUS.EN_REVISION}>En Revisión</SelectItem>
+                    <SelectItem value={APPLICATION_STATUS.APROBADA}>Aprobada</SelectItem>
+                    <SelectItem value={APPLICATION_STATUS.RECHAZADA}>Rechazada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-400" />
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filtrar por estatus" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los estatus</SelectItem>
-                  <SelectItem value={APPLICATION_STATUS.DRAFT}>Borrador</SelectItem>
-                  <SelectItem value={APPLICATION_STATUS.COMPLETA}>Completa</SelectItem>
-                  <SelectItem value={APPLICATION_STATUS.FALTAN_DOCUMENTOS}>Faltan Documentos</SelectItem>
-                  <SelectItem value={APPLICATION_STATUS.EN_REVISION}>En Revisión</SelectItem>
-                  <SelectItem value={APPLICATION_STATUS.APROBADA}>Aprobada</SelectItem>
-                  <SelectItem value={APPLICATION_STATUS.RECHAZADA}>Rechazada</SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* Segunda fila: Fechas y Asesor (solo admin) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Fecha Desde</label>
+                <Input
+                  type="date"
+                  value={dateFromFilter}
+                  onChange={(e) => setDateFromFilter(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Fecha Hasta</label>
+                <Input
+                  type="date"
+                  value={dateToFilter}
+                  onChange={(e) => setDateToFilter(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              {profile?.role === 'admin' && asesores.length > 0 && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-gray-700">Asesor</label>
+                  <Select value={asesorFilter} onValueChange={setAsesorFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filtrar por asesor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos los asesores</SelectItem>
+                      {asesores.map((asesor) => (
+                        <SelectItem key={asesor.id} value={asesor.id}>
+                          {asesor.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            {/* Tercera fila: Botones de exportación */}
+            <div className="flex items-center justify-between pt-2 border-t">
+              <div className="text-sm text-gray-600">
+                Mostrando {filteredApplications.length} de {applications.length} solicitudes
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={exportToCSV}
+                  variant="outline"
+                  size="sm"
+                  disabled={filteredApplications.length === 0}
+                >
+                  <FileDown className="w-4 h-4 mr-2" />
+                  Exportar CSV
+                </Button>
+                <Button
+                  onClick={exportToExcel}
+                  variant="outline"
+                  size="sm"
+                  disabled={filteredApplications.length === 0}
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Exportar Excel
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

@@ -189,7 +189,7 @@ serve(async (req) => {
       const fileBuffer = await file.arrayBuffer();
       const { data: uploadData, error: uploadError } = await supabaseClient
         .storage
-        .from('financing-documents')
+        .from('application-documents')
         .upload(fileName, fileBuffer, {
           contentType: file.type,
           upsert: false
@@ -222,7 +222,7 @@ serve(async (req) => {
       if (dbError) {
         console.error('Error registrando documento:', dbError);
         // Intentar eliminar el archivo subido
-        await supabaseClient.storage.from('financing-documents').remove([fileName]);
+        await supabaseClient.storage.from('application-documents').remove([fileName]);
         return new Response(
           JSON.stringify({ error: 'Error al registrar documento' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -15,7 +15,9 @@ import {
     Calendar,
     TrendingUp,
     Eye,
-    FileText
+    FileText,
+    FileDown,
+    FileSpreadsheet
 } from 'lucide-react';
 import { toast } from 'sonner';
 import CreateUserModal from '../components/CreateUserModal';
@@ -25,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import * as XLSX from 'xlsx';
 
 interface SalesUser {
     id: string;
@@ -164,6 +167,112 @@ const AdminUserManagementPage: React.FC = () => {
     const activeUsers = salesUsers.filter(user => user.is_active).length;
     const overloadedUsers = salesUsers.filter(user => user.is_overloaded).length;
 
+    const exportToCSV = () => {
+        try {
+            if (salesUsers.length === 0) {
+                toast.error('No hay datos para exportar');
+                return;
+            }
+
+            // Preparar los datos para CSV
+            const csvData = salesUsers.map(user => ({
+                'Nombre': `${user.first_name} ${user.last_name}`,
+                'Email': user.email,
+                'Teléfono': user.phone || 'N/A',
+                'Estado': user.is_active ? 'Activo' : 'Inactivo',
+                'Sobrecargado': user.is_overloaded ? 'Sí' : 'No',
+                'Leads Asignados': user.leads_assigned,
+                'Leads Contactados': user.leads_contacted,
+                'Leads Actualizados': user.leads_actualizados,
+                'Solicitudes Enviadas': user.solicitudes_enviadas,
+                'Solicitudes Procesadas': user.solicitudes_procesadas,
+                'Con Solicitudes': user.leads_with_applications,
+                'Último Inicio Sesión': formatDate(user.last_sign_in_at),
+                'Fecha Creación': formatDate(user.created_at),
+            }));
+
+            // Convertir a CSV
+            const headers = Object.keys(csvData[0]).join(',');
+            const rows = csvData.map(row =>
+                Object.values(row).map(val => `"${val}"`).join(',')
+            );
+            const csv = [headers, ...rows].join('\n');
+
+            // Descargar archivo
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `usuarios_ventas_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.success(`${salesUsers.length} usuarios exportados a CSV`);
+        } catch (error) {
+            console.error('Error exporting to CSV:', error);
+            toast.error('Error al exportar a CSV');
+        }
+    };
+
+    const exportToExcel = () => {
+        try {
+            if (salesUsers.length === 0) {
+                toast.error('No hay datos para exportar');
+                return;
+            }
+
+            // Preparar los datos para Excel
+            const excelData = salesUsers.map(user => ({
+                'Nombre': `${user.first_name} ${user.last_name}`,
+                'Email': user.email,
+                'Teléfono': user.phone || 'N/A',
+                'Estado': user.is_active ? 'Activo' : 'Inactivo',
+                'Sobrecargado': user.is_overloaded ? 'Sí' : 'No',
+                'Leads Asignados': user.leads_assigned,
+                'Leads Contactados': user.leads_contacted,
+                'Leads Actualizados': user.leads_actualizados,
+                'Solicitudes Enviadas': user.solicitudes_enviadas,
+                'Solicitudes Procesadas': user.solicitudes_procesadas,
+                'Con Solicitudes': user.leads_with_applications,
+                'Último Inicio Sesión': formatDate(user.last_sign_in_at),
+                'Fecha Creación': formatDate(user.created_at),
+            }));
+
+            // Crear workbook y worksheet
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Usuarios de Ventas');
+
+            // Ajustar anchos de columnas
+            const colWidths = [
+                { wch: 25 }, // Nombre
+                { wch: 30 }, // Email
+                { wch: 15 }, // Teléfono
+                { wch: 12 }, // Estado
+                { wch: 15 }, // Sobrecargado
+                { wch: 15 }, // Leads Asignados
+                { wch: 18 }, // Leads Contactados
+                { wch: 18 }, // Leads Actualizados
+                { wch: 20 }, // Solicitudes Enviadas
+                { wch: 22 }, // Solicitudes Procesadas
+                { wch: 18 }, // Con Solicitudes
+                { wch: 20 }, // Último Inicio Sesión
+                { wch: 18 }, // Fecha Creación
+            ];
+            ws['!cols'] = colWidths;
+
+            // Descargar archivo
+            XLSX.writeFile(wb, `usuarios_ventas_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+            toast.success(`${salesUsers.length} usuarios exportados a Excel`);
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            toast.error('Error al exportar a Excel');
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-96">
@@ -196,10 +305,30 @@ const AdminUserManagementPage: React.FC = () => {
                     </p>
                 </div>
                 {activeTab === 'users' && (
-                    <Button onClick={() => setIsCreateModalOpen(true)}>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Crear Usuario de Ventas
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={exportToCSV}
+                            variant="outline"
+                            size="sm"
+                            disabled={salesUsers.length === 0}
+                        >
+                            <FileDown className="w-4 h-4 mr-2" />
+                            Exportar CSV
+                        </Button>
+                        <Button
+                            onClick={exportToExcel}
+                            variant="outline"
+                            size="sm"
+                            disabled={salesUsers.length === 0}
+                        >
+                            <FileSpreadsheet className="w-4 h-4 mr-2" />
+                            Exportar Excel
+                        </Button>
+                        <Button onClick={() => setIsCreateModalOpen(true)}>
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Crear Usuario de Ventas
+                        </Button>
+                    </div>
                 )}
             </div>
 

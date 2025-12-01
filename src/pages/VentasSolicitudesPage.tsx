@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { SalesService } from '../services/SalesService';
 import { ApplicationService } from '../services/ApplicationService';
+import { APPLICATION_STATUS, getStatusConfig } from '../constants/applicationStatus';
 import {
   Loader2,
   FileText,
@@ -66,10 +67,10 @@ const VentasSolicitudesPage: React.FC = () => {
   // Stats
   const [stats, setStats] = useState({
     total: 0,
-    submitted: 0,
-    reviewing: 0,
-    pending_docs: 0,
-    approved: 0,
+    completa: 0,
+    faltan_documentos: 0,
+    en_revision: 0,
+    aprobada: 0,
   });
 
   useEffect(() => {
@@ -145,10 +146,23 @@ const VentasSolicitudesPage: React.FC = () => {
   const calculateStats = (apps: LeadApplication[]) => {
     const stats = {
       total: apps.length,
-      submitted: apps.filter(a => a.status === 'submitted').length,
-      reviewing: apps.filter(a => a.status === 'reviewing').length,
-      pending_docs: apps.filter(a => a.status === 'pending_docs').length,
-      approved: apps.filter(a => a.status === 'approved').length,
+      completa: apps.filter(a =>
+        a.status === APPLICATION_STATUS.COMPLETA ||
+        a.status === APPLICATION_STATUS.SUBMITTED
+      ).length,
+      faltan_documentos: apps.filter(a =>
+        a.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ||
+        a.status === APPLICATION_STATUS.PENDING_DOCS
+      ).length,
+      en_revision: apps.filter(a =>
+        a.status === APPLICATION_STATUS.EN_REVISION ||
+        a.status === APPLICATION_STATUS.REVIEWING ||
+        a.status === APPLICATION_STATUS.IN_REVIEW
+      ).length,
+      aprobada: apps.filter(a =>
+        a.status === APPLICATION_STATUS.APROBADA ||
+        a.status === APPLICATION_STATUS.APPROVED
+      ).length,
     };
     setStats(stats);
   };
@@ -177,16 +191,30 @@ const VentasSolicitudesPage: React.FC = () => {
     setFilteredApplications(filtered);
   };
 
-  const getStatusConfig = (status: string) => {
-    const configs: Record<string, { text: string; color: string; icon: React.ElementType }> = {
-      draft: { text: 'Borrador', color: 'bg-gray-100 text-gray-800', icon: Clock },
-      submitted: { text: 'Completa', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-      reviewing: { text: 'En Revisión', color: 'bg-blue-100 text-blue-800', icon: Clock },
-      pending_docs: { text: 'Docs Pendientes', color: 'bg-yellow-100 text-yellow-800', icon: AlertTriangle },
-      approved: { text: 'Aprobada', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-      rejected: { text: 'Rechazada', color: 'bg-red-100 text-red-800', icon: XCircle },
+  const getStatusConfigLocal = (status: string) => {
+    const statusConfig = getStatusConfig(status);
+
+    const iconMap: Record<string, React.ElementType> = {
+      draft: Clock,
+      Completa: CheckCircle,
+      'Faltan Documentos': AlertTriangle,
+      'En Revisión': Clock,
+      Aprobada: CheckCircle,
+      Rechazada: XCircle,
+      // Legacy
+      submitted: CheckCircle,
+      reviewing: Clock,
+      pending_docs: AlertTriangle,
+      approved: CheckCircle,
+      rejected: XCircle,
+      in_review: Clock,
     };
-    return configs[status] || configs.draft;
+
+    return {
+      text: statusConfig.label,
+      color: statusConfig.badgeClass,
+      icon: iconMap[status] || Clock,
+    };
   };
 
   const downloadSolicitudPDF = async (appId: string) => {
@@ -246,7 +274,7 @@ const VentasSolicitudesPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Completas</p>
-                <p className="text-2xl font-bold text-green-600">{stats.submitted}</p>
+                <p className="text-2xl font-bold text-green-600">{stats.completa}</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
@@ -256,19 +284,8 @@ const VentasSolicitudesPage: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">En Revisión</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.reviewing}</p>
-              </div>
-              <Clock className="w-8 h-8 text-blue-400" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Docs Pendientes</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.pending_docs}</p>
+                <p className="text-sm font-medium text-gray-600">Faltan Documentos</p>
+                <p className="text-2xl font-bold text-yellow-600">{stats.faltan_documentos}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-yellow-400" />
             </div>
@@ -278,8 +295,19 @@ const VentasSolicitudesPage: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
+                <p className="text-sm font-medium text-gray-600">En Revisión</p>
+                <p className="text-2xl font-bold text-purple-600">{stats.en_revision}</p>
+              </div>
+              <Clock className="w-8 h-8 text-purple-400" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm font-medium text-gray-600">Aprobadas</p>
-                <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                <p className="text-2xl font-bold text-green-600">{stats.aprobada}</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
@@ -309,11 +337,12 @@ const VentasSolicitudesPage: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los estatus</SelectItem>
-                  <SelectItem value="submitted">Completa</SelectItem>
-                  <SelectItem value="reviewing">En Revisión</SelectItem>
-                  <SelectItem value="pending_docs">Docs Pendientes</SelectItem>
-                  <SelectItem value="approved">Aprobada</SelectItem>
-                  <SelectItem value="rejected">Rechazada</SelectItem>
+                  <SelectItem value={APPLICATION_STATUS.DRAFT}>Borrador</SelectItem>
+                  <SelectItem value={APPLICATION_STATUS.COMPLETA}>Completa</SelectItem>
+                  <SelectItem value={APPLICATION_STATUS.FALTAN_DOCUMENTOS}>Faltan Documentos</SelectItem>
+                  <SelectItem value={APPLICATION_STATUS.EN_REVISION}>En Revisión</SelectItem>
+                  <SelectItem value={APPLICATION_STATUS.APROBADA}>Aprobada</SelectItem>
+                  <SelectItem value={APPLICATION_STATUS.RECHAZADA}>Rechazada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -341,7 +370,7 @@ const VentasSolicitudesPage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {filteredApplications.map((app) => {
-            const statusConfig = getStatusConfig(app.status);
+            const statusConfig = getStatusConfigLocal(app.status);
             const StatusIcon = statusConfig.icon;
 
             return (

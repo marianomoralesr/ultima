@@ -230,7 +230,8 @@ serve(async (req) => {
       }
 
       // Verificar si todos los documentos requeridos están completos
-      const REQUIRED_DOCS = ['ine_front', 'ine_back', 'proof_address', 'proof_income', 'constancia_fiscal'];
+      // Only require 4 documents: INE front, INE back, proof of address, proof of income
+      const REQUIRED_DOCS = ['ine_front', 'ine_back', 'proof_address', 'proof_income'];
 
       const { data: allDocs } = await supabaseClient
         .from('uploaded_documents')
@@ -245,7 +246,7 @@ serve(async (req) => {
         const { error: statusError } = await supabaseClient
           .from('financing_applications')
           .update({
-            status: 'submitted',
+            status: 'Completa',
             updated_at: new Date().toISOString()
           })
           .eq('id', application.id);
@@ -253,7 +254,7 @@ serve(async (req) => {
         if (statusError) {
           console.error('Error actualizando status de aplicación:', statusError);
         } else {
-          console.log('Aplicación marcada como Completa (submitted) - todos los documentos subidos');
+          console.log('Aplicación marcada como Completa - todos los documentos requeridos subidos');
 
           // Obtener banco recomendado del perfil bancario
           const { data: bankProfile } = await supabaseClient
@@ -337,7 +338,8 @@ serve(async (req) => {
             created_at: documentRecord.created_at
           },
           all_documents_complete: allDocsComplete,
-          application_status_updated: allDocsComplete ? 'submitted' : null
+          application_status_updated: allDocsComplete ? 'Completa' : null,
+          application_id: application.id
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

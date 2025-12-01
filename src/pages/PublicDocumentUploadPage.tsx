@@ -188,12 +188,13 @@ const PublicDocumentUploadPage: React.FC = () => {
       setDocuments([...documents, result.document]);
       setUploadProgress({ ...uploadProgress, [documentType]: 100 });
 
-      // Si todos los documentos están completos, recargar datos
-      if (result.all_documents_complete) {
-        // Esperar un momento y recargar para reflejar el nuevo status
+      // Si todos los documentos están completos, redirigir a seguimiento
+      if (result.all_documents_complete && result.application_id) {
+        // Mostrar mensaje de éxito brevemente
         setTimeout(() => {
-          loadApplicationData();
-        }, 1000);
+          // Redirigir a la página de seguimiento
+          window.location.href = `/escritorio/seguimiento/${result.application_id}`;
+        }, 2000);
       }
 
       // Limpiar input
@@ -455,9 +456,18 @@ const PublicDocumentUploadPage: React.FC = () => {
               <CheckCircle className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-bold mb-2">¡Documentos Completos!</h3>
-            <p className="text-white/90 text-sm">
+            <p className="text-white/90 text-sm mb-4">
               Todos los documentos han sido recibidos correctamente. Nos pondremos en contacto contigo pronto.
             </p>
+            <a
+              href={`/escritorio/seguimiento/${application?.id}`}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
+            >
+              Ver solicitud
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
           </div>
         )}
 

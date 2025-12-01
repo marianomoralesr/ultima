@@ -314,14 +314,20 @@ const DashboardSidebarPage: React.FC = () => {
   }, [loadStats]);
 
   const getStatusConfig = (status: string) => {
-    switch (status) {
+    // Normalize status to lowercase for comparison
+    const normalizedStatus = status?.toLowerCase();
+
+    switch (normalizedStatus) {
       case 'draft':
+      case 'borrador':
         return {
           label: 'Borrador',
           bgColor: 'bg-gray-500',
           textColor: 'text-white'
         };
+      case 'faltan documentos':
       case 'faltan_documentos':
+      case 'pending_docs':
         return {
           label: 'Faltan Documentos',
           bgColor: 'bg-yellow-500',
@@ -333,20 +339,25 @@ const DashboardSidebarPage: React.FC = () => {
           bgColor: 'bg-blue-500',
           textColor: 'text-white'
         };
+      case 'en revisión':
       case 'en_revision':
       case 'submitted':
       case 'pending':
+      case 'reviewing':
+      case 'in_review':
         return {
           label: 'En Revisión',
-          bgColor: 'bg-yellow-500',
+          bgColor: 'bg-indigo-500',
           textColor: 'text-white'
         };
+      case 'aprobada':
       case 'approved':
         return {
           label: 'Aprobada',
           bgColor: 'bg-green-500',
           textColor: 'text-white'
         };
+      case 'rechazada':
       case 'rejected':
         return {
           label: 'Rechazada',
@@ -354,11 +365,8 @@ const DashboardSidebarPage: React.FC = () => {
           textColor: 'text-white'
         };
       default:
-        return {
-          label: 'Sin Solicitud',
-          bgColor: 'bg-gray-400',
-          textColor: 'text-white'
-        };
+        // Return null to hide the box when there's no valid status
+        return null;
     }
   };
 
@@ -517,7 +525,7 @@ const DashboardSidebarPage: React.FC = () => {
             )}
 
             {/* Stats Cards Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+            <div className={`grid grid-cols-2 ${statusConfig ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-2 sm:gap-3 md:gap-4`}>
               {/* Borradores - Clickable */}
               <div
                 className="cursor-pointer touch-manipulation"
@@ -577,18 +585,20 @@ const DashboardSidebarPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Estado de Solicitud */}
-              <Card className={statusConfig.bgColor}>
-                <CardContent className="p-2.5 sm:p-3 md:p-4">
-                  <div className="text-center">
-                    <MapPin className={`w-6 h-6 sm:w-8 sm:h-8 ${statusConfig.textColor} mx-auto mb-1 sm:mb-2`} />
-                    <p className={`text-xs sm:text-sm ${statusConfig.textColor} opacity-90 font-medium`}>Estado</p>
-                    <p className={`text-lg sm:text-xl font-bold ${statusConfig.textColor}`}>
-                      {statusConfig.label}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Estado de Solicitud - Only show if there's a valid status */}
+              {statusConfig && (
+                <Card className={statusConfig.bgColor}>
+                  <CardContent className="p-2.5 sm:p-3 md:p-4">
+                    <div className="text-center">
+                      <MapPin className={`w-6 h-6 sm:w-8 sm:h-8 ${statusConfig.textColor} mx-auto mb-1 sm:mb-2`} />
+                      <p className={`text-xs sm:text-sm ${statusConfig.textColor} opacity-90 font-medium`}>Estado</p>
+                      <p className={`text-lg sm:text-xl font-bold ${statusConfig.textColor}`}>
+                        {statusConfig.label}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Dropdown Lists */}

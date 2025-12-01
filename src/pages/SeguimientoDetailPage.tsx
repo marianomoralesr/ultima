@@ -8,6 +8,9 @@ import { APPLICATION_STATUS, type ApplicationStatus } from '../constants/applica
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { DEFAULT_PLACEHOLDER_IMAGE } from '../utils/constants';
+import { supabase } from '../../supabaseClient';
+
+const BUCKET_NAME = 'application-documents';
 
 interface ApplicationData {
   id: string;
@@ -30,6 +33,7 @@ const SeguimientoDetailPage: React.FC = () => {
   const [showPrintable, setShowPrintable] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
   const [uploadLinkVisible, setUploadLinkVisible] = useState(false);
+  const [documents, setDocuments] = useState<any[]>([]);
 
   useEffect(() => {
     const loadApplication = async () => {
@@ -74,6 +78,19 @@ const SeguimientoDetailPage: React.FC = () => {
         }
 
         setApplication(app);
+
+        // Load documents for this application
+        const { data: docs, error: docsError } = await supabase
+          .from('uploaded_documents')
+          .select('*')
+          .eq('application_id', id)
+          .order('created_at', { ascending: false });
+
+        if (docsError) {
+          console.error('Error loading documents:', docsError);
+        } else {
+          setDocuments(docs || []);
+        }
       } catch (err) {
         console.error('Error loading application:', err);
         setError('Error al cargar la solicitud');
@@ -337,6 +354,15 @@ const SeguimientoDetailPage: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* Documents Viewer */}
+            {documents.length > 0 && (
+              <Card>
+                <CardContent className="p-4">
+                  <DocumentViewer documents={documents} />
+                </CardContent>
+              </Card>
+            )}
+
             {/* Survey Benefits Box */}
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
               <CardContent className="p-4">
@@ -376,6 +402,175 @@ const SeguimientoDetailPage: React.FC = () => {
           }
         }
       `}</style>
+    </div>
+  );
+};
+
+// Document Viewer Component
+const DocumentViewer: React.FC<{ documents: any[] }> = ({ documents }) => {
+  const [viewingDoc, setViewingDoc] = useState<any | null>(null);
+  const [documentsWithUrls, setDocumentsWithUrls] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDocumentUrls = async () => {
+      setLoading(true);
+      const docsWithSignedUrls = await Promise.all(
+        documents.map(async (doc) => {
+          try {
+            const { data, error } = await supabase.storage
+              .from(BUCKET_NAME)
+              .createSignedUrl(doc.file_path, 3600); // 1 hour expiry
+
+            if (error) {
+              console.error(`Error generating signed URL for ${doc.file_path}:`, error);
+              return { ...doc, url: null };
+            }
+
+            return { ...doc, url: data.signedUrl };
+          } catch (error) {
+            console.error('Error loading document URL:', error);
+            return { ...doc, url: null };
+          }
+        })
+      );
+      setDocumentsWithUrls(docsWithSignedUrls);
+      setLoading(false);
+    };
+
+    if (documents.length > 0) {
+      loadDocumentUrls();
+    } else {
+      setDocumentsWithUrls([]);
+      setLoading(false);
+    }
+  }, [documents]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return 'bg-green-100 text-green-800 border-green-200';
+      case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
+      case 'reviewing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const downloadDocument = async (doc: any) => {
+    try {
+      if (!doc.url) {
+        alert('No se pudo generar la URL del documento');
+        return;
+      }
+
+      const response = await fetch(doc.url);
+      if (!response.ok) {
+        throw new Error('Error al descargar el archivo');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.file_name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      alert('Error al descargar el documento');
+    }
+  };
+
+  return (
+    <div>
+      <h3 className="font-bold text-sm text-gray-900 mb-3">Documentos Cargados ({documents.length})</h3>
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
+          <span className="ml-2 text-sm text-gray-600">Cargando documentos...</span>
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-80 overflow-y-auto">
+          {documentsWithUrls.length > 0 ? (
+            documentsWithUrls.map((doc) => (
+              <div key={doc.id} className="p-3 border rounded-lg hover:bg-gray-50">
+                <div className="flex items-center gap-3 mb-2">
+                  <FileText className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                  <div className="flex-grow min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 truncate">{doc.file_name}</p>
+                    <p className="text-xs text-gray-500">
+                      {doc.document_type} - {new Date(doc.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${getStatusColor(doc.status)}`}>
+                    {doc.status === 'approved'
+                      ? 'Aprobado'
+                      : doc.status === 'rejected'
+                      ? 'Rechazado'
+                      : doc.status === 'reviewing'
+                      ? 'En Revisión'
+                      : 'Pendiente'}
+                  </span>
+                  <div className="flex-grow"></div>
+                  <button
+                    onClick={() => setViewingDoc(doc)}
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    title="Ver documento"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => downloadDocument(doc)}
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    title="Descargar documento"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500 text-center py-8">No hay documentos cargados.</p>
+          )}
+        </div>
+      )}
+
+      {viewingDoc && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setViewingDoc(null)}>
+          <div className="relative bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
+              <div>
+                <h3 className="text-lg font-bold">{viewingDoc.file_name}</h3>
+                <p className="text-sm text-gray-500">{viewingDoc.document_type}</p>
+              </div>
+              <button onClick={() => setViewingDoc(null)} className="p-2 rounded-full hover:bg-gray-100">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4 bg-gray-100">
+              {viewingDoc.content_type?.startsWith('image/') ? (
+                <img src={viewingDoc.url} alt={viewingDoc.file_name} className="max-w-full h-auto mx-auto" />
+              ) : viewingDoc.content_type === 'application/pdf' ? (
+                <iframe src={viewingDoc.url} className="w-full h-full min-h-[600px]" title={viewingDoc.file_name} />
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-600">Vista previa no disponible para este tipo de archivo</p>
+                  <button
+                    onClick={() => downloadDocument(viewingDoc)}
+                    className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                  >
+                    Descargar Archivo
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

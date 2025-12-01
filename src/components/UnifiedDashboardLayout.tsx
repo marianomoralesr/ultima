@@ -165,6 +165,7 @@ const adminAccountGroup: NavGroup = {
 // Sales-specific navigation items
 const salesNavItems: NavItem[] = [
     { to: '/escritorio/ventas/dashboard', label: 'Dashboard Ventas', icon: LayoutDashboard, roles: ['sales'], end: true },
+    { to: '/escritorio/ventas/solicitudes', label: 'Mis Solicitudes', icon: FileText, roles: ['sales'] },
     { to: '/escritorio/ventas/crm', label: 'CRM Ventas', icon: Target, roles: ['sales'] },
     { to: '/escritorio/ventas/performance', label: 'Mi Desempeño', icon: TrendingUp, roles: ['sales'] },
     { to: '/escritorio/ventas/leads', label: 'Mis Leads', icon: Users, roles: ['sales'] },

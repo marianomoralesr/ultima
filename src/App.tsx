@@ -99,6 +99,7 @@ const AdminBankManagementPage = lazy(() => import('./pages/AdminBankManagementPa
 const DashboardExample = lazy(() => import('./pages/DashboardExample'));
 const PublicDocumentUploadPage = lazy(() => import('./pages/PublicDocumentUploadPage'));
 const DashboardSidebarPage = lazy(() => import('./pages/DashboardSidebarPage'));
+const VentasSolicitudesPage = lazy(() => import('./pages/VentasSolicitudesPage'));
 
 import ConfigService from './services/ConfigService';
 import PageViewTracker from './components/PageViewTracker';
@@ -244,8 +245,11 @@ function App(): React.JSX.Element {
                   <Route path="ventas/performance" element={<SalesPerformanceDashboard />} />
                   <Route path="ventas/crm" element={<UnifiedCRMPage userRole="sales" />} />
                   <Route path="ventas/leads" element={<UnifiedCRMPage userRole="sales" />} />
+                  <Route path="ventas/solicitudes" element={<VentasSolicitudesPage />} />
                   <Route path="ventas/cliente/:id" element={<SalesClientProfilePage />} />
                   <Route path="ventas/clientes/:id" element={<SalesClientProfilePage />} />
+                  {/* Allow sales to access application detail page */}
+                  <Route path="seguimiento/:id" element={<SeguimientoDetailPage />} />
                 </Route>
 
                 {/* Marketing routes - accessible by marketing and admin roles */}

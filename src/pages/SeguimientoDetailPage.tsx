@@ -46,9 +46,31 @@ const SeguimientoDetailPage: React.FC = () => {
         setLoading(true);
         const app = await ApplicationService.getApplicationById(user.id, id);
 
-        if (app.user_id !== user.id) {
-          setError('No tienes permiso para ver esta solicitud');
-          return;
+        // Check permissions: owner or assigned sales advisor
+        const isOwner = app.user_id === user.id;
+        const isSalesAdvisor = profile?.role === 'sales' && profile?.id === profile?.asesor_asignado_id;
+        const isAdmin = profile?.role === 'admin';
+
+        if (!isOwner && !isSalesAdvisor && !isAdmin) {
+          // If sales user, check if they are assigned to this lead
+          if (profile?.role === 'sales') {
+            // Get lead profile to check assigned advisor
+            const { data: leadProfile } = await import('../../supabaseClient').then(({ supabase }) =>
+              supabase
+                .from('profiles')
+                .select('asesor_asignado_id')
+                .eq('id', app.user_id)
+                .single()
+            );
+
+            if (leadProfile?.asesor_asignado_id !== user.id) {
+              setError('No tienes permiso para ver esta solicitud');
+              return;
+            }
+          } else {
+            setError('No tienes permiso para ver esta solicitud');
+            return;
+          }
         }
 
         setApplication(app);
@@ -61,7 +83,7 @@ const SeguimientoDetailPage: React.FC = () => {
     };
 
     loadApplication();
-  }, [id, user]);
+  }, [id, user, profile]);
 
   const getStatusConfig = (status: string) => {
     const configs: Record<string, { text: string; color: string; bgColor: string }> = {

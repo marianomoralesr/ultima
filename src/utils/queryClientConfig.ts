@@ -11,10 +11,10 @@ export const createOptimizedQueryClient = () => {
           if (error?.status >= 400 && error?.status < 500) {
             return false;
           }
-          // Retry up to 3 times for other errors
-          return failureCount < 3;
+          // Retry only once for other errors to fail faster and avoid stuck loading states
+          return failureCount < 1;
         },
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Reduced max delay from 30s to 5s
 
         // Refetch configuration
         refetchOnWindowFocus: false, // Disable to reduce unnecessary requests
@@ -28,6 +28,10 @@ export const createOptimizedQueryClient = () => {
           // Different stale times for different data types
           if (queryKey?.includes('vehicle')) {
             return 10 * 60 * 1000; // 10 minutes for vehicle data
+          }
+          // Admin queries should always fetch fresh data to avoid stuck loading states
+          if (queryKey?.includes('salesUsers') || queryKey?.includes('admin') || queryKey?.includes('applications') || queryKey?.includes('leads')) {
+            return 0; // Always fetch fresh data for admin pages
           }
           if (queryKey?.includes('user') || queryKey?.includes('profile')) {
             return 5 * 60 * 1000; // 5 minutes for user data
@@ -55,7 +59,7 @@ export const createOptimizedQueryClient = () => {
         },
 
         // Network mode
-        networkMode: 'offlineFirst', // Try cache first, then network
+        networkMode: 'online', // Changed from 'offlineFirst' to avoid stuck loading states
 
         // Structural sharing for better performance
         structuralSharing: true,

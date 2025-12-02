@@ -12,23 +12,21 @@ interface VehicleCardHeaderProps {
 
 const VehicleCardHeader: React.FC<VehicleCardHeaderProps> = ({ title, year, view_count = 0, ordencompra, promociones }) => (
   <div>
-    {ordencompra && (
-      <p className="text-xs md:text-sm font-light text-gray-500 tracking-wider mb-1">{ordencompra}</p>
-    )}
-    {promociones && promociones.length > 0 && (
-      <div className="flex items-center gap-2 mb-1 flex-wrap">
-        {promociones.slice(0, 2).map((promo, idx) => {
-          const formattedPromo = formatPromotion(promo);
-          if (!formattedPromo) return null;
+    <div className="flex items-center gap-2 mb-1 flex-wrap">
+      {ordencompra && (
+        <p className="text-[11px] md:text-[12px] font-light text-gray-500 tracking-wider">{ordencompra}</p>
+      )}
+      {promociones && promociones.length > 0 && promociones.slice(0, 2).map((promo, idx) => {
+        const formattedPromo = formatPromotion(promo);
+        if (!formattedPromo) return null;
 
-          return (
-            <span key={idx} className="text-[11px] md:text-[12px] font-medium text-orange-600 border border-orange-600 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md">
-              {formattedPromo}
-            </span>
-          );
-        })}
-      </div>
-    )}
+        return (
+          <span key={idx} className="text-[11px] md:text-[12px] font-medium text-orange-600 border border-orange-600 px-1.5 md:px-2 py-0.5 rounded-md">
+            {formattedPromo}
+          </span>
+        );
+      })}
+    </div>
     <h2 className="text-xl md:text-2xl font-bold md:font-extrabold text-gray-800 group-hover:text-primary-600 transition-colors leading-tight">
       {title} {year && <span className="text-gray-600">{year}</span>}
     </h2>

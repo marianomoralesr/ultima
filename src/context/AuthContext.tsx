@@ -225,8 +225,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     useEffect(() => {
         setLoading(true);
 
+        // Safety timeout to prevent eternal loading states
+        const loadingTimeout = setTimeout(() => {
+            console.warn('[AuthContext] Loading timeout reached - forcing loading to false');
+            setLoading(false);
+        }, 10000); // 10 second timeout
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
+                console.log('[AuthContext] Auth state change:', event);
+
                 if (event === 'INITIAL_SESSION') {
                     setSession(session);
                     const currentUser = session?.user ?? null;
@@ -237,6 +245,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         setProfile(null);
                         sessionStorage.removeItem('userProfile');
                     }
+                    clearTimeout(loadingTimeout); // Clear timeout on success
                     setLoading(false);
                 } else if (event === 'SIGNED_IN') {
                     setSession(session);
@@ -260,11 +269,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         );
 
         return () => {
+            clearTimeout(loadingTimeout);
             subscription?.unsubscribe();
         };
     }, [fetchProfile]); // fetchProfile is now stable (no dependencies)
 
     useEffect(() => {
+        // Only run once when profile is first loaded and needs agent assignment
+        // Use profile.id as dependency to avoid infinite loops
         if (profile && profile.role === 'user' && !profile.asesor_asignado_id) {
             const assignAgent = async () => {
                 try {
@@ -279,8 +291,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         if (updateError) {
                             console.error('Error updating profile with agent ID:', updateError);
                         } else {
-                            // Reload profile to get the latest data and update cache
-                            await reloadProfile();
+                            // Update profile locally without triggering reloadProfile to avoid loops
+                            setProfile({ ...profile, asesor_asignado_id: agentId });
+                            const cachedProfile = { ...profile, asesor_asignado_id: agentId };
+                            sessionStorage.setItem('userProfile', JSON.stringify(cachedProfile));
                         }
                     }
                 } catch (e) {
@@ -289,7 +303,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             };
             assignAgent();
         }
-    }, [profile, reloadProfile]);
+    }, [profile?.id, profile?.role, profile?.asesor_asignado_id]); // Only depend on specific values, not the entire object
 
     const isAdmin = profile?.role === 'admin';
     const isSales = profile?.role === 'sales';

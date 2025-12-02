@@ -36,6 +36,7 @@ const ApplicationConfirmationPage: React.FC = () => {
   const [application, setApplication] = useState<ApplicationData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [uploadDocumentsNow, setUploadDocumentsNow] = useState(false);
 
   // Only show this page if coming from first submit
   const isFirstSubmit = searchParams.get('firstSubmit') === 'true';
@@ -244,6 +245,43 @@ const ApplicationConfirmationPage: React.FC = () => {
                   <li>• Comprobante de ingresos</li>
                   <li>• Constancia fiscal</li>
                 </ul>
+
+                {/* Checkbox para subir documentos ahora */}
+                <div className="mt-4 p-4 bg-primary-50 border-2 border-primary-200 rounded-lg">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={uploadDocumentsNow}
+                      onChange={(e) => setUploadDocumentsNow(e.target.checked)}
+                      className="w-5 h-5 mt-0.5 rounded border-primary-300 text-primary-600 focus:ring-primary-500 focus:ring-2 cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-gray-900">
+                        ¿Quieres subir tus documentos ahora?
+                      </span>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Si tienes tus documentos a la mano, puedes subirlos en este momento para agilizar el proceso. También puedes hacerlo después desde tu dashboard.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Widgets de carga si el checkbox está marcado */}
+                {uploadDocumentsNow && publicUrl && (
+                  <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Upload className="w-4 h-4 text-primary-600" />
+                      <h5 className="font-semibold text-sm text-gray-900">Sube tus documentos</h5>
+                    </div>
+                    <PublicUploadLinkCard token={application.public_upload_token} />
+                    <p className="text-xs text-gray-500 mt-3 flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      No te preocupes, también puedes subir o completar tus documentos más tarde desde tu dashboard en la sección "Seguimiento".
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

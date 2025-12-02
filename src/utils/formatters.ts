@@ -122,8 +122,8 @@ export function formatPromotion(promo: string): string {
     'rechw5': 'Tanque Lleno',
 
     // Record IDs específicos - Garantías
-    'recri4ngj6umwiiyn': '18 meses de garantía',
-    'recri4ngj6': '18 meses de garantía',
+    'recri4ngj6umwiiyn': 'Garantía extendida',
+    'recri4ngj6': 'Garantía extendida',
 
     // Record IDs específicos - Regalos promocionales
     'reclnyqikfdhhxpim': 'Gorra o termo TREFA',

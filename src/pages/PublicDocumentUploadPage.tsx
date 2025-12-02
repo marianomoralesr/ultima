@@ -188,15 +188,6 @@ const PublicDocumentUploadPage: React.FC = () => {
       setDocuments([...documents, result.document]);
       setUploadProgress({ ...uploadProgress, [documentType]: 100 });
 
-      // Si todos los documentos están completos, redirigir a seguimiento
-      if (result.all_documents_complete && result.application_id) {
-        // Mostrar mensaje de éxito brevemente
-        setTimeout(() => {
-          // Redirigir a la página de seguimiento
-          window.location.href = `/escritorio/seguimiento/${result.application_id}`;
-        }, 2000);
-      }
-
       // Limpiar input
       if (fileInputRefs.current[documentType]) {
         fileInputRefs.current[documentType]!.value = '';
@@ -451,23 +442,50 @@ const PublicDocumentUploadPage: React.FC = () => {
 
         {/* Mensaje de completado */}
         {uploadedCount === allDocsToCheck.length && uploadedCount > 0 && (
-          <div className="mt-6 bg-green-500 dark:bg-green-600 rounded-lg border shadow-sm p-6 text-white text-center">
-            <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <CheckCircle className="w-8 h-8" />
+          <div className="mt-6 bg-green-500 dark:bg-green-600 rounded-lg border shadow-sm p-6 text-white">
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <CheckCircle className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">¡Documentos Completos!</h3>
+              <p className="text-white/90 text-sm">
+                Todos los documentos han sido recibidos correctamente. Nos pondremos en contacto contigo pronto.
+              </p>
             </div>
-            <h3 className="text-xl font-bold mb-2">¡Documentos Completos!</h3>
-            <p className="text-white/90 text-sm mb-4">
-              Todos los documentos han sido recibidos correctamente. Nos pondremos en contacto contigo pronto.
-            </p>
-            <a
-              href={`/escritorio/seguimiento/${application?.id}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
-            >
-              Ver solicitud
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
+
+            {/* Lista de documentos subidos */}
+            <div className="bg-white/10 rounded-lg p-4 mb-6">
+              <h4 className="font-semibold mb-3 text-sm">Documentos recibidos:</h4>
+              <div className="space-y-2">
+                {allDocsToCheck.map((doc) => {
+                  const status = getDocumentStatus(doc.id);
+                  if (!status.uploaded) return null;
+                  return (
+                    <div key={doc.id} className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                      <span className="flex-1">{doc.name}</span>
+                      {status.fileName && (
+                        <span className="text-xs text-white/70 truncate max-w-[150px]">
+                          {status.fileName}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="text-center">
+              <a
+                href={`/escritorio/seguimiento/${application?.id}`}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors"
+              >
+                Ver mi solicitud
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
           </div>
         )}
 

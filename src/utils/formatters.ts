@@ -126,8 +126,8 @@ export function formatPromotion(promo: string): string {
     'recri4ngj6': '18 meses de garantía',
 
     // Record IDs específicos - Regalos promocionales
-    'reclnyqikfdhhxpim': 'Tu elección de gorra o termo TREFA',
-    'reclnyqik': 'Tu elección de gorra o termo TREFA',
+    'reclnyqikfdhhxpim': 'Gorra o termo TREFA',
+    'reclnyqik': 'Gorra o termo TREFA',
 
     // Promociones textuales (ya están en formato legible)
     'placas gratis': 'Placas Gratis',

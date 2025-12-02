@@ -224,38 +224,55 @@ export const ApplicationService = {
   },
 
   async hasActiveApplication(userId: string): Promise<boolean> {
-    const { data, error} = await supabase
-      .from('financing_applications')
-      .select('id, status')
-      .eq('user_id', userId)
-      .in('status', [
-        APPLICATION_STATUS.DRAFT, // Include drafts to limit to 1 application total
-        APPLICATION_STATUS.COMPLETA,
-        APPLICATION_STATUS.FALTAN_DOCUMENTOS,
-        APPLICATION_STATUS.EN_REVISION,
-        APPLICATION_STATUS.APROBADA,
-        APPLICATION_STATUS.RECHAZADA,
-        // Legacy statuses for backward compatibility
-        APPLICATION_STATUS.SUBMITTED,
-        APPLICATION_STATUS.REVIEWING,
-        APPLICATION_STATUS.PENDING_DOCS,
-        APPLICATION_STATUS.APPROVED,
-        APPLICATION_STATUS.IN_REVIEW,
-        'rejected'
-      ])
-      .limit(1)
-      .maybeSingle();
+    try {
+      const { data, error} = await supabase
+        .from('financing_applications')
+        .select('id, status')
+        .eq('user_id', userId)
+        .in('status', [
+          APPLICATION_STATUS.DRAFT, // Include drafts to limit to 1 application total
+          APPLICATION_STATUS.COMPLETA,
+          APPLICATION_STATUS.FALTAN_DOCUMENTOS,
+          APPLICATION_STATUS.EN_REVISION,
+          APPLICATION_STATUS.APROBADA,
+          APPLICATION_STATUS.RECHAZADA,
+          // Legacy statuses for backward compatibility
+          APPLICATION_STATUS.SUBMITTED,
+          APPLICATION_STATUS.REVIEWING,
+          APPLICATION_STATUS.PENDING_DOCS,
+          APPLICATION_STATUS.APPROVED,
+          APPLICATION_STATUS.IN_REVIEW,
+          'rejected'
+        ])
+        .limit(1)
+        .maybeSingle();
 
-    if (error) {
-      // If error is "no rows returned" it's not really an error for this check
-      if (error.code === 'PGRST116') {
+      if (error) {
+        // If error is "no rows returned" it's not really an error for this check
+        if (error.code === 'PGRST116') {
+          return false;
+        }
+
+        // Log error but don't throw - this prevents blocking new users
+        console.error('[hasActiveApplication] Error checking for active applications:', {
+          error: error.message,
+          code: error.code,
+          details: error.details,
+          userId
+        });
+
+        // Return false to allow user to proceed - it's better to let them through
+        // than to block them with an error for a non-critical check
         return false;
       }
-      console.error('Error checking for active applications:', error.message, { code: error.code, details: error.details });
-      throw new Error('No se pudo verificar el estado de las solicitudes existentes.');
-    }
 
-    return data !== null;
+      return data !== null;
+    } catch (err) {
+      // Catch any unexpected errors and log them
+      console.error('[hasActiveApplication] Unexpected error:', err);
+      // Return false to allow user to proceed
+      return false;
+    }
   },
 
   async createDraftApplication(userId: string, initialData: Record<string, any> = {}): Promise<ApplicationListItem | null> {

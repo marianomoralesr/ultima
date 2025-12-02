@@ -121,6 +121,10 @@ export function formatPromotion(promo: string): string {
     'rechw5rphjdb4c2mm': 'Tanque Lleno',
     'rechw5': 'Tanque Lleno',
 
+    // Record IDs específicos - Garantías
+    'recri4ngj6uMWiIyn': '18 meses de garantía',
+    'recri4ngj6': '18 meses de garantía',
+
     // Promociones textuales (ya están en formato legible)
     'placas gratis': 'Placas Gratis',
     'tanque lleno de gasolina': 'Tanque Lleno',
@@ -146,6 +150,9 @@ export function getPromotionType(promo: string): string {
   
   // New mappings - Bonos
   if (lowerPromo === 'recuxe81piewnqxbl' || lowerPromo === 'recuxe81') return 'bonus';
+
+  // New mappings - Garantías
+  if (lowerPromo === 'recri4ngj6umwiiyn' || lowerPromo === 'recri4ngj6') return 'warranty';
 
   // New mappings - Overlay promotions (extras)
   if (['recpaihek7gpdg2dw', 'rec9ipgzplpjw2xp0', 'rec9ip', 'rechw5rphjdb4c2mm', 'rechw5'].includes(lowerPromo)) return 'overlay';

@@ -9,7 +9,7 @@ DECLARE
     result jsonb;
 BEGIN
     WITH vehicle_base AS (
-        SELECT marca, autoano, clasificacionid, transmision, combustible, sucursal, autogarantia, promociones, precio, enganche_minimo
+        SELECT marca, autoano, clasificacionid, transmision, combustible, ubicacion, autogarantia, promociones, precio, enganche_minimo
         FROM inventario_cache
         WHERE ordenstatus = 'Comprado'
     ),
@@ -29,7 +29,21 @@ BEGIN
         SELECT combustible AS name, COUNT(*) AS count FROM vehicle_base WHERE combustible IS NOT NULL AND combustible != '' GROUP BY combustible
     ),
     sucursales_agg AS (
-        SELECT name, COUNT(*) AS count FROM (SELECT unnest(string_to_array(sucursal, ',')) AS name FROM vehicle_base) s WHERE name IS NOT NULL AND name != '' GROUP BY name
+        SELECT
+            CASE ubicacion_val
+                WHEN 'MTY' THEN 'Monterrey'
+                WHEN 'GPE' THEN 'Guadalupe'
+                WHEN 'TMPS' THEN 'Reynosa'
+                WHEN 'COAH' THEN 'Saltillo'
+                ELSE ubicacion_val
+            END AS name,
+            COUNT(*) AS count
+        FROM (
+            SELECT unnest(string_to_array(ubicacion, ',')) AS ubicacion_val
+            FROM vehicle_base
+        ) s
+        WHERE ubicacion_val IS NOT NULL AND ubicacion_val != ''
+        GROUP BY name
     ),
     warranties_agg AS (
         SELECT autogarantia AS name, COUNT(*) AS count FROM vehicle_base WHERE autogarantia IS NOT NULL AND autogarantia != '' GROUP BY autogarantia

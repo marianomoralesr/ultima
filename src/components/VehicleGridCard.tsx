@@ -104,21 +104,23 @@ const VehicleGridCard: React.FC<VehicleGridCardProps> = ({ vehicle }) => {
 
         <div className="p-4 flex flex-col flex-grow">
             <div>
-                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                    {vehicle.ordencompra && (
-                        <p className="text-xs font-medium uppercase text-gray-400 tracking-wide">{vehicle.ordencompra}</p>
-                    )}
-                    {vehicle.promociones && vehicle.promociones.length > 0 && vehicle.promociones.slice(0, 2).map((promo, idx) => {
-                        const formattedPromo = formatPromotion(promo);
-                        if (!formattedPromo) return null;
+                {vehicle.ordencompra && (
+                    <p className="text-xs font-medium uppercase text-gray-400 tracking-wide mb-1">{vehicle.ordencompra}</p>
+                )}
+                {vehicle.promociones && vehicle.promociones.length > 0 && (
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        {vehicle.promociones.slice(0, 2).map((promo, idx) => {
+                            const formattedPromo = formatPromotion(promo);
+                            if (!formattedPromo) return null;
 
-                        return (
-                            <span key={idx} className="text-xs font-medium text-orange-600 border border-orange-600 px-2 py-0.5 rounded-md">
-                                {formattedPromo}
-                            </span>
-                        );
-                    })}
-                </div>
+                            return (
+                                <span key={idx} className="text-[11px] font-medium text-orange-600 border border-orange-600 px-2 py-0.5 rounded-md">
+                                    {formattedPromo}
+                                </span>
+                            );
+                        })}
+                    </div>
+                )}
                 <h3 className="font-bold text-base text-gray-900 group-hover:text-primary-600 transition-colors truncate mb-2" title={vehicle.titulo}>
                     {vehicle.titulo} {(vehicle.autoano || vehicle.year) && <span className="text-gray-600">{vehicle.autoano || vehicle.year}</span>}
                 </h3>

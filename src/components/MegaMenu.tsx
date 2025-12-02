@@ -344,9 +344,9 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
             navigate(`/marcas/${filterValue.toLowerCase()}`);
         } else if (filterKey === 'classification') {
             navigate(`/carroceria/${filterValue.toLowerCase()}`);
-        } else if (filterKey === 'automodelo') {
+        } else if (filterKey === 'modelo') {
             const params = new URLSearchParams();
-            params.set('automodelo', filterValue);
+            params.set('modelo', filterValue);
             navigate(`/autos?${params.toString()}`);
         } else {
             const params = new URLSearchParams();
@@ -536,7 +536,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                                             {models.map(model => (
                                                 <Button
                                                     key={model.id}
-                                                    onClick={() => handleFilterClick('automodelo', model.slug)}
+                                                    onClick={() => handleFilterClick('modelo', model.name)}
                                                     variant="ghost"
                                                     size="sm"
                                                     className="w-full justify-start gap-2 text-xs font-medium h-8"

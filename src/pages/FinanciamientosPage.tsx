@@ -1138,7 +1138,7 @@ const FinanciamientosPage: React.FC = () => {
                       <label htmlFor="acceptTerms" className="text-gray-900 font-bold text-sm leading-relaxed">
                         Acepto los{' '}
                         <a
-                          href="/politica-de-privacidad"
+                          href="/terminos"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:text-primary/80 font-black underline"

@@ -42,6 +42,7 @@ const FaqPage = lazy(() => import('./pages/faqs'));
 const PromotionsPage = lazy(() => import('./pages/PromotionsPage'));
 const MarketingCategoryPage = lazy(() => import('./pages/MarketingCategoryPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsAndConditionsPage = lazy(() => import('./pages/TermsAndConditionsPage'));
 const AdminInspectionsListPage = lazy(() => import('./pages/AdminInspectionsListPage'));
 const VisitasPage = lazy(() => import('./pages/VisitasPage'));
 const SurveyPage = lazy(() => import('./pages/SurveyPage'));
@@ -157,6 +158,7 @@ function App(): React.JSX.Element {
               <Route path="faq" element={<FaqPage />} />
               <Route path="kit-trefa" element={<KitTrefaPage />} />
               <Route path="politica-de-privacidad" element={<PrivacyPolicyPage />} />
+              <Route path="terminos" element={<TermsAndConditionsPage />} />
               <Route path="vacantes" element={<VacanciesListPage />} />
               <Route path="vacantes/:id" element={<VacancyDetailPage />} />
               <Route path="asesor/:id" element={<AsesorProfilePage />} />

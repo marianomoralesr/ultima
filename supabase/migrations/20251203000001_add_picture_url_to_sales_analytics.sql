@@ -78,7 +78,7 @@ BEGIN
                 WHERE asesor_asignado_id = p.id
                 AND role = 'user'
             )
-            AND status IN ('reviewing', 'in_review', 'en_revision', 'approved', 'aprobada', 'rejected', 'rechazada')
+            AND status IN ('En Revisión', 'Aprobada', 'Rechazada', 'reviewing', 'in_review', 'approved', 'rejected')
             AND deleted_at IS NULL
         ), 0) AS leads_actualizados,
         -- Count total solicitudes enviadas (submitted, not draft)
@@ -91,7 +91,7 @@ BEGIN
                 WHERE asesor_asignado_id = p.id
                 AND role = 'user'
             )
-            AND fa.status IN ('submitted', 'completa', 'pending_docs', 'faltan_documentos')
+            AND fa.status IN ('Completa', 'Faltan Documentos', 'submitted', 'pending_docs')
             AND fa.deleted_at IS NULL
         ), 0) AS solicitudes_enviadas,
         -- Count solicitudes procesadas (reviewed, approved, rejected)
@@ -104,7 +104,7 @@ BEGIN
                 WHERE asesor_asignado_id = p.id
                 AND role = 'user'
             )
-            AND fa.status IN ('reviewing', 'in_review', 'en_revision', 'approved', 'aprobada', 'rejected', 'rechazada')
+            AND fa.status IN ('En Revisión', 'Aprobada', 'Rechazada', 'reviewing', 'in_review', 'approved', 'rejected')
             AND fa.deleted_at IS NULL
         ), 0) AS solicitudes_procesadas,
         -- Check if user is overloaded (more than 20 assigned leads)

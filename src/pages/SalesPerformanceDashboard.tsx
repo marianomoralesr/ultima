@@ -90,7 +90,7 @@ const SalesPerformanceDashboard: React.FC = () => {
         queryKey: ['salesPerformanceMetrics', user?.id],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_performance_metrics', {
-                sales_user_id: user?.id
+                p_sales_user_id: user?.id
             });
             if (error) throw error;
             return data?.[0] || {};
@@ -103,7 +103,7 @@ const SalesPerformanceDashboard: React.FC = () => {
         queryKey: ['salesApplicationsByStatus', user?.id],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_applications_by_status', {
-                sales_user_id: user?.id
+                p_sales_user_id: user?.id
             });
             if (error) throw error;
             return data || [];
@@ -116,8 +116,8 @@ const SalesPerformanceDashboard: React.FC = () => {
         queryKey: ['salesDetailedApplications', user?.id, statusFilter],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_detailed_applications', {
-                sales_user_id: user?.id,
-                status_filter: statusFilter
+                p_sales_user_id: user?.id,
+                p_status_filter: statusFilter
             });
             if (error) throw error;
             return data || [];

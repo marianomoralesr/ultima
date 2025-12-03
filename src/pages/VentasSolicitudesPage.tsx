@@ -109,7 +109,7 @@ const VentasSolicitudesPage: React.FC = () => {
         leads = allLeads || [];
       } else {
         // Si es asesor, obtener solo sus leads asignados
-        leads = await SalesService.getAssignedLeads(user!.id);
+        leads = await SalesService.getMyAssignedLeads(user!.id);
       }
 
       // Para cada lead, obtener sus solicitudes

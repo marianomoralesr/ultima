@@ -242,38 +242,38 @@ const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Mi Asesor</h3>
-            <div className="flex items-center gap-4 mb-4">
-                <div className="flex-shrink-0">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">Mi Asesor</h3>
+            <div className="flex flex-col items-center">
+                <div className="mb-4">
                     {profilePicture ? (
                         <img
                             src={profilePicture}
                             alt={asesorName}
-                            className="w-16 h-16 rounded-full object-cover border-2 border-primary-200"
+                            className="w-32 h-32 rounded-full object-cover border-4 border-primary-200 shadow-lg"
                         />
                     ) : (
-                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center">
-                            <UserCircle className="w-10 h-10 text-primary-600" />
+                        <div className="w-32 h-32 rounded-full bg-primary-100 flex items-center justify-center border-4 border-primary-200 shadow-lg">
+                            <UserCircle className="w-20 h-20 text-primary-600" />
                         </div>
                     )}
                 </div>
-                <div className="flex-grow">
-                    <p className="font-semibold text-gray-900">{asesorName}</p>
-                    <p className="text-sm text-gray-600">Asesor de Ventas</p>
+                <div className="text-center mb-6">
+                    <p className="text-xl font-semibold text-gray-900 mb-1">{asesorName}</p>
+                    <p className="text-sm text-gray-600 mb-2">Asesor de Ventas</p>
                     {asesorPhone && (
-                        <p className="text-xs text-gray-500 mt-1">{asesorPhone}</p>
+                        <p className="text-sm text-gray-700 font-medium">{asesorPhone}</p>
                     )}
                 </div>
+                <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg text-base font-semibold hover:bg-green-700 transition-colors shadow-md"
+                >
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                    Contactar Asesor
+                </a>
             </div>
-            <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors shadow-md"
-            >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Contactar Asesor
-            </a>
         </div>
     );
 };

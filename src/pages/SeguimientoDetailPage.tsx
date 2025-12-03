@@ -159,18 +159,18 @@ const SeguimientoDetailPage: React.FC = () => {
     : null;
 
   return (
-    <div className="-m-4 sm:-m-6 min-h-screen bg-gray-50 no-print overflow-x-hidden">
+    <div className="-m-4 sm:-m-6 min-h-screen bg-gray-50 no-print">
       {/* Animated Status Bar - Full Width */}
-      <div className={`${statusConfig.bgColor} ${statusConfig.color} h-[60px] flex items-center overflow-hidden sticky top-0 z-50 border-b-2 ${application.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ? 'border-yellow-600' : 'border-transparent'} mb-6`}>
+      <div className={`${statusConfig.bgColor} ${statusConfig.color} h-[60px] flex items-center overflow-hidden sticky top-0 z-50 border-b-2 ${application.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ? 'border-yellow-600' : 'border-transparent'} mb-4 sm:mb-6`}>
         <div className="animate-marquee whitespace-nowrap flex items-center">
-          <span className="text-lg font-bold px-8">
+          <span className="text-sm sm:text-base lg:text-lg font-bold px-4 sm:px-8">
             {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)}
           </span>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="w-full px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Main Content - Printable Application */}
           <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">

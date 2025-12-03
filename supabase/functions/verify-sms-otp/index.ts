@@ -97,12 +97,39 @@ Deno.serve(async (req: Request) => {
     const data = await response.json();
     console.log("✅ Verificación completada:", data.status);
 
-    // Verificar si el código es válido
+    // Verificar si el código es válido y proporcionar mensajes específicos
     if (data.status !== "approved") {
+      let errorMessage = "Código inválido o expirado";
+
+      // Proporcionar mensajes más específicos basados en el estado de Twilio
+      switch (data.status) {
+        case "pending":
+          errorMessage = "Código pendiente de verificación. Por favor intenta nuevamente.";
+          break;
+        case "canceled":
+          errorMessage = "La verificación fue cancelada. Por favor solicita un nuevo código.";
+          break;
+        case "max_attempts_reached":
+          errorMessage = "Has alcanzado el número máximo de intentos. Por favor solicita un nuevo código.";
+          break;
+        case "expired":
+          errorMessage = "El código ha expirado. Por favor solicita un nuevo código.";
+          break;
+        case "failed":
+        default:
+          // Check if it's specifically an incorrect code
+          if (data.valid === false) {
+            errorMessage = "El código ingresado es incorrecto. Por favor verifica e intenta de nuevo.";
+          } else {
+            errorMessage = "Código inválido o expirado. Por favor solicita un nuevo código.";
+          }
+          break;
+      }
+
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Código inválido o expirado",
+          error: errorMessage,
           status: data.status,
         }),
         {

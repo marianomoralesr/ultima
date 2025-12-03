@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { BankProfilingService } from '../services/BankProfilingService';
 import type { BankProfileData } from '../types/types';
@@ -32,6 +33,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
     const [uploadedDocumentTypes, setUploadedDocumentTypes] = useState<string[]>([]);
     const [isCheckingDocuments, setIsCheckingDocuments] = useState<boolean>(true);
     const [bankProfile, setBankProfile] = useState<BankProfileData | null>(null);
+    const [refreshKey, setRefreshKey] = useState<number>(0);
 
     // Fetch advisor name if we have an asesor_asignado_id
     useEffect(() => {
@@ -112,7 +114,16 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         };
 
         checkDocuments();
-    }, [application.id]);
+
+        // Set up polling to auto-refresh every 5 seconds
+        const pollInterval = setInterval(() => {
+            console.log('[PrintableApplication] Auto-refreshing document status...');
+            setRefreshKey(prev => prev + 1);
+        }, 5000);
+
+        // Cleanup interval on unmount
+        return () => clearInterval(pollInterval);
+    }, [application.id, refreshKey]);
 
     // Fetch banking profile data
     useEffect(() => {
@@ -254,11 +265,24 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                             )}
                         </div>
                         <div className="flex-1">
-                            <p className={`text-sm font-bold ${
-                                hasAllDocuments ? 'text-green-900' : 'text-yellow-900'
-                            }`}>
-                                {hasAllDocuments ? '✓ Documentos Completos' : '⚠ Documentos Incompletos'}
-                            </p>
+                            <div className="flex items-center justify-between mb-1">
+                                <p className={`text-sm font-bold ${
+                                    hasAllDocuments ? 'text-green-900' : 'text-yellow-900'
+                                }`}>
+                                    {hasAllDocuments ? '✓ Documentos Completos' : '⚠ Documentos Incompletos'}
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        console.log('[PrintableApplication] Manual refresh triggered');
+                                        setRefreshKey(prev => prev + 1);
+                                    }}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded hover:bg-white/50 transition-colors"
+                                    title="Actualizar estado de documentos"
+                                >
+                                    <RefreshCw className="w-3 h-3" />
+                                    <span className="hidden sm:inline">Actualizar</span>
+                                </button>
+                            </div>
                             <p className={`text-xs ${
                                 hasAllDocuments ? 'text-green-700' : 'text-yellow-700'
                             }`}>
@@ -281,6 +305,9 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                                     No se han cargado documentos para esta solicitud. Se requiere solicitar al cliente.
                                 </p>
                             )}
+                            <p className="mt-2 text-xs text-gray-500 italic">
+                                Se actualiza automáticamente cada 5 segundos
+                            </p>
                         </div>
                     </div>
                 </div>

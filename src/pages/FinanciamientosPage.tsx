@@ -574,6 +574,7 @@ const FinanciamientosPage: React.FC = () => {
       const { data: { user: existingUser } } = await supabase.auth.getUser();
 
       let userId = existingUser?.id;
+      let newUserCreated = false;
 
       // If no existing user, create one
       if (!existingUser) {
@@ -594,21 +595,45 @@ const FinanciamientosPage: React.FC = () => {
 
         if (signUpError) {
           console.error('❌ SignUp Error:', signUpError);
-          // If user already exists, try to get their ID from profiles
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('email', formDataCache.email)
-            .single();
 
-          userId = profileData?.id;
-        } else {
-          userId = signUpData.user?.id;
-          console.log('✅ User created successfully');
+          // If user already exists, try to sign them in
+          if (signUpError.message?.includes('already registered')) {
+            setErrorMessage('Este correo ya está registrado. Por favor, inicia sesión en /acceder.');
+            setSubmissionStatus('error');
+            return;
+          }
+
+          throw signUpError;
+        }
+
+        if (!signUpData.user) {
+          throw new Error('No se pudo crear la cuenta de usuario');
+        }
+
+        userId = signUpData.user.id;
+        newUserCreated = true;
+        console.log('✅ User created successfully with ID:', userId);
+
+        // Wait a moment for Supabase Auth to establish the session
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Verify the session was established
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn('⚠️ Session not established after signUp, attempting to get user again');
+          const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+          if (!verifiedUser) {
+            throw new Error('No se pudo establecer la sesión del usuario');
+          }
         }
       }
 
       console.log('✅ User process completed, userId:', userId);
+
+      // Ensure we have a valid userId before proceeding
+      if (!userId) {
+        throw new Error('No se pudo obtener el ID del usuario');
+      }
 
       // Now update/create the user's profile
       // Parse full name into first_name, last_name, mother_last_name
@@ -714,7 +739,7 @@ const FinanciamientosPage: React.FC = () => {
 
       // Track ConversionLandingPage event - user completed registration
       conversionTracking.trackConversionLandingPage({
-        userId: authData.user?.id,
+        userId: userId,
         email: formDataCache.email,
         source: leadSource,
         leadId: leadData?.id
@@ -752,7 +777,7 @@ const FinanciamientosPage: React.FC = () => {
           body: JSON.stringify({
             ...profileData,
             leadId: leadData?.id,
-            userId: authData.user?.id,
+            userId: userId,
             source: 'financiamientos-landing',
             timestamp: new Date().toISOString()
           })

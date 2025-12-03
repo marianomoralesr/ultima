@@ -47,10 +47,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             if (data) {
-                console.log('✅ Profile reloaded from Supabase and cached.');
-                setProfile(data as Profile);
-                sessionStorage.setItem('userProfile', JSON.stringify(data));
-                return data as Profile;
+                // Validate role before caching
+                if (data.role && ['user', 'sales', 'admin', 'marketing'].includes(data.role)) {
+                    console.log('✅ Profile reloaded from Supabase with role:', data.role);
+                    setProfile(data as Profile);
+                    sessionStorage.setItem('userProfile', JSON.stringify(data));
+                    return data as Profile;
+                } else {
+                    console.error('❌ Invalid role in profile data:', data.role);
+                    setProfile(null);
+                    sessionStorage.removeItem('userProfile');
+                    return null;
+                }
             }
 
             // If no data, ensure profile is cleared
@@ -98,15 +106,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const cachedProfile = sessionStorage.getItem('userProfile');
             if (cachedProfile) {
                 const parsed = JSON.parse(cachedProfile);
-                // Basic validation to ensure the cached profile belongs to the current user
-                if (parsed.id === userId) {
-                    console.log('✅ Profile loaded from sessionStorage cache.');
+                // Enhanced validation: check user ID and role validity
+                if (parsed.id === userId && parsed.role && ['user', 'sales', 'admin', 'marketing'].includes(parsed.role)) {
+                    console.log('✅ Profile loaded from sessionStorage cache with role:', parsed.role);
                     setProfile(parsed);
                     return parsed;
+                } else {
+                    // Invalid cache - clear it
+                    console.warn('⚠️ Invalid cached profile detected, clearing cache');
+                    sessionStorage.removeItem('userProfile');
                 }
             }
         } catch (e) {
             console.warn("Could not read profile from sessionStorage.", e);
+            sessionStorage.removeItem('userProfile'); // Clear corrupted cache
         }
 
         // If not in cache, fetch from Supabase
@@ -125,10 +138,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             if (data) {
-                console.log('✅ Profile fetched from Supabase and cached.');
-                setProfile(data as Profile);
-                sessionStorage.setItem('userProfile', JSON.stringify(data));
-                return data as Profile;
+                // Validate role before caching
+                if (data.role && ['user', 'sales', 'admin', 'marketing'].includes(data.role)) {
+                    console.log('✅ Profile fetched from Supabase with role:', data.role);
+                    setProfile(data as Profile);
+                    sessionStorage.setItem('userProfile', JSON.stringify(data));
+                    return data as Profile;
+                } else {
+                    console.error('❌ Invalid role in fetched profile:', data.role);
+                    setProfile(null);
+                    sessionStorage.removeItem('userProfile');
+                    return null;
+                }
             }
 
             // Profile doesn't exist (PGRST116 error), create it
@@ -292,9 +313,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             console.error('Error updating profile with agent ID:', updateError);
                         } else {
                             // Update profile locally without triggering reloadProfile to avoid loops
-                            setProfile({ ...profile, asesor_asignado_id: agentId });
-                            const cachedProfile = { ...profile, asesor_asignado_id: agentId };
-                            sessionStorage.setItem('userProfile', JSON.stringify(cachedProfile));
+                            const updatedProfile = { ...profile, asesor_asignado_id: agentId };
+                            // Update sessionStorage BEFORE updating state to prevent race conditions
+                            sessionStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+                            setProfile(updatedProfile);
+                            console.log('✅ Agent assigned and profile cache updated');
                         }
                     }
                 } catch (e) {

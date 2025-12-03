@@ -241,38 +241,49 @@ const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
     const profilePicture = (asesor as any).picture_url || (asesor as any).avatar_url || (asesor as any).profile_picture_url;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">Mi Asesor</h3>
+        <div className="bg-gradient-to-br from-white to-primary-50/30 rounded-2xl shadow-lg border border-primary-100 p-6 sm:p-8 lg:p-10">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-8 text-center">Mi Asesor Asignado</h3>
             <div className="flex flex-col items-center">
-                <div className="mb-4">
+                <div className="mb-6 relative group">
                     {profilePicture ? (
-                        <img
-                            src={profilePicture}
-                            alt={asesorName}
-                            className="w-32 h-32 rounded-full object-cover border-4 border-primary-200 shadow-lg"
-                        />
+                        <div className="relative">
+                            <img
+                                src={profilePicture}
+                                alt={asesorName}
+                                className="w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-full object-cover border-4 border-primary-300 shadow-2xl ring-4 ring-primary-100 transition-transform duration-300 group-hover:scale-105"
+                            />
+                            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                                <MessageCircle className="w-6 h-6 text-white" />
+                            </div>
+                        </div>
                     ) : (
-                        <div className="w-32 h-32 rounded-full bg-primary-100 flex items-center justify-center border-4 border-primary-200 shadow-lg">
-                            <UserCircle className="w-20 h-20 text-primary-600" />
+                        <div className="w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center border-4 border-primary-300 shadow-2xl ring-4 ring-primary-100">
+                            <UserCircle className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 text-primary-600" />
                         </div>
                     )}
                 </div>
-                <div className="text-center mb-6">
-                    <p className="text-xl font-semibold text-gray-900 mb-1">{asesorName}</p>
-                    <p className="text-sm text-gray-600 mb-2">Asesor de Ventas</p>
+                <div className="text-center mb-8 w-full">
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{asesorName}</p>
+                    <p className="text-base sm:text-lg text-primary-700 font-semibold mb-4">Asesor de Ventas TREFA</p>
                     {asesorPhone && (
-                        <p className="text-sm text-gray-700 font-medium">{asesorPhone}</p>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-primary-200 shadow-sm">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <p className="text-sm sm:text-base text-gray-800 font-medium">{asesorPhone}</p>
+                        </div>
                     )}
                 </div>
                 <a
                     href={whatsappLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg text-base font-semibold hover:bg-green-700 transition-colors shadow-md"
+                    className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white rounded-xl text-base sm:text-lg font-bold hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                 >
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Contactar Asesor
+                    <MessageCircle className="w-6 h-6" />
+                    Contactar por WhatsApp
                 </a>
+                <p className="text-xs text-gray-500 mt-4 text-center">
+                    Tu asesor está disponible para ayudarte con tu solicitud
+                </p>
             </div>
         </div>
     );

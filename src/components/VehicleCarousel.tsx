@@ -26,33 +26,33 @@ const VehicleCarousel: React.FC<VehicleCarouselProps> = ({ vehicles, title }) =>
   }
 
   return (
-    <div className="py-6 sm:py-8 lg:py-12 bg-muted/30 relative">
+    <div className="py-8 sm:py-10 lg:py-14 bg-gradient-to-br from-muted/20 to-muted/40 relative">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         {/* Header with shadcn design system styling */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight">{title}</h2>
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight">{title}</h2>
           <div className="hidden sm:flex gap-2">
             <button
               onClick={() => scroll('left')}
-              className="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background border border-input shadow-sm"
+              className="inline-flex items-center justify-center rounded-lg p-3 text-sm font-medium ring-offset-background transition-all hover:bg-accent hover:text-accent-foreground hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background border border-input shadow-md"
               aria-label="Scroll left"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="inline-flex items-center justify-center rounded-md p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background border border-input shadow-sm"
+              className="inline-flex items-center justify-center rounded-lg p-3 text-sm font-medium ring-offset-background transition-all hover:bg-accent hover:text-accent-foreground hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background border border-input shadow-md"
               aria-label="Scroll right"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* Scrollable container with improved mobile visibility */}
+        {/* Scrollable container with improved mobile visibility and larger cards */}
         <div
           ref={scrollRef}
-          className="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto overflow-y-visible pb-4 scroll-smooth snap-x snap-mandatory -mx-3 px-3 sm:-mx-4 sm:px-4 lg:mx-0 lg:px-0 touch-pan-x"
+          className="flex gap-4 sm:gap-5 lg:gap-7 overflow-x-auto overflow-y-visible pb-6 scroll-smooth snap-x snap-mandatory -mx-3 px-3 sm:-mx-4 sm:px-4 lg:mx-0 lg:px-0 touch-pan-x"
           style={{
             scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
@@ -62,7 +62,7 @@ const VehicleCarousel: React.FC<VehicleCarouselProps> = ({ vehicles, title }) =>
           {vehicles.map((vehicle) => (
             <div
               key={vehicle.id}
-              className="snap-start flex-shrink-0 w-[260px] sm:w-[280px] lg:w-[300px]"
+              className="snap-start flex-shrink-0 w-[300px] sm:w-[340px] lg:w-[380px] xl:w-[400px] transition-transform duration-300 hover:scale-[1.02]"
             >
               <SimpleVehicleCard vehicle={vehicle} />
             </div>

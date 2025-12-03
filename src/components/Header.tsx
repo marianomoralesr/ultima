@@ -93,11 +93,18 @@ const Header: React.FC = () => {
                       </Button>
                    </>
                 ) : (
-                  <Button asChild size="sm" className="bg-[#FF6801] hover:bg-[#E55E01] text-white">
-                      <Link to="/acceder" data-gtm-id="header-login-button">
-                          Iniciar Sesión
-                      </Link>
-                  </Button>
+                  <>
+                    <Button asChild size="sm" variant="outline" className="border-primary-600 text-primary-600 hover:bg-primary-50">
+                        <Link to="/registro" data-gtm-id="header-register-button">
+                            Registro
+                        </Link>
+                    </Button>
+                    <Button asChild size="sm" className="bg-[#FF6801] hover:bg-[#E55E01] text-white">
+                        <Link to="/acceder" data-gtm-id="header-login-button">
+                            Iniciar Sesión
+                        </Link>
+                    </Button>
+                  </>
                   )}
               </div>
             </div>

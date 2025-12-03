@@ -166,25 +166,6 @@ const AuthPage: React.FC = () => {
                 return;
             }
 
-            // Check if email exists in profiles table
-            const { data: existingProfile, error: profileError } = await supabase
-                .from('profiles')
-                .select('id, email, phone')
-                .eq('email', email.toLowerCase().trim())
-                .maybeSingle();
-
-            if (profileError && profileError.code !== 'PGRST116') {
-                console.error('Error checking profile:', profileError);
-                throw new Error('Error al verificar el correo electrónico. Por favor intenta de nuevo.');
-            }
-
-            // If email is not registered, show message to register first
-            if (!existingProfile) {
-                setError('Este correo electrónico no está registrado. Por favor, regístrate primero en /registro para crear tu cuenta.');
-                setLoading(false);
-                return;
-            }
-
             // Set default redirect if not already set (will be adjusted after login based on role)
             if (!localStorage.getItem('loginRedirect')) {
                 localStorage.setItem('loginRedirect', '/escritorio');
@@ -198,7 +179,7 @@ const AuthPage: React.FC = () => {
                 options.data = { source };
             }
 
-            console.log('Sending OTP to registered email:', email);
+            console.log('Sending OTP to email:', email);
 
             const { data, error } = await supabase.auth.signInWithOtp({
                 email,
@@ -213,6 +194,12 @@ const AuthPage: React.FC = () => {
                     throw new Error('Has solicitado demasiados códigos. Por favor espera unos minutos antes de intentar de nuevo.');
                 } else if (error.message.includes('Email not confirmed')) {
                     throw new Error('Tu correo electrónico no ha sido confirmado. Por favor verifica tu bandeja de entrada.');
+                } else if (error.message.includes('User not found') || error.message.includes('Signups not allowed') || error.message.includes('not allowed for otp')) {
+                    // User doesn't exist - automatically redirect to registration
+                    console.log('Usuario no encontrado, redirigiendo a registro...');
+                    setLoading(false);
+                    navigate('/registro');
+                    return;
                 } else {
                     throw error;
                 }

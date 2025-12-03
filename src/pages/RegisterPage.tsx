@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Checkbox } from '../components/ui/checkbox';
 import { CheckCircleIcon, ArrowLeftIcon } from '../components/icons';
 import useSEO from '../hooks/useSEO';
+import { proxyImage } from '../utils/proxyImage';
 
 type RegisterStep = 'form' | 'verify_sms' | 'complete';
+
+const allCustomerAvatars = [
+    'https://randomuser.me/api/portraits/women/18.jpg',
+    'https://randomuser.me/api/portraits/men/44.jpg',
+    'https://randomuser.me/api/portraits/women/33.jpg',
+    'https://randomuser.me/api/portraits/men/32.jpg',
+    'https://randomuser.me/api/portraits/women/44.jpg',
+    'https://randomuser.me/api/portraits/men/35.jpg',
+    'https://randomuser.me/api/portraits/women/65.jpg',
+    'https://randomuser.me/api/portraits/men/75.jpg',
+    'https://randomuser.me/api/portraits/women/88.jpg',
+    'https://randomuser.me/api/portraits/men/11.jpg',
+    'https://randomuser.me/api/portraits/women/22.jpg',
+    'https://randomuser.me/api/portraits/men/55.jpg',
+];
 
 const RegisterPage: React.FC = () => {
   useSEO({
@@ -32,6 +44,16 @@ const RegisterPage: React.FC = () => {
   // OTP de SMS
   const [smsOtp, setSmsOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+
+  // Customer avatars
+  const [customerAvatars, setCustomerAvatars] = useState(allCustomerAvatars.slice(0, 3));
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    // Shuffle avatars on mount
+    const shuffled = [...allCustomerAvatars].sort(() => 0.5 - Math.random());
+    setCustomerAvatars(shuffled.slice(0, 3));
+  }, []);
 
   // Enviar código SMS usando Twilio Verify
   const sendSmsOtp = async () => {
@@ -78,7 +100,7 @@ const RegisterPage: React.FC = () => {
         formattedPhone = `+${formattedPhone}`;
       }
 
-      // Llamar a la Edge Function de Twilio Verify (no necesita otp parameter)
+      // Llamar a la Edge Function de Twilio Verify
       const { data, error: smsError } = await supabase.functions.invoke('send-sms-otp', {
         body: { phone: formattedPhone }
       });
@@ -220,7 +242,7 @@ const RegisterPage: React.FC = () => {
 
       // Redirigir después de 2 segundos
       setTimeout(() => {
-        navigate('/auth');
+        navigate('/acceder');
       }, 2000);
 
     } catch (err: any) {
@@ -261,114 +283,115 @@ const RegisterPage: React.FC = () => {
     await sendSmsOtp();
   };
 
+  // CSS classes (same as AuthPage)
+  const formInputClasses = "block w-full rounded-lg border border-gray-300 bg-gray-50 py-3 sm:py-4 px-4 text-base sm:text-lg text-gray-900 shadow-sm placeholder:text-gray-500 focus:ring-2 focus:ring-primary-500 min-h-[48px] sm:min-h-[52px]";
+  const submitButtonClasses = "flex w-full justify-center rounded-lg bg-primary-600 px-4 py-4 sm:py-5 text-base sm:text-lg font-bold text-white shadow-lg hover:bg-primary-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed min-h-[52px] sm:min-h-[56px] touch-manipulation";
+
   // Formulario de registro inicial
   const renderFormStep = () => (
-    <div className="space-y-6">
-      <div className="text-center">
-        <Link to="/" className="inline-block mb-6">
-          <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-12 w-auto mx-auto" />
+    <div className="space-y-8">
+      <div className="text-left lg:text-center">
+        <Link to="/" className="inline-block mb-8 lg:hidden">
+          <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-10 sm:h-12 w-auto mx-auto" />
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Crea tu cuenta</h1>
-        <p className="mt-2 text-gray-600">
-          Completa tus datos para empezar
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 tracking-tight lg:tracking-normal">Crea tu cuenta</h1>
+        <p className="mt-3 text-base sm:text-lg text-gray-600">
+          Completa tus datos para empezar tu experiencia TREFA
         </p>
       </div>
 
       {error && (
         <div className="p-3 rounded-md bg-red-50 border border-red-200">
-          <p className="text-red-600 text-sm">{error}</p>
+          <p className="text-red-600 text-sm text-center">{error}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="firstName">Nombre</Label>
-          <Input
+          <input
             id="firstName"
             type="text"
-            placeholder="Tu nombre"
+            placeholder="Nombre"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
-            className="mt-1"
+            className={formInputClasses}
           />
         </div>
 
         <div>
-          <Label htmlFor="lastName">Apellido</Label>
-          <Input
+          <input
             id="lastName"
             type="text"
-            placeholder="Tu apellido"
+            placeholder="Apellido"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
-            className="mt-1"
+            className={formInputClasses}
           />
         </div>
 
         <div>
-          <Label htmlFor="phone">Teléfono celular</Label>
-          <Input
+          <input
             id="phone"
             type="tel"
-            placeholder="55 1234 5678"
+            placeholder="Teléfono celular (10 dígitos)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
-            className="mt-1"
+            className={formInputClasses}
             maxLength={10}
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-2">
             Te enviaremos un código de verificación por SMS
           </p>
         </div>
 
         <div>
-          <Label htmlFor="email">Correo electrónico</Label>
-          <Input
+          <input
             id="email"
             type="email"
-            placeholder="tu@email.com"
+            placeholder="Correo electrónico"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1"
+            className={formInputClasses}
           />
         </div>
 
-        <div className="flex items-start gap-3">
-          <Checkbox
+        <div className="flex items-start gap-3 pt-2">
+          <input
             id="terms"
+            type="checkbox"
             checked={acceptedTerms}
-            onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-            className="mt-1"
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
           />
-          <Label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
+          <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
             Acepto los{' '}
-            <Link to="/terminos" className="text-primary-600 hover:underline">
+            <Link to="/terminos" className="text-primary-600 hover:underline font-medium">
               Términos y Condiciones
             </Link>{' '}
             y la{' '}
-            <Link to="/privacidad" className="text-primary-600 hover:underline">
+            <Link to="/politica-de-privacidad" className="text-primary-600 hover:underline font-medium">
               Política de Privacidad
             </Link>
-          </Label>
+          </label>
         </div>
 
-        <Button
+        <button
           type="submit"
-          className="w-full"
+          className={submitButtonClasses}
           disabled={loading}
         >
           {loading ? 'Enviando código...' : 'Continuar'}
-        </Button>
+        </button>
       </form>
 
       <div className="text-center text-sm text-gray-600">
         ¿Ya tienes cuenta?{' '}
-        <Link to="/auth" className="text-primary-600 hover:underline font-medium">
-          Inicia sesión
+        <Link to="/acceder" className="text-primary-600 hover:underline font-medium">
+          Inicia sesión aquí
         </Link>
       </div>
     </div>
@@ -376,27 +399,25 @@ const RegisterPage: React.FC = () => {
 
   // Pantalla de verificación SMS
   const renderVerifySmsStep = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 text-center">
       <button
         onClick={() => {
           setStep('form');
           setError(null);
           setSmsOtp('');
         }}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 mx-auto"
       >
         <ArrowLeftIcon className="w-4 h-4" />
         Volver
       </button>
 
-      <div className="text-center">
-        <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900">Verifica tu teléfono</h2>
-        <p className="mt-2 text-gray-600">
-          Hemos enviado un código de 6 dígitos al número
-        </p>
-        <p className="font-semibold text-gray-900 mt-1">{phone}</p>
-      </div>
+      <CheckCircleIcon className="w-14 h-14 sm:w-16 sm:h-16 text-green-500 mx-auto" />
+      <h2 className="mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Verifica tu teléfono</h2>
+      <p className="text-base sm:text-lg text-gray-600">
+        Hemos enviado un código de 6 dígitos al número
+      </p>
+      <p className="font-semibold text-gray-900 text-lg">{phone}</p>
 
       {error && (
         <div className="p-3 rounded-md bg-red-50 border border-red-200">
@@ -406,32 +427,31 @@ const RegisterPage: React.FC = () => {
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="smsOtp">Código de verificación</Label>
-          <Input
+          <input
             id="smsOtp"
             type="text"
             inputMode="numeric"
-            placeholder="000000"
+            placeholder="------"
             value={smsOtp}
             onChange={(e) => setSmsOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            className="text-center text-2xl tracking-widest font-mono mt-1"
+            className={`${formInputClasses} text-center tracking-[0.5em] font-mono text-2xl sm:text-3xl`}
             maxLength={6}
             required
           />
         </div>
 
-        <Button
+        <button
           onClick={verifySmsOtp}
-          className="w-full"
+          className={submitButtonClasses}
           disabled={loading || smsOtp.length !== 6}
         >
           {loading ? 'Verificando...' : 'Verificar y crear cuenta'}
-        </Button>
+        </button>
 
         <button
           onClick={sendSmsOtp}
           disabled={loading}
-          className="w-full text-center text-sm text-gray-600 hover:text-primary-600 underline"
+          className="w-full text-center text-sm text-gray-600 hover:text-primary-600 underline min-h-[44px] touch-manipulation"
         >
           Reenviar código
         </button>
@@ -453,11 +473,82 @@ const RegisterPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        {step === 'form' && renderFormStep()}
-        {step === 'verify_sms' && renderVerifySmsStep()}
-        {step === 'complete' && renderCompleteStep()}
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-black">
+      {/* Fullscreen Video Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <video
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          src={proxyImage("https://cufm.mx/wp-content/uploads/2025/04/testomimos-02.mp4")}
+          autoPlay
+          loop
+          muted
+          playsInline
+          onLoadedData={() => setIsVideoLoaded(true)}
+        />
+        <div className="absolute inset-0 bg-black/40"></div>
+      </div>
+
+      <div className="relative w-full max-w-5xl mx-auto bg-transparent rounded-2xl shadow-xl overflow-hidden grid lg:grid-cols-2">
+        {/* Left Panel - Benefits (Hidden on mobile) */}
+        <div className="relative hidden lg:flex flex-col justify-between h-full p-10 bg-white/60 backdrop-blur-sm text-gray-800 border-r border-white/20">
+          <Link to="/" className="transition-transform hover:scale-105">
+            <img src="/images/trefalogo.png" alt="TREFA Logo" className="h-8 mb-2 w-auto" />
+          </Link>
+
+          <div className="flex-1 flex flex-col justify-center py-6">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+              Crea tu cuenta <span className="text-primary-600">gratis</span> y sin compromisos
+            </h2>
+            <p className="mt-3 text-base lg:text-lg text-gray-600">Al registrarte podrás:</p>
+            <ul className="mt-6 space-y-4">
+              <li>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Guardar tus autos favoritos ❤️</h3>
+                  <p className="text-xs lg:text-sm text-gray-600 mt-0.5">No pierdas de vista los autos que te interesan.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Aplicar a financiamiento en línea 📄</h3>
+                  <p className="text-xs lg:text-sm text-gray-600 mt-0.5">Inicia tu solicitud 100% digital.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Recibir notificaciones de precios 🔔</h3>
+                  <p className="text-xs lg:text-sm text-gray-600 mt-0.5">Te avisaremos si el precio baja.</p>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm lg:text-base">Agendar visitas y pruebas de manejo 🗓️</h3>
+                  <p className="text-xs lg:text-sm text-gray-600 mt-0.5">Coordina tu visita de forma fácil.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-500 border-t border-gray-200 pt-6">
+            <div className="flex -space-x-2">
+              {customerAvatars.map((avatar, index) => (
+                <img
+                  key={index}
+                  className="w-7 h-7 rounded-full border-2 border-white object-cover"
+                  src={avatar}
+                  alt={`Cliente satisfecho ${index + 1}`}
+                />
+              ))}
+            </div>
+            <span className="font-medium text-gray-700 text-xs">Únete a cientos de clientes satisfechos</span>
+          </div>
+        </div>
+
+        {/* Right Panel - Form */}
+        <div className="bg-white p-6 sm:p-8 md:p-12 flex flex-col justify-center">
+          {step === 'form' && renderFormStep()}
+          {step === 'verify_sms' && renderVerifySmsStep()}
+          {step === 'complete' && renderCompleteStep()}
+        </div>
       </div>
     </div>
   );

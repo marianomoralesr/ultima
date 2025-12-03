@@ -50,31 +50,28 @@ const SeguimientoDetailPage: React.FC = () => {
         setLoading(true);
         const app = await ApplicationService.getApplicationById(user.id, id);
 
-        // Check permissions: owner or assigned sales advisor
+        // Check permissions: owner, assigned sales advisor, or admin
         const isOwner = app.user_id === user.id;
-        const isSalesAdvisor = profile?.role === 'sales' && profile?.id === profile?.asesor_asignado_id;
         const isAdmin = profile?.role === 'admin';
 
-        if (!isOwner && !isSalesAdvisor && !isAdmin) {
-          // If sales user, check if they are assigned to this lead
-          if (profile?.role === 'sales') {
-            // Get lead profile to check assigned advisor
-            const { data: leadProfile } = await import('../../supabaseClient').then(({ supabase }) =>
-              supabase
-                .from('profiles')
-                .select('asesor_asignado_id')
-                .eq('id', app.user_id)
-                .single()
-            );
+        // For sales users, check if they are assigned to this lead
+        let isSalesAdvisor = false;
+        if (profile?.role === 'sales') {
+          // Get lead profile to check assigned advisor
+          const { data: leadProfile } = await supabase
+            .from('profiles')
+            .select('asesor_asignado_id')
+            .eq('id', app.user_id)
+            .single();
 
-            if (leadProfile?.asesor_asignado_id !== user.id) {
-              setError('No tienes permiso para ver esta solicitud');
-              return;
-            }
-          } else {
-            setError('No tienes permiso para ver esta solicitud');
-            return;
-          }
+          isSalesAdvisor = leadProfile?.asesor_asignado_id === user.id;
+        }
+
+        // Deny access if user is not owner, assigned sales advisor, or admin
+        if (!isOwner && !isSalesAdvisor && !isAdmin) {
+          setError('No tienes permiso para ver esta solicitud');
+          setLoading(false);
+          return;
         }
 
         setApplication(app);

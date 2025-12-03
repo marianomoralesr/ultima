@@ -486,9 +486,7 @@ const FinanciamientosPage: React.FC = () => {
       }
 
       console.log('✅ SMS OTP sent successfully:', smsData);
-      console.log('💾 Guarda estos datos para verificar:');
-      console.log('   - Teléfono:', formattedPhone);
-      console.log('   - Código OTP:', generatedOtp);
+      console.log('💾 Código enviado al teléfono:', formattedPhone);
 
       // Track form submission with Facebook Pixel and GTM
       if (typeof window !== 'undefined' && (window as any).fbq) {

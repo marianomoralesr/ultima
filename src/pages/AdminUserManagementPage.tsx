@@ -35,6 +35,7 @@ interface SalesUser {
     first_name: string;
     last_name: string;
     phone: string;
+    picture_url?: string;
     created_at: string;
     last_sign_in_at: string;
     last_assigned_at: string;
@@ -430,11 +431,19 @@ const AdminUserManagementPage: React.FC = () => {
                                                 <tr key={user.id} className="hover:bg-accent transition-colors">
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                                <span className="text-sm font-semibold">
-                                                                    {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                                                                </span>
-                                                            </div>
+                                                            {user.picture_url ? (
+                                                                <img
+                                                                    src={user.picture_url}
+                                                                    alt={`${user.first_name} ${user.last_name}`}
+                                                                    className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                                    <span className="text-sm font-semibold">
+                                                                        {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                             <div>
                                                                 <div className="font-medium">
                                                                     {user.first_name} {user.last_name}

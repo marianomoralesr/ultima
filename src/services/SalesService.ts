@@ -14,7 +14,7 @@ export const SalesService = {
    */
   async getMyAssignedLeads(salesUserId: string): Promise<any[]> {
     const { data, error } = await supabase.rpc('get_sales_assigned_leads', {
-      sales_user_id: salesUserId
+      p_sales_user_id: salesUserId
     });
 
     if (error) {
@@ -29,7 +29,7 @@ export const SalesService = {
    */
   async getMyLeadsStats(salesUserId: string): Promise<any> {
     const { data, error } = await supabase.rpc('get_sales_dashboard_stats', {
-      sales_user_id: salesUserId
+      p_sales_user_id: salesUserId
     });
 
     if (error) {
@@ -49,8 +49,8 @@ export const SalesService = {
     salesUserId: string
   ): Promise<{ profile: Profile; applications: any[], tags: any[], reminders: any[], documents: any[], bank_profile: any } | null> {
     const { data, error } = await supabase.rpc('get_sales_client_profile', {
-      client_id: clientId,
-      sales_user_id: salesUserId
+      p_client_id: clientId,
+      p_sales_user_id: salesUserId
     });
 
     if (error) {
@@ -87,8 +87,8 @@ export const SalesService = {
   async updateLeadTags(userId: string, tagIds: string[], salesUserId: string): Promise<void> {
     // First verify the sales user has access
     const { data: hasAccess } = await supabase.rpc('verify_sales_access_to_lead', {
-      lead_id: userId,
-      sales_user_id: salesUserId
+      p_lead_id: userId,
+      p_sales_user_id: salesUserId
     });
 
     if (!hasAccess) {
@@ -116,8 +116,8 @@ export const SalesService = {
   }, salesUserId: string): Promise<void> {
     // Verify access
     const { data: hasAccess } = await supabase.rpc('verify_sales_access_to_lead', {
-      lead_id: reminder.lead_id,
-      sales_user_id: salesUserId
+      p_lead_id: reminder.lead_id,
+      p_sales_user_id: salesUserId
     });
 
     if (!hasAccess) {

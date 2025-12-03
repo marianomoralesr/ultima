@@ -241,24 +241,24 @@ const MiAsesor: React.FC<{ asesorId: string }> = ({ asesorId }) => {
     const profilePicture = (asesor as any).picture_url || (asesor as any).avatar_url || (asesor as any).profile_picture_url;
 
     return (
-        <div className="bg-gradient-to-br from-white to-primary-50/30 rounded-2xl shadow-lg border border-primary-100 p-6 sm:p-8 lg:p-10">
+        <div className="bg-gradient-to-br from-white to-primary-50/30 rounded-2xl shadow-lg p-6 sm:p-8 lg:p-10">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-8 text-center">Mi Asesor Asignado</h3>
             <div className="flex flex-col items-center">
-                <div className="mb-6 relative group">
+                <div className="mb-6 relative flex justify-center">
                     {profilePicture ? (
                         <div className="relative">
                             <img
                                 src={profilePicture}
                                 alt={asesorName}
-                                className="w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-full object-cover border-4 border-primary-300 shadow-2xl ring-4 ring-primary-100 transition-transform duration-300 group-hover:scale-105"
+                                className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 rounded-full object-cover border-4 border-primary-300 shadow-2xl ring-4 ring-primary-100 transition-transform duration-300 group-hover:scale-105"
                             />
                             <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
                                 <MessageCircle className="w-6 h-6 text-white" />
                             </div>
                         </div>
                     ) : (
-                        <div className="w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center border-4 border-primary-300 shadow-2xl ring-4 ring-primary-100">
-                            <UserCircle className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 text-primary-600" />
+                        <div className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center border-4 border-primary-300 shadow-2xl ring-4 ring-primary-100">
+                            <UserCircle className="w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 text-primary-600" />
                         </div>
                     )}
                 </div>

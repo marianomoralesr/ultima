@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { BankProfilingService } from '../services/BankProfilingService';
 import type { BankProfileData } from '../types/types';
+import { getStatusConfig } from '../constants/applicationStatus';
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-sm font-bold uppercase tracking-wider text-white bg-trefa-blue p-2 rounded-t-md mt-3">{title}</h3>
@@ -14,12 +15,21 @@ const DataRow: React.FC<{ label: string, value: any }> = ({ label, value }) => (
     </div>
 );
 
+// Los 4 documentos requeridos según el sistema
+const REQUIRED_DOCUMENTS = [
+    'INE Front',
+    'INE Back',
+    'Comprobante Domicilio',
+    'Comprobante Ingresos'
+];
+
 const PrintableApplication: React.FC<{ application: any }> = ({ application }) => {
     const profile = application.personal_info_snapshot || {};
     const appData = application.application_data || {};
     const carInfo = application.car_info || {};
     const [advisorName, setAdvisorName] = useState<string | null>(null);
-    const [hasDocuments, setHasDocuments] = useState<boolean>(false);
+    const [hasAllDocuments, setHasAllDocuments] = useState<boolean>(false);
+    const [uploadedDocumentTypes, setUploadedDocumentTypes] = useState<string[]>([]);
     const [isCheckingDocuments, setIsCheckingDocuments] = useState<boolean>(true);
     const [bankProfile, setBankProfile] = useState<BankProfileData | null>(null);
 
@@ -53,7 +63,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         fetchAdvisorName();
     }, [profile.asesor_asignado_id, profile.asesor_asignado_name]);
 
-    // Check if documents are uploaded FOR THIS SPECIFIC APPLICATION
+    // Check if ALL 4 required documents are uploaded FOR THIS SPECIFIC APPLICATION
     useEffect(() => {
         const checkDocuments = async () => {
             if (!application.id) {
@@ -64,22 +74,38 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
             try {
                 console.log('[PrintableApplication] Checking documents for application:', application.id);
 
+                // Get all documents for this application
                 const { data, error } = await supabase
                     .from('uploaded_documents')
-                    .select('id')
-                    .eq('application_id', application.id)
-                    .limit(1);
+                    .select('document_type')
+                    .eq('application_id', application.id);
 
-                console.log('[PrintableApplication] Documents check result:', { data, error, hasDocuments: data && data.length > 0 });
+                if (error) {
+                    console.error('[PrintableApplication] Error fetching documents:', error);
+                    setHasAllDocuments(false);
+                    setUploadedDocumentTypes([]);
+                } else if (data) {
+                    // Extract unique document types
+                    const uploadedTypes = [...new Set(data.map(doc => doc.document_type))];
+                    setUploadedDocumentTypes(uploadedTypes);
 
-                if (!error && data && data.length > 0) {
-                    setHasDocuments(true);
+                    // Check if all 4 required documents are present
+                    const hasAll = REQUIRED_DOCUMENTS.every(reqDoc => uploadedTypes.includes(reqDoc));
+                    setHasAllDocuments(hasAll);
+
+                    console.log('[PrintableApplication] Documents check result:', {
+                        uploadedTypes,
+                        requiredDocs: REQUIRED_DOCUMENTS,
+                        hasAllDocuments: hasAll
+                    });
                 } else {
-                    setHasDocuments(false);
+                    setHasAllDocuments(false);
+                    setUploadedDocumentTypes([]);
                 }
             } catch (err) {
                 console.error('[PrintableApplication] Error checking documents:', err);
-                setHasDocuments(false);
+                setHasAllDocuments(false);
+                setUploadedDocumentTypes([]);
             } finally {
                 setIsCheckingDocuments(false);
             }
@@ -168,18 +194,9 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         return statusMap[status.toLowerCase()] || status;
     };
 
-    // Get application status in Spanish
-    const getStatusLabel = (status: string | undefined) => {
-        const statusMap: { [key: string]: string } = {
-            'draft': 'Borrador',
-            'submitted': 'Enviada',
-            'reviewing': 'En Revisión',
-            'pending_docs': 'Documentos Pendientes',
-            'approved': 'Aprobada',
-            'rejected': 'Rechazada',
-            'incomplete': 'Incompleta',
-        };
-        return statusMap[status || 'submitted'] || 'Enviada';
+    // Get missing documents list
+    const getMissingDocuments = () => {
+        return REQUIRED_DOCUMENTS.filter(reqDoc => !uploadedDocumentTypes.includes(reqDoc));
     };
 
     // Get spouse name (only if married)
@@ -203,7 +220,9 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     <h1 className="text-xl font-bold text-gray-900">Solicitud de Financiamiento</h1>
                     <p className="text-xs text-gray-500 font-mono">ID: {application.id?.slice(0, 8)}</p>
                     <p className="text-xs text-gray-500">Fecha: {new Date(application.created_at).toLocaleDateString('es-MX')}</p>
-                    <p className="text-xs font-semibold text-primary-600 mt-1">Status: {getStatusLabel(application.status)}</p>
+                    <p className="text-xs font-semibold text-primary-600 mt-1">
+                        Status: {getStatusConfig(application.status || 'draft').label}
+                    </p>
                     {advisorName && (
                         <p className="text-xs text-gray-600 mt-1">Asesor Asignado: {advisorName}</p>
                     )}
@@ -215,37 +234,54 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
 
             {/* Document Completion Status Warning */}
             {!isCheckingDocuments && (
-                <div className={`mt-4 p-3 rounded-lg border-2 flex items-center gap-3 ${
-                    hasDocuments
+                <div className={`mt-4 p-3 rounded-lg border-2 ${
+                    hasAllDocuments
                         ? 'bg-green-50 border-green-500'
                         : 'bg-yellow-50 border-yellow-500'
                 }`}>
-                    <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-                        hasDocuments ? 'bg-green-500' : 'bg-yellow-500'
-                    }`}>
-                        {hasDocuments ? (
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        ) : (
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        )}
-                    </div>
-                    <div className="flex-1">
-                        <p className={`text-sm font-bold ${
-                            hasDocuments ? 'text-green-900' : 'text-yellow-900'
+                    <div className="flex items-start gap-3">
+                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                            hasAllDocuments ? 'bg-green-500' : 'bg-yellow-500'
                         }`}>
-                            {hasDocuments ? '✓ Documentos Completos' : '⚠ Documentos Incompletos'}
-                        </p>
-                        <p className={`text-xs ${
-                            hasDocuments ? 'text-green-700' : 'text-yellow-700'
-                        }`}>
-                            {hasDocuments
-                                ? 'Esta solicitud cuenta con documentos cargados.'
-                                : 'Esta solicitud no tiene documentos cargados. Se requiere solicitar documentos al cliente.'}
-                        </p>
+                            {hasAllDocuments ? (
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <p className={`text-sm font-bold ${
+                                hasAllDocuments ? 'text-green-900' : 'text-yellow-900'
+                            }`}>
+                                {hasAllDocuments ? '✓ Documentos Completos' : '⚠ Documentos Incompletos'}
+                            </p>
+                            <p className={`text-xs ${
+                                hasAllDocuments ? 'text-green-700' : 'text-yellow-700'
+                            }`}>
+                                {hasAllDocuments
+                                    ? 'Esta solicitud cuenta con todos los documentos requeridos (4/4).'
+                                    : `Faltan ${getMissingDocuments().length} de 4 documentos requeridos.`}
+                            </p>
+                            {!hasAllDocuments && uploadedDocumentTypes.length > 0 && (
+                                <div className="mt-2 text-xs">
+                                    <p className="font-semibold text-yellow-800 mb-1">Documentos faltantes:</p>
+                                    <ul className="list-disc list-inside text-yellow-700 space-y-0.5">
+                                        {getMissingDocuments().map(doc => (
+                                            <li key={doc}>{doc}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {uploadedDocumentTypes.length === 0 && (
+                                <p className="mt-1 text-xs text-yellow-700">
+                                    No se han cargado documentos para esta solicitud. Se requiere solicitar al cliente.
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

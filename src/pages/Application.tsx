@@ -382,7 +382,8 @@ const Application: React.FC = () => {
             return;
         }
 
-        if (!vehicleInfo?._ordenCompra) {
+        // Validate vehicleInfo with comprehensive null checks
+        if (!vehicleInfo || !vehicleInfo._ordenCompra) {
             setSubmissionError("Aún no has seleccionado un vehículo para tu solicitud de financiamiento. Por favor, selecciona el auto que te interesa para continuar.");
             setShowVehicleSelector(true);
             return;
@@ -511,12 +512,12 @@ const Application: React.FC = () => {
                 ).catch(err => console.error('[Application] Error sending survey invitation:', err));
             }
 
-            // Track application submission
+            // Track application submission (with safe null checks)
             conversionTracking.trackApplication.submitted({
                 applicationId: applicationId,
-                vehicleId: vehicleInfo._ordenCompra,
+                vehicleId: vehicleInfo?._ordenCompra || '',
                 vehicleName: vehicleTitle || undefined,
-                vehiclePrice: vehicleInfo._precioNumerico || 0,
+                vehiclePrice: vehicleInfo?._precioNumerico || vehicleInfo?.precio || 0,
                 recommendedBank: recommendedBank,
                 userId: user.id
             });

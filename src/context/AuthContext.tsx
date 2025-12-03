@@ -254,21 +254,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
-                console.log('[AuthContext] Auth state change:', event);
+                try {
+                    console.log('[AuthContext] Auth state change:', event);
 
-                if (event === 'INITIAL_SESSION') {
-                    setSession(session);
-                    const currentUser = session?.user ?? null;
-                    setUser(currentUser);
-                    if (currentUser) {
-                        await fetchProfile(currentUser.id);
-                    } else {
-                        setProfile(null);
-                        sessionStorage.removeItem('userProfile');
-                    }
-                    clearTimeout(loadingTimeout); // Clear timeout on success
-                    setLoading(false);
-                } else if (event === 'SIGNED_IN') {
+                    if (event === 'INITIAL_SESSION') {
+                        setSession(session);
+                        const currentUser = session?.user ?? null;
+                        setUser(currentUser);
+                        if (currentUser) {
+                            await fetchProfile(currentUser.id);
+                        } else {
+                            setProfile(null);
+                            sessionStorage.removeItem('userProfile');
+                        }
+                        clearTimeout(loadingTimeout); // Clear timeout on success
+                        setLoading(false);
+                    } else if (event === 'SIGNED_IN') {
                     console.log('[AuthContext] SIGNED_IN event - checking if profile needs refresh');
                     setSession(session);
                     const currentUser = session?.user ?? null;
@@ -307,6 +308,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     setProfile(null);
                     sessionStorage.removeItem('userProfile');
                 }
+                } catch (error) {
+                    console.error('[AuthContext] Error in auth state change handler:', error);
+                } finally {
+                    // Ensure loading is always set to false eventually
+                    clearTimeout(loadingTimeout);
+                    setLoading(false);
+                }
             }
         );
 
@@ -318,36 +326,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     useEffect(() => {
         // Only run once when profile is first loaded and needs agent assignment
-        // Use profile.id as dependency to avoid infinite loops
-        if (profile && profile.role === 'user' && !profile.asesor_asignado_id) {
-            const assignAgent = async () => {
-                try {
-                    const { data: agentId, error: rpcError } = await supabase.rpc('get_next_sales_agent');
-                    if (rpcError) {
-                        console.error('Error assigning sales agent:', rpcError);
-                    } else if (agentId) {
-                        const { error: updateError } = await supabase
-                            .from('profiles')
-                            .update({ asesor_asignado_id: agentId })
-                            .eq('id', profile.id);
-                        if (updateError) {
-                            console.error('Error updating profile with agent ID:', updateError);
-                        } else {
-                            // Update profile locally without triggering reloadProfile to avoid loops
-                            const updatedProfile = { ...profile, asesor_asignado_id: agentId };
-                            // Update sessionStorage BEFORE updating state to prevent race conditions
-                            sessionStorage.setItem('userProfile', JSON.stringify(updatedProfile));
-                            setProfile(updatedProfile);
-                            console.log('✅ Agent assigned and profile cache updated');
-                        }
-                    }
-                } catch (e) {
-                    console.error("Unexpected error in agent assignment effect:", e);
-                }
-            };
-            assignAgent();
+        // Use ref to track if assignment is in progress or already done
+        const profileId = profile?.id;
+        const profileRole = profile?.role;
+        const profileAsesorId = profile?.asesor_asignado_id;
+
+        // Skip if no profile, already has advisor, or not a user
+        if (!profile || profileRole !== 'user' || profileAsesorId) {
+            return;
         }
-    }, [profile?.id, profile?.role, profile?.asesor_asignado_id]); // Only depend on specific values, not the entire object
+
+        // Use a flag in sessionStorage to prevent duplicate assignments
+        const assignmentKey = `advisor_assignment_${profileId}`;
+        if (sessionStorage.getItem(assignmentKey)) {
+            return; // Already attempted assignment for this profile
+        }
+
+        const assignAgent = async () => {
+            try {
+                // Mark that we're attempting assignment
+                sessionStorage.setItem(assignmentKey, 'in_progress');
+
+                const { data: agentId, error: rpcError } = await supabase.rpc('get_next_sales_agent');
+                if (rpcError) {
+                    console.error('Error assigning sales agent:', rpcError);
+                    sessionStorage.removeItem(assignmentKey); // Allow retry on error
+                } else if (agentId) {
+                    const { error: updateError } = await supabase
+                        .from('profiles')
+                        .update({ asesor_asignado_id: agentId })
+                        .eq('id', profileId);
+                    if (updateError) {
+                        console.error('Error updating profile with agent ID:', updateError);
+                        sessionStorage.removeItem(assignmentKey); // Allow retry on error
+                    } else {
+                        // Update profile locally without triggering reloadProfile to avoid loops
+                        const updatedProfile = { ...profile, asesor_asignado_id: agentId };
+                        // Update sessionStorage BEFORE updating state to prevent race conditions
+                        sessionStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+                        setProfile(updatedProfile);
+                        sessionStorage.setItem(assignmentKey, 'completed');
+                        console.log('✅ Agent assigned and profile cache updated');
+                    }
+                }
+            } catch (e) {
+                console.error("Unexpected error in agent assignment effect:", e);
+                sessionStorage.removeItem(assignmentKey); // Allow retry on error
+            }
+        };
+        assignAgent();
+    }, [profile?.id, profile?.role, profile?.asesor_asignado_id]); // Only depend on specific primitive values
 
     const isAdmin = profile?.role === 'admin';
     const isSales = profile?.role === 'sales';

@@ -91,9 +91,6 @@ export const UpdateProvider: React.FC<UpdateProviderProps> = ({ children }) => {
       setShowUpdateBanner(true);
     };
 
-    // Exponer la función globalmente para que serviceWorkerRegistration.ts pueda llamarla
-    (window as any).__UPDATE_AVAILABLE__ = handleUpdate;
-
     // Verificar cambio de versión basado en hash de build
     const checkVersion = () => {
       const currentVersion = import.meta.env.VITE_APP_VERSION || '';
@@ -110,15 +107,27 @@ export const UpdateProvider: React.FC<UpdateProviderProps> = ({ children }) => {
       }
     };
 
+    // Event handler for SW messages
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
+        setShowUpdateBanner(true);
+      }
+    };
+
+    // Event handler for controller change
+    const handleControllerChange = () => {
+      window.location.reload();
+    };
+
+    // Exponer la función globalmente para que serviceWorkerRegistration.ts pueda llamarla
+    (window as any).__UPDATE_AVAILABLE__ = handleUpdate;
+
     checkVersion();
 
-    // Escuchar mensajes del Service Worker
+    // Escuchar mensajes y cambios del Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
-          setShowUpdateBanner(true);
-        }
-      });
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+      navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
 
       // Verificar si hay un Service Worker en estado waiting
       navigator.serviceWorker.ready.then((registration) => {
@@ -135,16 +144,12 @@ export const UpdateProvider: React.FC<UpdateProviderProps> = ({ children }) => {
     return () => {
       clearInterval(interval);
       delete (window as any).__UPDATE_AVAILABLE__;
+      // Remove ALL event listeners on cleanup
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+        navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      }
     };
-  }, []);
-
-  // Manejar controllerchange (cuando el SW se activa)
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
-      });
-    }
   }, []);
 
   return (

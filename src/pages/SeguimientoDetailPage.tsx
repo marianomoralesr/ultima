@@ -159,9 +159,9 @@ const SeguimientoDetailPage: React.FC = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 no-print overflow-x-hidden">
-      {/* Animated Status Bar - Full Width with Negative Margins */}
-      <div className={`${statusConfig.bgColor} ${statusConfig.color} h-[60px] flex items-center overflow-hidden sticky top-0 z-50 border-b-2 ${application.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ? 'border-yellow-600' : 'border-transparent'} -mx-4 sm:-mx-6 md:-mx-8 -mt-4 sm:-mt-6 md:-mt-8 mb-6 sm:mb-8 md:mb-10`}>
+    <div className="-m-4 sm:-m-6 min-h-screen bg-gray-50 no-print overflow-x-hidden">
+      {/* Animated Status Bar - Full Width */}
+      <div className={`${statusConfig.bgColor} ${statusConfig.color} h-[60px] flex items-center overflow-hidden sticky top-0 z-50 border-b-2 ${application.status === APPLICATION_STATUS.FALTAN_DOCUMENTOS ? 'border-yellow-600' : 'border-transparent'} mb-6`}>
         <div className="animate-marquee whitespace-nowrap flex items-center">
           <span className="text-lg font-bold px-8">
             {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)} • {statusConfig.text} • Solicitud #{application.id.substring(0, 8)}
@@ -169,7 +169,7 @@ const SeguimientoDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-0 sm:px-4 md:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content - Printable Application */}
           <div className="lg:col-span-3 space-y-4">

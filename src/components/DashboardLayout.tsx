@@ -505,7 +505,7 @@ const DashboardLayout: React.FC = () => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 pb-20 sm:pb-4 w-full max-w-full overflow-x-hidden">
+                <main className="flex-1 items-start gap-4 p-4 sm:p-6 md:gap-8 pb-20 sm:pb-4 w-full max-w-full overflow-x-hidden">
                     <Outlet />
                 </main>
 

@@ -375,6 +375,7 @@ const VehicleFinancingStep: React.FC<VehicleFinancingStepProps> = ({
           size="lg"
           onClick={handleContinue}
           disabled={!selectedVehicle || !showCalculator}
+          className="text-white"
         >
           Continuar
           <ArrowRightIcon className="w-4 h-4 ml-2" />

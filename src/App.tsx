@@ -23,6 +23,7 @@ const VehicleListPage = lazy(() => import('./pages/VehicleListPage'));
 const ResponsiveInventoryPage = lazy(() => import('./pages/ResponsiveInventoryPage'));
 const ExplorarPage = lazy(() => import('./pages/ExplorarPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 // Removed: DashboardInventoryPage - using VehicleListPage for all inventory views
@@ -272,6 +273,7 @@ function App(): React.JSX.Element {
           {/* Public routes that do NOT need vehicle context */}
           <Route element={<PublicRoute />}>
             <Route path="/acceder" element={<AuthPage />} />
+            <Route path="/registro" element={<RegisterPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
           </Route>
 

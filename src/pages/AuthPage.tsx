@@ -347,6 +347,13 @@ const AuthPage: React.FC = () => {
                         <span>Iniciar sesión con Google</span>
                     </button>
                 </div>
+
+                <div className="text-center text-sm text-gray-600 mt-6">
+                    ¿No tienes cuenta?{' '}
+                    <Link to="/registro" className="text-primary-600 hover:underline font-medium">
+                        Regístrate aquí
+                    </Link>
+                </div>
             </div>
         </div>
     );

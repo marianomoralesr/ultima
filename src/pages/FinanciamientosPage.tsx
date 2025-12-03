@@ -410,28 +410,34 @@ const FinanciamientosPage: React.FC = () => {
     setFormDataCache(data); // Cache form data for after OTP verification
 
     try {
-      console.log('📧 Sending OTP to:', data.email);
+      console.log('📱 Sending SMS OTP to:', data.phone);
 
-      // Send OTP via Supabase Auth
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email: data.email,
-        options: {
-          shouldCreateUser: true,
-          data: {
-            full_name: data.fullName,
-            phone: data.phone,
-            source: 'financiamientos-landing'
-          }
+      // Generate 6-digit OTP
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Format phone number (ensure +52 prefix for Mexico)
+      let formattedPhone = data.phone.replace(/\D/g, '');
+      if (formattedPhone.length === 10) {
+        formattedPhone = `+52${formattedPhone}`;
+      } else if (!formattedPhone.startsWith('+')) {
+        formattedPhone = `+${formattedPhone}`;
+      }
+
+      // Send SMS OTP via Edge Function
+      const { data: smsData, error: smsError } = await supabase.functions.invoke('send-sms-otp', {
+        body: {
+          phone: formattedPhone,
+          otp: generatedOtp
         }
       });
 
-      if (otpError) {
-        console.error('❌ OTP Error:', otpError);
+      if (smsError) {
+        console.error('❌ SMS Error:', smsError);
         setSubmissionStatus('error');
         return;
       }
 
-      console.log('✅ OTP sent successfully');
+      console.log('✅ SMS OTP sent successfully:', smsData);
 
       // Track form submission with Facebook Pixel and GTM
       if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -458,7 +464,7 @@ const FinanciamientosPage: React.FC = () => {
     }
   };
 
-  // Step 2: Verify OTP and create/update profile
+  // Step 2: Verify SMS OTP and create/update profile
   const handleOtpVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formDataCache) return;
@@ -466,22 +472,69 @@ const FinanciamientosPage: React.FC = () => {
     setSubmissionStatus('submitting');
 
     try {
-      console.log('🔐 Verifying OTP...');
+      console.log('🔐 Verifying SMS OTP...');
 
-      // Verify OTP
-      const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
-        email: formDataCache.email,
-        token: otp,
-        type: 'email'
+      // Format phone number
+      let formattedPhone = formDataCache.phone.replace(/\D/g, '');
+      if (formattedPhone.length === 10) {
+        formattedPhone = `+52${formattedPhone}`;
+      } else if (!formattedPhone.startsWith('+')) {
+        formattedPhone = `+${formattedPhone}`;
+      }
+
+      // Verify SMS OTP using RPC function
+      const { data: verifyData, error: verifyError } = await supabase.rpc('verify_sms_otp', {
+        p_phone: formattedPhone,
+        p_otp_code: otp
       });
 
-      if (verifyError) {
-        console.error('❌ OTP Verification Error:', verifyError);
+      if (verifyError || !verifyData || !verifyData.success) {
+        console.error('❌ SMS OTP Verification Error:', verifyError || verifyData);
         setSubmissionStatus('otp_error');
         return;
       }
 
-      console.log('✅ OTP verified successfully, user authenticated');
+      console.log('✅ SMS OTP verified successfully');
+
+      // Check if user already exists
+      const { data: { user: existingUser } } = await supabase.auth.getUser();
+
+      let userId = existingUser?.id;
+
+      // If no existing user, create one
+      if (!existingUser) {
+        console.log('📝 Creating new user account...');
+
+        // Create user with signUp (using a random password since we verified via SMS)
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: formDataCache.email,
+          password: Math.random().toString(36).slice(-16), // Random password
+          options: {
+            data: {
+              full_name: formDataCache.fullName,
+              phone: formattedPhone,
+              source: 'financiamientos-landing'
+            }
+          }
+        });
+
+        if (signUpError) {
+          console.error('❌ SignUp Error:', signUpError);
+          // If user already exists, try to get their ID from profiles
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', formDataCache.email)
+            .single();
+
+          userId = profileData?.id;
+        } else {
+          userId = signUpData.user?.id;
+          console.log('✅ User created successfully');
+        }
+      }
+
+      console.log('✅ User process completed, userId:', userId);
 
       // Now update/create the user's profile
       // Parse full name into first_name, last_name, mother_last_name
@@ -523,7 +576,7 @@ const FinanciamientosPage: React.FC = () => {
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
-          id: authData.user?.id,
+          id: userId,
           ...profileData,
           updated_at: new Date().toISOString()
         });
@@ -539,7 +592,7 @@ const FinanciamientosPage: React.FC = () => {
         .from('leads')
         .insert([
           {
-            user_id: authData.user?.id,
+            user_id: userId,
             nombre: formDataCache.fullName,
             email: formDataCache.email,
             telefono: formDataCache.phone,
@@ -656,12 +709,12 @@ const FinanciamientosPage: React.FC = () => {
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <h2 className="font-heading text-2xl font-black text-gray-900 mb-2">
-              Verifica tu correo
+              Verifica tu teléfono
             </h2>
             <p className="text-gray-600 text-sm">
-              Hemos enviado un código de 6 dígitos a <strong>{formDataCache?.email}</strong>
+              Hemos enviado un código de 6 dígitos por SMS a <strong>{formDataCache?.phone}</strong>
             </p>
-            <p className="text-xs text-gray-500 mt-1">(Revisa tu buzón de correo no deseado)</p>
+            <p className="text-xs text-gray-500 mt-1">(El mensaje puede tardar unos segundos en llegar)</p>
           </div>
 
           <form onSubmit={handleOtpVerification} className="space-y-4">

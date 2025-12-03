@@ -136,7 +136,7 @@ const ConsentStep: React.FC<ConsentStepProps> = ({
           <ArrowLeftIcon className="w-4 h-4 mr-2" />
           Anterior
         </Button>
-        <Button size="lg" onClick={onNext}>
+        <Button size="lg" onClick={onNext} className="text-white">
           Siguiente
           <ArrowRightIcon className="w-4 h-4 ml-2" />
         </Button>

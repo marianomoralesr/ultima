@@ -22,6 +22,14 @@ const CELLPHONE_COMPANIES = [
   'Telcel', 'AT&T', 'Movistar', 'Unefon', 'Virgin Mobile', 'Weex (Dish)', 'Pillofon', 'Otro',
 ];
 
+const COUNTRY_CODES = [
+  { code: '+52', country: 'México', flag: '🇲🇽' },
+  { code: '+1', country: 'EE.UU./Canadá', flag: '🇺🇸' },
+  { code: '+34', country: 'España', flag: '🇪🇸' },
+  { code: '+57', country: 'Colombia', flag: '🇨🇴' },
+  { code: '+54', country: 'Argentina', flag: '🇦🇷' },
+];
+
 const SALES_AGENTS = [
   { id: 'd21e808e-083c-48fd-be78-d52ee7837146', name: 'Anahi Garza Garcia' },
   { id: 'cb55da28-ef7f-4632-9fcd-a8d9f37f1463', name: 'Carlos Isidro Berrones' },
@@ -89,6 +97,7 @@ const ProfilePage: React.FC = () => {
   const [selectedSalesAgentId, setSelectedSalesAgentId] = useState<string>('');
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string>('+52');
 
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -118,8 +127,8 @@ const ProfilePage: React.FC = () => {
     if (profile && !formInitialized.current) {
       formInitialized.current = true;
 
-      const isComplete = !!(profile.first_name && profile.last_name && profile.mother_last_name &&
-                           profile.phone && profile.birth_date && profile.homoclave && profile.fiscal_situation);
+      const requiredFields = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status', 'rfc'];
+      const isComplete = requiredFields.every(field => profile[field as keyof Profile] && String(profile[field as keyof Profile]).trim() !== '');
 
       if (isComplete) {
         setIsProfileComplete(true);
@@ -292,8 +301,8 @@ const ProfilePage: React.FC = () => {
 
     // Check if profile is now complete
     const formData = getValues();
-    const isComplete = !!(formData.first_name && formData.last_name && formData.mother_last_name &&
-                         formData.phone && formData.birth_date && formData.homoclave);
+    const requiredFields = ['first_name', 'last_name', 'mother_last_name', 'phone', 'birth_date', 'homoclave', 'fiscal_situation', 'civil_status'];
+    const isComplete = requiredFields.every(field => formData[field as keyof ProfileFormData] && String(formData[field as keyof ProfileFormData]).trim() !== '');
 
     if (isComplete) {
       // Track completion event
@@ -503,7 +512,17 @@ const ProfilePage: React.FC = () => {
                       <div className="space-y-2">
                         <Label htmlFor="phone" className="text-sm sm:text-base">Teléfono</Label>
                         <div className="flex">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm sm:text-base min-h-[44px] sm:min-h-[48px]">MX +52</span>
+                          <select
+                            value={countryCode}
+                            onChange={(e) => setCountryCode(e.target.value)}
+                            className="inline-flex items-center px-2 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm sm:text-base min-h-[44px] sm:min-h-[48px] cursor-pointer"
+                          >
+                            {COUNTRY_CODES.map((country) => (
+                              <option key={country.code} value={country.code}>
+                                {country.flag} {country.code}
+                              </option>
+                            ))}
+                          </select>
                           <Input {...register('phone')} placeholder="10 dígitos" className="rounded-l-none min-h-[44px] sm:min-h-[48px] text-base" />
                         </div>
                         {errors.phone && <p className="text-sm sm:text-base text-red-600">{errors.phone.message}</p>}
@@ -664,6 +683,7 @@ const ProfilePage: React.FC = () => {
                   onClick={handleNextStep}
                   disabled={isSaving}
                   style={{ backgroundColor: '#FF6801' }}
+                  className="text-white"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                   Siguiente
@@ -675,6 +695,7 @@ const ProfilePage: React.FC = () => {
                   onClick={handleFinalSubmit}
                   disabled={isSaving}
                   style={{ backgroundColor: '#FF6801' }}
+                  className="text-white"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
                   {isSaving ? 'Guardando...' : 'Guardar y continuar'}

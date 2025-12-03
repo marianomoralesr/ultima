@@ -158,6 +158,33 @@ const AuthPage: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                setError('Por favor, ingresa un correo electrónico válido.');
+                setLoading(false);
+                return;
+            }
+
+            // Check if email exists in profiles table
+            const { data: existingProfile, error: profileError } = await supabase
+                .from('profiles')
+                .select('id, email, phone')
+                .eq('email', email.toLowerCase().trim())
+                .maybeSingle();
+
+            if (profileError && profileError.code !== 'PGRST116') {
+                console.error('Error checking profile:', profileError);
+                throw new Error('Error al verificar el correo electrónico. Por favor intenta de nuevo.');
+            }
+
+            // If email is not registered, show message to register first
+            if (!existingProfile) {
+                setError('Este correo electrónico no está registrado. Por favor, regístrate primero en /registro para crear tu cuenta.');
+                setLoading(false);
+                return;
+            }
+
             // Set default redirect if not already set (will be adjusted after login based on role)
             if (!localStorage.getItem('loginRedirect')) {
                 localStorage.setItem('loginRedirect', '/escritorio');
@@ -165,14 +192,13 @@ const AuthPage: React.FC = () => {
 
             const source = sessionStorage.getItem('rfdm_source');
             const options: any = {
-                shouldCreateUser: true,
+                shouldCreateUser: false, // Don't create user - they must register first
             };
             if (source) {
                 options.data = { source };
             }
 
-            console.log('Sending OTP to:', email);
-            console.log('With options:', options);
+            console.log('Sending OTP to registered email:', email);
 
             const { data, error } = await supabase.auth.signInWithOtp({
                 email,
@@ -181,10 +207,18 @@ const AuthPage: React.FC = () => {
 
             if (error) {
                 console.error('OTP Send Error:', error);
-                throw error;
+
+                // Better error messages
+                if (error.message.includes('rate limit')) {
+                    throw new Error('Has solicitado demasiados códigos. Por favor espera unos minutos antes de intentar de nuevo.');
+                } else if (error.message.includes('Email not confirmed')) {
+                    throw new Error('Tu correo electrónico no ha sido confirmado. Por favor verifica tu bandeja de entrada.');
+                } else {
+                    throw error;
+                }
             }
 
-            console.log('OTP sent successfully:', data);
+            console.log('✅ OTP sent successfully to:', email);
 
             // Track OTP request
             conversionTracking.trackAuth.otpRequested(email, {
@@ -195,7 +229,7 @@ const AuthPage: React.FC = () => {
             setView('verifyOtp');
         } catch (error: any) {
             console.error('Full Email Submit Error:', error);
-            setError(`No pudimos enviar el código de verificación. Por favor, verifica que tu correo electrónico esté escrito correctamente e inténtalo nuevamente. Si el problema persiste, contacta con soporte.`);
+            setError(error.message || `No pudimos enviar el código de verificación. Por favor, verifica que tu correo electrónico esté escrito correctamente e inténtalo nuevamente. Si el problema persiste, contacta con soporte.`);
         } finally {
             setLoading(false);
         }
@@ -206,6 +240,13 @@ const AuthPage: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
+            // Validate OTP format (6 digits)
+            if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+                setError('El código debe tener 6 dígitos numéricos.');
+                setLoading(false);
+                return;
+            }
+
             const { data, error } = await supabase.auth.verifyOtp({
                 email,
                 token: otp,
@@ -213,11 +254,23 @@ const AuthPage: React.FC = () => {
             });
 
             if (error) {
-                console.error('OTP Verification Error:', error);
-                throw error;
+                console.error('❌ OTP Verification Error:', error);
+
+                // Provide specific error messages based on error type
+                if (error.message.includes('expired') || error.message.includes('Token has expired')) {
+                    throw new Error('El código ha expirado. Por favor solicita un nuevo código.');
+                } else if (error.message.includes('invalid') || error.message.includes('Token')) {
+                    throw new Error('El código ingresado es incorrecto. Por favor verifica e intenta de nuevo.');
+                } else if (error.message.includes('not found') || error.message.includes('User not found')) {
+                    throw new Error('No se encontró una cuenta con este correo electrónico. Por favor regístrate primero.');
+                } else if (error.message.includes('too many')) {
+                    throw new Error('Demasiados intentos fallidos. Por favor espera unos minutos antes de intentar de nuevo.');
+                } else {
+                    throw error;
+                }
             }
 
-            console.log('OTP Verification Success:', data);
+            console.log('✅ OTP Verification Success:', data);
 
             // Check if this is a new user by checking their metadata or created_at timestamp
             const isNewUser = data.user?.created_at &&
@@ -253,8 +306,8 @@ const AuthPage: React.FC = () => {
             navigate(redirectPath, { replace: true });
 
         } catch (error: any) {
-             console.error('Full OTP Error:', error);
-             setError(`El código que ingresaste es inválido o ha expirado. Por favor, solicita un nuevo código o verifica que lo hayas ingresado correctamente.`);
+             console.error('❌ Full OTP Verification Error:', error);
+             setError(error.message || 'El código que ingresaste es inválido o ha expirado. Por favor, solicita un nuevo código o verifica que lo hayas ingresado correctamente.');
         } finally {
             setLoading(false);
         }

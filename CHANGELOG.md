@@ -7,6 +7,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2025-12-03]
+
+### Agregado
+- **Sistema de registro mejorado con tracking completo**
+  - Guardado automático de teléfono verificado en perfil después de OTP
+  - Captura y preservación de todos los parámetros URL (ordencompra, UTMs, fbclid, rfdm, etc.)
+  - Guardado de parámetros de tracking en campos del perfil: utm_source, utm_medium, utm_campaign, utm_term, utm_content
+  - Tracking de referrer, landing_page y lead_source automático
+  - Redirección inteligente a /escritorio/profile después de primer registro
+  - Preservación de URL params en todas las redirecciones (registro, login, errores)
+  - Limpieza automática de teléfono a 10 dígitos antes de guardar
+  - Consistencia entre flujos de /registro y /financiamientos
+- **Actualización automática de documentos en solicitudes**
+  - Polling automático cada 5 segundos para verificar estado de documentos
+  - Botón manual "Actualizar" con icono RefreshCw
+  - Caja de documentos se actualiza en tiempo real sin recargar página
+  - Indicador visual "Se actualiza automáticamente cada 5 segundos"
+- **Layout responsive de dashboard con sidebar**
+  - Sistema de grid optimizado (lg:grid-cols-12) para mejor distribución
+  - Columna principal adaptable: 67% (lg) a 75% (xl) del ancho
+  - Sidebar fijo en desktop con ancho 33% (lg) a 25% (xl)
+  - Prevención de overflow horizontal con w-full max-w-full
+  - Transiciones suaves de 300ms en cambios de layout
+
+### Mejorado
+- **Componente Mi Asesor Asignado rediseñado**
+  - Avatar más grande: 192-256px (antes 160-224px)
+  - Eliminado borde doble del contenedor para diseño más limpio
+  - Centrado perfecto del avatar con flex justify-center
+  - Foto de perfil se obtiene correctamente desde picture_url
+  - Escala responsive mejorada para móvil, tablet y desktop
+- **Página de Usuarios organizada por roles**
+  - Secciones separadas para Ventas, Administradores y Otros usuarios
+  - Analytics completos por usuario de ventas (leads, contactados, aplicaciones)
+  - Visualización mejorada de métricas de desempeño
+  - Mejor organización visual con cards por categoría
+- **Formulario de registro simplificado**
+  - Reducido de 4 a 3 campos: Nombre completo, Celular, Email
+  - Parsing inteligente de nombre completo (first_name, last_name, mother_last_name)
+  - Pre-validación de email y teléfono duplicados antes de enviar OTP
+  - Mensajes de error con enlaces clickeables a /acceder
+  - No se envía SMS si el usuario ya existe
+- **Componente Vistos Recientemente más grande**
+  - Tarjetas de vehículos aumentadas de 260-300px a 300-400px
+  - Espaciado aumentado (gap-3 a gap-7)
+  - Botones de navegación más grandes (p-2 a p-3)
+  - Hover animations y mejores sombras
+  - Título más prominente (text-xl a text-3xl)
+- **Dashboard sidebar responsivo**
+  - QR Code optimizado de 120px a 100px para mejor ajuste
+  - Input de link con truncate y min-w-0 para URLs largas
+  - Botón copiar con texto responsive (oculto en móvil)
+  - Gaps ajustados: gap-4 md:gap-6
+  - Cards de estadísticas con grid responsive: grid-cols-2 lg:grid-cols-4
+  - Padding optimizado en todos los tamaños de pantalla
+
+### Corregido
+- **Lista de solicitudes mostraba "Solicitud sin vehículo"**
+  - Cambiado car_info.title a car_info._vehicleTitle || car_info.vehicleTitle
+  - Aplica corrección en secciones Borradores y Enviadas
+  - Ahora muestra el nombre real del vehículo seleccionado
+  - Mantiene getStatusConfig para estados correctos
+- **Verificación de documentos en solicitud imprimible**
+  - Verifica correctamente los 4 documentos requeridos: INE Front, INE Back, Comprobante Domicilio, Comprobante Ingresos
+  - Muestra estado real basado en getStatusConfig
+  - Lista detallada de documentos faltantes cuando aplica
+  - Mensaje preciso: "Faltan X de 4 documentos requeridos"
+- **RPC get_sales_users_with_analytics sin campo is_active**
+  - Eliminado campo is_active inexistente de función RPC
+  - Actualizado frontend para no esperar campo deleted_at
+  - Corregida función para solo usar campos existentes en profiles
+  - Analytics ahora funcionan correctamente sin errores
+- **Foto de perfil de asesores en CRM y dashboard**
+  - Agregado picture_url a RPC get_sales_users_with_analytics
+  - Componente Mi Asesor obtiene foto desde picture_url
+  - Fallback a placeholder solo cuando campo está vacío
+  - Fotos de perfil se muestran correctamente en toda la aplicación
+
+### Técnico
+- Refactorización completa de RegisterPage.tsx con captura de URL params
+- Actualización de FinanciamientosPage.tsx y AuthPage.tsx para consistencia
+- Implementación de sessionStorage para leadSourceData
+- Migración 20251203000004_remove_is_active_from_sales_analytics.sql
+- Optimización de UnifiedDashboardLayout.tsx con transiciones suaves
+- Sistema de grid mejorado en DashboardSidebarPage.tsx (grid-cols-12)
+- Implementación de refresh automático con setInterval en PrintableApplication
+- Cleanup de estados y props no utilizados
+
 ## [2025-11-23]
 
 ### Corregido

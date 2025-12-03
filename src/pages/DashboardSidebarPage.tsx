@@ -616,7 +616,7 @@ const DashboardSidebarPage: React.FC = () => {
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="font-medium text-gray-800">
-                              {app.car_info?.title || 'Solicitud sin vehículo'}
+                              {app.car_info?._vehicleTitle || app.car_info?.vehicleTitle || 'Solicitud sin vehículo'}
                             </p>
                             <p className="text-sm text-gray-600">
                               Creada: {formatDate(app.created_at)}
@@ -647,7 +647,7 @@ const DashboardSidebarPage: React.FC = () => {
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="font-medium text-gray-800">
-                              {app.car_info?.title || 'Solicitud sin vehículo'}
+                              {app.car_info?._vehicleTitle || app.car_info?.vehicleTitle || 'Solicitud sin vehículo'}
                             </p>
                             <p className="text-sm text-gray-600">
                               Enviada: {formatDate(app.created_at)}

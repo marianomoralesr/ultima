@@ -186,11 +186,92 @@
         <div class="header">
             <h1>📋 Registro de Cambios</h1>
             <p>Autos TREFA - Historial de Actualizaciones</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 01 de Diciembre, 2025</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 03 de Diciembre, 2025</p>
         </div>
 
         <div class="content">
 
+
+            <!-- VERSIÓN v1.11.11 - 03 de Diciembre, 2025 -->
+            <div class="version">
+                <div class="version-header">
+                    <span class="version-number">v1.11.11</span>
+                    <span class="version-date">03 de Diciembre, 2025</span>
+                    <span class="badge badge-feature">Actualización Automática</span>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-feature">✨ NUEVAS FUNCIONALIDADES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Agrega botón Registro en Header y rediseña RegisterPage</strong> <span class="commit-hash">d0e4a3f</span></li>
+                        <li class="change-item"><strong>Agrega página de Términos y Condiciones</strong> <span class="commit-hash">17b05c3</span></li>
+                        <li class="change-item"><strong>Mejora mensajes de error en verificación SMS OTP (Twilio Verify)</strong> <span class="commit-hash">4601002</span></li>
+                        <li class="change-item"><strong>Mejora validación y mensajes de error en AuthPage (/acceder)</strong> <span class="commit-hash">9beb4fd</span></li>
+                        <li class="change-item"><strong>Implementa Twilio Verify API para SMS OTP</strong> <span class="commit-hash">22d0992</span></li>
+                        <li class="change-item"><strong>Actualiza SMS verification con nuevo sender y mejora texto</strong> <span class="commit-hash">c46884c</span></li>
+                        <li class="change-item"><strong>Agrega migración para corregir funciones RPC de Performance Dashboard</strong> <span class="commit-hash">bd09cd1</span></li>
+                        <li class="change-item"><strong>Desbloquear campo de teléfono en ProfilePage para testing</strong> <span class="commit-hash">9107d9b</span></li>
+                        <li class="change-item"><strong>Implementar verificación SMS y mejoras en formularios</strong> <span class="commit-hash">d81da30</span></li>
+                        <li class="change-item"><strong>Mejora UX de carga de documentos</strong> <span class="commit-hash">3e47915</span></li>
+                        <li class="change-item"><strong>Cambia texto de promoción a 'Gorra o termo TREFA'</strong> <span class="commit-hash">6e15545</span></li>
+                        <li class="change-item"><strong>Agrega mapeo para promoción de gorra o termo TREFA</strong> <span class="commit-hash">71cf0ea</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-fix">🔧 CORRECCIONES</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Fortalece reglas CSS para forzar texto blanco sobre naranja</strong> <span class="commit-hash">f9d3833</span></li>
+                        <li class="change-item"><strong>Mejora mensajes de error de duplicados y redirige a /acceder</strong> <span class="commit-hash">31ed753</span></li>
+                        <li class="change-item"><strong>Corrige error RLS y authData undefined en FinanciamientosPage</strong> <span class="commit-hash">23990c8</span></li>
+                        <li class="change-item"><strong>Elimina referencia a generatedOtp inexistente en FinanciamientosPage</strong> <span class="commit-hash">731e111</span></li>
+                        <li class="change-item"><strong>Corrige error 'app is null' en SeguimientoDetailPage</strong> <span class="commit-hash">02b2a42</span></li>
+                        <li class="change-item"><strong>Agrega valores por defecto a queries en SalesPerformanceDashboard</strong> <span class="commit-hash">c1f479a</span></li>
+                        <li class="change-item"><strong>Corrige verificación de permisos en SeguimientoDetailPage</strong> <span class="commit-hash">218fea3</span></li>
+                        <li class="change-item"><strong>Optimización completa de código - 10 correcciones críticas</strong> <span class="commit-hash">0cce2a7</span></li>
+                        <li class="change-item"><strong>Previene queries de React Query antes de verificar autorización</strong> <span class="commit-hash">b742535</span></li>
+                        <li class="change-item"><strong>Previene cambio de rol en evento SIGNED_IN con validación de caché</strong> <span class="commit-hash">ba61f1d</span></li>
+                        <li class="change-item"><strong>Corrige error de GROUP BY en get_sales_client_profile</strong> <span class="commit-hash">ffa2138</span></li>
+                        <li class="change-item"><strong>Mejora validación y mensajes de error en registro con Twilio Verify</strong> <span class="commit-hash">e20642a</span></li>
+                        <li class="change-item"><strong>Agrega protecciones robustas en Performance Dashboard</strong> <span class="commit-hash">1acbf27</span></li>
+                        <li class="change-item"><strong>Corrige cambio temporal de rol al navegar entre páginas</strong> <span class="commit-hash">7723a71</span></li>
+                        <li class="change-item"><strong>Corrige parámetros RPC en Performance Dashboard</strong> <span class="commit-hash">61b75a7</span></li>
+                        <li class="change-item"><strong>Actualiza nombres de parámetros RPC en SalesService</strong> <span class="commit-hash">bedf04f</span></li>
+                        <li class="change-item"><strong>Agrega validación de Step 1 en ProfilePage para permitir continuar</strong> <span class="commit-hash">92f250c</span></li>
+                        <li class="change-item"><strong>Corrige llamada incorrecta a SalesService en VentasSolicitudesPage</strong> <span class="commit-hash">7efe6b2</span></li>
+                        <li class="change-item"><strong>Hace SeguimientoDetailPage completamente responsive</strong> <span class="commit-hash">0b236d1</span></li>
+                        <li class="change-item"><strong>Elimina completamente gaps y overflow en SeguimientoDetailPage</strong> <span class="commit-hash">2f1f3c7</span></li>
+                        <li class="change-item"><strong>Elimina padding izquierdo en SeguimientoDetailPage para evitar overflow</strong> <span class="commit-hash">c1d1e26</span></li>
+                        <li class="change-item"><strong>Corrige estado de documentos en PrintableApplication y campo teléfono read-only</strong> <span class="commit-hash">f70d80f</span></li>
+                        <li class="change-item"><strong>Arregla navegación de modelos en mega menú</strong> <span class="commit-hash">a19f092</span></li>
+                        <li class="change-item"><strong>Mantener ordencompra y promociones en misma línea con mejor tamaño</strong> <span class="commit-hash">ad6662c</span></li>
+                        <li class="change-item"><strong>Corrige filtro de sucursal y mejora diseño de promociones</strong> <span class="commit-hash">0de487e</span></li>
+                        <li class="change-item"><strong>Resuelve problema de carga eterna en páginas protegidas</strong> <span class="commit-hash">6e48f34</span></li>
+                        <li class="change-item"><strong>Corrige error constante al verificar solicitudes activas</strong> <span class="commit-hash">4619322</span></li>
+                        <li class="change-item"><strong>Corrige ID de promoción 'Tu elección de gorra o termo TREFA'</strong> <span class="commit-hash">821cbc4</span></li>
+                        <li class="change-item"><strong>Corrige loading infinito en páginas de admin</strong> <span class="commit-hash">15b16f5</span></li>
+                        <li class="change-item"><strong>Corrige case sensitivity en mapeos de promociones</strong> <span class="commit-hash">6a76224</span></li>
+                        <li class="change-item"><strong>Sidebar oscuro cuando está colapsado en dashboard unificado</strong> <span class="commit-hash">63679f7</span></li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge badge-docs">📚 DOCUMENTACIÓN</span>
+                    </div>
+                    <ul class="change-list">
+                        <li class="change-item"><strong>Agrega script SQL para actualizar todas las funciones RPC de sales</strong> <span class="commit-hash">2e5bbf9</span></li>
+                        <li class="change-item"><strong>Agrega scripts de diagnóstico y solución para problema de acceso de sales</strong> <span class="commit-hash">55771ae</span></li>
+                        <li class="change-item"><strong>Agregar guía paso a paso para resolver deadlock y aplicar migraciones RLS</strong> <span class="commit-hash">2174a47</span></li>
+                        <li class="change-item"><strong>Agregar instrucciones urgentes para aplicar migraciones RLS</strong> <span class="commit-hash">2fdac86</span></li>
+                        <li class="change-item"><strong>Actualizar changelog a v1.11.10</strong> <span class="commit-hash">ed582dc</span></li>
+                    </ul>
+                </div>
+            </div>
 
             <!-- VERSIÓN v1.11.10 - 01 de Diciembre, 2025 -->
             <div class="version">
@@ -1588,7 +1669,7 @@
                 Este changelog se actualiza automáticamente con cada commit
             </p>
             <p style="margin-top: 5px; font-size: 0.85em; color: #999;">
-                🤖 Generado automáticamente • Última actualización: 01 de Diciembre, 2025
+                🤖 Generado automáticamente • Última actualización: 03 de Diciembre, 2025
             </p>
         </div>
     </div>

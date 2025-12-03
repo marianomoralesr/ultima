@@ -51,6 +51,7 @@ const mainNavLinks = [
     { name: 'Registro', to: '/acceder', authRequired: false, icon: UserIcon },
     { name: 'Política de Privacidad', to: '/privacidad', authRequired: false, icon: FileTextIcon },
     { name: 'Ayuda / FAQ', to: '/faq', authRequired: false, icon: HelpCircleIcon },
+    { name: 'Historial de Cambios', to: '/changelog.html', authRequired: false, icon: FileTextIcon },
 ];
 
 const accountNavLinks = [
@@ -334,7 +335,12 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
             localStorage.setItem('loginRedirect', to);
             navigate('/acceder');
         } else {
-            navigate(to);
+            // Si es un link a archivo estático (como .html), usar window.location
+            if (to.endsWith('.html')) {
+                window.location.href = to;
+            } else {
+                navigate(to);
+            }
         }
     };
 

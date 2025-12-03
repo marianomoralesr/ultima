@@ -515,7 +515,8 @@ const ProfilePage: React.FC = () => {
                           <select
                             value={countryCode}
                             onChange={(e) => setCountryCode(e.target.value)}
-                            className="inline-flex items-center px-2 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm sm:text-base min-h-[44px] sm:min-h-[48px] cursor-pointer"
+                            disabled
+                            className="inline-flex items-center px-2 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm sm:text-base min-h-[44px] sm:min-h-[48px] cursor-not-allowed opacity-60"
                           >
                             {COUNTRY_CODES.map((country) => (
                               <option key={country.code} value={country.code}>
@@ -523,8 +524,9 @@ const ProfilePage: React.FC = () => {
                               </option>
                             ))}
                           </select>
-                          <Input {...register('phone')} placeholder="10 dígitos" className="rounded-l-none min-h-[44px] sm:min-h-[48px] text-base" />
+                          <Input {...register('phone')} placeholder="10 dígitos" className="rounded-l-none min-h-[44px] sm:min-h-[48px] text-base" readOnly disabled />
                         </div>
+                        <p className="text-xs text-muted-foreground">Este teléfono está vinculado a tu cuenta.</p>
                         {errors.phone && <p className="text-sm sm:text-base text-red-600">{errors.phone.message}</p>}
                       </div>
 

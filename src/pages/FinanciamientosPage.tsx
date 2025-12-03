@@ -205,6 +205,7 @@ const FinanciamientosPage: React.FC = () => {
   const [formDataCache, setFormDataCache] = useState<FormData | null>(null);
   const [urlParams, setUrlParams] = useState('');
   const [leadSource, setLeadSource] = useState<string>('direct');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(formSchema)
@@ -410,7 +411,23 @@ const FinanciamientosPage: React.FC = () => {
     setFormDataCache(data); // Cache form data for after OTP verification
 
     try {
-      console.log('📱 Sending SMS OTP to:', data.phone);
+      console.log('📱 Procesando solicitud para:', data.email);
+
+      // PRIMERO: Verificar si el usuario ya existe con este email
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email, phone')
+        .eq('email', data.email)
+        .single();
+
+      if (existingProfile && !profileError) {
+        console.log('⚠️ Usuario ya existe con este email:', existingProfile);
+        setErrorMessage('Este correo electrónico ya está registrado. Por favor, inicia sesión en /acceder en lugar de registrarte nuevamente.');
+        setSubmissionStatus('error');
+        return;
+      }
+
+      console.log('✅ Usuario nuevo confirmado, procediendo con SMS...');
 
       // Generate 6-digit OTP
       const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -422,6 +439,13 @@ const FinanciamientosPage: React.FC = () => {
       } else if (!formattedPhone.startsWith('+')) {
         formattedPhone = `+${formattedPhone}`;
       }
+
+      // Debug: Ver qué se está enviando
+      console.log('📤 Enviando SMS con estos datos:', {
+        phone: formattedPhone,
+        otp: generatedOtp,
+        phoneOriginal: data.phone
+      });
 
       // Send SMS OTP via Edge Function
       const { data: smsData, error: smsError } = await supabase.functions.invoke('send-sms-otp', {
@@ -438,6 +462,9 @@ const FinanciamientosPage: React.FC = () => {
       }
 
       console.log('✅ SMS OTP sent successfully:', smsData);
+      console.log('💾 Guarda estos datos para verificar:');
+      console.log('   - Teléfono:', formattedPhone);
+      console.log('   - Código OTP:', generatedOtp);
 
       // Track form submission with Facebook Pixel and GTM
       if (typeof window !== 'undefined' && (window as any).fbq) {
@@ -482,14 +509,25 @@ const FinanciamientosPage: React.FC = () => {
         formattedPhone = `+${formattedPhone}`;
       }
 
+      // Debug: Ver qué se está enviando
+      console.log('📞 Teléfono formateado:', formattedPhone);
+      console.log('🔢 Código OTP ingresado:', otp);
+
       // Verify SMS OTP using RPC function
       const { data: verifyData, error: verifyError } = await supabase.rpc('verify_sms_otp', {
         p_phone: formattedPhone,
         p_otp_code: otp
       });
 
+      console.log('📊 Respuesta de verify_sms_otp:', { verifyData, verifyError });
+
       if (verifyError || !verifyData || !verifyData.success) {
-        console.error('❌ SMS OTP Verification Error:', verifyError || verifyData);
+        console.error('❌ SMS OTP Verification Error:', {
+          error: verifyError,
+          data: verifyData,
+          phone: formattedPhone,
+          code: otp
+        });
         setSubmissionStatus('otp_error');
         return;
       }
@@ -538,7 +576,9 @@ const FinanciamientosPage: React.FC = () => {
 
       // Now update/create the user's profile
       // Parse full name into first_name, last_name, mother_last_name
+      console.log('📝 Nombre completo recibido:', formDataCache.fullName);
       const { firstName, lastName, motherLastName } = parseFullName(formDataCache.fullName);
+      console.log('📝 Nombre parseado:', { firstName, lastName, motherLastName });
 
       // Get URL parameters for tracking
       const params = new URLSearchParams(window.location.search);
@@ -553,6 +593,14 @@ const FinanciamientosPage: React.FC = () => {
 
       // Clean phone number - extract only digits and take last 10
       const cleanPhone = formDataCache.phone.replace(/\D/g, '').slice(-10);
+
+      console.log('📝 Preparando datos de perfil:', {
+        firstName,
+        lastName,
+        motherLastName,
+        cleanPhone,
+        email: formDataCache.email
+      });
 
       const profileData = {
         first_name: firstName,
@@ -573,19 +621,36 @@ const FinanciamientosPage: React.FC = () => {
         first_visit_at: new Date().toISOString()
       };
 
-      const { error: profileError } = await supabase
+      console.log('🔄 Ejecutando upsert con estos datos:', {
+        id: userId,
+        ...profileData,
+        updated_at: new Date().toISOString()
+      });
+
+      const { data: upsertData, error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
           ...profileData,
           updated_at: new Date().toISOString()
-        });
+        })
+        .select();
 
       if (profileError) {
         console.error('❌ Profile update error:', profileError);
       } else {
         console.log('✅ Profile updated successfully');
+        console.log('📊 Datos guardados en la base de datos:', upsertData);
       }
+
+      // Verificar inmediatamente que los datos se guardaron
+      const { data: verifyProfile, error: profileVerifyError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, mother_last_name, phone, email')
+        .eq('id', userId)
+        .single();
+
+      console.log('🔍 Verificación de perfil guardado:', { verifyProfile, profileVerifyError });
 
       // Also save to leads table for tracking
       const { data: leadData } = await supabase
@@ -1035,11 +1100,14 @@ const FinanciamientosPage: React.FC = () => {
                   {submissionStatus === 'error' && (
                     <div className="p-4 bg-red-100 border-2 border-red-400 rounded-lg text-center">
                       <p className="text-red-800 font-bold text-sm mb-2">
-                        Error al enviar la información
+                        {errorMessage || 'Error al enviar la información'}
                       </p>
                       <button
                         type="button"
-                        onClick={() => setSubmissionStatus('idle')}
+                        onClick={() => {
+                          setSubmissionStatus('idle');
+                          setErrorMessage('');
+                        }}
                         className="text-xs text-red-700 hover:text-red-900 font-bold underline"
                       >
                         Intentar de nuevo

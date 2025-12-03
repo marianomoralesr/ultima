@@ -53,20 +53,24 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         fetchAdvisorName();
     }, [profile.asesor_asignado_id, profile.asesor_asignado_name]);
 
-    // Check if documents are uploaded
+    // Check if documents are uploaded FOR THIS SPECIFIC APPLICATION
     useEffect(() => {
         const checkDocuments = async () => {
-            if (!application.user_id) {
+            if (!application.id) {
                 setIsCheckingDocuments(false);
                 return;
             }
 
             try {
+                console.log('[PrintableApplication] Checking documents for application:', application.id);
+
                 const { data, error } = await supabase
                     .from('uploaded_documents')
                     .select('id')
-                    .eq('user_id', application.user_id)
+                    .eq('application_id', application.id)
                     .limit(1);
+
+                console.log('[PrintableApplication] Documents check result:', { data, error, hasDocuments: data && data.length > 0 });
 
                 if (!error && data && data.length > 0) {
                     setHasDocuments(true);
@@ -74,7 +78,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                     setHasDocuments(false);
                 }
             } catch (err) {
-                console.error('Error checking documents:', err);
+                console.error('[PrintableApplication] Error checking documents:', err);
                 setHasDocuments(false);
             } finally {
                 setIsCheckingDocuments(false);
@@ -82,7 +86,7 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         };
 
         checkDocuments();
-    }, [application.user_id]);
+    }, [application.id]);
 
     // Fetch banking profile data
     useEffect(() => {

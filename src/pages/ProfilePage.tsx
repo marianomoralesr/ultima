@@ -255,7 +255,16 @@ const ProfilePage: React.FC = () => {
     // Validate current step fields
     let fieldsToValidate: (keyof ProfileFormData)[] = [];
 
-    if (currentStep === 2) {
+    if (currentStep === 1) {
+      // Step 1: Contact information
+      fieldsToValidate = ['phone'];
+      // Validate asesor selection if user said "yes" to prior advisor
+      if (hasPriorAdvisor === 'yes' && !selectedSalesAgentId) {
+        toast.error('Por favor, selecciona tu asesor.');
+        return;
+      }
+    } else if (currentStep === 2) {
+      // Step 2: Personal information
       fieldsToValidate = ['first_name', 'last_name', 'mother_last_name', 'birth_date', 'civil_status'];
       if (isMarried) fieldsToValidate.push('spouse_name');
     }

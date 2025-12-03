@@ -85,7 +85,11 @@
     @apply bg-background text-foreground;
   }
 
-  /* Ensure all primary-colored backgrounds have white text for readability */
+  /* ===================================================================
+     CRITICAL FIX: ALL ORANGE/PRIMARY BACKGROUNDS MUST HAVE WHITE TEXT
+     ================================================================ */
+
+  /* Base rule: ALL elements with primary or orange background get white text */
   .bg-primary,
   .bg-primary-100,
   .bg-primary-200,
@@ -97,62 +101,95 @@
   .bg-primary-800,
   .bg-primary-900,
   .bg-brand-primary,
-  [class*="bg-primary"] {
+  [class*="bg-primary"],
+  .bg-\[\#FF6801\],
+  .bg-\[\#ff6801\],
+  [style*="background-color: #FF6801"],
+  [style*="background-color:#FF6801"],
+  [style*="background-color: #ff6801"],
+  [style*="background-color:#ff6801"],
+  [style*="background-color: rgb(255, 104, 1)"],
+  [style*="background-color:rgb(255, 104, 1)"],
+  [style*="background: #FF6801"],
+  [style*="background:#FF6801"],
+  [style*="background: #ff6801"],
+  [style*="background:#ff6801"] {
     color: white !important;
   }
 
-  /* Ensure children of primary-colored elements also have white text */
+  /* ALL children and descendants of orange backgrounds get white text */
   .bg-primary *,
+  .bg-primary-100 *,
+  .bg-primary-200 *,
+  .bg-primary-300 *,
+  .bg-primary-400 *,
   .bg-primary-500 *,
   .bg-primary-600 *,
   .bg-primary-700 *,
+  .bg-primary-800 *,
+  .bg-primary-900 *,
   .bg-brand-primary *,
   [class*="bg-primary"] *,
-  button[class*="bg-primary"] > *,
-  button.bg-primary > * {
+  .bg-\[\#FF6801\] *,
+  .bg-\[\#ff6801\] *,
+  [style*="background-color: #FF6801"] *,
+  [style*="background-color:#FF6801"] *,
+  [style*="background-color: #ff6801"] *,
+  [style*="background-color:#ff6801"] *,
+  [style*="background-color: rgb(255, 104, 1)"] *,
+  [style*="background-color:rgb(255, 104, 1)"] *,
+  [style*="background: #FF6801"] *,
+  [style*="background:#FF6801"] *,
+  [style*="background: #ff6801"] *,
+  [style*="background:#ff6801"] * {
     color: white !important;
   }
 
-  /* Override for any buttons or links with primary background */
+  /* Special overrides for ALL element types that might have orange backgrounds */
   button.bg-primary,
   button[class*="bg-primary"],
-  button.bg-primary a,
-  button[class*="bg-primary"] a,
-  button.bg-primary > a,
-  button[class*="bg-primary"] > a,
+  button.bg-\[\#FF6801\],
+  button.bg-\[\#ff6801\],
+  button.bg-primary *,
+  button[class*="bg-primary"] *,
+  button.bg-\[\#FF6801\] *,
+  button.bg-\[\#ff6801\] *,
   a.bg-primary,
   a[class*="bg-primary"],
-  .btn-primary,
-  .btn-primary *,
+  a.bg-\[\#FF6801\],
+  a.bg-\[\#ff6801\],
+  a.bg-primary *,
+  a[class*="bg-primary"] *,
   span.bg-primary,
   span[class*="bg-primary"],
+  span.bg-\[\#FF6801\],
+  span.bg-\[\#ff6801\],
   div.bg-primary,
-  div[class*="bg-primary"] {
-    color: white !important;
-  }
-
-  /* Specific fix for shadcn Button component with primary variant */
-  button[class*="bg-primary"] span,
-  button.bg-primary span,
-  button:has(.bg-primary) {
-    color: white !important;
-  }
-
-  /* Ensure badges and tags with primary background have white text */
+  div[class*="bg-primary"],
+  div.bg-\[\#FF6801\],
+  div.bg-\[\#ff6801\],
+  .btn-primary,
+  .btn-primary *,
   [class*="badge"].bg-primary,
   [class*="badge"][class*="bg-primary"],
+  [class*="badge"].bg-\[\#FF6801\],
   [class*="tag"].bg-primary,
-  [class*="tag"][class*="bg-primary"] {
+  [class*="tag"][class*="bg-primary"],
+  [class*="tag"].bg-\[\#FF6801\] {
     color: white !important;
   }
 
-  /* Ensure any element with #FF6801 background color has white text */
-  [style*="background-color: #FF6801"],
-  [style*="background-color:#FF6801"],
-  [style*="background-color: rgb(255, 104, 1)"],
-  [style*="background: #FF6801"],
-  [style*="background:#FF6801"],
-  .bg-\[\#FF6801\] {
+  /* Nuclear option: Override any text color classes when inside orange backgrounds */
+  .bg-primary .text-black,
+  .bg-primary .text-gray-900,
+  .bg-primary .text-neutral-900,
+  [class*="bg-primary"] .text-black,
+  [class*="bg-primary"] .text-gray-900,
+  [class*="bg-primary"] .text-neutral-900,
+  .bg-\[\#FF6801\] .text-black,
+  .bg-\[\#FF6801\] .text-gray-900,
+  .bg-\[\#ff6801\] .text-black,
+  .bg-\[\#ff6801\] .text-gray-900 {
     color: white !important;
   }
 }

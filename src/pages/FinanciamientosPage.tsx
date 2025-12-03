@@ -429,34 +429,58 @@ const FinanciamientosPage: React.FC = () => {
 
       console.log('✅ Usuario nuevo confirmado, procediendo con SMS...');
 
-      // Generate 6-digit OTP
-      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      // SEGUNDO: Verificar si el teléfono ya está registrado
+      const cleanPhone = data.phone.replace(/\D/g, '');
+      const { data: existingPhoneProfile, error: phoneError } = await supabase
+        .from('profiles')
+        .select('id, email, phone')
+        .eq('phone', cleanPhone)
+        .single();
+
+      if (existingPhoneProfile && !phoneError) {
+        console.log('⚠️ Usuario ya existe con este teléfono:', existingPhoneProfile);
+        setErrorMessage('Este número de teléfono ya está registrado. Por favor, inicia sesión en /acceder en lugar de registrarte nuevamente.');
+        setSubmissionStatus('error');
+        return;
+      }
 
       // Format phone number (ensure +52 prefix for Mexico)
-      let formattedPhone = data.phone.replace(/\D/g, '');
+      let formattedPhone = cleanPhone;
       if (formattedPhone.length === 10) {
         formattedPhone = `+52${formattedPhone}`;
       } else if (!formattedPhone.startsWith('+')) {
         formattedPhone = `+${formattedPhone}`;
       }
 
-      // Debug: Ver qué se está enviando
-      console.log('📤 Enviando SMS con estos datos:', {
-        phone: formattedPhone,
-        otp: generatedOtp,
-        phoneOriginal: data.phone
-      });
+      console.log('📤 Enviando código de verificación a:', formattedPhone);
 
-      // Send SMS OTP via Edge Function
+      // Send SMS OTP via Twilio Verify (no otp parameter needed)
       const { data: smsData, error: smsError } = await supabase.functions.invoke('send-sms-otp', {
         body: {
-          phone: formattedPhone,
-          otp: generatedOtp
+          phone: formattedPhone
         }
       });
 
       if (smsError) {
-        console.error('❌ SMS Error:', smsError);
+        console.error('❌ Error al enviar SMS:', smsError);
+        const errorMsg = (smsError as any).message || 'Error al enviar código de verificación';
+
+        // Mostrar mensaje específico según el error
+        if (errorMsg.includes('phone number')) {
+          setErrorMessage('El número de teléfono ingresado no es válido. Por favor verifica que sea un número de 10 dígitos.');
+        } else if (errorMsg.includes('Twilio')) {
+          setErrorMessage('Error al enviar el mensaje SMS. Por favor intenta de nuevo en unos momentos.');
+        } else {
+          setErrorMessage(`Error: ${errorMsg}`);
+        }
+
+        setSubmissionStatus('error');
+        return;
+      }
+
+      if (!smsData?.success) {
+        console.error('❌ SMS no se envió correctamente:', smsData);
+        setErrorMessage('No se pudo enviar el código de verificación. Por favor intenta de nuevo.');
         setSubmissionStatus('error');
         return;
       }
@@ -485,8 +509,9 @@ const FinanciamientosPage: React.FC = () => {
 
       setSubmissionStatus('otp'); // Show OTP verification form
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending OTP:', error);
+      setErrorMessage(error.message || 'Error inesperado al enviar el código. Por favor intenta de nuevo.');
       setSubmissionStatus('error');
     }
   };
@@ -509,25 +534,38 @@ const FinanciamientosPage: React.FC = () => {
         formattedPhone = `+${formattedPhone}`;
       }
 
-      // Debug: Ver qué se está enviando
       console.log('📞 Teléfono formateado:', formattedPhone);
       console.log('🔢 Código OTP ingresado:', otp);
 
-      // Verify SMS OTP using RPC function
-      const { data: verifyData, error: verifyError } = await supabase.rpc('verify_sms_otp', {
-        p_phone: formattedPhone,
-        p_otp_code: otp
-      });
-
-      console.log('📊 Respuesta de verify_sms_otp:', { verifyData, verifyError });
-
-      if (verifyError || !verifyData || !verifyData.success) {
-        console.error('❌ SMS OTP Verification Error:', {
-          error: verifyError,
-          data: verifyData,
+      // Verify SMS OTP using Edge Function
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-sms-otp', {
+        body: {
           phone: formattedPhone,
           code: otp
-        });
+        }
+      });
+
+      console.log('📊 Respuesta de verify-sms-otp:', { verifyData, verifyError });
+
+      if (verifyError) {
+        console.error('❌ Error al verificar código:', verifyError);
+        const errorMsg = (verifyError as any).message || 'Error al verificar código';
+
+        if (errorMsg.includes('expired') || errorMsg.includes('expirado')) {
+          setErrorMessage('El código ha expirado. Por favor solicita un nuevo código.');
+        } else if (errorMsg.includes('invalid') || errorMsg.includes('inválido') || errorMsg.includes('Incorrect')) {
+          setErrorMessage('El código ingresado es incorrecto. Por favor verifica e intenta de nuevo.');
+        } else {
+          setErrorMessage('Error al verificar el código. Por favor intenta de nuevo.');
+        }
+
+        setSubmissionStatus('otp_error');
+        return;
+      }
+
+      if (!verifyData?.success) {
+        console.error('❌ Código no verificado:', verifyData);
+        setErrorMessage(verifyData?.error || 'El código ingresado es incorrecto. Por favor verifica e intenta de nuevo.');
         setSubmissionStatus('otp_error');
         return;
       }

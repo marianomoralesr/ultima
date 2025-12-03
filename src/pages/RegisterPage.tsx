@@ -33,27 +33,63 @@ const RegisterPage: React.FC = () => {
   const [smsOtp, setSmsOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
-  // Generar código OTP de 6 dígitos
-  const generateOtp = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
-
-  // Enviar código SMS
+  // Enviar código SMS usando Twilio Verify
   const sendSmsOtp = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const otp = generateOtp();
+      // Verificar si el email ya existe
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, email')
+        .eq('email', email)
+        .single();
 
-      // Llamar a la Edge Function para enviar SMS
+      if (existingProfile && !profileError) {
+        throw new Error('Este correo electrónico ya está registrado. Por favor, inicia sesión en /acceder.');
+      }
+
+      // Verificar si el teléfono ya existe
+      const cleanPhone = phone.replace(/\D/g, '');
+      const { data: existingPhoneProfile, error: phoneError } = await supabase
+        .from('profiles')
+        .select('id, phone')
+        .eq('phone', cleanPhone)
+        .single();
+
+      if (existingPhoneProfile && !phoneError) {
+        throw new Error('Este número de teléfono ya está registrado. Por favor, inicia sesión en /acceder.');
+      }
+
+      // Formatear teléfono
+      let formattedPhone = cleanPhone;
+      if (formattedPhone.length === 10) {
+        formattedPhone = `+52${formattedPhone}`;
+      } else if (!formattedPhone.startsWith('+')) {
+        formattedPhone = `+${formattedPhone}`;
+      }
+
+      // Llamar a la Edge Function de Twilio Verify (no necesita otp parameter)
       const { data, error: smsError } = await supabase.functions.invoke('send-sms-otp', {
-        body: { phone, otp }
+        body: { phone: formattedPhone }
       });
 
       if (smsError) {
         console.error('Error enviando SMS:', smsError);
-        throw new Error('No se pudo enviar el código SMS. Verifica tu número de teléfono.');
+        const errorMsg = (smsError as any).message || 'Error al enviar código';
+
+        if (errorMsg.includes('phone number')) {
+          throw new Error('El número de teléfono ingresado no es válido. Verifica que sea un número de 10 dígitos.');
+        } else if (errorMsg.includes('Twilio')) {
+          throw new Error('Error al enviar el mensaje SMS. Por favor intenta de nuevo en unos momentos.');
+        } else {
+          throw new Error(`Error: ${errorMsg}`);
+        }
+      }
+
+      if (!data?.success) {
+        throw new Error('No se pudo enviar el código de verificación. Por favor intenta de nuevo.');
       }
 
       console.log('SMS enviado exitosamente:', data);
@@ -67,25 +103,44 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  // Verificar código SMS
+  // Verificar código SMS usando Twilio Verify
   const verifySmsOtp = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Verificar el código OTP usando la función RPC
-      const { data, error: verifyError } = await supabase.rpc('verify_sms_otp', {
-        p_phone: phone.startsWith('+') ? phone : `+52${phone.replace(/\D/g, '')}`,
-        p_otp_code: smsOtp
+      // Formatear teléfono
+      const cleanPhone = phone.replace(/\D/g, '');
+      let formattedPhone = cleanPhone;
+      if (formattedPhone.length === 10) {
+        formattedPhone = `+52${formattedPhone}`;
+      } else if (!formattedPhone.startsWith('+')) {
+        formattedPhone = `+${formattedPhone}`;
+      }
+
+      // Verificar el código OTP usando la Edge Function
+      const { data, error: verifyError } = await supabase.functions.invoke('verify-sms-otp', {
+        body: {
+          phone: formattedPhone,
+          code: smsOtp
+        }
       });
 
       if (verifyError) {
         console.error('Error verificando OTP:', verifyError);
-        throw new Error('Error al verificar el código');
+        const errorMsg = (verifyError as any).message || 'Error al verificar código';
+
+        if (errorMsg.includes('expired') || errorMsg.includes('expirado')) {
+          throw new Error('El código ha expirado. Por favor solicita un nuevo código.');
+        } else if (errorMsg.includes('invalid') || errorMsg.includes('inválido') || errorMsg.includes('Incorrect')) {
+          throw new Error('El código ingresado es incorrecto. Por favor verifica e intenta de nuevo.');
+        } else {
+          throw new Error('Error al verificar el código. Por favor intenta de nuevo.');
+        }
       }
 
-      if (!data || !data.success) {
-        throw new Error(data?.message || 'Código inválido o expirado');
+      if (!data?.success) {
+        throw new Error(data?.error || 'El código ingresado es incorrecto. Por favor verifica e intenta de nuevo.');
       }
 
       console.log('✅ Código SMS verificado exitosamente');

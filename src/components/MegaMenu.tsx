@@ -51,7 +51,7 @@ const mainNavLinks = [
     { name: 'Registro', to: '/acceder', authRequired: false, icon: UserIcon },
     { name: 'Política de Privacidad', to: '/privacidad', authRequired: false, icon: FileTextIcon },
     { name: 'Ayuda / FAQ', to: '/faq', authRequired: false, icon: HelpCircleIcon },
-    { name: 'Historial de Cambios', to: '/changelog.html', authRequired: false, icon: FileTextIcon },
+    { name: 'Historial de Cambios', to: '/changelog.html', authRequired: true, icon: FileTextIcon, rolesAllowed: ['admin', 'sales', 'marketing'] },
 ];
 
 const accountNavLinks = [
@@ -395,6 +395,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, triggerRef }) => {
                                     {mainNavLinks.map(link => {
                                         if (link.authRequired && !session) return null;
                                         if (link.featureFlag && !config[link.featureFlag]) return null;
+                                        // Verificar roles permitidos
+                                        if (link.rolesAllowed && (!profile || !link.rolesAllowed.includes(profile.role))) return null;
                                         const Icon = link.icon;
                                         return (
                                             <Button

@@ -1,5 +1,4 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
 const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
@@ -7,6 +6,7 @@ const TWILIO_VERIFY_SERVICE_SID = Deno.env.get("TWILIO_VERIFY_SERVICE_SID") || "
 
 interface RequestBody {
   phone: string;
+  code: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -38,13 +38,13 @@ Deno.serve(async (req: Request) => {
     }
 
     // Parse request body
-    const { phone }: RequestBody = await req.json();
+    const { phone, code }: RequestBody = await req.json();
 
     // Validar entrada
-    if (!phone) {
+    if (!phone || !code) {
       return new Response(
         JSON.stringify({
-          error: "Teléfono es requerido",
+          error: "Teléfono y código son requeridos",
         }),
         {
           status: 400,
@@ -61,14 +61,14 @@ Deno.serve(async (req: Request) => {
       formattedPhone = `+${formattedPhone}`;
     }
 
-    console.log(`📱 Enviando código de verificación a: ${formattedPhone}`);
+    console.log(`🔐 Verificando código para: ${formattedPhone}`);
 
-    // Usar Twilio Verify API para enviar el código
-    const twilioUrl = `https://verify.twilio.com/v2/Services/${TWILIO_VERIFY_SERVICE_SID}/Verifications`;
+    // Usar Twilio Verify API para verificar el código
+    const twilioUrl = `https://verify.twilio.com/v2/Services/${TWILIO_VERIFY_SERVICE_SID}/VerificationCheck`;
 
     const formData = new URLSearchParams();
     formData.append("To", formattedPhone);
-    formData.append("Channel", "sms");
+    formData.append("Code", code);
 
     const response = await fetch(twilioUrl, {
       method: "POST",
@@ -84,7 +84,7 @@ Deno.serve(async (req: Request) => {
       console.error("❌ Error de Twilio Verify:", errorData);
       return new Response(
         JSON.stringify({
-          error: "No se pudo enviar el código de verificación",
+          error: "Error al verificar el código",
           details: errorData,
         }),
         {
@@ -95,35 +95,29 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await response.json();
-    console.log("✅ Código de verificación enviado:", data.sid);
+    console.log("✅ Verificación completada:", data.status);
 
-    // Registrar el envío en Supabase
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Guardar el envío en la base de datos
-    const { error: dbError } = await supabase
-      .from("sms_otp_codes")
-      .insert({
-        phone: formattedPhone,
-        otp_code: null, // Twilio Verify maneja el código
-        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutos
-        twilio_message_sid: data.sid,
-        verification_status: data.status,
-      });
-
-    if (dbError) {
-      console.error("⚠️ Error guardando verificación en DB:", dbError);
-      // No fallar el request si no se pudo guardar en DB
+    // Verificar si el código es válido
+    if (data.status !== "approved") {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Código inválido o expirado",
+          status: data.status,
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Código de verificación enviado exitosamente",
-        verificationSid: data.sid,
+        message: "Código verificado exitosamente",
         status: data.status,
+        valid: data.valid,
       }),
       {
         status: 200,

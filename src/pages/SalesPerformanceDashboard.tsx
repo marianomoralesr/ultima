@@ -121,7 +121,7 @@ const SalesPerformanceDashboard: React.FC = () => {
         );
     }
 
-    // Fetch comprehensive performance metrics
+    // Fetch comprehensive performance metrics - ONLY if authorized
     const { data: performanceMetrics, isLoading: loadingMetrics, isError: isErrorMetrics, error: errorMetrics } = useQuery<SalesPerformanceMetrics, Error>({
         queryKey: ['salesPerformanceMetrics', user.id],
         queryFn: async () => {
@@ -134,9 +134,10 @@ const SalesPerformanceDashboard: React.FC = () => {
             }
             return data?.[0] || {};
         },
+        enabled: !loading && (isSales || isAdmin) && !!user?.id, // Only run if authorized
     });
 
-    // Fetch applications by status for the sales user
+    // Fetch applications by status for the sales user - ONLY if authorized
     const { data: applicationsByStatus, isLoading: loadingAppsByStatus } = useQuery<any[], Error>({
         queryKey: ['salesApplicationsByStatus', user.id],
         queryFn: async () => {
@@ -149,9 +150,10 @@ const SalesPerformanceDashboard: React.FC = () => {
             }
             return data || [];
         },
+        enabled: !loading && (isSales || isAdmin) && !!user?.id, // Only run if authorized
     });
 
-    // Fetch detailed applications list
+    // Fetch detailed applications list - ONLY if authorized
     const { data: detailedApplications, isLoading: loadingDetails } = useQuery<ApplicationDetail[], Error>({
         queryKey: ['salesDetailedApplications', user.id, statusFilter],
         queryFn: async () => {
@@ -165,12 +167,14 @@ const SalesPerformanceDashboard: React.FC = () => {
             }
             return data || [];
         },
+        enabled: !loading && (isSales || isAdmin) && !!user?.id, // Only run if authorized
     });
 
-    // Fetch my assigned leads
+    // Fetch my assigned leads - ONLY if authorized
     const { data: myLeads = [], isLoading: loadingLeads } = useQuery<any[], Error>({
         queryKey: ['salesAssignedLeads', user.id],
         queryFn: () => SalesService.getMyAssignedLeads(user.id),
+        enabled: !loading && (isSales || isAdmin) && !!user?.id, // Only run if authorized
     });
 
     const getStatusBadge = (status: string) => {

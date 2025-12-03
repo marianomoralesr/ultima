@@ -422,8 +422,10 @@ const FinanciamientosPage: React.FC = () => {
 
       if (existingProfile && !profileError) {
         console.log('⚠️ Usuario ya existe con este email:', existingProfile);
-        setErrorMessage('Este correo electrónico ya está registrado. Por favor, inicia sesión en /acceder en lugar de registrarte nuevamente.');
+        setErrorMessage('Este correo electrónico ya está asociado a una cuenta. Por favor, inicia sesión aquí.');
         setSubmissionStatus('error');
+        // Navigate to /acceder after showing message
+        setTimeout(() => navigate('/acceder'), 2500);
         return;
       }
 
@@ -439,8 +441,10 @@ const FinanciamientosPage: React.FC = () => {
 
       if (existingPhoneProfile && !phoneError) {
         console.log('⚠️ Usuario ya existe con este teléfono:', existingPhoneProfile);
-        setErrorMessage('Este número de teléfono ya está registrado. Por favor, inicia sesión en /acceder en lugar de registrarte nuevamente.');
+        setErrorMessage('Este número de celular ya está asociado a una cuenta. Por favor, inicia sesión con tu correo electrónico aquí.');
         setSubmissionStatus('error');
+        // Navigate to /acceder after showing message
+        setTimeout(() => navigate('/acceder'), 2500);
         return;
       }
 

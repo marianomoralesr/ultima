@@ -47,7 +47,11 @@ const RegisterPage: React.FC = () => {
         .single();
 
       if (existingProfile && !profileError) {
-        throw new Error('Este correo electrónico ya está registrado. Por favor, inicia sesión en /acceder.');
+        setError('Este correo electrónico ya está asociado a una cuenta. Por favor, inicia sesión aquí.');
+        setLoading(false);
+        // Navigate to /acceder after 2 seconds
+        setTimeout(() => navigate('/acceder'), 2000);
+        return;
       }
 
       // Verificar si el teléfono ya existe
@@ -59,7 +63,11 @@ const RegisterPage: React.FC = () => {
         .single();
 
       if (existingPhoneProfile && !phoneError) {
-        throw new Error('Este número de teléfono ya está registrado. Por favor, inicia sesión en /acceder.');
+        setError('Este número de celular ya está asociado a una cuenta. Por favor, inicia sesión con tu correo electrónico aquí.');
+        setLoading(false);
+        // Navigate to /acceder after 2 seconds
+        setTimeout(() => navigate('/acceder'), 2000);
+        return;
       }
 
       // Formatear teléfono

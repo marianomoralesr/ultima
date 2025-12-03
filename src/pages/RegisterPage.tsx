@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import { CheckCircleIcon, ArrowLeftIcon } from '../components/icons';
 import useSEO from '../hooks/useSEO';
 import { proxyImage } from '../utils/proxyImage';
+import { conversionTracking } from '../services/ConversionTrackingService';
 
 type RegisterStep = 'form' | 'verify_sms' | 'complete';
+
+// Interface para datos de tracking de URL
+interface UrlTrackingData {
+  ordencompra?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
+  fbclid?: string;
+  rfdm?: string;
+  source?: string;
+  referrer?: string;
+  landing_page?: string;
+}
 
 // Helper function to parse full name into first, last, and mother's last name
 // Returns: { firstName, lastName, motherLastName }
@@ -54,6 +70,7 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Datos del formulario
   const [fullName, setFullName] = useState('');
@@ -65,9 +82,59 @@ const RegisterPage: React.FC = () => {
   const [smsOtp, setSmsOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
+  // URL tracking data
+  const [urlTrackingData, setUrlTrackingData] = useState<UrlTrackingData>({});
+  const [urlParamsString, setUrlParamsString] = useState('');
+
   // Customer avatars
   const [customerAvatars, setCustomerAvatars] = useState(allCustomerAvatars.slice(0, 3));
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  // Capturar URL params al inicio
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paramString = params.toString();
+    setUrlParamsString(paramString);
+
+    const trackingData: UrlTrackingData = {};
+
+    // Capturar todos los parametros de tracking
+    const ordencompra = params.get('ordencompra');
+    const utm_source = params.get('utm_source');
+    const utm_medium = params.get('utm_medium');
+    const utm_campaign = params.get('utm_campaign');
+    const utm_term = params.get('utm_term');
+    const utm_content = params.get('utm_content');
+    const fbclid = params.get('fbclid');
+    const rfdm = params.get('rfdm');
+    const source = params.get('source');
+
+    if (ordencompra) trackingData.ordencompra = ordencompra;
+    if (utm_source) trackingData.utm_source = utm_source;
+    if (utm_medium) trackingData.utm_medium = utm_medium;
+    if (utm_campaign) trackingData.utm_campaign = utm_campaign;
+    if (utm_term) trackingData.utm_term = utm_term;
+    if (utm_content) trackingData.utm_content = utm_content;
+    if (fbclid) trackingData.fbclid = fbclid;
+    if (rfdm) trackingData.rfdm = rfdm;
+    if (source) trackingData.source = source;
+
+    // Capturar referrer y landing page
+    trackingData.referrer = document.referrer || undefined;
+    trackingData.landing_page = window.location.href;
+
+    setUrlTrackingData(trackingData);
+
+    // Guardar en sessionStorage para LeadSourceHandler
+    if (Object.keys(trackingData).length > 0) {
+      sessionStorage.setItem('leadSourceData', JSON.stringify({
+        ...trackingData,
+        first_visit_at: new Date().toISOString()
+      }));
+    }
+
+    console.log('URL Tracking Data capturado:', trackingData);
+  }, []);
 
   useEffect(() => {
     // Shuffle avatars on mount
@@ -211,6 +278,9 @@ const RegisterPage: React.FC = () => {
       // Parse full name
       const { firstName, lastName, motherLastName } = parseFullName(fullName);
 
+      // Limpiar telefono - solo 10 digitos
+      const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+
       // Crear usuario con email OTP (sin contraseña)
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -220,7 +290,8 @@ const RegisterPage: React.FC = () => {
             first_name: firstName,
             last_name: lastName,
             mother_last_name: motherLastName,
-            phone: phone,
+            phone: cleanPhone,
+            source: 'registro-directo'
           },
           emailRedirectTo: `${window.location.origin}/auth`,
         }
@@ -243,28 +314,84 @@ const RegisterPage: React.FC = () => {
 
       console.log('✅ Usuario creado exitosamente:', authData.user.id);
 
-      // Actualizar el perfil con los datos completos (el trigger ya creó el perfil básico)
-      const { error: updateError } = await supabase
+      // Esperar a que se establezca la sesion
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Determinar lead source
+      let leadSource = 'registro-directo';
+      if (urlTrackingData.utm_source) {
+        leadSource = `registro-${urlTrackingData.utm_source}`;
+        if (urlTrackingData.utm_medium) leadSource += `-${urlTrackingData.utm_medium}`;
+      } else if (urlTrackingData.fbclid) {
+        leadSource = 'registro-facebook';
+      } else if (urlTrackingData.rfdm) {
+        leadSource = `registro-rfdm-${urlTrackingData.rfdm}`;
+      }
+
+      // Actualizar el perfil con los datos completos incluyendo telefono y URL params
+      const profileUpdateData = {
+        first_name: firstName,
+        last_name: lastName,
+        mother_last_name: motherLastName,
+        phone: cleanPhone,
+        email: email,
+        // Datos de tracking
+        ordencompra: urlTrackingData.ordencompra || null,
+        utm_source: urlTrackingData.utm_source || null,
+        utm_medium: urlTrackingData.utm_medium || null,
+        utm_campaign: urlTrackingData.utm_campaign || null,
+        utm_term: urlTrackingData.utm_term || null,
+        utm_content: urlTrackingData.utm_content || null,
+        fbclid: urlTrackingData.fbclid || null,
+        rfdm: urlTrackingData.rfdm || null,
+        referrer: urlTrackingData.referrer || null,
+        landing_page: urlTrackingData.landing_page || null,
+        lead_source: leadSource,
+        source: urlTrackingData.source || leadSource,
+        first_visit_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('📝 Actualizando perfil con datos:', profileUpdateData);
+
+      const { data: upsertData, error: updateError } = await supabase
         .from('profiles')
-        .update({
-          first_name: firstName,
-          last_name: lastName,
-          mother_last_name: motherLastName,
-          phone: phone,
+        .upsert({
+          id: authData.user.id,
+          ...profileUpdateData
         })
-        .eq('id', authData.user.id);
+        .select();
 
       if (updateError) {
         console.error('⚠️ Error actualizando perfil:', updateError);
         // No fallar si no se puede actualizar el perfil
+      } else {
+        console.log('✅ Perfil actualizado exitosamente:', upsertData);
       }
+
+      // Verificar que los datos se guardaron
+      const { data: verifyProfile } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, phone, email')
+        .eq('id', authData.user.id)
+        .single();
+
+      console.log('🔍 Verificacion de perfil guardado:', verifyProfile);
+
+      // Track conversion
+      conversionTracking.trackAuth.otpVerified(authData.user.id, {
+        email: email,
+        source: leadSource,
+        vehicleId: urlTrackingData.ordencompra
+      });
 
       setStep('complete');
 
-      // Redirigir después de 2 segundos
+      // Redirigir a /escritorio/profile despues de 1.5 segundos (es nuevo usuario)
       setTimeout(() => {
-        navigate('/acceder');
-      }, 2000);
+        const redirectPath = `/escritorio/profile${urlParamsString ? `?${urlParamsString}` : ''}`;
+        navigate(redirectPath, { replace: true });
+      }, 1500);
 
     } catch (err: any) {
       console.error('Error creando cuenta:', err);
@@ -326,14 +453,14 @@ const RegisterPage: React.FC = () => {
           {error === 'account_exists_email' ? (
             <p className="text-red-600 text-sm text-center">
               Ya existe una cuenta con este correo electrónico, por favor{' '}
-              <Link to="/acceder" className="underline font-semibold hover:text-red-800">
+              <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="underline font-semibold hover:text-red-800">
                 inicia sesión
               </Link>
             </p>
           ) : error === 'account_exists_phone' ? (
             <p className="text-red-600 text-sm text-center">
               Ya existe una cuenta con este número de celular, por favor{' '}
-              <Link to="/acceder" className="underline font-semibold hover:text-red-800">
+              <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="underline font-semibold hover:text-red-800">
                 inicia sesión
               </Link>
             </p>
@@ -415,7 +542,7 @@ const RegisterPage: React.FC = () => {
 
       <div className="text-center text-sm text-gray-600">
         ¿Ya tienes cuenta?{' '}
-        <Link to="/acceder" className="text-primary-600 hover:underline font-medium">
+        <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="text-primary-600 hover:underline font-medium">
           Inicia sesión aquí
         </Link>
       </div>
@@ -491,8 +618,9 @@ const RegisterPage: React.FC = () => {
       <div>
         <h2 className="text-2xl font-bold text-gray-900">¡Cuenta creada exitosamente!</h2>
         <p className="mt-2 text-gray-600">
-          Redirigiendo al inicio de sesión...
+          Redirigiendo a tu perfil para completar tus datos...
         </p>
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto mt-4"></div>
       </div>
     </div>
   );

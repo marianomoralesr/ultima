@@ -88,11 +88,19 @@ const AuthPage: React.FC = () => {
     const [isLoadingVehicle, setIsLoadingVehicle] = useState(false);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [customerAvatars, setCustomerAvatars] = useState(allCustomerAvatars.slice(0, 3));
+    const [urlParamsString, setUrlParamsString] = useState('');
 
     useEffect(() => {
         // Shuffle avatars on mount
         const shuffled = [...allCustomerAvatars].sort(() => 0.5 - Math.random());
         setCustomerAvatars(shuffled.slice(0, 3));
+    }, []);
+
+    // Capturar URL params al inicio
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const paramString = params.toString();
+        setUrlParamsString(paramString);
     }, []);
 
     useEffect(() => {
@@ -195,10 +203,11 @@ const AuthPage: React.FC = () => {
                 } else if (error.message.includes('Email not confirmed')) {
                     throw new Error('Tu correo electrónico no ha sido confirmado. Por favor verifica tu bandeja de entrada.');
                 } else if (error.message.includes('User not found') || error.message.includes('Signups not allowed') || error.message.includes('not allowed for otp')) {
-                    // User doesn't exist - automatically redirect to registration
+                    // User doesn't exist - automatically redirect to registration preserving URL params
                     console.log('Usuario no encontrado, redirigiendo a registro...');
                     setLoading(false);
-                    navigate('/registro');
+                    const redirectUrl = `/registro${urlParamsString ? `?${urlParamsString}` : ''}`;
+                    navigate(redirectUrl);
                     return;
                 } else {
                     throw error;
@@ -390,7 +399,7 @@ const AuthPage: React.FC = () => {
 
                 <div className="text-center text-sm text-gray-600 mt-6">
                     ¿No tienes cuenta?{' '}
-                    <Link to="/registro" className="text-primary-600 hover:underline font-medium">
+                    <Link to={`/registro${urlParamsString ? `?${urlParamsString}` : ''}`} className="text-primary-600 hover:underline font-medium">
                         Regístrate aquí
                     </Link>
                 </div>

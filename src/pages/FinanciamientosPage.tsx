@@ -424,8 +424,9 @@ const FinanciamientosPage: React.FC = () => {
         console.log('⚠️ Usuario ya existe con este email:', existingProfile);
         setErrorMessage('Este correo electrónico ya está asociado a una cuenta. Por favor, inicia sesión aquí.');
         setSubmissionStatus('error');
-        // Navigate to /acceder after showing message
-        setTimeout(() => navigate('/acceder'), 2500);
+        // Navigate to /acceder after showing message, preserving URL params
+        const redirectUrl = `/acceder${urlParams ? `?${urlParams}` : ''}`;
+        setTimeout(() => navigate(redirectUrl), 2500);
         return;
       }
 
@@ -443,8 +444,9 @@ const FinanciamientosPage: React.FC = () => {
         console.log('⚠️ Usuario ya existe con este teléfono:', existingPhoneProfile);
         setErrorMessage('Este número de celular ya está asociado a una cuenta. Por favor, inicia sesión con tu correo electrónico aquí.');
         setSubmissionStatus('error');
-        // Navigate to /acceder after showing message
-        setTimeout(() => navigate('/acceder'), 2500);
+        // Navigate to /acceder after showing message, preserving URL params
+        const redirectUrl = `/acceder${urlParams ? `?${urlParams}` : ''}`;
+        setTimeout(() => navigate(redirectUrl), 2500);
         return;
       }
 
@@ -602,8 +604,10 @@ const FinanciamientosPage: React.FC = () => {
 
           // If user already exists, try to sign them in
           if (signUpError.message?.includes('already registered')) {
-            setErrorMessage('Este correo ya está registrado. Por favor, inicia sesión en /acceder.');
+            const redirectUrl = `/acceder${urlParams ? `?${urlParams}` : ''}`;
+            setErrorMessage(`Este correo ya está registrado. Por favor, inicia sesión.`);
             setSubmissionStatus('error');
+            setTimeout(() => navigate(redirectUrl), 2000);
             return;
           }
 

@@ -897,7 +897,7 @@ const UnifiedDashboardLayout: React.FC = () => {
                 </header>
 
                 {/* Page Content - Optimized spacing */}
-                <main className="mx-auto size-full max-w-7xl flex-1 px-2 py-3 md:px-4 md:py-4 overflow-x-hidden">
+                <main className="mx-auto w-full max-w-7xl flex-1 px-2 py-3 md:px-4 md:py-4 overflow-x-hidden transition-all duration-300">
                     <Outlet />
                 </main>
             </SidebarInset>

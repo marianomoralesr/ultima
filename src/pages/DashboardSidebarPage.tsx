@@ -500,10 +500,10 @@ const DashboardSidebarPage: React.FC = () => {
   }, [latestApplication, user?.id, loadStats]);
 
   return (
-    <div className="px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className="w-full max-w-full px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6 lg:px-8 lg:py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 max-w-full">
         {/* Main Content */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-8 xl:col-span-9 min-w-0">
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
             {/* Limit Warning */}
             {stats.enviadas > 1 && (
@@ -525,7 +525,7 @@ const DashboardSidebarPage: React.FC = () => {
             )}
 
             {/* Stats Cards Row */}
-            <div className={`grid grid-cols-2 ${statusConfig ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-2 sm:gap-3 md:gap-4`}>
+            <div className={`grid grid-cols-2 ${statusConfig ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3 lg:grid-cols-3'} gap-2 sm:gap-3 md:gap-4 w-full max-w-full`}>
               {/* Borradores - Clickable */}
               <div
                 className="cursor-pointer touch-manipulation"
@@ -689,7 +689,7 @@ const DashboardSidebarPage: React.FC = () => {
             </Card>
 
             {/* Action Cards Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 w-full max-w-full">
               {/* Mi Perfil con check sutil */}
               <Link to="/escritorio/profile" className="touch-manipulation">
                 <Card className={`hover:shadow-md transition-all hover:scale-[1.02] h-full ${
@@ -869,7 +869,7 @@ const DashboardSidebarPage: React.FC = () => {
             {publicUploadLink && latestApplication && (
               <Card
                 ref={dropzoneRef}
-                className={`border-2 transition-all duration-200 ${
+                className={`border-2 transition-all duration-200 w-full max-w-full overflow-hidden ${
                   isDragging
                     ? 'border-primary-500 bg-primary-100 scale-[1.02] shadow-lg'
                     : 'border-primary-300 bg-gradient-to-br from-primary-50 to-white'
@@ -879,7 +879,7 @@ const DashboardSidebarPage: React.FC = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <CardContent className="p-3 sm:p-4 md:p-6 relative">
+                <CardContent className="p-3 sm:p-4 md:p-6 relative w-full max-w-full">
                   {/* Drag overlay */}
                   {isDragging && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary-100/90 rounded-lg z-10">
@@ -901,13 +901,13 @@ const DashboardSidebarPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex flex-col md:flex-row items-start gap-6 relative">
+                  <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 relative w-full max-w-full">
                     {/* QR Code */}
                     <div className="flex-shrink-0 mx-auto md:mx-0">
-                      <div className="bg-white p-4 rounded-lg shadow-md">
+                      <div className="bg-white p-3 md:p-4 rounded-lg shadow-md">
                         <QRCodeSVG
                           value={publicUploadLink}
-                          size={120}
+                          size={100}
                           level="H"
                           includeMargin={true}
                         />
@@ -918,7 +918,7 @@ const DashboardSidebarPage: React.FC = () => {
                     </div>
 
                     {/* Dropzone Info */}
-                    <div className="flex-1 w-full">
+                    <div className="flex-1 w-full min-w-0">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="relative">
                           <Upload className="w-8 h-8 text-primary-600" />
@@ -949,19 +949,20 @@ const DashboardSidebarPage: React.FC = () => {
                       </div>
 
                       {/* Link con botón copiar */}
-                      <div className="flex items-center gap-2 bg-white p-3 rounded-lg border-2 border-gray-200">
+                      <div className="flex items-center gap-2 bg-white p-2 md:p-3 rounded-lg border-2 border-gray-200 w-full max-w-full overflow-hidden">
                         <input
                           type="text"
                           value={publicUploadLink}
                           readOnly
-                          className="flex-1 text-sm text-gray-700 bg-transparent outline-none"
+                          className="flex-1 text-xs sm:text-sm text-gray-700 bg-transparent outline-none truncate min-w-0"
                         />
                         <button
                           onClick={copyToClipboard}
-                          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm font-medium"
+                          className="flex items-center gap-1.5 px-3 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-xs sm:text-sm font-medium flex-shrink-0"
                         >
-                          <Copy className="w-4 h-4" />
-                          Copiar
+                          <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <span className="hidden sm:inline">Copiar</span>
+                          <span className="sm:hidden">Copiar</span>
                         </button>
                       </div>
 
@@ -980,9 +981,9 @@ const DashboardSidebarPage: React.FC = () => {
         </div>
 
         {/* Sidebar - Fixed Right Side */}
-        <div className="lg:col-span-1 space-y-4">
+        <div className="lg:col-span-4 xl:col-span-3 min-w-0 hidden lg:block">
           <Card className="sticky top-6">
-            <CardContent className="p-4 space-y-4">
+            <CardContent className="p-3 md:p-4 space-y-3 md:space-y-4">
             {/* Assigned Agent */}
             {assignedAgent && (
               <div className="bg-accent/50 p-2 rounded-lg border">

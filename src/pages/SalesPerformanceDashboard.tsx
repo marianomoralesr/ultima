@@ -122,7 +122,7 @@ const SalesPerformanceDashboard: React.FC = () => {
     }
 
     // Fetch comprehensive performance metrics - ONLY if authorized
-    const { data: performanceMetrics, isLoading: loadingMetrics, isError: isErrorMetrics, error: errorMetrics } = useQuery<SalesPerformanceMetrics, Error>({
+    const { data: performanceMetrics = {}, isLoading: loadingMetrics, isError: isErrorMetrics, error: errorMetrics } = useQuery<SalesPerformanceMetrics, Error>({
         queryKey: ['salesPerformanceMetrics', user.id],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_performance_metrics', {
@@ -138,7 +138,7 @@ const SalesPerformanceDashboard: React.FC = () => {
     });
 
     // Fetch applications by status for the sales user - ONLY if authorized
-    const { data: applicationsByStatus, isLoading: loadingAppsByStatus } = useQuery<any[], Error>({
+    const { data: applicationsByStatus = [], isLoading: loadingAppsByStatus } = useQuery<any[], Error>({
         queryKey: ['salesApplicationsByStatus', user.id],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_applications_by_status', {
@@ -154,7 +154,7 @@ const SalesPerformanceDashboard: React.FC = () => {
     });
 
     // Fetch detailed applications list - ONLY if authorized
-    const { data: detailedApplications, isLoading: loadingDetails } = useQuery<ApplicationDetail[], Error>({
+    const { data: detailedApplications = [], isLoading: loadingDetails } = useQuery<ApplicationDetail[], Error>({
         queryKey: ['salesDetailedApplications', user.id, statusFilter],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_detailed_applications', {

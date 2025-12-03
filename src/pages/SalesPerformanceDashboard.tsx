@@ -72,7 +72,6 @@ interface ApplicationDetail {
     application_status: string;
     application_created_at: string;
     application_updated_at: string;
-    is_complete: boolean;
     document_count: number;
     car_info: any;
     lead_id: string;
@@ -82,54 +81,96 @@ interface ApplicationDetail {
 }
 
 const SalesPerformanceDashboard: React.FC = () => {
-    const { user, profile } = useAuth();
+    const { user, profile, isSales, isAdmin, loading } = useAuth();
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
+    // Early return if not authorized - prevents race conditions
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            </div>
+        );
+    }
+
+    if (!isSales && !isAdmin) {
+        return (
+            <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center">
+                    <AlertTriangle className="w-6 h-6 text-yellow-600 mr-3" />
+                    <div>
+                        <h3 className="text-lg font-semibold text-yellow-900">Acceso Denegado</h3>
+                        <p className="text-yellow-700">No tienes permisos para ver este dashboard. Rol actual: {profile?.role || 'unknown'}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user?.id) {
+        return (
+            <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center">
+                    <AlertCircle className="w-6 h-6 text-red-600 mr-3" />
+                    <div>
+                        <h3 className="text-lg font-semibold text-red-900">Error de Sesión</h3>
+                        <p className="text-red-700">No se pudo obtener tu información de usuario. Por favor, recarga la página.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // Fetch comprehensive performance metrics
     const { data: performanceMetrics, isLoading: loadingMetrics, isError: isErrorMetrics, error: errorMetrics } = useQuery<SalesPerformanceMetrics, Error>({
-        queryKey: ['salesPerformanceMetrics', user?.id],
+        queryKey: ['salesPerformanceMetrics', user.id],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_performance_metrics', {
-                p_sales_user_id: user?.id
+                p_sales_user_id: user.id
             });
-            if (error) throw error;
+            if (error) {
+                console.error('Error fetching performance metrics:', error);
+                throw error;
+            }
             return data?.[0] || {};
         },
-        enabled: !!user?.id,
     });
 
     // Fetch applications by status for the sales user
     const { data: applicationsByStatus, isLoading: loadingAppsByStatus } = useQuery<any[], Error>({
-        queryKey: ['salesApplicationsByStatus', user?.id],
+        queryKey: ['salesApplicationsByStatus', user.id],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_applications_by_status', {
-                p_sales_user_id: user?.id
+                p_sales_user_id: user.id
             });
-            if (error) throw error;
+            if (error) {
+                console.error('Error fetching applications by status:', error);
+                throw error;
+            }
             return data || [];
         },
-        enabled: !!user?.id,
     });
 
     // Fetch detailed applications list
     const { data: detailedApplications, isLoading: loadingDetails } = useQuery<ApplicationDetail[], Error>({
-        queryKey: ['salesDetailedApplications', user?.id, statusFilter],
+        queryKey: ['salesDetailedApplications', user.id, statusFilter],
         queryFn: async () => {
             const { data, error } = await supabase.rpc('get_sales_detailed_applications', {
-                p_sales_user_id: user?.id,
+                p_sales_user_id: user.id,
                 p_status_filter: statusFilter
             });
-            if (error) throw error;
+            if (error) {
+                console.error('Error fetching detailed applications:', error);
+                throw error;
+            }
             return data || [];
         },
-        enabled: !!user?.id,
     });
 
     // Fetch my assigned leads
     const { data: myLeads = [], isLoading: loadingLeads } = useQuery<any[], Error>({
-        queryKey: ['salesAssignedLeads', user?.id],
-        queryFn: () => SalesService.getMyAssignedLeads(user?.id || ''),
-        enabled: !!user?.id,
+        queryKey: ['salesAssignedLeads', user.id],
+        queryFn: () => SalesService.getMyAssignedLeads(user.id),
     });
 
     const getStatusBadge = (status: string) => {

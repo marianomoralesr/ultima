@@ -36,6 +36,7 @@ interface SalesUser {
     last_name: string;
     phone: string;
     picture_url?: string;
+    role?: string;
     created_at: string;
     last_sign_in_at: string;
     last_assigned_at: string;
@@ -136,6 +137,11 @@ const AdminUserManagementPage: React.FC = () => {
     const totalLeadsActualizados = salesUsers.reduce((sum, user) => sum + user.leads_actualizados, 0);
     const activeUsers = salesUsers.length; // All users are active by default
     const overloadedUsers = salesUsers.filter(user => user.is_overloaded).length;
+
+    // Separar usuarios por rol
+    const salesTeam = salesUsers.filter(user => user.role === 'sales');
+    const admins = salesUsers.filter(user => user.role === 'admin');
+    const others = salesUsers.filter(user => user.role && user.role !== 'sales' && user.role !== 'admin');
 
     const exportToCSV = () => {
         try {
@@ -394,8 +400,16 @@ const AdminUserManagementPage: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y">
-                                            {salesUsers.map((user) => (
-                                                <tr key={user.id} className="hover:bg-accent transition-colors">
+                                            {/* Sección: Equipo de Ventas */}
+                                            {salesTeam.length > 0 && (
+                                                <>
+                                                    <tr>
+                                                        <td colSpan={6} className="px-6 py-3 bg-blue-50 dark:bg-blue-900/20 font-semibold text-blue-900 dark:text-blue-100">
+                                                            Equipo de Ventas ({salesTeam.length})
+                                                        </td>
+                                                    </tr>
+                                                    {salesTeam.map((user) => (
+                                                        <tr key={user.id} className="hover:bg-accent transition-colors">
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-3">
                                                             {user.picture_url ? (
@@ -490,6 +504,222 @@ const AdminUserManagementPage: React.FC = () => {
                                                     </td>
                                                 </tr>
                                             ))}
+                                                </>
+                                            )}
+
+                                            {/* Sección: Administradores */}
+                                            {admins.length > 0 && (
+                                                <>
+                                                    <tr>
+                                                        <td colSpan={6} className="px-6 py-3 bg-purple-50 dark:bg-purple-900/20 font-semibold text-purple-900 dark:text-purple-100">
+                                                            Administradores del Sitio ({admins.length})
+                                                        </td>
+                                                    </tr>
+                                                    {admins.map((user) => (
+                                                        <tr key={user.id} className="hover:bg-accent transition-colors">
+                                                            <td className="px-6 py-4">
+                                                                <div className="flex items-center gap-3">
+                                                                    {user.picture_url ? (
+                                                                        <img
+                                                                            src={user.picture_url}
+                                                                            alt={`${user.first_name} ${user.last_name}`}
+                                                                            className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                                            <span className="text-sm font-semibold">
+                                                                                {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div>
+                                                                        <div className="font-medium">
+                                                                            {user.first_name} {user.last_name}
+                                                                        </div>
+                                                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                                                            <Calendar className="w-3 h-3" />
+                                                                            Desde {formatDate(user.created_at)}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                {getStatusBadge(user)}
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="space-y-1">
+                                                                    {getActivityBadge(user.last_sign_in_at)}
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        {formatRelativeTime(user.last_sign_in_at)}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="text-sm">
+                                                                    <div className="font-medium">
+                                                                        {user.leads_assigned} asignados
+                                                                    </div>
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        Última: {formatDate(user.last_assigned_at)}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="space-y-1 text-xs">
+                                                                    <div className="flex justify-between gap-4">
+                                                                        <span className="text-muted-foreground">Contactados:</span>
+                                                                        <span className="font-medium">
+                                                                            {user.leads_contacted}/{user.leads_assigned}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between gap-4">
+                                                                        <span className="text-muted-foreground">Actualizados:</span>
+                                                                        <span className="font-medium">
+                                                                            {user.leads_actualizados}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between gap-4">
+                                                                        <span className="text-muted-foreground">Procesadas:</span>
+                                                                        <span className="font-medium">
+                                                                            {user.solicitudes_procesadas}/{user.solicitudes_enviadas}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
+                                                                        <div
+                                                                            className="bg-primary h-1.5 rounded-full transition-all"
+                                                                            style={{
+                                                                                width: `${user.leads_assigned > 0
+                                                                                    ? (user.leads_contacted / user.leads_assigned) * 100
+                                                                                    : 0
+                                                                                    }%`
+                                                                            }}
+                                                                        ></div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => setSelectedUserId(user.id)}
+                                                                    >
+                                                                        <Eye className="w-3 h-3 mr-1" />
+                                                                        Ver
+                                                                    </Button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </>
+                                            )}
+
+                                            {/* Sección: Otros Usuarios */}
+                                            {others.length > 0 && (
+                                                <>
+                                                    <tr>
+                                                        <td colSpan={6} className="px-6 py-3 bg-gray-50 dark:bg-gray-900/20 font-semibold text-gray-900 dark:text-gray-100">
+                                                            Otros Usuarios ({others.length})
+                                                        </td>
+                                                    </tr>
+                                                    {others.map((user) => (
+                                                        <tr key={user.id} className="hover:bg-accent transition-colors">
+                                                            <td className="px-6 py-4">
+                                                                <div className="flex items-center gap-3">
+                                                                    {user.picture_url ? (
+                                                                        <img
+                                                                            src={user.picture_url}
+                                                                            alt={`${user.first_name} ${user.last_name}`}
+                                                                            className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                                            <span className="text-sm font-semibold">
+                                                                                {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div>
+                                                                        <div className="font-medium">
+                                                                            {user.first_name} {user.last_name}
+                                                                        </div>
+                                                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                                                            <Calendar className="w-3 h-3" />
+                                                                            Desde {formatDate(user.created_at)}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                {getStatusBadge(user)}
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="space-y-1">
+                                                                    {getActivityBadge(user.last_sign_in_at)}
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        {formatRelativeTime(user.last_sign_in_at)}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="text-sm">
+                                                                    <div className="font-medium">
+                                                                        {user.leads_assigned} asignados
+                                                                    </div>
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        Última: {formatDate(user.last_assigned_at)}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="space-y-1 text-xs">
+                                                                    <div className="flex justify-between gap-4">
+                                                                        <span className="text-muted-foreground">Contactados:</span>
+                                                                        <span className="font-medium">
+                                                                            {user.leads_contacted}/{user.leads_assigned}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between gap-4">
+                                                                        <span className="text-muted-foreground">Actualizados:</span>
+                                                                        <span className="font-medium">
+                                                                            {user.leads_actualizados}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between gap-4">
+                                                                        <span className="text-muted-foreground">Procesadas:</span>
+                                                                        <span className="font-medium">
+                                                                            {user.solicitudes_procesadas}/{user.solicitudes_enviadas}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
+                                                                        <div
+                                                                            className="bg-primary h-1.5 rounded-full transition-all"
+                                                                            style={{
+                                                                                width: `${user.leads_assigned > 0
+                                                                                    ? (user.leads_contacted / user.leads_assigned) * 100
+                                                                                    : 0
+                                                                                    }%`
+                                                                            }}
+                                                                        ></div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => setSelectedUserId(user.id)}
+                                                                    >
+                                                                        <Eye className="w-3 h-3 mr-1" />
+                                                                        Ver
+                                                                    </Button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>

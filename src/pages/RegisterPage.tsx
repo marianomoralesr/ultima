@@ -7,6 +7,27 @@ import { proxyImage } from '../utils/proxyImage';
 
 type RegisterStep = 'form' | 'verify_sms' | 'complete';
 
+// Helper function to parse full name into first, last, and mother's last name
+// Returns: { firstName, lastName, motherLastName }
+const parseFullName = (fullName: string): { firstName: string; lastName: string; motherLastName: string } => {
+  const parts = fullName.trim().split(/\s+/); // Split by whitespace
+
+  if (parts.length === 0) {
+    return { firstName: '', lastName: '', motherLastName: '' };
+  } else if (parts.length === 1) {
+    return { firstName: parts[0], lastName: '', motherLastName: '' };
+  } else if (parts.length === 2) {
+    return { firstName: parts[0], lastName: parts[1], motherLastName: '' };
+  } else {
+    // 3 or more parts: first part is firstName, last two are lastNames
+    return {
+      firstName: parts[0],
+      lastName: parts[parts.length - 2],
+      motherLastName: parts[parts.length - 1]
+    };
+  }
+};
+
 const allCustomerAvatars = [
     'https://randomuser.me/api/portraits/women/18.jpg',
     'https://randomuser.me/api/portraits/men/44.jpg',
@@ -35,8 +56,7 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
 
   // Datos del formulario
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -69,26 +89,22 @@ const RegisterPage: React.FC = () => {
         .single();
 
       if (existingProfile && !profileError) {
-        setError('Este correo electrónico ya está asociado a una cuenta. Por favor, inicia sesión aquí.');
+        setError('account_exists_email');
         setLoading(false);
-        // Navigate to /acceder after 2 seconds
-        setTimeout(() => navigate('/acceder'), 2000);
         return;
       }
 
       // Verificar si el teléfono ya existe
       const cleanPhone = phone.replace(/\D/g, '');
-      const { data: existingPhoneProfile, error: phoneError } = await supabase
+      const { data: existingPhoneProfile, error: phoneError} = await supabase
         .from('profiles')
         .select('id, phone')
         .eq('phone', cleanPhone)
         .single();
 
       if (existingPhoneProfile && !phoneError) {
-        setError('Este número de celular ya está asociado a una cuenta. Por favor, inicia sesión con tu correo electrónico aquí.');
+        setError('account_exists_phone');
         setLoading(false);
-        // Navigate to /acceder after 2 seconds
-        setTimeout(() => navigate('/acceder'), 2000);
         return;
       }
 
@@ -192,6 +208,9 @@ const RegisterPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      // Parse full name
+      const { firstName, lastName, motherLastName } = parseFullName(fullName);
+
       // Crear usuario con email OTP (sin contraseña)
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -200,6 +219,7 @@ const RegisterPage: React.FC = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
+            mother_last_name: motherLastName,
             phone: phone,
           },
           emailRedirectTo: `${window.location.origin}/auth`,
@@ -229,6 +249,7 @@ const RegisterPage: React.FC = () => {
         .update({
           first_name: firstName,
           last_name: lastName,
+          mother_last_name: motherLastName,
           phone: phone,
         })
         .eq('id', authData.user.id);
@@ -256,7 +277,7 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim()) {
+    if (!fullName.trim() || !email.trim() || !phone.trim()) {
       setError('Por favor, completa todos los campos');
       return;
     }
@@ -302,30 +323,34 @@ const RegisterPage: React.FC = () => {
 
       {error && (
         <div className="p-3 rounded-md bg-red-50 border border-red-200">
-          <p className="text-red-600 text-sm text-center">{error}</p>
+          {error === 'account_exists_email' ? (
+            <p className="text-red-600 text-sm text-center">
+              Ya existe una cuenta con este correo electrónico, por favor{' '}
+              <Link to="/acceder" className="underline font-semibold hover:text-red-800">
+                inicia sesión
+              </Link>
+            </p>
+          ) : error === 'account_exists_phone' ? (
+            <p className="text-red-600 text-sm text-center">
+              Ya existe una cuenta con este número de celular, por favor{' '}
+              <Link to="/acceder" className="underline font-semibold hover:text-red-800">
+                inicia sesión
+              </Link>
+            </p>
+          ) : (
+            <p className="text-red-600 text-sm text-center">{error}</p>
+          )}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <input
-            id="firstName"
+            id="fullName"
             type="text"
-            placeholder="Nombre"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            className={formInputClasses}
-          />
-        </div>
-
-        <div>
-          <input
-            id="lastName"
-            type="text"
-            placeholder="Apellido"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Nombre completo"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             required
             className={formInputClasses}
           />

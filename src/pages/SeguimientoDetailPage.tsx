@@ -48,7 +48,27 @@ const SeguimientoDetailPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const app = await ApplicationService.getApplicationById(user.id, id);
+
+        // First, try to get the application without user_id filter
+        const { data: app, error: appError } = await supabase
+          .from('financing_applications')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        // If application doesn't exist, show error
+        if (!app) {
+          setError('Solicitud no encontrada');
+          setLoading(false);
+          return;
+        }
+
+        if (appError) {
+          console.error('Error fetching application:', appError);
+          setError('Error al cargar la solicitud');
+          setLoading(false);
+          return;
+        }
 
         // Check permissions: owner, assigned sales advisor, or admin
         const isOwner = app.user_id === user.id;

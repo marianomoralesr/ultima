@@ -269,16 +269,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     clearTimeout(loadingTimeout); // Clear timeout on success
                     setLoading(false);
                 } else if (event === 'SIGNED_IN') {
+                    console.log('[AuthContext] SIGNED_IN event - checking if profile needs refresh');
                     setSession(session);
                     const currentUser = session?.user ?? null;
                     setUser(currentUser);
                     if (currentUser) {
-                        // Update last_sign_in_at in profiles table
-                        await supabase
-                            .from('profiles')
-                            .update({ last_sign_in_at: new Date().toISOString() })
-                            .eq('id', currentUser.id);
-                        await fetchProfile(currentUser.id);
+                        // Check if we already have a valid cached profile with correct role
+                        const cachedProfile = sessionStorage.getItem('userProfile');
+                        let needsRefresh = true;
+
+                        if (cachedProfile) {
+                            try {
+                                const parsed = JSON.parse(cachedProfile);
+                                if (parsed.id === currentUser.id && parsed.role && ['user', 'sales', 'admin', 'marketing'].includes(parsed.role)) {
+                                    console.log('[AuthContext] Valid cached profile exists with role:', parsed.role, '- skipping refresh');
+                                    needsRefresh = false;
+                                    setProfile(parsed);
+                                }
+                            } catch (e) {
+                                console.warn('[AuthContext] Failed to parse cached profile');
+                            }
+                        }
+
+                        if (needsRefresh) {
+                            console.log('[AuthContext] Refreshing profile from database');
+                            // Update last_sign_in_at in profiles table
+                            await supabase
+                                .from('profiles')
+                                .update({ last_sign_in_at: new Date().toISOString() })
+                                .eq('id', currentUser.id);
+                            await fetchProfile(currentUser.id);
+                        }
                     }
                 } else if (event === 'SIGNED_OUT') {
                     setSession(null);

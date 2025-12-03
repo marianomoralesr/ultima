@@ -828,7 +828,7 @@ const FinanciamientosPage: React.FC = () => {
               }}
               className="w-full text-sm text-gray-500 hover:text-primary font-medium"
             >
-              Cambiar correo electrónico
+              Modificar o cambiar número celular
             </button>
           </form>
         </div>

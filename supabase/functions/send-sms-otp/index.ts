@@ -3,7 +3,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
 const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
-const TWILIO_MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID") || "MG40541813c90a3c423b23e282b98e2834";
+const TWILIO_PHONE_NUMBER = "+18147032022";
 
 interface RequestBody {
   phone: string;
@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
 
     const formData = new URLSearchParams();
     formData.append("To", formattedPhone);
-    formData.append("MessagingServiceSid", TWILIO_MESSAGING_SERVICE_SID);
+    formData.append("From", TWILIO_PHONE_NUMBER);
     formData.append("Body", message);
 
     const response = await fetch(twilioUrl, {

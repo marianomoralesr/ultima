@@ -46,7 +46,6 @@ interface SalesUser {
     solicitudes_enviadas: number;
     solicitudes_procesadas: number;
     is_overloaded: boolean;
-    is_active: boolean;
 }
 
 const AdminUserManagementPage: React.FC = () => {
@@ -60,28 +59,6 @@ const AdminUserManagementPage: React.FC = () => {
         queryFn: AdminService.getSalesUsersWithAnalytics
     });
 
-    const toggleUserStatusMutation = useMutation({
-        mutationFn: ({ userId, isActive }: { userId: string; isActive: boolean }) =>
-            AdminService.updateSalesUserStatus(userId, isActive),
-        onSuccess: (data) => {
-            toast.success(data.message);
-            queryClient.invalidateQueries({ queryKey: ['salesUsers'] });
-        },
-        onError: (error: Error) => {
-            toast.error(error.message);
-        }
-    });
-
-    const handleToggleUserStatus = (userId: string, currentStatus: boolean) => {
-        const newStatus = !currentStatus;
-        const confirmMessage = newStatus
-            ? '¿Desea activar este usuario? Comenzará a recibir leads automáticamente.'
-            : '¿Desea desactivar este usuario? Dejará de recibir nuevos leads.';
-
-        if (window.confirm(confirmMessage)) {
-            toggleUserStatusMutation.mutate({ userId, isActive: newStatus });
-        }
-    };
 
     const formatDate = (dateString: string | null) => {
         if (!dateString) return 'Nunca';
@@ -117,14 +94,6 @@ const AdminUserManagementPage: React.FC = () => {
     };
 
     const getStatusBadge = (user: SalesUser) => {
-        if (!user.is_active) {
-            return (
-                <Badge variant="secondary" className="gap-1 bg-gray-500 text-white hover:bg-gray-600">
-                    <XCircle className="w-3 h-3" />
-                    Inactivo
-                </Badge>
-            );
-        }
         if (user.is_overloaded) {
             return (
                 <Badge variant="destructive" className="gap-1 bg-red-600 text-white hover:bg-red-700">
@@ -165,7 +134,7 @@ const AdminUserManagementPage: React.FC = () => {
     const totalContacted = salesUsers.reduce((sum, user) => sum + user.leads_contacted, 0);
     const totalApplications = salesUsers.reduce((sum, user) => sum + user.leads_with_applications, 0);
     const totalLeadsActualizados = salesUsers.reduce((sum, user) => sum + user.leads_actualizados, 0);
-    const activeUsers = salesUsers.filter(user => user.is_active).length;
+    const activeUsers = salesUsers.length; // All users are active by default
     const overloadedUsers = salesUsers.filter(user => user.is_overloaded).length;
 
     const exportToCSV = () => {
@@ -180,7 +149,6 @@ const AdminUserManagementPage: React.FC = () => {
                 'Nombre': `${user.first_name} ${user.last_name}`,
                 'Email': user.email,
                 'Teléfono': user.phone || 'N/A',
-                'Estado': user.is_active ? 'Activo' : 'Inactivo',
                 'Sobrecargado': user.is_overloaded ? 'Sí' : 'No',
                 'Leads Asignados': user.leads_assigned,
                 'Leads Contactados': user.leads_contacted,
@@ -229,7 +197,6 @@ const AdminUserManagementPage: React.FC = () => {
                 'Nombre': `${user.first_name} ${user.last_name}`,
                 'Email': user.email,
                 'Teléfono': user.phone || 'N/A',
-                'Estado': user.is_active ? 'Activo' : 'Inactivo',
                 'Sobrecargado': user.is_overloaded ? 'Sí' : 'No',
                 'Leads Asignados': user.leads_assigned,
                 'Leads Contactados': user.leads_contacted,
@@ -518,14 +485,6 @@ const AdminUserManagementPage: React.FC = () => {
                                                             >
                                                                 <Eye className="w-3 h-3 mr-1" />
                                                                 Ver
-                                                            </Button>
-                                                            <Button
-                                                                variant={user.is_active ? "destructive" : "default"}
-                                                                size="sm"
-                                                                onClick={() => handleToggleUserStatus(user.id, user.is_active)}
-                                                                disabled={toggleUserStatusMutation.isPending}
-                                                            >
-                                                                {user.is_active ? 'Desactivar' : 'Activar'}
                                                             </Button>
                                                         </div>
                                                     </td>

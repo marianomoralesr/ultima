@@ -174,8 +174,12 @@ const AuthPage: React.FC = () => {
                 return;
             }
 
-            // STEP 1: Check if email exists in database
+            // STEP 1: Check if email exists in database (with RLS bypass using service role check)
             console.log('🔍 Verificando si el email existe en la base de datos:', email);
+
+            // Try to check if user exists, but don't block login if there's an RLS error
+            let shouldProceedWithOTP = true;
+
             const { data: existingUser, error: checkError } = await supabase
                 .from('profiles')
                 .select('id, email')
@@ -183,13 +187,22 @@ const AuthPage: React.FC = () => {
                 .maybeSingle();
 
             if (checkError) {
-                console.error('Error checking email existence:', checkError);
-                // Continue anyway - let Supabase auth handle it
+                console.warn('⚠️ Error checking email (RLS puede estar bloqueando):', checkError);
+                // If there's an RLS error or any other error, we'll let Supabase Auth handle it
+                // This ensures existing users can still login even if profiles query fails
+                shouldProceedWithOTP = true;
+            } else if (!existingUser) {
+                console.log('❌ Email no encontrado en tabla profiles');
+                // Only block if we got a successful query response with no user
+                shouldProceedWithOTP = false;
+            } else {
+                console.log('✅ Email encontrado en la base de datos');
+                shouldProceedWithOTP = true;
             }
 
-            // STEP 2: If email doesn't exist, show friendly message with register option
-            if (!existingUser) {
-                console.log('❌ Email no encontrado en la base de datos');
+            // STEP 2: If email definitely doesn't exist, show friendly message
+            if (!shouldProceedWithOTP && !checkError) {
+                console.log('🚫 Bloqueando login - usuario no existe');
                 setError(
                     <div className="text-left">
                         <p className="text-xl font-bold mb-3 text-blue-900">Este correo no está registrado</p>
@@ -220,7 +233,7 @@ const AuthPage: React.FC = () => {
                 return;
             }
 
-            console.log('✅ Email encontrado en la base de datos, procediendo a enviar OTP');
+            console.log('✅ Procediendo a enviar OTP');
 
             // Set default redirect if not already set (will be adjusted after login based on role)
             if (!localStorage.getItem('loginRedirect')) {

@@ -279,15 +279,25 @@ const PerfilacionBancariaPage: React.FC = () => {
 
 
     const onSubmit = async (data: BankProfileFormData) => {
-        if (!user) return;
+        if (!user) {
+            toast.error('No hay usuario autenticado');
+            return;
+        }
 
         try {
+            console.log('[PerfilacionBancaria] Starting profile save...', { userId: user.id });
+
             const { recommendedBank, secondOption, lowScore } = calculateBankScores(data);
+            console.log('[PerfilacionBancaria] Bank scores calculated:', { recommendedBank, secondOption, lowScore });
+
             await BankProfilingService.saveUserBankProfile(user.id, {
                 respuestas: data,
                 banco_recomendado: recommendedBank,
                 banco_segunda_opcion: secondOption,
             });
+
+            console.log('[PerfilacionBancaria] Profile saved successfully');
+
             setRecommendedBank(recommendedBank);
             setSecondRecommendedBank(secondOption);
             setIsLowScore(lowScore);
@@ -308,10 +318,13 @@ const PerfilacionBancariaPage: React.FC = () => {
                 // Don't fail the form submission if tracking fails
             }
 
+            toast.success('¡Perfil bancario guardado exitosamente!');
             setStatus('success');
-        } catch (error) {
-            console.error(error);
-            toast.error('Hubo un error al guardar tu perfil. Por favor, intenta nuevamente.');
+        } catch (error: any) {
+            console.error('[PerfilacionBancaria] Error saving profile:', error);
+            const errorMessage = error?.message || 'Hubo un error al guardar tu perfil. Por favor, intenta nuevamente.';
+            toast.error(errorMessage);
+            // Don't change status - keep form available for retry
         }
     };
     
@@ -471,7 +484,7 @@ const PerfilacionBancariaPage: React.FC = () => {
                         type="submit"
                         disabled={isSubmitting}
                         size="lg"
-                        className="bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 min-h-[56px] px-10 text-base font-bold"
+                        className="bg-gradient-to-r from-yellow-500 to-primary-500 hover:from-yellow-600 hover:to-primary-600 min-h-[56px] px-10 text-base font-bold text-white"
                     >
                         {isSubmitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Guardando...</> : 'Guardar y Analizar Perfil'}
                     </Button>

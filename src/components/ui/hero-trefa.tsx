@@ -513,7 +513,7 @@ function HeroTrefa({ isMobile = false }: HeroTrefaProps) {
                 </article>
 
                 <Link
-                  to="/acceder"
+                  to="/registro"
                   className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors font-semibold flex items-center gap-2 whitespace-nowrap"
                 >
                   Registrarme

@@ -1287,15 +1287,17 @@ const FinanciamientosPage: React.FC = () => {
           )}
 
           <div className="text-center mt-8">
-            <Link
-              to={`/acceder${urlParams ? `?${urlParams}` : ''}`}
-              onClick={() => trackCTAClick('Ver todo el inventario', 'inventory_section')}
+            <button
+              onClick={() => {
+                trackCTAClick('Ver todo el inventario', 'inventory_section');
+                document.getElementById('registration-form')?.scrollIntoView({ behavior: 'smooth' });
+              }}
               className="group relative overflow-hidden inline-flex items-center gap-2 bg-gradient-to-r from-primary to-orange-600 text-white hover:shadow-2xl px-8 py-4 rounded-xl font-black text-lg transition-all hover:scale-105 shadow-lg"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
               <span className="relative">Ver todo el inventario</span>
               <ArrowRight className="w-5 h-5 relative group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </button>
           </div>
         </div>
       </section>

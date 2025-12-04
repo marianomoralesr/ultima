@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
+import DateRangeFilter, { DateRange } from '../components/DateRangeFilter';
 import {
     processLeads,
     getStatusLabel,
@@ -46,6 +47,11 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
     const [asesores, setAsesores] = useState<Array<{ id: string; name: string }>>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
+    const [dateRange, setDateRange] = useState<DateRange>({
+        startDate: null,
+        endDate: null,
+        preset: 'allTime'
+    });
     const queryClient = useQueryClient();
 
     const isAdmin = userRole === 'admin';
@@ -85,6 +91,14 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
 
     const filteredAndSortedLeads = useMemo(() => {
         let filtered = processedLeads;
+
+        // Filter by date range first
+        if (dateRange.startDate && dateRange.endDate) {
+            filtered = filtered.filter(lead => {
+                const leadDate = new Date(lead.created_at || lead.last_sign_in_at);
+                return leadDate >= dateRange.startDate! && leadDate <= dateRange.endDate!;
+            });
+        }
 
         if (searchTerm) {
             const lowercasedQuery = searchTerm.toLowerCase();
@@ -159,7 +173,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
         });
 
         return sorted;
-    }, [processedLeads, searchTerm, filterStatus, filterContactado, filterPriority, sortColumn, sortDirection]);
+    }, [processedLeads, searchTerm, filterStatus, filterContactado, filterPriority, sortColumn, sortDirection, dateRange]);
 
     const paginatedLeads = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
@@ -170,12 +184,40 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
     const totalPages = Math.ceil(filteredAndSortedLeads.length / pageSize);
 
     const leadsNeedingAction = useMemo(() => {
-        return processedLeads.filter(lead => lead.needsAction).length;
-    }, [processedLeads]);
+        return filteredAndSortedLeads.filter(lead => lead.needsAction).length;
+    }, [filteredAndSortedLeads]);
+
+    // Recalculate stats based on filtered data
+    const filteredStats = useMemo(() => {
+        if (!dateRange.startDate || !dateRange.endDate) return stats;
+
+        const total = filteredAndSortedLeads.length;
+        const withActiveApp = filteredAndSortedLeads.filter(lead => lead.latest_app_id).length;
+        const unfinished = filteredAndSortedLeads.filter(lead =>
+            lead.latest_app_id && (
+                // Check both new and legacy status values
+                lead.correctedStatus === APPLICATION_STATUS.PENDING_DOCS ||
+                lead.correctedStatus === APPLICATION_STATUS.FALTAN_DOCUMENTOS ||
+                lead.correctedStatus === APPLICATION_STATUS.DRAFT ||
+                !lead.is_complete
+            )
+        ).length;
+        const notContacted = filteredAndSortedLeads.filter(lead => !lead.contactado).length;
+
+        return {
+            total_leads: total,
+            leads_with_active_app: withActiveApp,
+            leads_with_unfinished_app: unfinished,
+            leads_not_contacted: notContacted
+        };
+    }, [filteredAndSortedLeads, stats, dateRange]);
+
+    // Use filtered stats when date range is active
+    const displayStats = (dateRange.startDate && dateRange.endDate) ? filteredStats : stats;
 
     React.useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, filterStatus, filterContactado, filterPriority]);
+    }, [searchTerm, filterStatus, filterContactado, filterPriority, dateRange]);
 
     const handleSort = (column: SortColumn) => {
         if (sortColumn === column) {
@@ -387,7 +429,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
             )}
 
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">
                         {isAdmin ? 'CRM - Gestión de Leads' : 'Mis Leads Asignados'}
@@ -398,10 +440,13 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                             : 'Gestiona tus clientes asignados y da seguimiento'}
                     </p>
                 </div>
-                <Button variant="outline" onClick={handleRefresh}>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Refrescar
-                </Button>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <DateRangeFilter value={dateRange} onChange={setDateRange} />
+                    <Button variant="outline" onClick={handleRefresh}>
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refrescar
+                    </Button>
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -414,7 +459,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.total_leads || 0}</div>
+                        <div className="text-2xl font-bold">{displayStats.total_leads || 0}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -423,7 +468,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                         <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.leads_with_active_app || 0}</div>
+                        <div className="text-2xl font-bold">{displayStats.leads_with_active_app || 0}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -432,7 +477,7 @@ const UnifiedCRMPage: React.FC<UnifiedCRMPageProps> = ({ userRole }) => {
                         <User className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.leads_with_unfinished_app || stats.leads_not_contacted || 0}</div>
+                        <div className="text-2xl font-bold">{displayStats.leads_with_unfinished_app || displayStats.leads_not_contacted || 0}</div>
                     </CardContent>
                 </Card>
                 <Card>

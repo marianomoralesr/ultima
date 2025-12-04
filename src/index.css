@@ -192,6 +192,25 @@
   .bg-\[\#ff6801\] .text-gray-900 {
     color: white !important;
   }
+
+  /* CRITICAL: Force ALL shadcn/ui primary buttons to use white text */
+  button[class*="bg-primary"],
+  button.bg-primary,
+  a[class*="bg-primary"],
+  a.bg-primary,
+  [role="button"][class*="bg-primary"],
+  /* Specific shadcn button class */
+  .inline-flex.items-center.justify-center.bg-primary,
+  button.inline-flex.items-center.justify-center.bg-primary,
+  a.inline-flex.items-center.justify-center.bg-primary {
+    color: white !important;
+  }
+
+  /* Force text-primary-foreground to always be white */
+  .text-primary-foreground,
+  [class*="text-primary-foreground"] {
+    color: white !important;
+  }
 }
 
 html, body, #root {

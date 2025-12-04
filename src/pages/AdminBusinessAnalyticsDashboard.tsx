@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BusinessAnalyticsService, BusinessMetrics } from '../services/BusinessAnalyticsService';
@@ -6,6 +6,7 @@ import { BrevoEmailService } from '../services/BrevoEmailService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import DateRangeFilter, { DateRange } from '../components/DateRangeFilter';
 import {
     Car,
     AlertTriangle,
@@ -31,6 +32,11 @@ export default function AdminBusinessAnalyticsDashboard() {
     const [refreshing, setRefreshing] = useState(false);
     const [sendingEmail, setSendingEmail] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [dateRange, setDateRange] = useState<DateRange>({
+        startDate: null,
+        endDate: null,
+        preset: 'allTime'
+    });
 
     const isAdmin = profile?.role === 'admin';
 
@@ -60,6 +66,33 @@ export default function AdminBusinessAnalyticsDashboard() {
             setRefreshing(false);
         }
     };
+
+    // Filter metrics based on date range
+    const filteredMetrics = useMemo(() => {
+        if (!metrics) return null;
+        if (!dateRange.startDate || !dateRange.endDate) return metrics;
+
+        const filterByDate = (items: any[], dateField: string = 'createdAt') => {
+            return items.filter(item => {
+                const itemDate = new Date(item[dateField]);
+                return itemDate >= dateRange.startDate! && itemDate <= dateRange.endDate!;
+            });
+        };
+
+        // Filter unavailable vehicle applications
+        const filteredUnavailableApps = filterByDate(metrics.unavailableVehicleApplications);
+
+        // For vehicle insights and inventory, we keep them all but could filter by application dates
+        // This is more complex as these are aggregated metrics
+        // For now, we'll keep the original data structure but note it's filtered by application dates
+
+        return {
+            ...metrics,
+            unavailableVehicleApplications: filteredUnavailableApps,
+            totalActiveApplications: filteredUnavailableApps.length,
+            // Keep other metrics as-is for now (they're aggregated, harder to filter accurately)
+        };
+    }, [metrics, dateRange]);
 
     const handleSendAvailabilityEmail = async (app: any) => {
         if (!window.confirm(`¿Enviar email a ${app.applicantName} notificando que el vehículo ya no está disponible?`)) {
@@ -129,26 +162,29 @@ export default function AdminBusinessAnalyticsDashboard() {
 
     return (
         <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Análisis de Negocio</h2>
                     <p className="text-sm text-muted-foreground">
                         Análisis de vehículos, ventas y tendencias de mercado
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Última actualización</p>
-                        <p className="text-sm font-medium">{lastUpdated.toLocaleTimeString('es-MX')}</p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <DateRangeFilter value={dateRange} onChange={setDateRange} />
+                    <div className="flex items-center gap-3">
+                        <div className="text-right">
+                            <p className="text-xs text-muted-foreground">Última actualización</p>
+                            <p className="text-sm font-medium">{lastUpdated.toLocaleTimeString('es-MX')}</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => loadBusinessData(true)}
+                            disabled={refreshing}
+                        >
+                            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                        </Button>
                     </div>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => loadBusinessData(true)}
-                        disabled={refreshing}
-                    >
-                        <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                    </Button>
                 </div>
             </div>
 
@@ -160,7 +196,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                         <Package className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{metrics.totalActiveApplications}</div>
+                        <div className="text-2xl font-bold">{filteredMetrics.totalActiveApplications}</div>
                         <p className="text-xs text-muted-foreground">En proceso</p>
                     </CardContent>
                 </Card>
@@ -171,7 +207,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length}
+                            {filteredMetrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length}
                         </div>
                         <p className="text-xs text-muted-foreground">Inventario con demanda</p>
                     </CardContent>
@@ -179,7 +215,7 @@ export default function AdminBusinessAnalyticsDashboard() {
             </div>
 
             {/* Unavailable Vehicle Applications - Limited to first 5 */}
-            {metrics.unavailableVehicleApplications.length > 0 && (
+            {filteredMetrics.unavailableVehicleApplications.length > 0 && (
                 <Card className="border-destructive">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -187,13 +223,13 @@ export default function AdminBusinessAnalyticsDashboard() {
                             Solicitudes con Vehículos No Disponibles
                         </CardTitle>
                         <CardDescription>
-                            {metrics.unavailableVehicleApplications.length} aplicaciones requieren acción inmediata
-                            {metrics.unavailableVehicleApplications.length > 5 && ' (mostrando las primeras 5)'}
+                            {filteredMetrics.unavailableVehicleApplications.length} aplicaciones requieren acción inmediata
+                            {filteredMetrics.unavailableVehicleApplications.length > 5 && ' (mostrando las primeras 5)'}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {metrics.unavailableVehicleApplications.slice(0, 5).map(app => (
+                            {filteredMetrics.unavailableVehicleApplications.slice(0, 5).map(app => (
                                 <div key={app.applicationId} className="flex items-center justify-between p-4 border rounded-lg">
                                     <div className="flex-1">
                                         <p className="font-medium">{app.vehicleTitle}</p>
@@ -220,11 +256,11 @@ export default function AdminBusinessAnalyticsDashboard() {
                                 </div>
                             ))}
                         </div>
-                        {metrics.unavailableVehicleApplications.length > 5 && (
+                        {filteredMetrics.unavailableVehicleApplications.length > 5 && (
                             <div className="mt-4 pt-4 border-t text-center">
                                 <Button variant="outline" size="sm" asChild>
                                     <a href="/escritorio/admin/crm">
-                                        Ver todas las {metrics.unavailableVehicleApplications.length} solicitudes
+                                        Ver todas las {filteredMetrics.unavailableVehicleApplications.length} solicitudes
                                     </a>
                                 </Button>
                             </div>
@@ -245,14 +281,14 @@ export default function AdminBusinessAnalyticsDashboard() {
                         <CardDescription>Top 10 vehículos por solicitudes activas</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {metrics.vehicleInsights.length === 0 ? (
+                        {filteredMetrics.vehicleInsights.length === 0 ? (
                             <div className="text-center py-12">
                                 <Car className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
                                 <p className="text-sm text-muted-foreground">No hay datos de solicitudes por vehículo aún</p>
                             </div>
                         ) : (
                             <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-                                {metrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
+                                {filteredMetrics.vehicleInsights.slice(0, 10).map((vehicle, index) => (
                                     <div key={vehicle.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-accent transition-colors">
                                         <div className="flex-shrink-0">
                                             {vehicle.thumbnail ? (
@@ -303,14 +339,14 @@ export default function AdminBusinessAnalyticsDashboard() {
                         <CardDescription>Vehículos en inventario con aplicaciones en proceso</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {metrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 ? (
+                        {filteredMetrics.inventoryVehiclesWithApplications.filter(v => v.ongoingApplications > 0).length === 0 ? (
                             <div className="text-center py-12">
                                 <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
                                 <p className="text-sm text-muted-foreground">No hay vehículos con solicitudes activas</p>
                             </div>
                         ) : (
                             <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-                                {metrics.inventoryVehiclesWithApplications
+                                {filteredMetrics.inventoryVehiclesWithApplications
                                     .filter(v => v.ongoingApplications > 0)
                                     .slice(0, 30)
                                     .map((vehicle) => (
@@ -349,7 +385,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                           <ResponsiveContainer width="100%" height="100%">
                               <RechartsPieChart>
                                   <Pie
-                                      data={metrics.priceRangeInsights}
+                                      data={filteredMetrics.priceRangeInsights}
                                       cx="50%"
                                       cy="50%"
                                       labelLine={false}
@@ -358,7 +394,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                                       fill="#f97316"
                                       dataKey="count"
                                   >
-                                      {metrics.priceRangeInsights.map((entry, index) => (
+                                      {filteredMetrics.priceRangeInsights.map((entry, index) => (
                                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                       ))}
                                   </Pie>
@@ -379,7 +415,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                     <CardContent>
                         <div style={{ width: '100%', height: 300 }}>
                           <ResponsiveContainer width="100%" height="100%">
-                              <RechartsBarChart data={metrics.priceRangeInsights}>
+                              <RechartsBarChart data={filteredMetrics.priceRangeInsights}>
                                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                                   <XAxis dataKey="range" angle={-45} textAnchor="end" height={80} className="text-xs" />
                                   <YAxis className="text-xs" />
@@ -403,7 +439,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {metrics.leadPersonaInsights.map(persona => (
+                        {filteredMetrics.leadPersonaInsights.map(persona => (
                             <Card key={persona.civilStatus}>
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-base">{persona.civilStatus}</CardTitle>
@@ -439,7 +475,7 @@ export default function AdminBusinessAnalyticsDashboard() {
                 <CardContent>
                     <div style={{ width: '100%', height: 300 }}>
                       <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={metrics.conversionRateByPrice}>
+                          <LineChart data={filteredMetrics.conversionRateByPrice}>
                               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                               <XAxis dataKey="range" className="text-xs" />
                               <YAxis className="text-xs" />

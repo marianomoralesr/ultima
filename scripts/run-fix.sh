@@ -15,7 +15,7 @@ psql -h aws-0-us-east-2.pooler.supabase.com \
      -p 5432 \
      -d postgres \
      -U postgres.jjepfehmuybpctdzipnu \
-     -f apply-sales-fix.sql
+     -f ../docs/sql-scripts/apply-sales-fix.sql
 
 if [ $? -eq 0 ]; then
     echo ""

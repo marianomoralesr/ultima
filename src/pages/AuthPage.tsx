@@ -79,7 +79,7 @@ const AuthPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | React.ReactNode | null>(null);
     const [view, setView] = useState<'signIn' | 'verifyOtp'>('signIn');
     const navigate = useNavigate();
     const { session, profile } = useAuth();
@@ -174,6 +174,54 @@ const AuthPage: React.FC = () => {
                 return;
             }
 
+            // STEP 1: Check if email exists in database
+            console.log('🔍 Verificando si el email existe en la base de datos:', email);
+            const { data: existingUser, error: checkError } = await supabase
+                .from('profiles')
+                .select('id, email')
+                .eq('email', email.toLowerCase().trim())
+                .maybeSingle();
+
+            if (checkError) {
+                console.error('Error checking email existence:', checkError);
+                // Continue anyway - let Supabase auth handle it
+            }
+
+            // STEP 2: If email doesn't exist, show friendly message with register option
+            if (!existingUser) {
+                console.log('❌ Email no encontrado en la base de datos');
+                setError(
+                    <div className="text-left">
+                        <p className="text-xl font-bold mb-3 text-blue-900">Este correo no está registrado</p>
+                        <p className="text-sm text-blue-800 mb-4">
+                            <strong>{email}</strong> no tiene cuenta. ¡Créala gratis en segundos!
+                        </p>
+                        <button
+                            onClick={() => {
+                                const redirectUrl = `/registro${urlParamsString ? `?${urlParamsString}&email=${encodeURIComponent(email)}` : `?email=${encodeURIComponent(email)}`}`;
+                                navigate(redirectUrl);
+                            }}
+                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                        >
+                            Crear mi cuenta →
+                        </button>
+                        <button
+                            onClick={() => {
+                                setError(null);
+                                setEmail('');
+                            }}
+                            className="w-full mt-2 text-blue-600 hover:text-blue-800 font-medium py-2"
+                        >
+                            Intentar con otro correo
+                        </button>
+                    </div>
+                );
+                setLoading(false);
+                return;
+            }
+
+            console.log('✅ Email encontrado en la base de datos, procediendo a enviar OTP');
+
             // Set default redirect if not already set (will be adjusted after login based on role)
             if (!localStorage.getItem('loginRedirect')) {
                 localStorage.setItem('loginRedirect', '/escritorio');
@@ -187,7 +235,7 @@ const AuthPage: React.FC = () => {
                 options.data = { source };
             }
 
-            console.log('Sending OTP to email:', email);
+            console.log('📧 Enviando OTP a:', email);
 
             const { data, error } = await supabase.auth.signInWithOtp({
                 email,
@@ -203,18 +251,42 @@ const AuthPage: React.FC = () => {
                 } else if (error.message.includes('Email not confirmed')) {
                     throw new Error('Tu correo electrónico no ha sido confirmado. Por favor verifica tu bandeja de entrada.');
                 } else if (error.message.includes('User not found') || error.message.includes('Signups not allowed') || error.message.includes('not allowed for otp')) {
-                    // User doesn't exist - automatically redirect to registration preserving URL params
-                    console.log('Usuario no encontrado, redirigiendo a registro...');
+                    // User doesn't exist - show friendly error message
+                    console.log('⚠️ Usuario no encontrado en Supabase Auth');
+                    setError(
+                        <div className="text-left">
+                            <p className="text-xl font-bold mb-3 text-blue-900">Este correo no está registrado</p>
+                            <p className="text-sm text-blue-800 mb-4">
+                                <strong>{email}</strong> no tiene cuenta. ¡Créala gratis en segundos!
+                            </p>
+                            <button
+                                onClick={() => {
+                                    const redirectUrl = `/registro${urlParamsString ? `?${urlParamsString}&email=${encodeURIComponent(email)}` : `?email=${encodeURIComponent(email)}`}`;
+                                    navigate(redirectUrl);
+                                }}
+                                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                            >
+                                Crear mi cuenta →
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setError(null);
+                                    setEmail('');
+                                }}
+                                className="w-full mt-2 text-blue-600 hover:text-blue-800 font-medium py-2"
+                            >
+                                Intentar con otro correo
+                            </button>
+                        </div>
+                    );
                     setLoading(false);
-                    const redirectUrl = `/registro${urlParamsString ? `?${urlParamsString}` : ''}`;
-                    navigate(redirectUrl);
                     return;
                 } else {
                     throw error;
                 }
             }
 
-            console.log('✅ OTP sent successfully to:', email);
+            console.log('✅ OTP enviado exitosamente a:', email);
 
             // Track OTP request
             conversionTracking.trackAuth.otpRequested(email, {
@@ -357,7 +429,11 @@ const AuthPage: React.FC = () => {
                 </p>
             </div>
             <div>
-                {error && <p className="text-red-600 text-sm p-3 rounded-md mb-4 text-center bg-red-50 border border-red-200">{error}</p>}
+                {error && (
+                    <div className={`text-sm p-4 rounded-lg mb-4 ${typeof error === 'string' ? 'text-red-600 bg-red-50 border border-red-200' : 'text-blue-900 bg-blue-50 border border-blue-200'}`}>
+                        {typeof error === 'string' ? <p className="text-center">{error}</p> : error}
+                    </div>
+                )}
                 
                 {isLoadingVehicle ? (
                     <VehicleSkeletonCard />
@@ -412,7 +488,11 @@ const AuthPage: React.FC = () => {
             <CheckCircleIcon className="w-14 h-14 sm:w-16 sm:h-16 text-green-500 mx-auto" />
             <h2 className="mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Verifica tu correo</h2>
             <p className="text-base sm:text-lg text-gray-600">Hemos enviado un código de 6 dígitos a <strong>{email}</strong>. <br/><span className="mt-1 text-xs sm:text-sm text-gray-500">(Revisa tu buzón de correo no deseado)</span></p>
-            {error && <p className="text-red-600 text-sm sm:text-base p-3 rounded-md mt-4 bg-red-50 border border-red-200">{error}</p>}
+            {error && (
+                <div className="text-red-600 text-sm sm:text-base p-3 rounded-md mt-4 bg-red-50 border border-red-200">
+                    {typeof error === 'string' ? error : error}
+                </div>
+            )}
             <div className="mt-4">
                  <form onSubmit={handleOtpSubmit} className="space-y-4">
                     <div>

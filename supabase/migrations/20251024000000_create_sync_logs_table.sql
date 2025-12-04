@@ -46,6 +46,10 @@ CREATE INDEX IF NOT EXISTS idx_sync_logs_record_status ON public.sync_logs (reco
 -- RLS Policies
 ALTER TABLE public.sync_logs ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow anonymous read access to sync logs" ON public.sync_logs;
+DROP POLICY IF EXISTS "Service role full access to sync logs" ON public.sync_logs;
+
 -- Allow anonymous read access to sync logs (for monitoring dashboard)
 CREATE POLICY "Allow anonymous read access to sync logs"
   ON public.sync_logs

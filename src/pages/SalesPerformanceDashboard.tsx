@@ -78,6 +78,7 @@ interface ApplicationDetail {
     lead_name: string;
     lead_email: string;
     lead_phone: string;
+    is_complete?: boolean;
 }
 
 const SalesPerformanceDashboard: React.FC = () => {

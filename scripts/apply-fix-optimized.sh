@@ -43,12 +43,12 @@ echo "✅ Conexión exitosa"
 echo ""
 
 # Ejecutar partes
-execute_sql 1 "Políticas de Profiles" "fix-part-1-policies.sql" || exit 1
-execute_sql 2 "Función get_sales_assigned_leads" "fix-part-2-function-leads.sql" || exit 1
-execute_sql 3 "Función get_sales_dashboard_stats" "fix-part-3-function-stats.sql" || exit 1
-execute_sql 4 "Funciones de perfil de cliente" "fix-part-4-function-profile.sql" || exit 1
-execute_sql 5 "Políticas de Applications" "fix-part-5-apps-policies.sql" || exit 1
-execute_sql 6 "Políticas de Documents y Bank Profiles" "fix-part-6-docs-policies.sql" || exit 1
+execute_sql 1 "Políticas de Profiles" "../docs/sql-scripts/fix-part-1-policies.sql" || exit 1
+execute_sql 2 "Función get_sales_assigned_leads" "../docs/sql-scripts/fix-part-2-function-leads.sql" || exit 1
+execute_sql 3 "Función get_sales_dashboard_stats" "../docs/sql-scripts/fix-part-3-function-stats.sql" || exit 1
+execute_sql 4 "Funciones de perfil de cliente" "../docs/sql-scripts/fix-part-4-function-profile.sql" || exit 1
+execute_sql 5 "Políticas de Applications" "../docs/sql-scripts/fix-part-5-apps-policies.sql" || exit 1
+execute_sql 6 "Políticas de Documents y Bank Profiles" "../docs/sql-scripts/fix-part-6-docs-policies.sql" || exit 1
 
 echo ""
 echo "✅ ¡Fix aplicado exitosamente!"

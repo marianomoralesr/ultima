@@ -96,6 +96,13 @@ const RegisterPage: React.FC = () => {
     const paramString = params.toString();
     setUrlParamsString(paramString);
 
+    // Pre-llenar email si viene en los params (desde AuthPage)
+    const emailParam = params.get('email');
+    if (emailParam) {
+      setEmail(decodeURIComponent(emailParam));
+      console.log('📧 Email pre-llenado desde URL:', emailParam);
+    }
+
     const trackingData: UrlTrackingData = {};
 
     // Capturar todos los parametros de tracking

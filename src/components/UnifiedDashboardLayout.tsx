@@ -101,11 +101,11 @@ interface NavGroup {
 
 // Navigation configuration
 const commonNavItems: NavItem[] = [
-    { to: '/autos', label: 'Inventario', icon: Car, roles: ['admin', 'user'] },
-    { to: '/escritorio/vende-tu-auto', label: 'Vender mi auto', icon: HandCoins, roles: ['admin', 'user'] },
-    { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, roles: ['admin', 'user'] },
-    { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText, roles: ['admin', 'user'] },
-    { to: '/escritorio/aplicacion', label: 'Nueva solicitud', icon: Plus, roles: ['admin', 'user'] },
+    { to: '/autos', label: 'Inventario', icon: Car, roles: ['admin', 'sales', 'user'] },
+    { to: '/escritorio/vende-tu-auto', label: 'Vender mi auto', icon: HandCoins, roles: ['admin', 'sales', 'user'] },
+    { to: '/escritorio/profile', label: 'Mi Perfil', icon: User, roles: ['admin', 'sales', 'user'] },
+    { to: '/escritorio/seguimiento', label: 'Solicitudes', icon: FileText, roles: ['admin', 'sales', 'user'] },
+    { to: '/escritorio/aplicacion', label: 'Nueva solicitud', icon: Plus, roles: ['admin', 'sales', 'user'] },
 ];
 
 const adminFirstLevelItems: NavItem[] = [

@@ -1,10 +1,10 @@
 -- Agregar campo de expiración de tokens
--- Los tokens expiran en 3 días después de ser creados
+-- Los tokens expiran en 7 días después de ser creados
 
 ALTER TABLE public.financing_applications
 ADD COLUMN IF NOT EXISTS token_expires_at TIMESTAMP WITH TIME ZONE;
 
--- Actualizar trigger para incluir fecha de expiración (3 días)
+-- Actualizar trigger para incluir fecha de expiración (7 días)
 CREATE OR REPLACE FUNCTION set_public_upload_token()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -13,15 +13,15 @@ BEGIN
   -- Solo generar token si no existe uno
   IF NEW.public_upload_token IS NULL THEN
     NEW.public_upload_token := generate_public_upload_token();
-    NEW.token_expires_at := NOW() + INTERVAL '3 days';
+    NEW.token_expires_at := NOW() + INTERVAL '7 days';
   END IF;
   RETURN NEW;
 END;
 $$;
 
--- Actualizar aplicaciones existentes con fecha de expiración (3 días desde ahora)
+-- Actualizar aplicaciones existentes con fecha de expiración (7 días desde ahora)
 UPDATE public.financing_applications
-SET token_expires_at = NOW() + INTERVAL '3 days'
+SET token_expires_at = NOW() + INTERVAL '7 days'
 WHERE public_upload_token IS NOT NULL
   AND token_expires_at IS NULL;
 
@@ -37,7 +37,7 @@ DECLARE
 BEGIN
   -- Generar nuevo token
   new_token_value := generate_public_upload_token();
-  new_expires_at := NOW() + INTERVAL '3 days';
+  new_expires_at := NOW() + INTERVAL '7 days';
 
   -- Actualizar aplicación
   UPDATE public.financing_applications
@@ -59,7 +59,7 @@ WHERE public_upload_token IS NOT NULL;
 
 -- Comentarios
 COMMENT ON COLUMN public.financing_applications.token_expires_at IS
-'Fecha y hora de expiración del token público (3 días desde creación)';
+'Fecha y hora de expiración del token público (7 días desde creación)';
 
 COMMENT ON FUNCTION regenerate_public_upload_token IS
 'Genera un nuevo token público con nueva fecha de expiración. Solo accesible por admin y sales.';

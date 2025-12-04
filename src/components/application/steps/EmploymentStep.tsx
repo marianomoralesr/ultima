@@ -177,7 +177,7 @@ const EmploymentStep: React.FC<EmploymentStepProps> = ({
             <div>
               <Label>Antigüedad en el Puesto *</Label>
               <div className="flex flex-wrap gap-2 mt-2">
-                {['Menos de 1 año', '1-3 años', '3-5 años', 'Más de 5 años'].map(opt => (
+                {['Menos de 1 año', '1', '2', '3', '4', '5', '6', '7-10', 'Más de 10'].map(opt => (
                   <button
                     type="button"
                     key={opt}
@@ -186,7 +186,7 @@ const EmploymentStep: React.FC<EmploymentStepProps> = ({
                       field.value === opt ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-primary-400'
                     }`}
                   >
-                    {opt}
+                    {opt === '1' || opt === '2' || opt === '3' || opt === '4' || opt === '5' || opt === '6' ? `${opt} año${opt === '1' ? '' : 's'}` : opt}
                   </button>
                 ))}
               </div>

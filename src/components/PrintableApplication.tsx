@@ -73,6 +73,8 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
                 return;
             }
 
+            setIsCheckingDocuments(true);
+
             try {
                 console.log('[PrintableApplication] Checking documents for application:', application.id);
 
@@ -114,16 +116,22 @@ const PrintableApplication: React.FC<{ application: any }> = ({ application }) =
         };
 
         checkDocuments();
+    }, [application.id, refreshKey]);
 
-        // Set up polling to auto-refresh every 5 seconds
+    // Set up polling interval in a separate useEffect to avoid creating multiple intervals
+    useEffect(() => {
+        console.log('[PrintableApplication] Setting up auto-refresh polling (every 5 seconds)');
         const pollInterval = setInterval(() => {
             console.log('[PrintableApplication] Auto-refreshing document status...');
             setRefreshKey(prev => prev + 1);
         }, 5000);
 
         // Cleanup interval on unmount
-        return () => clearInterval(pollInterval);
-    }, [application.id, refreshKey]);
+        return () => {
+            console.log('[PrintableApplication] Clearing auto-refresh polling');
+            clearInterval(pollInterval);
+        };
+    }, []);
 
     // Fetch banking profile data
     useEffect(() => {

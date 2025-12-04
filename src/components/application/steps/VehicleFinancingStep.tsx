@@ -69,17 +69,21 @@ const VehicleFinancingStep: React.FC<VehicleFinancingStepProps> = ({
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0 }).format(amount);
   };
 
-  // Initialize down payment
+  // Initialize down payment and term when calculator first shows
   useEffect(() => {
-    if (minDownPayment > 0 && !downPaymentRaw && showCalculator) {
-      setDownPaymentRaw(formatNumber(minDownPayment));
-      setValue('down_payment_amount', minDownPayment);
+    if (showCalculator) {
+      // Initialize down payment only if not set
+      if (minDownPayment > 0 && !downPaymentRaw) {
+        setDownPaymentRaw(formatNumber(minDownPayment));
+        setValue('down_payment_amount', minDownPayment);
+      }
+      // Initialize term only if still at default 60 (never been changed by user)
+      const initialTerm = Math.min(maxTerm, 60);
+      if (loanTerm === 60 && initialTerm < 60) {
+        setLoanTerm(initialTerm);
+      }
     }
-    const initialTerm = Math.min(maxTerm, 60);
-    if (loanTerm !== initialTerm && showCalculator) {
-      setLoanTerm(initialTerm);
-    }
-  }, [minDownPayment, downPaymentRaw, setValue, maxTerm, loanTerm, showCalculator]);
+  }, [minDownPayment, downPaymentRaw, setValue, maxTerm, showCalculator]);
 
   // Update form values
   useEffect(() => {

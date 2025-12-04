@@ -206,6 +206,7 @@ const FinanciamientosPage: React.FC = () => {
   const [urlParams, setUrlParams] = useState('');
   const [leadSource, setLeadSource] = useState<string>('direct');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorType, setErrorType] = useState<string>(''); // Track error type for styling
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     resolver: zodResolver(formSchema)
@@ -422,7 +423,8 @@ const FinanciamientosPage: React.FC = () => {
 
       if (existingProfile && !profileError) {
         console.log('⚠️ Usuario ya existe con este email:', existingProfile);
-        setErrorMessage('Este correo electrónico ya está asociado a una cuenta. Por favor, inicia sesión aquí.');
+        setErrorType('account_exists_email'); // Set error type for blue styling
+        setErrorMessage('Este correo ya está en uso, por favor inicia sesión aquí.');
         setSubmissionStatus('error');
         // Navigate to /acceder after showing message, preserving URL params
         const redirectUrl = `/acceder${urlParams ? `?${urlParams}` : ''}`;
@@ -442,7 +444,8 @@ const FinanciamientosPage: React.FC = () => {
 
       if (existingPhoneProfile && !phoneError) {
         console.log('⚠️ Usuario ya existe con este teléfono:', existingPhoneProfile);
-        setErrorMessage('Este número de celular ya está asociado a una cuenta. Por favor, inicia sesión con tu correo electrónico aquí.');
+        setErrorType('account_exists_phone'); // Set error type for blue styling
+        setErrorMessage('Este número de celular ya está en uso, por favor inicia sesión aquí.');
         setSubmissionStatus('error');
         // Navigate to /acceder after showing message, preserving URL params
         const redirectUrl = `/acceder${urlParams ? `?${urlParams}` : ''}`;
@@ -1167,17 +1170,38 @@ const FinanciamientosPage: React.FC = () => {
                   </div>
 
                   {submissionStatus === 'error' && (
-                    <div className="p-4 bg-red-100 border-2 border-red-400 rounded-lg text-center">
-                      <p className="text-red-800 font-bold text-sm mb-2">
-                        {errorMessage || 'Error al enviar la información'}
-                      </p>
+                    <div className={`p-4 rounded-lg text-center ${
+                      errorType === 'account_exists_email' || errorType === 'account_exists_phone'
+                        ? 'bg-blue-50 border-2 border-blue-200'
+                        : 'bg-red-100 border-2 border-red-400'
+                    }`}>
+                      {errorType === 'account_exists_email' || errorType === 'account_exists_phone' ? (
+                        <p className="text-blue-700 font-bold text-sm mb-2">
+                          {errorMessage}{' '}
+                          <Link
+                            to={`/acceder${urlParams ? `?${urlParams}` : ''}`}
+                            className="underline hover:text-blue-900"
+                          >
+                            Ir ahora
+                          </Link>
+                        </p>
+                      ) : (
+                        <p className="text-red-800 font-bold text-sm mb-2">
+                          {errorMessage || 'Error al enviar la información'}
+                        </p>
+                      )}
                       <button
                         type="button"
                         onClick={() => {
                           setSubmissionStatus('idle');
                           setErrorMessage('');
+                          setErrorType('');
                         }}
-                        className="text-xs text-red-700 hover:text-red-900 font-bold underline"
+                        className={`text-xs font-bold underline ${
+                          errorType === 'account_exists_email' || errorType === 'account_exists_phone'
+                            ? 'text-blue-700 hover:text-blue-900'
+                            : 'text-red-700 hover:text-red-900'
+                        }`}
                       >
                         Intentar de nuevo
                       </button>

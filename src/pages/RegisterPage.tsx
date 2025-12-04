@@ -148,7 +148,7 @@ const RegisterPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Verificar si el email ya existe
+      // PRIMERO: Verificar si el email ya existe (validación anticipada)
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('id, email')
@@ -156,12 +156,15 @@ const RegisterPage: React.FC = () => {
         .single();
 
       if (existingProfile && !profileError) {
+        console.log('⚠️ Correo ya registrado:', email);
         setError('account_exists_email');
         setLoading(false);
-        return;
+        return; // NO enviar SMS si el correo ya existe
       }
 
-      // Verificar si el teléfono ya existe
+      console.log('✅ Correo disponible, procediendo con validación de teléfono...');
+
+      // SEGUNDO: Verificar si el teléfono ya existe
       const cleanPhone = phone.replace(/\D/g, '');
       const { data: existingPhoneProfile, error: phoneError} = await supabase
         .from('profiles')
@@ -170,10 +173,13 @@ const RegisterPage: React.FC = () => {
         .single();
 
       if (existingPhoneProfile && !phoneError) {
+        console.log('⚠️ Teléfono ya registrado:', cleanPhone);
         setError('account_exists_phone');
         setLoading(false);
-        return;
+        return; // NO enviar SMS si el teléfono ya existe
       }
+
+      console.log('✅ Teléfono disponible, procediendo con envío de SMS...');
 
       // Formatear teléfono
       let formattedPhone = cleanPhone;
@@ -449,19 +455,19 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3 rounded-md bg-red-50 border border-red-200">
+        <div className={`p-3 rounded-md ${error === 'account_exists_email' || error === 'account_exists_phone' ? 'bg-blue-50 border border-blue-200' : 'bg-red-50 border border-red-200'}`}>
           {error === 'account_exists_email' ? (
-            <p className="text-red-600 text-sm text-center">
-              Ya existe una cuenta con este correo electrónico, por favor{' '}
-              <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="underline font-semibold hover:text-red-800">
-                inicia sesión
+            <p className="text-blue-700 text-sm text-center">
+              Este correo ya está en uso, por favor{' '}
+              <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="underline font-semibold hover:text-blue-900">
+                inicia sesión aquí
               </Link>
             </p>
           ) : error === 'account_exists_phone' ? (
-            <p className="text-red-600 text-sm text-center">
-              Ya existe una cuenta con este número de celular, por favor{' '}
-              <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="underline font-semibold hover:text-red-800">
-                inicia sesión
+            <p className="text-blue-700 text-sm text-center">
+              Este número de celular ya está en uso, por favor{' '}
+              <Link to={`/acceder${urlParamsString ? `?${urlParamsString}` : ''}`} className="underline font-semibold hover:text-blue-900">
+                inicia sesión aquí
               </Link>
             </p>
           ) : (

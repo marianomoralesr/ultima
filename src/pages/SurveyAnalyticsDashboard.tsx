@@ -96,15 +96,15 @@ const SurveyAnalyticsDashboard: React.FC = () => {
       },
       {
         id: 'nps',
-        header: 'NPS Score',
+        header: 'Puntuación NPS',
         cell: ({ row }) => {
-          const npsScore = row.original.responses[2];
+          const npsScore = row.original.responses['nps'];
           const score = Number(npsScore);
-          const category = score >= 9 ? 'Promoter' : score >= 7 ? 'Passive' : 'Detractor';
+          const category = score >= 9 ? 'Promotor' : score >= 7 ? 'Pasivo' : 'Detractor';
           const colorClass =
-            category === 'Promoter'
+            category === 'Promotor'
               ? 'bg-green-100 text-green-800'
-              : category === 'Passive'
+              : category === 'Pasivo'
               ? 'bg-yellow-100 text-yellow-800'
               : 'bg-red-100 text-red-800';
 
@@ -210,15 +210,15 @@ const SurveyAnalyticsDashboard: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Survey Analytics Dashboard</h1>
-            <p className="text-slate-600 mt-1">Comprehensive insights from anonymous customer surveys</p>
+            <h1 className="text-3xl font-bold text-slate-900">Dashboard de Analíticas de Encuestas</h1>
+            <p className="text-slate-600 mt-1">Información detallada de encuestas anónimas de clientes</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={handleExportCSV} variant="outline">
-              Export CSV
+              Exportar CSV
             </Button>
             <Button onClick={handleExportJSON} variant="outline">
-              Export JSON
+              Exportar JSON
             </Button>
           </div>
         </div>
@@ -227,34 +227,34 @@ const SurveyAnalyticsDashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Total Responses</CardDescription>
+              <CardDescription>Respuestas Totales</CardDescription>
               <CardTitle className="text-3xl">{metrics?.totalResponses || 0}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-sm text-slate-600">
-                <div>Today: {metrics?.responsesToday || 0}</div>
-                <div>This Week: {metrics?.responsesThisWeek || 0}</div>
+                <div>Hoy: {metrics?.responsesToday || 0}</div>
+                <div>Esta Semana: {metrics?.responsesThisWeek || 0}</div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>NPS Score</CardDescription>
+              <CardDescription>Puntuación NPS</CardDescription>
               <CardTitle className="text-3xl">{metrics?.npsScore?.score || 0}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-green-600">Promoters:</span>
+                  <span className="text-green-600">Promotores:</span>
                   <span className="font-semibold">{metrics?.npsScore?.promotersPercentage || 0}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-yellow-600">Passives:</span>
+                  <span className="text-yellow-600">Pasivos:</span>
                   <span className="font-semibold">{metrics?.npsScore?.passivesPercentage || 0}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-red-600">Detractors:</span>
+                  <span className="text-red-600">Detractores:</span>
                   <span className="font-semibold">{metrics?.npsScore?.detractorsPercentage || 0}%</span>
                 </div>
               </div>
@@ -263,24 +263,24 @@ const SurveyAnalyticsDashboard: React.FC = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>This Month</CardDescription>
+              <CardDescription>Este Mes</CardDescription>
               <CardTitle className="text-3xl">{metrics?.responsesThisMonth || 0}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-sm text-slate-600">
-                Monthly growth tracking
+                Seguimiento de crecimiento mensual
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Completion Rate</CardDescription>
+              <CardDescription>Tasa de Completado</CardDescription>
               <CardTitle className="text-3xl">{metrics?.completionRate || 0}%</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-sm text-slate-600">
-                All surveys completed
+                Todas las encuestas completadas
               </div>
             </CardContent>
           </Card>
@@ -289,10 +289,10 @@ const SurveyAnalyticsDashboard: React.FC = () => {
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="questions">Questions</TabsTrigger>
-            <TabsTrigger value="sections">Sections</TabsTrigger>
-            <TabsTrigger value="responses">Responses</TabsTrigger>
+            <TabsTrigger value="overview">Vista General</TabsTrigger>
+            <TabsTrigger value="questions">Preguntas</TabsTrigger>
+            <TabsTrigger value="sections">Secciones</TabsTrigger>
+            <TabsTrigger value="responses">Respuestas</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -301,7 +301,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
               {/* Response Trend */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Response Trend (Last 30 Days)</CardTitle>
+                  <CardTitle>Tendencia de Respuestas (Últimos 30 Días)</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div style={{ width: '100%', height: 300 }}>
@@ -316,13 +316,13 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                           type="monotone"
                           dataKey="responses"
                           stroke={COLORS.primary}
-                          name="Daily Responses"
+                          name="Respuestas Diarias"
                         />
                         <Line
                           type="monotone"
                           dataKey="cumulativeResponses"
                           stroke={COLORS.success}
-                          name="Cumulative"
+                          name="Acumulativas"
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -333,7 +333,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
               {/* NPS Distribution */}
               <Card>
                 <CardHeader>
-                  <CardTitle>NPS Distribution</CardTitle>
+                  <CardTitle>Distribución NPS</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div style={{ width: '100%', height: 300 }}>
@@ -341,9 +341,9 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                       <PieChart>
                         <Pie
                           data={[
-                            { name: 'Promoters', value: metrics?.npsScore?.promoters || 0 },
-                            { name: 'Passives', value: metrics?.npsScore?.passives || 0 },
-                            { name: 'Detractors', value: metrics?.npsScore?.detractors || 0 }
+                            { name: 'Promotores', value: metrics?.npsScore?.promoters || 0 },
+                            { name: 'Pasivos', value: metrics?.npsScore?.passives || 0 },
+                            { name: 'Detractores', value: metrics?.npsScore?.detractors || 0 }
                           ]}
                           cx="50%"
                           cy="50%"
@@ -368,7 +368,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
             {/* Section Scores */}
             <Card>
               <CardHeader>
-                <CardTitle>Section Average Scores</CardTitle>
+                <CardTitle>Puntuaciones Promedio por Sección</CardTitle>
               </CardHeader>
               <CardContent>
                 <div style={{ width: '100%', height: 400 }}>
@@ -378,7 +378,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                       <XAxis dataKey="section" angle={-45} textAnchor="end" height={120} />
                       <YAxis domain={[0, 5]} />
                       <Tooltip />
-                      <Bar dataKey="averageScore" fill={COLORS.purple} name="Average Score" />
+                      <Bar dataKey="averageScore" fill={COLORS.purple} name="Puntuación Promedio" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -399,17 +399,17 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                   <CardContent>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Responses:</span>
+                        <span className="text-slate-600">Respuestas:</span>
                         <span className="font-semibold">{qa.totalResponses}</span>
                       </div>
                       {qa.averageScore && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Avg Score:</span>
+                          <span className="text-slate-600">Puntuación Prom.:</span>
                           <span className="font-semibold">{qa.averageScore}/5</span>
                         </div>
                       )}
                       <div className="text-xs text-slate-500 mt-2">
-                        <strong>Most common:</strong> {qa.mostCommonAnswer}
+                        <strong>Más común:</strong> {qa.mostCommonAnswer}
                       </div>
                     </div>
                   </CardContent>
@@ -420,14 +420,14 @@ const SurveyAnalyticsDashboard: React.FC = () => {
             {selectedQuestion && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Question #{selectedQuestion} Distribution</CardTitle>
+                  <CardTitle>Distribución de Pregunta #{selectedQuestion}</CardTitle>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setSelectedQuestion(null)}
                     className="absolute right-4 top-4"
                   >
-                    Close
+                    Cerrar
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -502,8 +502,8 @@ const SurveyAnalyticsDashboard: React.FC = () => {
           <TabsContent value="responses" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Survey Responses</CardTitle>
-                <CardDescription>All submitted survey responses</CardDescription>
+                <CardTitle>Respuestas de Encuestas</CardTitle>
+                <CardDescription>Todas las respuestas enviadas</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border">
@@ -546,7 +546,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-slate-600">
-                    Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -555,7 +555,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                       onClick={() => table.previousPage()}
                       disabled={!table.getCanPreviousPage()}
                     >
-                      Previous
+                      Anterior
                     </Button>
                     <Button
                       variant="outline"
@@ -563,7 +563,7 @@ const SurveyAnalyticsDashboard: React.FC = () => {
                       onClick={() => table.nextPage()}
                       disabled={!table.getCanNextPage()}
                     >
-                      Next
+                      Siguiente
                     </Button>
                   </div>
                 </div>

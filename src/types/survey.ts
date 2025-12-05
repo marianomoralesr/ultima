@@ -9,10 +9,10 @@ export interface SurveyResponse {
 }
 
 export interface QuestionAnalytics {
-  questionId: number;
+  questionId: string;
   question: string;
   section: string;
-  type: 'likert-5' | 'nps' | 'csat' | 'multiple-choice';
+  type: 'likert-4' | 'rating-horizontal' | 'multiple-choice' | 'nps' | 'text';
   totalResponses: number;
   distribution: Record<string, number>;
   percentages: Record<string, number>;

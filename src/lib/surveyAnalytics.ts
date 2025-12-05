@@ -14,11 +14,11 @@ import { format, parseISO, startOfDay, subDays, subWeeks, subMonths, isAfter, is
 
 /**
  * Calculate NPS (Net Promoter Score) from responses
- * NPS Question ID is 2
+ * NPS Question ID is 'nps'
  */
 export function calculateNPS(responses: SurveyResponse[]): NPSMetrics {
   const npsResponses = responses
-    .map(r => r.responses[2])
+    .map(r => r.responses['nps'])
     .filter(Boolean)
     .map(Number);
 
@@ -96,7 +96,7 @@ export function calculateDashboardMetrics(responses: SurveyResponse[]): Dashboar
  * Calculate analytics for a specific question
  */
 export function calculateQuestionAnalytics(
-  questionId: number,
+  questionId: string,
   responses: SurveyResponse[]
 ): QuestionAnalytics | null {
   const question = getQuestionById(questionId);
@@ -138,7 +138,7 @@ export function calculateQuestionAnalytics(
 
   // Calculate average score for numeric questions
   let averageScore: number | undefined;
-  if (question.type === 'likert-5' || question.type === 'nps' || question.type === 'csat') {
+  if (question.type === 'likert-4' || question.type === 'nps' || question.type === 'rating-horizontal') {
     const numericAnswers = answers.map(Number).filter(n => !isNaN(n));
     if (numericAnswers.length > 0) {
       averageScore = Math.round(
@@ -257,7 +257,7 @@ export function calculateLikertHeatmap(
   responses: SurveyResponse[]
 ): LikertHeatmapData[] {
   const likertQuestions = SURVEY_QUESTIONS.filter(q =>
-    q.type === 'likert-5' || q.type === 'csat'
+    q.type === 'likert-4' || q.type === 'rating-horizontal'
   );
 
   return likertQuestions.map(question => {

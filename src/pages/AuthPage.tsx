@@ -174,66 +174,7 @@ const AuthPage: React.FC = () => {
                 return;
             }
 
-            // STEP 1: Check if email exists in database (with RLS bypass using service role check)
-            console.log('🔍 Verificando si el email existe en la base de datos:', email);
-
-            // Try to check if user exists, but don't block login if there's an RLS error
-            let shouldProceedWithOTP = true;
-
-            const { data: existingUser, error: checkError } = await supabase
-                .from('profiles')
-                .select('id, email')
-                .eq('email', email.toLowerCase().trim())
-                .maybeSingle();
-
-            if (checkError) {
-                console.warn('⚠️ Error checking email (RLS puede estar bloqueando):', checkError);
-                // If there's an RLS error or any other error, we'll let Supabase Auth handle it
-                // This ensures existing users can still login even if profiles query fails
-                shouldProceedWithOTP = true;
-            } else if (!existingUser) {
-                console.log('❌ Email no encontrado en tabla profiles');
-                // Only block if we got a successful query response with no user
-                shouldProceedWithOTP = false;
-            } else {
-                console.log('✅ Email encontrado en la base de datos');
-                shouldProceedWithOTP = true;
-            }
-
-            // STEP 2: If email definitely doesn't exist, show friendly message
-            if (!shouldProceedWithOTP && !checkError) {
-                console.log('🚫 Bloqueando login - usuario no existe');
-                setError(
-                    <div className="text-left">
-                        <p className="text-xl font-bold mb-3 text-blue-900">Este correo no está registrado</p>
-                        <p className="text-sm text-blue-800 mb-4">
-                            <strong>{email}</strong> no tiene cuenta. ¡Créala gratis en segundos!
-                        </p>
-                        <button
-                            onClick={() => {
-                                const redirectUrl = `/registro${urlParamsString ? `?${urlParamsString}&email=${encodeURIComponent(email)}` : `?email=${encodeURIComponent(email)}`}`;
-                                navigate(redirectUrl);
-                            }}
-                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
-                        >
-                            Crear mi cuenta →
-                        </button>
-                        <button
-                            onClick={() => {
-                                setError(null);
-                                setEmail('');
-                            }}
-                            className="w-full mt-2 text-blue-600 hover:text-blue-800 font-medium py-2"
-                        >
-                            Intentar con otro correo
-                        </button>
-                    </div>
-                );
-                setLoading(false);
-                return;
-            }
-
-            console.log('✅ Procediendo a enviar OTP');
+            console.log('✅ Validación de email omitida - dejando que Supabase Auth maneje la existencia del usuario');
 
             // Set default redirect if not already set (will be adjusted after login based on role)
             if (!localStorage.getItem('loginRedirect')) {
